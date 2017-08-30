@@ -1,0 +1,17 @@
+RNAseqID,Mouse,Region,strain,title,Organism,molecule,file,alignment,,
+16-116B,16-116B,CA1,Fmr1-KO,16-116B CA1 FMR1,Mus musculus,RNA,/abuntance.txt,16-116B/abuntance.txt,16_116B_S3_L002_R1_001.fastq.gz,16_116B_S3_L002_R2_001.fastq.gz
+16-117D,16-117D,CA1,Fmr1-KO,16-117D CA1 FMR1,Mus musculus,RNA,/abuntance.txt,16-117D/abuntance.txt,16_117D_S15_L002_R1_001.fastq.gz,16_117D_S15_L002_R2_001.fastq.gz
+16-118B,16-118B,CA1,Fmr1-KO,16-118B CA1 FMR1,Mus musculus,RNA,/abuntance.txt,16-118B/abuntance.txt,16_118B_S16_L002_R1_001.fastq.gz,16_118B_S16_L002_R2_001.fastq.gz
+16-118D,16-118D,CA1,Fmr1-KO,16-118D CA1 FMR1,Mus musculus,RNA,/abuntance.txt,16-118D/abuntance.txt,16_118D_S17_L002_R1_001.fastq.gz,16_118D_S17_L002_R2_001.fastq.gz
+16-119B,16-119B,CA1,Fmr1-KO,16-119B CA1 FMR1,Mus musculus,RNA,/abuntance.txt,16-119B/abuntance.txt,16_119B_S8_L002_R1_001.fastq.gz,16_119B_S8_L002_R2_001.fastq.gz
+16-119D,16-119D,CA1,Fmr1-KO,16-119D CA1 FMR1,Mus musculus,RNA,/abuntance.txt,16-119D/abuntance.txt,16_119D_S9_L002_R1_001.fastq.gz,16_119D_S9_L002_R2_001.fastq.gz
+16-120B,16-120B,CA1,Fmr1-KO,16-120B CA1 FMR1,Mus musculus,RNA,/abuntance.txt,16-120B/abuntance.txt,16_120B_S10_L002_R1_001.fastq.gz,16_120B_S10_L002_R2_001.fastq.gz
+16-120D,16-120D,CA1,Fmr1-KO,16-120D CA1 FMR1,Mus musculus,RNA,/abuntance.txt,16-120D/abuntance.txt,16_120D_S11_L002_R1_001.fastq.gz,16_120D_S11_L002_R2_001.fastq.gz
+16-122B,16-122B,CA1,Fmr1-KO,16-122B CA1 WT,Mus musculus,RNA,/abuntance.txt,16-122B/abuntance.txt,16_122B_S1_L002_R1_001.fastq.gz,16_122B_S1_L002_R2_001.fastq.gz
+16-122D,16-122D,CA1,Fmr1-KO,16-122D CA1 WT,Mus musculus,RNA,/abuntance.txt,16-122D/abuntance.txt,16_122D_S2_L002_R1_001.fastq.gz,16_122D_S2_L002_R2_001.fastq.gz
+16-123B,16-123B,CA1,Fmr1-KO,16-123B CA1 WT,Mus musculus,RNA,/abuntance.txt,16-123B/abuntance.txt,16_123B_S6_L002_R1_001.fastq.gz,16_123B_S6_L002_R2_001.fastq.gz
+16-123D,16-123D,CA1,Fmr1-KO,16-123D CA1 WT,Mus musculus,RNA,/abuntance.txt,16-123D/abuntance.txt,16_123D_S14_L002_R1_001.fastq.gz,16_123D_S14_L002_R2_001.fastq.gz
+16-124D,16-124D,CA1,Fmr1-KO,16-124D CA1 WT,Mus musculus,RNA,/abuntance.txt,16-124D/abuntance.txt,16_124D_S7_L002_R1_001.fastq.gz,16_124D_S7_L002_R2_001.fastq.gz
+16-125B,16-125B,CA1,Fmr1-KO,16-125B CA1 WT,Mus musculus,RNA,/abuntance.txt,16-125B/abuntance.txt,16_125B_S12_L002_R1_001.fastq.gz,16_125B_S12_L002_R2_001.fastq.gz
+16-125D,16-125D,CA1,Fmr1-KO,16-125D CA1 WT,Mus musculus,RNA,/abuntance.txt,16-125D/abuntance.txt,16_125D_S13_L002_R1_001.fastq.gz,16_125D_S13_L002_R2_001.fastq.gz
+16-126B,16-126B,CA1,Fmr1-KO,16-126B CA1 WT,Mus musculus,RNA,/abuntance.txt,16-126B/abuntance.txt,16_126B_S4_L002_R1_001.fastq.gz,16_126B_S4_L002_R2_001.fastq.gz

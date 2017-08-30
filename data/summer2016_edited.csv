@@ -1,0 +1,72 @@
+Mouse,Genotype,Date,photos?,behavior?
+16-122A,WT,6/13/16,,yes
+16-122B,WT,6/13/16,,yes
+16-122C,WT,6/19/16,,yes
+16-122D,WT,6/20/16,,yes
+16-126A,WT,6/22/16,,yes
+16-116A,FMR1,6/24/16,,yes
+16-116B,FMR1,6/24/16,,yes
+16-126B,WT,6/27/16,,yes
+16-116C,FMR1,6/28/16,,yes
+16-116D,FMR1,6/29/16,,yes
+16-123B,WT,7/1/16,,yes
+16-123A,WT,7/2/16,,yes
+16-123A,WT,7/3/16,,yes
+16-123C,WT,7/3/16,,NO
+16-123D,WT,7/3/16,,yes
+16-117A,FMR1,7/4/16,,yes
+16-117C,FMR1,7/5/16,,yes
+16-117D,FMR1,7/5/16,,yes
+16-117B,FMR1,7/6/16,,yes
+16-264B,WT (FVB/NJ),7/6/16,missing,
+16-264C,WT (FVB/NJ),7/6/16,missing,
+16-118A,FMR1,7/7/16,,yes
+16-118B,FMR1,7/7/16,,yes
+16-256,Htt (YAC128),7/7/16,missing,
+16-259D,Htt (YAC128),7/7/16,missing,
+16-264C,WT (FVB/NJ),7/7/16,missing,
+16-118C,FMR1,7/8/16,,yes
+16-118D,FMR1,7/8/16,,yes
+16-259,Htt (YAC128),7/8/16,missing,
+16-259A,Htt (YAC128),7/8/16,missing,
+16-124A,WT,7/9/16,,yes
+16-124B,WT,7/9/16,,yes
+16-256A,Htt (YAC128),7/9/16,missing,
+16-266D,WT (FVB/NJ),7/10/16,missing,
+16-259B,Htt (YAC128),7/11/16,missing,
+16-260C,Htt (YAC128),7/11/16,missing,
+16-266B,WT (FVB/NJ),7/12/16,missing,
+16-266C,WT (FVB/NJ),7/12/16,missing,
+16-124C,WT,7/13/16,,yes
+16-124D,WT,7/13/16,,yes
+16-259C,Htt (YAC128),7/13/16,missing,
+16-261B,Htt (YAC128),7/13/16,missing,
+16-267A,WT (FVB/NJ),7/13/16,missing,
+16-268B,WT (FVB/NJ),7/13/16,missing,
+16-119A,FMR1,7/14/16,missing,yes
+16-119B,FMR1,7/14/16,,yes
+16-257A,Htt (YAC128),7/14/16,missing,
+16-260A,Htt (YAC128),7/14/16,missing,
+16-265C,WT (FVB/NJ),7/14/16,missing,
+16-119C,FMR1,7/15/16,,yes
+16-119D,FMR1,7/15/16,,yes
+16-260,Htt (YAC128),7/15/16,missing,
+16-267B,WT (FVB/NJ),7/15/16,missing,
+16-120A,FMR1,7/18/16,,yes
+16-120B,FMR1,7/18/16,,yes
+16-120C,FMR1,7/19/16,,yes
+16-120D,FMR1,7/19/16,,yes
+16-125A,WT,7/20/16,,yes
+16-125B,WT,7/20/16,,NO
+16-125C,WT,7/22/16,,yes
+16-125D,WT,7/22/16,,yes
+16-357A,?,?,,yes
+16-357B,?,?,,yes
+16-357C,?,?,,yes
+16-357D,?,?,,yes
+16-121A,FMR1,NA,,yes
+16-121B,FMR1,NA,,yes
+16-121C,FMR1,NA,,yes
+16-121D,FMR1,NA,,yes
+16-126C,WT,NA,missing,NO
+16-126D,WT,NA,missing,NO

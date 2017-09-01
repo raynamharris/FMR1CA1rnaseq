@@ -9,6 +9,7 @@ library(flashClust)
 library(magrittr) ## to use the weird pipe
 library(dplyr)
 library(DESeq2) ## for gene expression analysis
+library(viridis) # for awesome color pallette
 
 
 options(stringsAsFactors=FALSE)
@@ -18,26 +19,14 @@ allowWGCNAThreads()
 #        Prep Variance Stabilized Data
 ########################################################    
 
-countData <- read.csv("../data/02a_countData.csv", header = T, check.names = F, row.names = 1)
-colData <- read.csv("../data/02a_colData.csv", header = T)
-colData <- colData[c(1,2,4,8)]
-
-
-
-colData <- colData %>% 
-  filter(Punch %in% c("CA1","CA3" ))  %>% 
-  droplevels()
-
-savecols <- as.character(colData$RNAseqID) 
-savecols <- as.vector(savecols) 
-countData <- countData %>% dplyr::select(one_of(savecols)) 
-
-
+countData <- read.csv("../data/fmr1CountData.csv", header = T, check.names = F, row.names = 1)
+colData <- read.csv("../data/fmr1ColData.csv", header = T)
+colData <- colData[c(2,3,6)]
 
 
 dds <- DESeqDataSetFromMatrix(countData = countData,
                               colData = colData,
-                              design = ~ APA2 + Punch + APA2*Punch )
+                              design = ~ Genotype )
 
 dds # view the DESeq object - note numnber of genes
 dds <- dds[ rowSums(counts(dds)) > 1, ]  # Pre-filtering genes with 10 counts
@@ -50,29 +39,22 @@ datExpr0 <- datExpr0[rowMeans(datExpr0[, -1])>1, ] ## remove rows with rowsum > 
 datExpr0 <- t(datExpr0) ## transpose data
 datExpr0 <- as.data.frame(datExpr0)
 
-
-
-# test that all samples good to go
-gsg=goodSamplesGenes(datExpr0, verbose = 1)
-gsg$allOK #If the last statement returns TRUE, all genes have passed the cuts
-#head(gsg)
+gsg=goodSamplesGenes(datExpr0, verbose = 1) # test that all samples good to go
+gsg$allOK #If all TRUE, all genes have passed the cuts
+gsg$goodSamples
 
 #-----Make a trait data frame from just sample info without beahvior
 datTraits <- colData
-datTraits$Mouse <- NULL
 
-#datTraits$Mouse <- as.integer(factor(datTraits$Mouse))
-datTraits$RNAseqID <- as.integer(factor(datTraits$RNAseqID))
-datTraits$APA2 <- as.integer(factor(datTraits$APA2))
-datTraits$Punch <- as.integer(factor(datTraits$Punch))
+datTraits$Mouse <- as.integer(factor(datTraits$Mouse))
+datTraits$Genotype <- as.integer(factor(datTraits$Genotype))
+datTraits$daytime <- as.integer(factor(datTraits$daytime))
 
-#datTraits$Mouse <- as.numeric(factor(datTraits$Mouse))
-datTraits$RNAseqID <- as.numeric(factor(datTraits$RNAseqID))
-datTraits$APA2 <- as.numeric(factor(datTraits$APA2))
-datTraits$Punch <- as.numeric(factor(datTraits$Punch))
+datTraits$Mouse <- as.numeric(factor(datTraits$Mouse))
+datTraits$Genotype <- as.numeric(factor(datTraits$Genotype))
+datTraits$daytime <- as.numeric(factor(datTraits$daytime))
 
 str(datTraits)
-
 
 #######   #################    ################   #######    
 #                 Call sample outliers
@@ -101,7 +83,7 @@ datColors=data.frame(outlier=outlierColor,traitColors)
 #      Plot the sample dendrogram
 #######   #################    ################   ####### 
 
-pdf(file="../figures/02f_RNAseq_WGCNA/SampleDendro.pdf", width=6, height=6)
+pdf(file="../figures/00_WGCNA/SampleDendro.pdf", width=6, height=6)
 plotDendroAndColors(sampleTree,groupLabels=names(datColors),
                     colors=datColors,main="Sample dendrogram and trait heatmap")
 dev.off()
@@ -145,7 +127,7 @@ plot(sft$fitIndices[,1], sft$fitIndices[,5], xlab= "Soft Threshold (power)", yla
 text(sft$fitIndices[,1], sft$fitIndices[,5], labels=powers, cex=cex1, col="red")
 dev.off()
 
-softPower=10
+#softPower=10
 
 
 
@@ -159,9 +141,8 @@ TOM= TOMsimilarity(adjacency, TOMType="signed")
 dissTOM= 1-TOM
 geneTree= flashClust(as.dist(dissTOM), method="average")
 
-pdf(file="../figures/02f_RNAseq_WGCNA/geneTree1.pdf", width=6, height=5)
 plot(geneTree, xlab="", sub="", main= "Gene Clustering on TOM-based dissimilarity", labels= FALSE, hang=0.04)
-dev.off()
+
 
 #######   #################    ################   #######    
 #                    Make modules
@@ -230,11 +211,13 @@ labeledHeatmap(Matrix = moduleTraitCor,
                yLabels = names(MEs),
                ySymbols = names(MEs),
                colorLabels = FALSE,
-               colors = blueWhiteRed(50),
+               colors = viridis(50),
                textMatrix = textMatrix,
-               setStdMargins = FALSE,
-               cex.text = 0.7,
-               zlim = c(-1,1),
+               xColorWidth = 0.01,
+               yColorWidth = 0.01,
+               #setStdMargins = FALSE,
+               #cex.text = 0.7,
+               #zlim = c(-1,1),
                main = paste("Module-trait relationships"))
 ######--------------------end--------------------#######
 
@@ -289,31 +272,31 @@ names(GSPvalue) = paste("p.GS.", names(punch), sep="");
 
 blue <- as.data.frame(colnames(datExpr0)[moduleColors=='blue'])
 blue$module <- "blue"
-colnames(blue)[1] <- "trainscript_length"
+colnames(blue)[1] <- "gene"
 red <- as.data.frame(colnames(datExpr0)[moduleColors=='red'])
 red$module <- "red"
-colnames(red)[1] <- "trainscript_length"
+colnames(red)[1] <- "gene"
 green <- as.data.frame(colnames(datExpr0)[moduleColors=='green'])
 green$module <- "green"
-colnames(green)[1] <- "trainscript_length"
+colnames(green)[1] <- "gene"
 yellow <- as.data.frame(colnames(datExpr0)[moduleColors=='yellow'])
 yellow$module <- "yellow"
-colnames(yellow)[1] <- "trainscript_length"
+colnames(yellow)[1] <- "gene"
 brown <- as.data.frame(colnames(datExpr0)[moduleColors=='brown'])
 brown$module <- "brown"
-colnames(brown)[1] <- "trainscript_length"
+colnames(brown)[1] <- "gene"
 turquoise <- as.data.frame(colnames(datExpr0)[moduleColors=='turquoise'])
 turquoise$module <- "turquoise"
-colnames(turquoise)[1] <- "trainscript_length"
+colnames(turquoise)[1] <- "gene"
 black <- as.data.frame(colnames(datExpr0)[moduleColors=='black'])
 black$module <- "black"
-colnames(black)[1] <- "trainscript_length"
+colnames(black)[1] <- "gene"
 magenta <- as.data.frame(colnames(datExpr0)[moduleColors=='magenta'])
 magenta$module <- "magenta"
-colnames(magenta)[1] <- "trainscript_length"
+colnames(magenta)[1] <- "gene"
 pink <- as.data.frame(colnames(datExpr0)[moduleColors=='pink'])
 pink$module <- "pink"
-colnames(pink)[1] <- "trainscript_length"
+colnames(pink)[1] <- "gene"
 purple <- as.data.frame(colnames(datExpr0)[moduleColors=='purple'])
 purple$module <- "purple"
-colnames(purple)[1] <- "trainscript_length"
+colnames(purple)[1] <- "gene"

@@ -1,0 +1,244 @@
+---
+title: "DESeq2 Data Analysis"
+author: "Rayna M Harris"
+date: "January 23, 2017"
+output:
+  md_document:
+    variant: markdown_github
+---
+
+## RNAseq gene expression analysis with DESeq2 
+
+This workflow was modified from the DESeq2 tutorial found at: https://www.bioconductor.org/packages/release/bioc/vignettes/DESeq2/inst/doc/DESeq2.pdf
+
+First I load a handful of packages for data wrangling, gene expression analysis, data visualization, and statistics.
+```{r setup, message=F, warning=F}
+library(dplyr) ## for filtering and selecting rows
+library(plyr) ## for renmaing factors
+library(reshape2) ## for melting dataframe
+library(DESeq2) ## for gene expression analysis
+library(edgeR)  ## for basic read counts status
+library(magrittr) ## to use the weird pipe
+library(genefilter)  ## for PCA fuction
+library(ggplot2)
+
+
+library(cowplot) ## for some easy to use themes
+library(car) ## stats
+library(VennDiagram) ## venn diagrams
+library(pheatmap) ## awesome heatmaps
+library(viridis) # for awesome color pallette
+library(magrittr) ## to use the weird pipe
+library(ggrepel) ## for labeling volcano plot
+
+## load functions 
+source("figureoptions.R")
+source("functions_RNAseq.R")
+
+## set output file for figures 
+knitr::opts_chunk$set(fig.path = '../figures/02_RNAseq/')
+
+```
+
+We are ready to calculate differential gene expression using the DESeq package. For simplicity, I will use the standard nameing of "countData" and "colData" for the gene counts and gene information, respectively.
+
+```{r prepforDESeq2}
+colData <- read.csv("../data/fmr1ColData.csv", header = T)
+countData <- read.csv("../data/fmr1CountData.csv", header = T, check.names = F, row.names = 1)
+
+# colData must be factors
+cols = c(1:6)
+colData[,cols] %<>% lapply(function(x) as.factor(as.character(x)))
+
+# summary data
+colData %>% select(Genotype, APA)  %>%  summary()
+```
+
+
+
+## Total Gene Counts Per Sample 
+this could say something about data before normalization
+
+```{r totalRNAseqcounts}
+## stats
+dim(countData)
+counts <- countData
+dim( counts )
+colSums( counts ) / 1e06  # in millions of reads
+table( rowSums( counts ) )[ 1:30 ] # Number of genes with low counts
+
+rowsum <- as.data.frame(colSums( counts ) / 1e06 )
+names(rowsum)[1] <- "millioncounts"
+rowsum$sample <- row.names(rowsum)
+
+ggplot(rowsum, aes(x=millioncounts)) + 
+  geom_histogram(binwidth = 1, colour = "black", fill = "darkgrey") +
+  theme_classic() +
+  scale_x_continuous(name = "Millions of Gene Counts per Sample",
+                     breaks = seq(0, 8, 1),
+                     limits=c(0, 8)) +
+  scale_y_continuous(name = "Number of Samples")
+```
+
+
+```{r DESeq2, echo = F}
+## create DESeq object using the factors Punch and APA
+dds <- DESeqDataSetFromMatrix(countData = countData,
+                              colData = colData,
+                              design = ~ Genotype)
+
+dds$Genotype <- factor(dds$Genotype, levels=c("WT", "FMR1")) ## specify the factor levels
+
+dds # view the DESeq object - note numnber of genes
+dds <- dds[ rowSums(counts(dds)) > 1, ]  # Pre-filtering genes with 0 counts
+dds # view number of genes afternormalization and the number of samples
+dds <- DESeq(dds) # Differential expression analysis
+rld <- rlog(dds, blind=FALSE) ## log transformed data
+vsd <- varianceStabilizingTransformation(dds, blind=F) ## variance stabilized
+head(vsd)
+
+colnames(vsd)=colData$RNAseqID
+```
+
+
+```{r pca, echo = F, message=F, warning=F}
+# create the dataframe using my function pcadataframe
+pcadata <- pcadataframe(rld, intgroup=c("Genotype"), returnData=TRUE)
+percentVar <- round(100 * attr(pcadata, "percentVar"))
+percentVar
+
+aov1 <- aov(PC1 ~ Genotype, data=pcadata)
+summary(aov1) 
+
+aov2 <- aov(PC2 ~ Genotype, data=pcadata)
+summary(aov2) 
+
+aov3 <- aov(PC3 ~ Genotype, data=pcadata)
+summary(aov3) 
+
+aov4 <- aov(PC4 ~ Genotype, data=pcadata)
+summary(aov4) 
+
+
+pcadata$Genotype <- factor(pcadata$Genotype, levels=c("WT", "FMR1"))
+
+PCA12 <- plotPCs(pcadata, 1, 2, aescolor = pcadata$Genotype, colorname = " ", aesshape = pcadata$Genotype, shapename = " ",  colorvalues = colorvalGenotype)
+PCA12
+
+PCA34 <- plotPCs(pcadata, 3, 4,  aescolor = pcadata$Genotype, colorname = " ", aesshape = pcadata$Genotype, shapename = " ",  colorvalues = colorvalGenotype)
+PCA34
+
+# pdf the same pca plots descripbed above of the above
+pdf(file="../figures/02_RNAseq/PCA12.pdf", width=3, height=2.5)
+plot(PCA12)
+dev.off()
+
+pdf(file="../figures/02_RNAseq/PCA34.pdf", width=3, height=2.5)
+plot(PCA34)
+dev.off()
+
+```
+
+# Number of differentially expressed genes per two-way contrast
+
+```{r Twowaycontrasts3}
+#calculate significance of all two way comparisions
+# see source "functions_RNAseq.R" 
+
+contrast1 <- resvals(contrastvector = c("Genotype", "FMR1", "WT"), mypval = 0.05) # 4
+contrast2 <- resvals(contrastvector = c("Genotype", "FMR1", "WT"), mypval = 0.2) # 31
+```
+
+```{r heatmap, echo=F}
+DEGes <- assay(rld)
+DEGes <- cbind(DEGes, contrast2)
+DEGes <- as.data.frame(DEGes) # convert matrix to dataframe
+DEGes$rownames <- rownames(DEGes)  # add the rownames to the dataframe
+DEGes$padjmin <- DEGes$padjGenotypeFMR1WT
+
+
+
+# create new col with min padj
+DEGes <- DEGes %>% filter(padjmin < 0.2)
+rownames(DEGes) <- DEGes$rownames
+drop.cols <-colnames(DEGes[,grep("padj|pval|rownames", colnames(DEGes))])
+DEGes <- DEGes %>% dplyr::select(-one_of(drop.cols))
+DEGes <- as.matrix(DEGes)
+DEGes <- DEGes - rowMeans(DEGes)
+
+
+## the heatmap annotation file
+df <- as.data.frame(colData(dds)[,c("Genotype")]) ## matrix to df
+rownames(df) <- names(countData)
+
+
+ann_colors <- ann_colorsGenotype # see color options 
+
+# make sure the data is a matrix
+DEGes <- as.matrix(DEGes) 
+
+# set color breaks
+paletteLength <- 30
+myBreaks <- c(seq(min(DEGes), 0, length.out=ceiling(paletteLength/2) + 1), 
+              seq(max(DEGes)/paletteLength, max(DEGes), length.out=floor(paletteLength/2)))
+
+pheatmap(DEGes, show_colnames=F, show_rownames = T,
+         annotation_col=df, annotation_colors = ann_colors,
+         treeheight_row = 0, treeheight_col = 25,
+         fontsize = 11, 
+         #width=4.5, height=3,
+         border_color = "grey60" ,
+         color = viridis(30),
+         cellwidth = 8, 
+         clustering_method="average",
+         breaks=myBreaks,
+         clustering_distance_cols="correlation" 
+         )
+
+# for adobe
+pheatmap(DEGes, show_colnames=F, show_rownames = F,
+         annotation_col=df, annotation_colors = ann_colors,
+         treeheight_row = 0, treeheight_col = 50,
+         fontsize = 10, 
+         #width=4.5, height=3,
+         border_color = "grey60" ,
+         color = viridis(30),
+         cellwidth = 8, 
+         clustering_method="average",
+         breaks=myBreaks,
+         clustering_distance_cols="correlation",
+         filename = "../figures/02_RNAseq/pheatmap.pdf"
+         )
+
+# no legends just the heatmap
+pheatmap(DEGes, show_colnames=F, show_rownames = T,
+         annotation_col=df, annotation_colors = ann_colors, 
+         annotation_row = NA, 
+         annotation_legend = FALSE,
+         annotation_names_row = FALSE, annotation_names_col = FALSE,
+         treeheight_row = 0, treeheight_col = 50,
+         fontsize = 11, 
+         border_color = "grey60" ,
+         color = viridis(30),
+         #cellwidth = 7, 
+         clustering_method="average",
+         breaks=myBreaks,
+         clustering_distance_cols="correlation" 
+         )
+
+pheatmap(DEGes, show_colnames=F, show_rownames = T,
+         annotation_col=df, annotation_colors = ann_colors, 
+         annotation_row = NA, 
+         annotation_legend = FALSE,
+         annotation_names_row = FALSE, annotation_names_col = FALSE,
+         treeheight_row = 0, treeheight_col = 50,
+         fontsize = 11, 
+         border_color = "grey60" ,
+         color = viridis(30),
+         #cellwidth = 7, 
+         clustering_method="average",
+         breaks=myBreaks,
+         clustering_distance_cols="correlation", 
+         filename = "../figures/02_RNAseq/pheatmap_minimal.pdf"
+         )
+```

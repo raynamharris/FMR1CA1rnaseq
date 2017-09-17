@@ -273,9 +273,7 @@ numentrance1consistent<- behaviorsummaryNum %>%
                                 "7" = "T5/C2", "8" = "T6/C3", "9"= "Retention")) +
   theme_cowplot(font_size = 8, line_size = 0.25) +
   background_grid(major = "y", minor = "y") +
-  scale_color_manual(values = colorvalAPA5) + 
-  #theme(legend.position=c(0.7, 0.8))  +
-  theme(legend.position="none")
+  scale_color_manual(values = colorvalAPA5) 
 numentrance1consistent
 ```
 
@@ -305,9 +303,7 @@ numentrance1conflict<- behaviorsummaryNum %>%
                                 "7" = "T5/C2", "8" = "T6/C3", "9"= "Retention")) +
   theme_cowplot(font_size = 8, line_size = 0.25) +
   background_grid(major = "y", minor = "y") +
-  scale_color_manual(values = colorvalAPA4) + 
-  #theme(legend.position=c(0.7, 0.8))  +
-  theme(legend.position="none")
+  scale_color_manual(values = colorvalAPA4) 
 numentrance1conflict
 ```
 

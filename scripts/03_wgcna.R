@@ -19,22 +19,7 @@ allowWGCNAThreads()
 #        Prep Variance Stabilized Data
 ########################################################    
 
-countData <- read.csv("../data/fmr1CountData.csv", header = T, check.names = F, row.names = 1)
-colData <- read.csv("../data/fmr1ColData.csv", header = T)
-colData <- colData[c(2,3,6)]
-
-
-dds <- DESeqDataSetFromMatrix(countData = countData,
-                              colData = colData,
-                              design = ~ Genotype )
-
-dds # view the DESeq object - note numnber of genes
-dds <- dds[ rowSums(counts(dds)) > 1, ]  # Pre-filtering genes with 10 counts
-dds # view number of genes afternormalization and the number of samples
-dds <- DESeq(dds) # Differential expression analysis
-
-vsd=getVarianceStabilizedData(dds) 
-datExpr0 <- vsd
+datExpr0 <- read.csv("../data/02_vsd.csv", header = T, check.names = F, row.names = 1)
 datExpr0 <- datExpr0[rowMeans(datExpr0[, -1])>1, ] ## remove rows with rowsum > some value
 datExpr0 <- t(datExpr0) ## transpose data
 datExpr0 <- as.data.frame(datExpr0)
@@ -44,13 +29,15 @@ gsg$allOK #If all TRUE, all genes have passed the cuts
 gsg$goodSamples
 
 #-----Make a trait data frame from just sample info without beahvior
-datTraits <- colData
+datTraits <- read.csv("../data/02_ColData.csv", header = T, check.names = F, row.names = 1)
+datTraits <- datTraits[c(1,3,6)]
 
-datTraits$Mouse <- as.integer(factor(datTraits$Mouse))
+
+datTraits$RNAseqID <- as.integer(factor(datTraits$RNAseqID))
 datTraits$Genotype <- as.integer(factor(datTraits$Genotype))
 datTraits$daytime <- as.integer(factor(datTraits$daytime))
 
-datTraits$Mouse <- as.numeric(factor(datTraits$Mouse))
+datTraits$RNAseqID <- as.numeric(factor(datTraits$RNAseqID))
 datTraits$Genotype <- as.numeric(factor(datTraits$Genotype))
 datTraits$daytime <- as.numeric(factor(datTraits$daytime))
 
@@ -127,7 +114,7 @@ plot(sft$fitIndices[,1], sft$fitIndices[,5], xlab= "Soft Threshold (power)", yla
 text(sft$fitIndices[,1], sft$fitIndices[,5], labels=powers, cex=cex1, col="red")
 dev.off()
 
-#softPower=10
+#softPower=13
 
 
 
@@ -136,7 +123,7 @@ dev.off()
 #######   #################    ################   #######     
 
 
-adjacency=adjacency(datExpr0, type="signed" )  #add  if adjusting 
+adjacency=adjacency(datExpr0, type="signed", power=13 )  #add  if adjusting 
 TOM= TOMsimilarity(adjacency, TOMType="signed")
 dissTOM= 1-TOM
 geneTree= flashClust(as.dist(dissTOM), method="average")

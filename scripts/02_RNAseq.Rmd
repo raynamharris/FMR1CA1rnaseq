@@ -21,8 +21,6 @@ library(edgeR)  ## for basic read counts status
 library(magrittr) ## to use the weird pipe
 library(genefilter)  ## for PCA fuction
 library(ggplot2)
-
-
 library(cowplot) ## for some easy to use themes
 library(car) ## stats
 library(VennDiagram) ## venn diagrams
@@ -45,6 +43,18 @@ We are ready to calculate differential gene expression using the DESeq package. 
 ```{r prepforDESeq2}
 colData <- read.csv("../data/fmr1ColData.csv", header = T)
 countData <- read.csv("../data/fmr1CountData.csv", header = T, check.names = F, row.names = 1)
+
+## remove outliers
+colData <- colData %>% 
+  filter(RNAseqID != "16-123B")  %>% 
+  filter(RNAseqID != "16-125B") %>% 
+  droplevels()
+
+savecols <- as.character(colData$RNAseqID) 
+savecols <- as.vector(savecols) 
+countData <- countData %>% dplyr::select(one_of(savecols)) 
+
+
 
 # colData must be factors
 cols = c(1:6)
@@ -94,10 +104,9 @@ dds <- dds[ rowSums(counts(dds)) > 1, ]  # Pre-filtering genes with 0 counts
 dds # view number of genes afternormalization and the number of samples
 dds <- DESeq(dds) # Differential expression analysis
 rld <- rlog(dds, blind=FALSE) ## log transformed data
-vsd <- varianceStabilizingTransformation(dds, blind=F) ## variance stabilized
-head(vsd)
+rlddf <- assay(rld)
 
-colnames(vsd)=colData$RNAseqID
+vsd <- getVarianceStabilizedData(dds)
 ```
 
 
@@ -241,4 +250,78 @@ pheatmap(DEGes, show_colnames=F, show_rownames = T,
          clustering_distance_cols="correlation", 
          filename = "../figures/02_RNAseq/pheatmap_minimal.pdf"
          )
+```
+
+
+```{r heatmap05, echo=F}
+DEGes <- assay(rld)
+DEGes <- cbind(DEGes, contrast1)
+DEGes <- as.data.frame(DEGes) # convert matrix to dataframe
+DEGes$rownames <- rownames(DEGes)  # add the rownames to the dataframe
+DEGes$padjmin <- DEGes$padjGenotypeFMR1WT
+
+
+
+# create new col with min padj
+DEGes <- DEGes %>% filter(padjmin < 0.05)
+rownames(DEGes) <- DEGes$rownames
+drop.cols <-colnames(DEGes[,grep("padj|pval|rownames", colnames(DEGes))])
+DEGes <- DEGes %>% dplyr::select(-one_of(drop.cols))
+DEGes <- as.matrix(DEGes)
+DEGes <- DEGes - rowMeans(DEGes)
+
+
+## the heatmap annotation file
+df <- as.data.frame(colData(dds)[,c("Genotype")]) ## matrix to df
+rownames(df) <- names(countData)
+
+
+ann_colors <- ann_colorsGenotype # see color options 
+
+# make sure the data is a matrix
+DEGes <- as.matrix(DEGes) 
+
+# set color breaks
+paletteLength <- 30
+myBreaks <- c(seq(min(DEGes), 0, length.out=ceiling(paletteLength/2) + 1), 
+              seq(max(DEGes)/paletteLength, max(DEGes), length.out=floor(paletteLength/2)))
+
+pheatmap(DEGes, show_colnames=F, show_rownames = T,
+         annotation_col=df, annotation_colors = ann_colors,
+         treeheight_row = 0, treeheight_col = 25,
+         fontsize = 11, 
+         #width=4.5, height=3,
+         border_color = "grey60" ,
+         color = viridis(30),
+         cellwidth = 8, 
+         clustering_method="average",
+         breaks=myBreaks,
+         clustering_distance_cols="correlation" 
+         )
+
+
+pheatmap(DEGes, show_colnames=F, show_rownames = T,
+         annotation_col=df, annotation_colors = ann_colors, 
+         annotation_row = NA, 
+         annotation_legend = FALSE,
+         annotation_names_row = FALSE, annotation_names_col = FALSE,
+         treeheight_row = 0, treeheight_col = 50,
+         fontsize = 11, 
+         border_color = "grey60" ,
+         color = viridis(30),
+         #cellwidth = 7, 
+         clustering_method="average",
+         breaks=myBreaks,
+         clustering_distance_cols="correlation", 
+         filename = "../figures/02_RNAseq/pheatmap_minimal05.pdf"
+         )
+```
+
+
+## Write the two files
+
+```{r writecsv}
+write.csv(vsd, file = "../data/02_vsd.csv", row.names = T)
+write.csv(rlddf, file = "../data/02_rlddf.csv", row.names = T)
+write.csv(colData, file = "../data/02_colData.csv", row.names = T)
 ```

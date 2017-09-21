@@ -54,8 +54,6 @@ savecols <- as.character(colData$RNAseqID)
 savecols <- as.vector(savecols) 
 countData <- countData %>% dplyr::select(one_of(savecols)) 
 
-
-
 # colData must be factors
 cols = c(1:6)
 colData[,cols] %<>% lapply(function(x) as.factor(as.character(x)))
@@ -63,8 +61,6 @@ colData[,cols] %<>% lapply(function(x) as.factor(as.character(x)))
 # summary data
 colData %>% select(Genotype, APA)  %>%  summary()
 ```
-
-
 
 ## Total Gene Counts Per Sample 
 this could say something about data before normalization
@@ -90,14 +86,15 @@ ggplot(rowsum, aes(x=millioncounts)) +
   scale_y_continuous(name = "Number of Samples")
 ```
 
+## DeSeq2
 
-```{r DESeq2, echo = F}
-## create DESeq object using the factors Punch and APA
+```{r DESeq2, echo = T}
+## create DESeq object using the factor Genotyp
 dds <- DESeqDataSetFromMatrix(countData = countData,
                               colData = colData,
                               design = ~ Genotype)
 
-dds$Genotype <- factor(dds$Genotype, levels=c("WT", "FMR1")) ## specify the factor levels
+dds$Genotype <- factor(dds$Genotype, levels=c("WT", "FMR1")) ## specify the factor levels 
 
 dds # view the DESeq object - note numnber of genes
 dds <- dds[ rowSums(counts(dds)) > 1, ]  # Pre-filtering genes with 0 counts
@@ -109,8 +106,9 @@ rlddf <- assay(rld)
 vsd <- getVarianceStabilizedData(dds)
 ```
 
+## PCA
 
-```{r pca, echo = F, message=F, warning=F}
+```{r pca, echo = T, message=F, warning=F}
 # create the dataframe using my function pcadataframe
 pcadata <- pcadataframe(rld, intgroup=c("Genotype"), returnData=TRUE)
 percentVar <- round(100 * attr(pcadata, "percentVar"))
@@ -154,8 +152,66 @@ dev.off()
 #calculate significance of all two way comparisions
 # see source "functions_RNAseq.R" 
 
-contrast1 <- resvals(contrastvector = c("Genotype", "FMR1", "WT"), mypval = 0.05) # 4
-contrast2 <- resvals(contrastvector = c("Genotype", "FMR1", "WT"), mypval = 0.2) # 31
+contrast1 <- resvals(contrastvector = c("Genotype", "FMR1", "WT"), mypval = 0.05) # 8
+contrast2 <- resvals(contrastvector = c("Genotype", "FMR1", "WT"), mypval = 0.2) # 20
+contrast3 <- resvals(contrastvector = c("Genotype", "FMR1", "WT"), mypval = 0.1) # 11
+
+
+# gene list
+res <- results(dds, contrast =c("Genotype", "FMR1", "WT"), independentFiltering = F, alpha = 0.2)
+resOrdered <- res[order(res$padj),]
+head(resOrdered, 20)
+data <- data.frame(gene = row.names(res), padj = (res$padj), lfc = res$log2FoldChange)
+data <- na.omit(data)
+data <- filter(data, padj < 0.1)
+data[order(data$padj),]
+
+
+
+
+res <- results(dds, contrast =c("Genotype", "FMR1", "WT"), independentFiltering = T, alpha = 0.05)
+summary(res)
+
+topGene <- rownames(res)[which.min(res$padj)]
+plotCounts(dds, gene = topGene, intgroup=c("Genotype"))
+
+resOrdered <- res[order(res$padj),]
+head(resOrdered, 10)
+
+data <- data.frame(gene = row.names(res),
+                   pvalue = -log10(res$padj), 
+                   lfc = res$log2FoldChange)
+data <- na.omit(data)
+data <- data %>%
+  mutate(color = ifelse(data$lfc > 0 & data$pvalue > 1.3, 
+                        yes = "FMR1", 
+                        no = ifelse(data$lfc < 0 & data$pvalue > 1.3, 
+                                    yes = "WT", 
+                                    no = "none")))
+top_labelled <- top_n(data, n = 5, wt = lfc)
+
+
+# Color corresponds to fold change directionality
+colored <- ggplot(data, aes(x = lfc, y = pvalue)) + 
+  geom_point(aes(color = factor(color)), size = 0.8, alpha = 0.5, na.rm = T) + # add gene points
+  theme_bw(base_size = 8) + # clean up theme
+  theme(legend.position = "none") + # remove legend 
+  scale_color_manual(values = volcanoGenotype) + 
+  theme(panel.grid.minor=element_blank(),
+        panel.grid.major=element_blank()) + 
+  scale_x_continuous(name="log2 (consistent/yoked)",
+                     limits=c(-2, 2)) +
+  scale_y_log10(name="-log10 (adjusted p-value)") +
+  geom_hline(yintercept = 1.3,  size = 0.25, linetype = 2 ) +
+  #geom_text(data=filter(data, pvalue>1.4), aes(label=gene), size = 1, nudge_x = 0.4) +
+  geom_text(data=filter(data, pvalue>1.4), aes(label=gene), size = 0.8, nudge_x = 0.3)
+colored
+
+pdf(file="../figures/02_RNAseq/volcano.pdf", width=1.5, height=1.75)
+plot(colored)
+dev.off()
+
+
 ```
 
 ```{r heatmap, echo=F}
@@ -165,8 +221,6 @@ DEGes <- as.data.frame(DEGes) # convert matrix to dataframe
 DEGes$rownames <- rownames(DEGes)  # add the rownames to the dataframe
 DEGes$padjmin <- DEGes$padjGenotypeFMR1WT
 
-
-
 # create new col with min padj
 DEGes <- DEGes %>% filter(padjmin < 0.2)
 rownames(DEGes) <- DEGes$rownames
@@ -175,11 +229,9 @@ DEGes <- DEGes %>% dplyr::select(-one_of(drop.cols))
 DEGes <- as.matrix(DEGes)
 DEGes <- DEGes - rowMeans(DEGes)
 
-
 ## the heatmap annotation file
 df <- as.data.frame(colData(dds)[,c("Genotype")]) ## matrix to df
 rownames(df) <- names(countData)
-
 
 ann_colors <- ann_colorsGenotype # see color options 
 
@@ -260,8 +312,6 @@ DEGes <- as.data.frame(DEGes) # convert matrix to dataframe
 DEGes$rownames <- rownames(DEGes)  # add the rownames to the dataframe
 DEGes$padjmin <- DEGes$padjGenotypeFMR1WT
 
-
-
 # create new col with min padj
 DEGes <- DEGes %>% filter(padjmin < 0.05)
 rownames(DEGes) <- DEGes$rownames
@@ -270,11 +320,9 @@ DEGes <- DEGes %>% dplyr::select(-one_of(drop.cols))
 DEGes <- as.matrix(DEGes)
 DEGes <- DEGes - rowMeans(DEGes)
 
-
 ## the heatmap annotation file
 df <- as.data.frame(colData(dds)[,c("Genotype")]) ## matrix to df
 rownames(df) <- names(countData)
-
 
 ann_colors <- ann_colorsGenotype # see color options 
 
@@ -316,6 +364,7 @@ pheatmap(DEGes, show_colnames=F, show_rownames = T,
          filename = "../figures/02_RNAseq/pheatmap_minimal05.pdf"
          )
 ```
+
 
 
 ## Write the two files

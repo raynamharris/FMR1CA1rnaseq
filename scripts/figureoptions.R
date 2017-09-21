@@ -1,3 +1,7 @@
+volcanoGenotype <-  c("FMR1" = "#8c510a",
+               "WT" = "#756bb1", 
+               "none" = "#d9d9d9")
+
 colorvalPunch <- c("#d95f02","#1b9e77", "#7570b3")
 ## DG  "#d95f02"
 ## CA3 "#1b9e77"
@@ -6,6 +10,7 @@ colorvalPunch <- c("#d95f02","#1b9e77", "#7570b3")
 colorvalGenotype <-  c( "#bababa","#404040")
 #bababa ## light grey - WT
 #404040 ## darkgrey - FMR1KO
+# "Genotype", "FMR1", "WT"
 
 colorvalAPA <- c("#404040", "#f4a582", "#ca0020")
 #404040 ## darkgrey - yoked

@@ -1,5 +1,7 @@
-volcanoGenotype <-  c("FMR1" = "#8c510a",
-               "WT" = "#756bb1", 
+dodge <- position_dodge(.3)
+
+volcanoGenotype <-  c("FMR1" = "#54278f",
+               "WT" = "#bf5700", 
                "none" = "#d9d9d9")
 
 colorvalPunch <- c("#d95f02","#1b9e77", "#7570b3")
@@ -7,9 +9,9 @@ colorvalPunch <- c("#d95f02","#1b9e77", "#7570b3")
 ## CA3 "#1b9e77"
 ## CA1 "#7570b3")
 
-colorvalGenotype <-  c( "#bababa","#404040")
-#bababa ## light grey - WT
-#404040 ## darkgrey - FMR1KO
+colorvalGenotype <-  c( "#bf5700", "#54278f")
+# burnt orange WT #bf5700
+# purple FRM1KO #54278f
 # "Genotype", "FMR1", "WT"
 
 colorvalAPA <- c("#404040", "#f4a582", "#ca0020")
@@ -17,11 +19,12 @@ colorvalAPA <- c("#404040", "#f4a582", "#ca0020")
 #f4a582 ## pink - conflict
 #ca0020 ## red - consistent 
 
-colorvalAPA2 <-  c( "#bababa","#404040", "#f4a582", "#ca0020")
-#bababa ## light grey - yoked-conflict
+colorvalAPA2 <-  c( "#404040","#bababa", "#ca0020", "#f4a582")
+
 #404040 ## darkgrey - yoked-consistent
-#f4a582 ## pink - conflict
+#bababa ## light grey - yoked-conflict
 #ca0020 ## red - consistent 
+#f4a582 ## pink - conflict
 
 colorvalAPA3 <-  c( "#bababa","#404040", "#f4a582", "#ca0020")
 #bababa ## light grey - Yoked_Conflict
@@ -44,6 +47,21 @@ colorvalAPA6<-  c( "#f4a582","#ca0020")
 colorvalAPA7<-  c( "#bababa","#404040")
 #bababa ## light grey - yoked-conflict
 #404040 ## darkgrey - yoked-consistent
+
+colorvalAPA8<-  c("WT" = "#bf5700", "FMR1KO" = "#54278f", "FMR1KO_conflict" = "#f4a582","WT_conflict" = "#f4a582",  "FMR1KO_yoked-conflict" = "#bababa","WT_yoked-conflict" = "#bababa" )
+
+colorvalAPA9<-  c("conflict" = "#f4a582", "yoked-conflict" = "#bababa", "FMR1KO_conflict" = "#54278f","WT_conflict" = "#bf5700",  "FMR1KO_yoked-conflict" = "#54278f","WT_yoked-conflict" = "#bf5700" )
+
+colorvalAPA10<-  c("WT" = "#bf5700", "FMR1KO" = "#54278f", "FMR1KO_consistent" = "#ca0020","WT_consistent" = "#ca0020",  "FMR1KO_yoked-consistent" = "#404040","WT_yoked-consistent" = "#404040" )
+
+
+#bababa ## light grey - yoked-conflict
+#404040 ## darkgrey - yoked-consistent
+#f4a582 ## pink - conflict
+#ca0020 ## red - consistent
+# burnt orange WT #bf5700
+# purple FRM1KO #54278f
+
 
 
 DGConflictControl <- c("#bababa","#f4a582")
@@ -135,9 +153,8 @@ ann_colors7 = list(
 
 
 ann_colorsGenotype = list(
-  Genotype =  c('FMR1' = (values=c("#404040")), 
-            'WT' = (values=c("#bababa"))))
-
+  Genotype =  c('FMR1' = (values=c("#54278f")), 
+            'WT' = (values=c("#bf5700"))))
 
 
 

@@ -20,7 +20,6 @@ library(cowplot)
 ## load functions 
 source("functions_behavior.R")
 source("figureoptions.R")
-
 ```
 
 
@@ -31,23 +30,23 @@ behavior <- read.csv("../data/fmr1.csv", header = T)
 behavior$APA <- as.factor(behavior$APA)
 behavior$APA2 <- as.factor(behavior$APA2)
 levels(behavior$APA2)
-behavior$APA2 <- revalue(behavior$APA2, c("FMR1" = "FMR1KO")) 
 
+## relevel then rename factors treatment
+behavior$APA2 <- factor(behavior$APA2, levels = c("controlconsistent", "controlconflict", "consistent", "conflict"))
+levels(behavior$APA2) <- c("yoked-consistent","yoked-conflict","consistent", "conflict")
+levels(behavior$APA2)
 
-## relevel and/or factors
-behavior$APA2 <- factor(behavior$APA2, levels = c("controlconflict", "controlconsistent","conflict", "consistent"))
+#relevel APA
 levels(behavior$APA) <- c("control","consistent","conflict")
-levels(behavior$APA2) <- c("yoked-conflict","yoked-consistent","conflict","consistent")
+
+#relevel genotype
 levels(behavior$Genotype) <- c("WT","FMR1KO")
 
-
-
-behavior$Time1stEntrLog <- log(behavior$Time1stEntr)  ## log transformation 
-behavior <- behavior[c(1,3,7,8,10,14:59)] # supset data
-behavior <- subset(behavior, !is.na(behavior$NumEntrances)) # remove nas
-
+behavior$Time1stEntrLog <- log(behavior$Time1stEntr)  ## log transformation
 behavior$conflict <- ifelse(grepl("conflict", behavior$APA2), "conflict", "consistent") # for splitting
 levels(behavior$conflict) <- c("consistent","conflict")
+behavior <- behavior[c(1,3,7,8,10,60,14:59)] # supset data
+behavior <- subset(behavior, !is.na(behavior$NumEntrances)) # remove nas
 
 ```
 
@@ -55,14 +54,14 @@ levels(behavior$conflict) <- c("consistent","conflict")
 ```{r behaviorsummary}
 behaviorsummaryNum <- dplyr::summarise(group_by(behavior, Genotype, APA2, conflict, TrainSessionComboNum), m = mean(NumEntrances), se = sd(NumEntrances)/sqrt(length(NumEntrances)), len = length(NumEntrances))
 behaviorsummaryNum <- as.data.frame(behaviorsummaryNum)
-head(behaviorsummaryNum,50)
 levels(behaviorsummaryNum$Genotype) <- c("WT","FMR1KO")
-levels(behaviorsummaryNum$APA2) <- c("yoked-conflict","yoked-consistent","conflict","consistent")
+levels(behaviorsummaryNum$APA2) <- c("yoked-consistent","yoked-conflict", "consistent", "conflict")
 levels(behaviorsummaryNum$conflict) <- c("consistent","conflict")
 
+behaviorsummaryNum$genoAPA <- as.factor(paste(behaviorsummaryNum$Genotype,behaviorsummaryNum$APA2,sep="_"))
 ```
 
-
+## Plotting number of entrances
 
 ```{r numentrance}
 
@@ -72,7 +71,7 @@ numentrance1WT <- behaviorsummaryNum %>%
   ggplot(aes(x=, TrainSessionComboNum, y=m, color=APA2)) + 
     geom_errorbar(aes(ymin=m-se, ymax=m+se, color=APA2), width=.1) +
     geom_point(size = 2) +
-   geom_line() +
+    geom_line() +
     scale_y_continuous(name="Number of Entrances\nper 10 min training session") +
     scale_x_continuous(name = NULL, 
                        breaks = c(1, 2, 3, 4, 5, 6, 7, 8, 9),
@@ -81,15 +80,13 @@ numentrance1WT <- behaviorsummaryNum %>%
                                 "7" = "T5/C2", "8" = "T6/C3", "9"= "Retention")) +
   theme_cowplot(font_size = 8, line_size = 0.25) +
   background_grid(major = "y", minor = "y") +
-  scale_color_manual(values = colorvalAPA2) + 
-  #theme(legend.position=c(0.7, 0.8))  +
-  theme(legend.position="none")
+  scale_color_manual(values = colorvalAPA2)  + 
+  labs(title = "WT")
 numentrance1WT
 
 pdf(file="../figures/01_behavior/numentrance1WT.pdf", width=4, height=2)
 plot(numentrance1WT)
 dev.off()
-
 
 
 # plotting mean and se for time to total number of entrances
@@ -99,7 +96,7 @@ numentrance1FMR1 <- behaviorsummaryNum %>%
     geom_errorbar(aes(ymin=m-se, ymax=m+se, color=APA2), width=.1) +
     geom_point(size = 2) +
    geom_line() +
-    scale_y_continuous(name="Number of Entrances\nper 10 min training session") +
+    scale_y_continuous(name="Number of Entrances") +
     scale_x_continuous(name = NULL, 
                        breaks = c(1, 2, 3, 4, 5, 6, 7, 8, 9),
                        labels=c("1" = "Habituation ", "2" = "T1", "3" = "T2", 
@@ -109,82 +106,347 @@ numentrance1FMR1 <- behaviorsummaryNum %>%
   background_grid(major = "y", minor = "y") +
   scale_color_manual(values = colorvalAPA2) + 
   #theme(legend.position=c(0.7, 0.8))  +
-  theme(legend.position="none")  
+  theme(legend.position="none")  + 
+  labs(title = "FMR1-KO")
 numentrance1FMR1
 
 pdf(file="../figures/01_behavior/numentrance1FMR1.pdf", width=4, height=2)
 plot(numentrance1FMR1)
 dev.off()
 
-numentrance1wrap <- behaviorsummaryNum %>%
-  ggplot(aes(x=, TrainSessionComboNum, y=m, color=APA2, shape = Genotype)) + 
-  facet_wrap(~conflict,nrow =2) +
-    geom_errorbar(aes(ymin=m-se, ymax=m+se, color=APA2), width=.1) +
-    geom_point(size = 3) +
-   geom_line() +
-    scale_y_continuous(name="Number of Entrances\nper 10 min training session") +
-    scale_x_continuous(name = NULL, 
-                       breaks = c(1, 2, 3, 4, 5, 6, 7, 8, 9),
-                       labels=c("1" = "Habituation ", "2" = "T1", "3" = "T2", 
-                                "4" = "T3", "5" = "Retest", "6" = "T4/C1",
-                                "7" = "T5/C2", "8" = "T6/C3", "9"= "Retention")) +
-  theme_cowplot(font_size = 8, line_size = 0.25) +
-  background_grid(major = "y", minor = "y") +
-  scale_color_manual(values = colorvalAPA2) + 
-  #theme(legend.position=c(0.7, 0.8))  +
-  theme(legend.position="none")
-numentrance1wrap
-
-pdf(file="../figures/01_behavior/numentrance1wrap.pdf", width=4, height=4)
-plot(numentrance1wrap)
-dev.off()
 
 
 
 numentrance1consistent<- behaviorsummaryNum %>%
   filter(conflict == "consistent") %>%
-  ggplot(aes(x=, TrainSessionComboNum, y=m, color=APA2, shape=Genotype)) + 
-    geom_errorbar(aes(ymin=m-se, ymax=m+se, color=APA2), width=.1) +
-    geom_point(size = 2) +
-   geom_line() +
-    scale_y_continuous(name="Number of Entrances\nper 10 min training session") +
+  ggplot(aes(x= TrainSessionComboNum, y=m, shape=Genotype)) + 
+    geom_errorbar(aes(ymin=m-se, ymax=m+se, color=Genotype), width=.1, position = dodge) +
+    geom_line(aes(colour=genoAPA)) +
+   geom_point(size = 2.5, aes(colour=Genotype), position = dodge) +
+    scale_color_manual(values = colorvalAPA10) +
+    scale_y_continuous(name="Number of Entrances",
+                       limits = c(0,35)) +
     scale_x_continuous(name = NULL, 
                        breaks = c(1, 2, 3, 4, 5, 6, 7, 8, 9),
-                       labels=c("1" = "Habituation ", "2" = "T1", "3" = "T2", 
-                                "4" = "T3", "5" = "Retest", "6" = "T4/C1",
-                                "7" = "T5/C2", "8" = "T6/C3", "9"= "Retention")) +
+                       labels=c("1" = "Hab. ", "2" = "T1", "3" = "T2", 
+                                "4" = "T3", "5" = "Retest", "6" = "T4",
+                                "7" = "T5", "8" = "T6", "9"= "Reten.")) +
   theme_cowplot(font_size = 8, line_size = 0.25) +
   background_grid(major = "y", minor = "y") +
-  scale_color_manual(values = colorvalAPA5) 
+  #theme( 
+  #      legend.position = "top",
+  #      legend.title=element_blank(),
+  #      legend.justification = c(0.1, 0.8)) 
+  theme(legend.position = "none")
 numentrance1consistent
 
-pdf(file="../figures/01_behavior/numentrance1consistent.pdf", width=4, height=2)
+pdf(file="../figures/01_behavior/numentrance1consistent.pdf", width=3.25, height=2.25)
 plot(numentrance1consistent)
 dev.off()
 
-numentrance1conflict<- behaviorsummaryNum %>%
+numentrance1conflict <- behaviorsummaryNum %>%
   filter(conflict == "conflict") %>%
-  ggplot(aes(x=, TrainSessionComboNum, y=m, color=APA2, shape=Genotype)) + 
-    geom_errorbar(aes(ymin=m-se, ymax=m+se, color=APA2), width=.1) +
-    geom_point(size = 2) +
-   geom_line() +
-    scale_y_continuous(name="Number of Entrances\nper 10 min training session") +
+  ggplot(aes(x= TrainSessionComboNum, y=m, shape=Genotype)) + 
+    geom_errorbar(aes(ymin=m-se, ymax=m+se, color=Genotype), width=.1, position = dodge) +
+    geom_line(aes(colour=genoAPA)) +
+    geom_point(size = 2.5, aes(colour=Genotype), position = dodge) +
+    scale_color_manual(values = colorvalAPA8) +
+    scale_y_continuous(name="Number of Entrances",
+                       limits = c(0,35)) +
     scale_x_continuous(name = NULL, 
                        breaks = c(1, 2, 3, 4, 5, 6, 7, 8, 9),
-                       labels=c("1" = "Habituation ", "2" = "T1", "3" = "T2", 
-                                "4" = "T3", "5" = "Retest", "6" = "T4/C1",
-                                "7" = "T5/C2", "8" = "T6/C3", "9"= "Retention")) +
+                       labels=c("1" = "Hab. ", "2" = "T1", "3" = "T2", 
+                                "4" = "T3", "5" = "Retest", "6" = "C1",
+                                "7" = "C2", "8" = "C3", "9"= "Reten.")) +
   theme_cowplot(font_size = 8, line_size = 0.25) +
   background_grid(major = "y", minor = "y") +
-  scale_color_manual(values = colorvalAPA4) 
+  #theme( 
+  #      legend.position = "top",
+  #      legend.title=element_blank(),
+  #      legend.justification = c(0.1, 0.8))
+  theme(legend.position = "none")
 numentrance1conflict
 
-pdf(file="../figures/01_behavior/numentrance1conflict.pdf", width=4, height=2)
+pdf(file="../figures/01_behavior/numentrance1conflict.pdf", width=3.25, height=2.25)
 plot(numentrance1conflict)
 dev.off()
 
 
 ```
 
+## Anovas ALL data
+```{r anova}
+aov1 <- aov(NumEntrances ~ APA2 * Genotype * TrainSession, data=behavior)
+summary(aov1) 
 
+hab <- behavior %>%
+  filter(TrainSession == "Hab") 
+aov1 <- aov(NumEntrances ~ APA2 * Genotype, data=hab)
+summary(aov1) 
+
+T1 <- behavior %>%
+  filter(TrainSession == "T1") 
+aov1 <- aov(NumEntrances ~ APA2 * Genotype, data=T1)
+summary(aov1) 
+
+T2 <- behavior %>%
+  filter(TrainSession == "T2") 
+aov1 <- aov(NumEntrances ~ APA2 * Genotype, data=T2)
+summary(aov1) 
+
+T3 <- behavior %>%
+  filter(TrainSession == "T3") 
+aov1 <- aov(NumEntrances ~ APA2 * Genotype, data=T3)
+summary(aov1) # 
+
+
+Retest <- behavior %>%
+  filter(TrainSession == "Retest") 
+aov1 <- aov(NumEntrances ~ APA2 * Genotype, data=Retest)
+summary(aov1) 
+
+T4 <- behavior %>%
+  filter(TrainSession %in% c("T4", "C1")) 
+aov1 <- aov(NumEntrances ~ APA2 * Genotype, data=T4)
+summary(aov1)  
+
+T5 <- behavior %>%
+  filter(TrainSession %in% c("T5", "C2")) 
+aov1 <- aov(NumEntrances ~ APA2 * Genotype, data=T5)
+summary(aov1)  
+
+T6 <- behavior %>%
+  filter(TrainSession %in% c("T6", "C3")) 
+aov1 <- aov(NumEntrances ~ APA2 * Genotype, data=T6)
+summary(aov1)  
+
+Retention <- behavior %>%
+  filter(TrainSession == "Retention") 
+aov1 <- aov(NumEntrances ~ APA2 * Genotype, data=Retention)
+summary(aov1) 
+
+#### Gentoype
+aov1 <- aov(NumEntrances ~ Genotype, data=behavior)
+summary(aov1) # p = 0.0641 .
+aov1 <- aov(NumEntrances ~ Genotype * APA2, data=behavior)
+summary(aov1) 
+aov1 <- aov(NumEntrances ~ Genotype * APA2 * TrainSession , data=behavior)
+summary(aov1) 
+
+lm1 <- lm(NumEntrances ~ Genotype * APA2 * TrainSession , data=behavior)
+summary(lm1) 
+
+# no difference
+aov1 <- aov(NumEntrances ~ Genotype, data=hab)
+summary(aov1) 
+aov1 <- aov(NumEntrances ~ Genotype *APA2, data=hab)
+summary(aov1) 
+
+# effect of training
+aov1 <- aov(NumEntrances ~ Genotype, data=T1)
+summary(aov1) 
+aov1 <- aov(NumEntrances ~ Genotype *APA2, data=T1)
+summary(aov1) 
+
+# effect of training
+aov1 <- aov(NumEntrances ~ Genotype, data=T2)
+summary(aov1) 
+aov1 <- aov(NumEntrances ~ Genotype *APA2, data=T2)
+summary(aov1) 
+
+# geneotyp and training is significant
+aov1 <- aov(NumEntrances ~ Genotype, data=T3)
+summary(aov1) 
+aov1 <- aov(NumEntrances ~ Genotype * APA2, data=T3)
+summary(aov1) 
+
+## training significant
+aov1 <- aov(NumEntrances ~ Genotype, data=Retest)
+summary(aov1) 
+aov1 <- aov(NumEntrances ~ Genotype * APA2, data=Retest)
+summary(aov1) 
+
+## training significant
+aov1 <- aov(NumEntrances ~ Genotype, data=T4)
+summary(aov1) 
+aov1 <- aov(NumEntrances ~ Genotype * APA2, data=T4)
+summary(aov1) 
+
+## training significant, genotype p<0.1
+aov1 <- aov(NumEntrances ~ Genotype, data=T5)
+summary(aov1) 
+aov1 <- aov(NumEntrances ~ Genotype * APA2, data=T5)
+summary(aov1) 
+
+## training significant, genotype p<0.1
+aov1 <- aov(NumEntrances ~ Genotype, data=T6)
+summary(aov1) 
+aov1 <- aov(NumEntrances ~ Genotype * APA2, data=T6)
+summary(aov1) 
+
+## training significant
+aov1 <- aov(NumEntrances ~ Genotype, data=Retention)
+summary(aov1) 
+aov1 <- aov(NumEntrances ~ Genotype * APA2, data=Retention)
+summary(aov1) 
+```
+
+
+
+
+## Anovas Consistent only
+```{r anovaconsistent}
+consistent <- behavior %>%
+  filter(conflict == "consistent") 
+T1 <- consistent %>%
+  filter(TrainSession == "T1") 
+T2 <- consistent %>%
+  filter(TrainSession == "T2") 
+T3 <- consistent %>%
+  filter(TrainSession == "T3") 
+Retest <- consistent %>%
+  filter(TrainSession == "Retest") 
+T4 <- consistent %>%
+  filter(TrainSession %in% c("T4", "C1")) 
+T5 <- consistent %>%
+  filter(TrainSession %in% c("T5", "C2")) 
+T6 <- consistent %>%
+  filter(TrainSession %in% c("T6", "C3")) 
+Retention <- consistent %>%
+  filter(TrainSession == "Retention") 
+
+
+# habituation not significant
+aov1 <- aov(NumEntrances ~ Genotype, data=hab)
+summary(aov1) 
+aov1 <- aov(NumEntrances ~ Genotype *APA2, data=hab)
+summary(aov1) 
+
+# T1 genotype not signficant
+aov1 <- aov(NumEntrances ~ Genotype, data=T1)
+summary(aov1) 
+aov1 <- aov(NumEntrances ~ Genotype *APA2, data=T1)
+summary(aov1) 
+
+# T2 genotype not signficant
+aov1 <- aov(NumEntrances ~ Genotype, data=T2)
+summary(aov1) 
+aov1 <- aov(NumEntrances ~ Genotype *APA2, data=T2)
+summary(aov1) 
+
+## genotype not signficant
+aov1 <- aov(NumEntrances ~ Genotype, data=T3)
+summary(aov1) 
+aov1 <- aov(NumEntrances ~ Genotype * APA2, data=T3)
+summary(aov1) 
+
+## genotype not signficant
+aov1 <- aov(NumEntrances ~ Genotype, data=Retest)
+summary(aov1) 
+aov1 <- aov(NumEntrances ~ Genotype * APA2, data=Retest)
+summary(aov1) 
+
+## genotype not signficant
+aov1 <- aov(NumEntrances ~ Genotype, data=T4)
+summary(aov1) 
+aov1 <- aov(NumEntrances ~ Genotype * APA2, data=T4)
+summary(aov1) 
+
+## genotype not signficant
+aov1 <- aov(NumEntrances ~ Genotype, data=T5)
+summary(aov1) 
+aov1 <- aov(NumEntrances ~ Genotype * APA2, data=T5)
+summary(aov1) 
+
+## genotype not signficant
+aov1 <- aov(NumEntrances ~ Genotype, data=T6)
+summary(aov1) 
+aov1 <- aov(NumEntrances ~ Genotype * APA2, data=T6)
+summary(aov1) 
+
+## genotype not signficant
+aov1 <- aov(NumEntrances ~ Genotype, data=Retention)
+summary(aov1) 
+aov1 <- aov(NumEntrances ~ Genotype * APA2, data=Retention)
+summary(aov1) 
+```
+
+
+
+## Anovas Conflict only
+```{r anovaconflict}
+conflict <- behavior %>%
+  filter(conflict == "conflict") 
+T1 <- conflict %>%
+  filter(TrainSession == "T1") 
+T2 <- conflict %>%
+  filter(TrainSession == "T2") 
+T3 <- conflict %>%
+  filter(TrainSession == "T3") 
+Retest <- conflict %>%
+  filter(TrainSession == "Retest") 
+T4 <- conflict %>%
+  filter(TrainSession %in% c("T4", "C1")) 
+T5 <- conflict %>%
+  filter(TrainSession %in% c("T5", "C2")) 
+T6 <- conflict %>%
+  filter(TrainSession %in% c("T6", "C3")) 
+Retention <- conflict %>%
+  filter(TrainSession == "Retention") 
+
+
+# habituation genotype ns
+aov1 <- aov(NumEntrances ~ Genotype, data=hab)
+summary(aov1) 
+aov1 <- aov(NumEntrances ~ Genotype *APA2, data=hab)
+summary(aov1) 
+
+# T1 genotype not signficant
+aov1 <- aov(NumEntrances ~ Genotype, data=T1)
+summary(aov1) 
+aov1 <- aov(NumEntrances ~ Genotype *APA2, data=T1)
+summary(aov1) 
+
+# T2 genotype not signficant
+aov1 <- aov(NumEntrances ~ Genotype, data=T2)
+summary(aov1) 
+aov1 <- aov(NumEntrances ~ Genotype *APA2, data=T2)
+summary(aov1) 
+
+# T3 genotype not signficant
+aov1 <- aov(NumEntrances ~ Genotype, data=T3)
+summary(aov1) 
+aov1 <- aov(NumEntrances ~ Genotype * APA2, data=T3)
+summary(aov1) 
+
+## Retest genotype not signficant
+aov1 <- aov(NumEntrances ~ Genotype, data=Retest)
+summary(aov1) 
+aov1 <- aov(NumEntrances ~ Genotype * APA2, data=Retest)
+summary(aov1) 
+
+## genotype not signficant
+aov1 <- aov(NumEntrances ~ Genotype, data=T4)
+summary(aov1) 
+aov1 <- aov(NumEntrances ~ Genotype * APA2, data=T4)
+summary(aov1) 
+
+## genotype not signficant
+aov1 <- aov(NumEntrances ~ Genotype, data=T5)
+summary(aov1) 
+aov1 <- aov(NumEntrances ~ Genotype * APA2, data=T5)
+summary(aov1) 
+
+## genotype in geno*apa p<0.05
+aov1 <- aov(NumEntrances ~ Genotype, data=T6)
+summary(aov1) 
+aov1 <- aov(NumEntrances ~ Genotype * APA2, data=T6)
+summary(aov1) 
+
+## genotype not signficant
+aov1 <- aov(NumEntrances ~ Genotype, data=Retention)
+summary(aov1) 
+aov1 <- aov(NumEntrances ~ Genotype * APA2, data=Retention)
+summary(aov1) 
+```
 

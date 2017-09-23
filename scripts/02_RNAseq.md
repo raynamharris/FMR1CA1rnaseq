@@ -104,13 +104,17 @@ rowsum$sample <- row.names(rowsum)
 ggplot(rowsum, aes(x=millioncounts)) + 
   geom_histogram(binwidth = 1, colour = "black", fill = "darkgrey") +
   theme_classic() +
-  scale_x_continuous(name = "Millions of Gene Counts per Sample",
-                     breaks = seq(0, 8, 1),
-                     limits=c(0, 8)) +
+  scale_x_continuous(name = "Millions of Gene Counts per Sample") +
   scale_y_continuous(name = "Number of Samples")
 ```
 
 ![](../figures/02_RNAseq/totalRNAseqcounts-1.png)
+
+``` r
+hist(rowsum$millioncounts)
+```
+
+![](../figures/02_RNAseq/totalRNAseqcounts-2.png)
 
 DeSeq2
 ------
@@ -176,7 +180,6 @@ dds <- DESeq(dds) # Differential expression analysis
 ``` r
 rld <- rlog(dds, blind=FALSE) ## log transformed data
 rlddf <- assay(rld)
-
 vsd <- getVarianceStabilizedData(dds)
 ```
 
@@ -247,6 +250,13 @@ PCA34
 ![](../figures/02_RNAseq/pca-2.png)
 
 ``` r
+PCA14 <- plotPCs(pcadata, 1, 4,  aescolor = pcadata$Genotype, colorname = " ", aesshape = pcadata$Genotype, shapename = " ",  colorvalues = colorvalGenotype)
+PCA14
+```
+
+![](../figures/02_RNAseq/pca-3.png)
+
+``` r
 # pdf the same pca plots descripbed above of the above
 pdf(file="../figures/02_RNAseq/PCA12.pdf", width=3, height=2.5)
 plot(PCA12)
@@ -265,13 +275,20 @@ dev.off()
     ## quartz_off_screen 
     ##                 2
 
+``` r
+pdf(file="../figures/02_RNAseq/PCA14.pdf", width=3, height=2.5)
+plot(PCA14)
+dev.off()
+```
+
+    ## quartz_off_screen 
+    ##                 2
+
 Number of differentially expressed genes per two-way contrast
 =============================================================
 
 ``` r
 #calculate significance of all two way comparisions
-# see source "functions_RNAseq.R" 
-
 contrast1 <- resvals(contrastvector = c("Genotype", "FMR1", "WT"), mypval = 0.05) # 8
 ```
 
@@ -413,9 +430,6 @@ data <- data %>%
                         no = ifelse(data$lfc < 0 & data$pvalue > 1.3, 
                                     yes = "WT", 
                                     no = "none")))
-top_labelled <- top_n(data, n = 5, wt = lfc)
-
-
 # Color corresponds to fold change directionality
 colored <- ggplot(data, aes(x = lfc, y = pvalue)) + 
   geom_point(aes(color = factor(color)), size = 0.8, alpha = 0.5, na.rm = T) + # add gene points
@@ -424,7 +438,7 @@ colored <- ggplot(data, aes(x = lfc, y = pvalue)) +
   scale_color_manual(values = volcanoGenotype) + 
   theme(panel.grid.minor=element_blank(),
         panel.grid.major=element_blank()) + 
-  scale_x_continuous(name="log2 (consistent/yoked)",
+  scale_x_continuous(name="log2 (FMR1-KO / WT)",
                      limits=c(-2, 2)) +
   scale_y_log10(name="-log10 (adjusted p-value)") +
   geom_hline(yintercept = 1.3,  size = 0.25, linetype = 2 ) +
@@ -444,12 +458,40 @@ dev.off()
     ## quartz_off_screen 
     ##                 2
 
+``` r
+colored <- ggplot(data, aes(x = lfc, y = pvalue)) + 
+  geom_point(aes(color = factor(color)), size = 0.8, alpha = 0.5, na.rm = T) + # add gene points
+  theme_bw(base_size = 8) + # clean up theme
+  theme(legend.position = "none") + # remove legend 
+  scale_color_manual(values = volcanoGenotype) + 
+  theme(panel.grid.minor=element_blank(),
+        panel.grid.major=element_blank()) + 
+  scale_x_continuous(name="log2 (FMR1-KO / WT)",
+                     limits=c(-2, 2)) +
+  scale_y_continuous(name="-log10 (adjusted p-value)") +
+  geom_hline(yintercept = 1.3,  size = 0.25, linetype = 2 ) +
+  #geom_text(data=filter(data, pvalue>1.4), aes(label=gene), size = 1, nudge_x = 0.4) +
+  geom_text(data=filter(data, pvalue>1.4), aes(label=gene), size = 0.8, nudge_x = 0.3)
+colored
+```
+
+![](../figures/02_RNAseq/Twowaycontrasts3-3.png)
+
+``` r
+pdf(file="../figures/02_RNAseq/volcano2.pdf", width=1.5, height=1.75)
+plot(colored)
+dev.off()
+```
+
+    ## quartz_off_screen 
+    ##                 2
+
 ![](../figures/02_RNAseq/heatmap-1.png)![](../figures/02_RNAseq/heatmap-2.png)
 
 ![](../figures/02_RNAseq/heatmap05-1.png)
 
-Write the two files
--------------------
+Write the files
+---------------
 
 ``` r
 write.csv(vsd, file = "../data/02_vsd.csv", row.names = T)

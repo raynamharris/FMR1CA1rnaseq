@@ -237,7 +237,7 @@ DEGes$rownames <- rownames(DEGes)  # add the rownames to the dataframe
 DEGes$padjmin <- DEGes$padjGenotypeFMR1WT
 
 # create new col with min padj
-DEGes <- DEGes %>% filter(padjmin < 0.2)
+DEGes <- DEGes %>% filter(padjmin < 0.1)
 rownames(DEGes) <- DEGes$rownames
 drop.cols <-colnames(DEGes[,grep("padj|pval|rownames", colnames(DEGes))])
 DEGes <- DEGes %>% dplyr::select(-one_of(drop.cols))
@@ -308,8 +308,8 @@ pheatmap(DEGes, show_colnames=F, show_rownames = T,
          annotation_row = NA, 
          annotation_legend = FALSE,
          annotation_names_row = FALSE, annotation_names_col = FALSE,
-         treeheight_row = 25, treeheight_col = 25,
-         fontsize = 11, 
+         treeheight_row = 20, treeheight_col = 20,
+         fontsize = 9, 
          border_color = "grey60" ,
          color = viridis(30),
          width=4.5, height=2.25,

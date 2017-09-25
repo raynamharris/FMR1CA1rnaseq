@@ -1,0 +1,278 @@
+```{r}
+
+source("figureoptions.R")
+library(magrittr)  # for function function "%<>%"
+
+
+## read and transform data
+
+ephys2 <- read.csv("../data/Ephy_forDataAnalysisV2.csv", header=T, na.strings=c(""), stringsAsFactors = FALSE)
+
+## rename columns 
+names(ephys2)[names(ephys2)=="Peak..V."] <- "Peak V"
+names(ephys2)[names(ephys2)=="training"] <- "group"
+
+## new cols
+ephys2$APA <- ifelse(grepl("TTT", ephys2$group), "consistent", 
+                     ifelse(grepl("TCT", ephys2$group), "conflict",
+                            ifelse(grepl("TTY", ephys2$group), "control",
+                                   ifelse(grepl("TCY", ephys2$group), "control", NA))))
+
+ephys2$APA2 <- ifelse(grepl("TTT", ephys2$group), "consistent", 
+                      ifelse(grepl("TCT", ephys2$group), "conflict",
+                             ifelse(grepl("TTY", ephys2$group), "control-consistent",
+                                    ifelse(grepl("TCY", ephys2$group), "control-conflict", NA))))
+
+ephys2$Year <- ifelse(grepl("151", ephys2$ID), "2015", 
+                      ifelse(grepl("16-", ephys2$ID), "2016", NA))
+
+ephys2$genoAPA <- as.factor(paste(ephys2$Genotype,ephys2$APA,sep="_"))
+
+
+
+## reorder, drop old group coloumn
+ephys2 <- ephys2[c(2,15:19,3:14)]
+
+### Drop the voltages with very little recording and the Vmax
+ephys2 <- ephys2[c(-11,-13, -15, -17, -18)]
+
+
+## make characters either factors or numbers, as appropriate
+str(ephys2)
+colsfactor = c(1:6)
+#colsnumeric = c(18)
+ephys2[,colsfactor] %<>% lapply(function(x) as.factor(as.factor(x)))
+#ephys2[,colsnumeric] %<>% lapply(function(x) as.numeric(as.integer(x)))
+
+## make with max column with max i/o
+ephys2$min <- apply(ephys2[c(7:13)], 1, min,na.rm=TRUE)
+ephys2$max <- apply(ephys2[c(7:13)], 1, max,na.rm=TRUE)
+
+
+## prep levels for visualization
+ephys2$Genotype <- factor(ephys2$Genotype, 
+                          levels = c("WT", "FMR1KO"))
+ephys2$APA <- factor(ephys2$APA, 
+                     levels = c("control", "consistent", "conflict"))
+
+
+
+
+## make long and tidy
+ephys2_long <- melt(ephys2, id = c(1:6))
+
+## add numeric for stat smooth
+ephys2_long$variablenumeric <- ifelse((ephys2_long$variable == "V0"), "1", 
+                                      ifelse(grepl("V10", ephys2_long$variable ), "2",
+                                             ifelse(grepl("V15", ephys2_long$variable ), "3",
+                                                    ifelse(grepl("V20", ephys2_long$variable), "4", 
+                                                           ifelse(grepl("V30", ephys2_long$variable), "5",
+                                                                  ifelse(grepl("V40", ephys2_long$variable), "6",
+                                                                         ifelse(grepl("V50", ephys2_long$variable), "7", NA)))))))
+ephys2_long <- ephys2_long %>% drop_na()
+
+levels(ephys2_long$variable)
+ephys2_long$variablenumeric <- as.numeric(ephys2_long$variablenumeric)
+
+ephys2_long$Genotype <- factor(ephys2_long$Genotype, 
+                               levels = c("WT", "FMR1KO"))
+ephys2_long$APA <- factor(ephys2_long$APA, 
+                          levels = c("control", "consistent", "conflict"))
+######################################
+## make a WT 2016 only
+ephys2015 <- ephys2 %>%
+  filter(Year %in% c("2015"))
+ephys2015_long <- ephys2_long %>%
+  filter(Year %in% c("2015"))
+
+
+
+
+
+levels(ephys2$APA2) <- c("yoked-consistent","yoked-conflict","consistent", "conflict")
+levels(ephys2_long$APA2) <- c("yoked-consistent","yoked-conflict","consistent", "conflict")
+
+head(ephys2)
+ephys2summaryNum <- dplyr::summarise(group_by(ephys2, Genotype, APA2, genoAPA), m = mean(min), se = sd(min)/sqrt(length(min)), len = length(min))
+ephys2summaryNum <- as.data.frame(ephys2summaryNum)
+levels(ephys2summaryNum$Genotype) <- c("WT","FMR1KO")
+levels(ephys2summaryNum$APA2) <- c("yoked-consistent","yoked-conflict", "consistent", "conflict")
+
+
+ephys2$APA2 <- factor(ephys2$APA2, levels = c("yoked-consistent",  "consistent", "yoked-conflict", "conflict"))
+
+## Stimulus strength on x fepsp slope on y
+ephys2_long %>% 
+  ggplot(aes(x=variablenumeric, y=value, color=APA2 )) + 
+  stat_smooth(alpha=0.2, size=2) +
+  geom_jitter(size=2, width = 0.5) +
+  background_grid(major = "xy", minor = "none") + 
+  theme_cowplot(font_size = 20, line_size = 1) + 
+  facet_grid(~Genotype) +   
+  scale_y_continuous(trans = "reverse",
+                     limits = c(0.005, -0.010)) + 
+  scale_x_continuous(breaks=c(1,2,3,4,5,6,7),
+                     labels=c("0", "10", "15", "20", "30", "40", "50")) +
+  scale_color_manual(values = colorvalAPA2) + 
+  labs(x = "Stimulus Strenght (V)", y = "fEPSP Slope") + 
+  theme(legend.position="none")
+
+ephys2_long %>% 
+  ggplot(aes(x=variablenumeric, y=value, color=Genotype )) + 
+  stat_smooth(alpha=0.2, size=2) +
+  geom_jitter(size=2, width = 0.5) +
+  background_grid(major = "xy", minor = "none") + 
+  theme_cowplot(font_size = 20, line_size = 1) + 
+  facet_wrap(~APA2,nrow=2) +   
+  scale_y_continuous(trans = "reverse") + 
+  scale_x_continuous(breaks=c(1,2,3,4,5,6,7),
+                     labels=c("0", "10", "15", "20", "30", "40", "50")) +
+  scale_color_manual(values = colorvalGenotype) + 
+  labs(x = "Stimulus Strenght (V)", y = "fEPSP Slope") + 
+  theme(legend.position="none")
+
+ephys2 %>% 
+  ggplot(aes(x=APA2, y=min, fill=APA2)) +
+  geom_boxplot() +
+  scale_y_continuous(trans = "reverse") + 
+  background_grid(major = "xy", minor = "none") + 
+  theme_cowplot(font_size = 20, line_size = 1) + 
+  scale_fill_manual(values = colorvalAPA2) +
+  labs(y = "Maximum fEPSP Slope", x = NULL) +
+  facet_grid(~Genotype)
+
+myggplot <- ephys2 %>% 
+  ggplot(aes(x=Genotype, y=min, fill=Genotype)) +
+  geom_boxplot() +
+  scale_y_continuous(trans = "reverse") + 
+  background_grid(major = "xy", minor = "none") + 
+  theme_cowplot(font_size = 8, line_size = 1) + 
+  scale_fill_manual(values = colorvalGenotype) +
+  labs(y = "Maximum fEPSP Slope", x = NULL) +
+  facet_grid(~APA2)  +
+  theme(legend.position="none")
+myggplot
+
+pdf(file="~/Github/FMR1rnaseqCA1/figures/04_ephys/ephys1.pdf", width=3.5, height=2.5)
+plot(myggplot)
+dev.off()
+
+
+myggplot <- ephys2 %>% 
+  ggplot(aes(x=Genotype, y=min, fill=Genotype)) +
+  geom_boxplot() +
+  scale_y_continuous(trans = "reverse") + 
+  background_grid(major = "xy", minor = "none") + 
+  theme_cowplot(font_size = 8, line_size = 0.5) + 
+  scale_fill_manual(values = colorvalGenotype) +
+  labs(y = "Maximum fEPSP Slope", x = NULL) +
+  facet_wrap(~APA2, nrow=2) +
+  theme(legend.position="none")
+
+pdf(file="~/Github/FMR1rnaseqCA1/figures/04_ephys/ephys2.pdf", width=2.5, height=2.5)
+plot(myggplot)
+dev.off()
+
+
+aov1 <- aov(min ~ Genotype, data=ephys2)
+summary(aov1) 
+aov1 <- aov(min ~ Genotype * APA2, data=ephys2)
+summary(aov1) 
+
+aov1 <- aov(max ~ Genotype, data=ephys2)
+summary(aov1) 
+aov1 <- aov(max ~ Genotype * APA2, data=ephys2)
+summary(aov1)
+
+summary(ephys2$min)
+  
+
+#### pca ----
+
+W = ephys2[,6:19]
+
+W <- W[!colSums(W)%in%NA]   ## removing cols with NA
+W <- W[,apply(W, 2, var, na.rm=TRUE) != 0]
+
+# Run PCA
+W
+pcW = prcomp(W, scale.=TRUE)
+
+# Look at the summary methods
+pcW
+summary(pcW)
+
+## a bunch of different plots
+plot(pcW)
+#biplot(pc)
+
+
+### quick pca plot
+pcW$rotation
+loadingsW = pcW$rotation
+scoresW = pcW$x
+qplot(scoresW[,1], scoresW[,2], color=ephys2$APA, xlab='Component 1', ylab='Component 3')
+qplot(scoresW[,1], scoresW[,2], color=ephys2$Genotype, xlab='Component 1', ylab='Component 3')
+qplot(scoresW[,1], scoresW[,3], color=ephys2$APA, xlab='Component 1', ylab='Component 3')
+qplot(scoresW[,2], scoresW[,3], color=ephys2$APA, xlab='Component 1', ylab='Component 3')
+
+
+## exporting the data
+scoresWdf <- as.data.frame(scoresW)
+scoresWdf$ID <-  ephys2$ID
+scoresWdf$APA <- ephys2$APA
+
+# capture the rotation matrix in a data frame
+rotation_data <- data.frame(pcW$rotation, variable=row.names(pcW$rotation))
+# define a pleasing arrow style
+arrow_style <- arrow(length = unit(0.05, "inches"),
+                     type = "closed")
+
+ggplot(rotation_data) + 
+  geom_segment(aes(xend=PC1, yend=PC2), x=0, y=0, arrow=arrow_style) + 
+  geom_text(aes(x=PC1, y=PC2, label=variable), hjust=0, size=5, color='red') 
+
+ggplot(rotation_data) + 
+  geom_segment(aes(xend=PC2, yend=PC3), x=0, y=0, arrow=arrow_style) + 
+  geom_text(aes(x=PC2, y=PC3, label=variable), hjust=0, size=5, color='red') 
+
+
+
+### ggplotified
+ggplot(scoresWdf, aes(PC1, PC2, colour=ephys2$Genotype)) + 
+  geom_point(size = 8) +
+  theme_cowplot(font_size = 20, line_size = 1) + 
+  background_grid(major = "xy", minor = "none") + 
+  theme(strip.background = element_blank())  
+
+ggplot(scoresWdf, aes(PC1, PC2, colour=ephys2$genoAPA)) + 
+  geom_point(size = 8) +
+  theme_cowplot(font_size = 20, line_size = 1) + 
+  background_grid(major = "xy", minor = "none") + 
+  theme(strip.background = element_blank())   
+
+ggplot(scoresWdf, aes(PC2, PC3, colour=ephys2$genoAPA)) + 
+  geom_point(size = 8) +
+  theme_cowplot(font_size = 20, line_size = 1) + 
+  background_grid(major = "xy", minor = "none") + 
+  theme(strip.background = element_blank())  
+
+ggplot(scoresWdf, aes(PC3, PC4, colour=ephys2$genoAPA)) + 
+  geom_point(size = 8) +
+  theme_cowplot(font_size = 20, line_size = 1) + 
+  background_grid(major = "xy", minor = "none") + 
+  theme(strip.background = element_blank())  
+
+ggplot(scoresWdf, aes(PC3, PC4, colour=ephys2$Genotype)) + 
+  geom_point(size = 8) +
+  theme_cowplot(font_size = 20, line_size = 1) + 
+  background_grid(major = "xy", minor = "none") + 
+  theme(strip.background = element_blank())  
+
+ggplot(scoresWdf, aes(PC3, PC4, colour=ephys2$APA)) + 
+  geom_point(size = 8) +
+  theme_cowplot(font_size = 20, line_size = 1) + 
+  background_grid(major = "xy", minor = "none") + 
+  theme(strip.background = element_blank())  
+
+```

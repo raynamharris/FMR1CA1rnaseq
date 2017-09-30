@@ -65,7 +65,7 @@ behaviorsummaryNum$genoAPA <- as.factor(paste(behaviorsummaryNum$Genotype,behavi
 
 ```{r numentrance}
 
-
+behaviorsummaryNum$head1 <- "Consistent Training"
 numentrance1consistent<- behaviorsummaryNum %>%
   filter(conflict == "consistent") %>%
   ggplot(aes(x= TrainSessionComboNum, y=m, shape=Genotype)) + 
@@ -81,9 +81,10 @@ numentrance1consistent<- behaviorsummaryNum %>%
                                 "4" = "T3", "5" = "Retest", "6" = "T4",
                                 "7" = "T5", "8" = "T6", "9"= "Reten.")) +
   theme_cowplot(font_size = 8, line_size = 0.25) +
-  background_grid(major = "y", minor = "y") +
+  #background_grid(major = "y", minor = "y") +
   theme( legend.position="none") +
-  scale_shape_manual(values=c(16, 1)) 
+  scale_shape_manual(values=c(16, 1)) +
+  facet_wrap(~head1)
 numentrance1consistent
 
 pdf(file="../figures/01_behavior/numentrance1consistent.pdf", width=3.25, height=2.25)
@@ -92,7 +93,7 @@ dev.off()
 
 
 
-
+behaviorsummaryNum$head2 <- "Conflict Training"
 numentrance1conflict<- behaviorsummaryNum %>%
   filter(conflict == "conflict") %>%
   ggplot(aes(x= TrainSessionComboNum, y=m, shape=Genotype)) + 
@@ -105,15 +106,14 @@ numentrance1conflict<- behaviorsummaryNum %>%
     scale_x_continuous(name = NULL, 
                        breaks = c(1, 2, 3, 4, 5, 6, 7, 8, 9),
                        labels=c("1" = "Hab. ", "2" = "T1", "3" = "T2", 
-                                "4" = "T3", "5" = "Retest", "6" = "T4",
-                                "7" = "T5", "8" = "T6", "9"= "Reten.")) +
+                                "4" = "T3", "5" = "Retest", "6" = "C1",
+                                "7" = "C2", "8" = "C3", "9"= "Reten.")) +
   theme_cowplot(font_size = 8, line_size = 0.25) +
-  background_grid(major = "y", minor = "y") +
+  #background_grid(major = "y", minor = "y") +
   theme( legend.position="none") +
-  scale_shape_manual(values=c(16, 1)) 
+  scale_shape_manual(values=c(16, 1)) +
+  facet_wrap(~head2)
 numentrance1conflict
-
-
 
 pdf(file="../figures/01_behavior/numentrance1conflict.pdf", width=3.25, height=2.25)
 plot(numentrance1conflict)

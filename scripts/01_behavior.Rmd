@@ -65,65 +65,14 @@ behaviorsummaryNum$genoAPA <- as.factor(paste(behaviorsummaryNum$Genotype,behavi
 
 ```{r numentrance}
 
-# plotting mean and se for time to total number of entrances
-numentrance1WT <- behaviorsummaryNum %>%
-  filter(Genotype == "WT") %>%
-  ggplot(aes(x=, TrainSessionComboNum, y=m, color=APA2)) + 
-    geom_errorbar(aes(ymin=m-se, ymax=m+se, color=APA2), width=.1) +
-    geom_point(size = 2) +
-    geom_line() +
-    scale_y_continuous(name="Number of Entrances\nper 10 min training session") +
-    scale_x_continuous(name = NULL, 
-                       breaks = c(1, 2, 3, 4, 5, 6, 7, 8, 9),
-                       labels=c("1" = "Habituation ", "2" = "T1", "3" = "T2", 
-                                "4" = "T3", "5" = "Retest", "6" = "T4/C1",
-                                "7" = "T5/C2", "8" = "T6/C3", "9"= "Retention")) +
-  theme_cowplot(font_size = 8, line_size = 0.25) +
-  background_grid(major = "y", minor = "y") +
-  scale_color_manual(values = colorvalAPA2)  + 
-  labs(title = "WT")
-numentrance1WT
-
-pdf(file="../figures/01_behavior/numentrance1WT.pdf", width=4, height=2)
-plot(numentrance1WT)
-dev.off()
-
-
-# plotting mean and se for time to total number of entrances
-numentrance1FMR1 <- behaviorsummaryNum %>%
-  filter(Genotype == "FMR1KO") %>%
-  ggplot(aes(x=, TrainSessionComboNum, y=m, color=APA2)) + 
-    geom_errorbar(aes(ymin=m-se, ymax=m+se, color=APA2), width=.1) +
-    geom_point(size = 2) +
-   geom_line() +
-    scale_y_continuous(name="Number of Entrances") +
-    scale_x_continuous(name = NULL, 
-                       breaks = c(1, 2, 3, 4, 5, 6, 7, 8, 9),
-                       labels=c("1" = "Hab. ", "2" = "T1", "3" = "T2", 
-                                "4" = "T3", "5" = "Retest", "6" = "T4/C1",
-                                "7" = "T5/C2", "8" = "T6/C3", "9"= "Reten.")) +
-  theme_cowplot(font_size = 8, line_size = 0.25) +
-  background_grid(major = "y", minor = "y") +
-  scale_color_manual(values = colorvalAPA2) + 
-  #theme(legend.position=c(0.7, 0.8))  +
-  theme(legend.position="none")  + 
-  labs(title = "FMR1-KO")
-numentrance1FMR1
-
-pdf(file="../figures/01_behavior/numentrance1FMR1.pdf", width=4, height=2)
-plot(numentrance1FMR1)
-dev.off()
-
-
-
 
 numentrance1consistent<- behaviorsummaryNum %>%
   filter(conflict == "consistent") %>%
   ggplot(aes(x= TrainSessionComboNum, y=m, shape=Genotype)) + 
-    geom_errorbar(aes(ymin=m-se, ymax=m+se, color=Genotype), width=.1, position = dodge) +
-    geom_line(aes(colour=genoAPA)) +
-   geom_point(size = 2.5, aes(colour=Genotype), position = dodge) +
-    scale_color_manual(values = colorvalAPA10) +
+  geom_errorbar(aes(ymin=m-se, ymax=m+se, color=APA2), width=.1) +
+  geom_line(aes(colour=APA2, linetype=Genotype)) +
+  geom_point(size = 2.5, aes(colour=APA2, shape=Genotype)) +
+  scale_color_manual(values = colorvalAPA5) +
     scale_y_continuous(name="Number of Entrances",
                        limits = c(0,35)) +
     scale_x_continuous(name = NULL, 
@@ -131,26 +80,56 @@ numentrance1consistent<- behaviorsummaryNum %>%
                        labels=c("1" = "Hab. ", "2" = "T1", "3" = "T2", 
                                 "4" = "T3", "5" = "Retest", "6" = "T4",
                                 "7" = "T5", "8" = "T6", "9"= "Reten.")) +
-  theme_cowplot(font_size = 9, line_size = 0.25) +
+  theme_cowplot(font_size = 8, line_size = 0.25) +
   background_grid(major = "y", minor = "y") +
-  #theme( 
-  #      legend.position = "top",
-  #      legend.title=element_blank(),
-  #      legend.justification = c(0.1, 0.8)) 
-  theme(legend.position = "none")
+  theme( legend.position="none") +
+  scale_shape_manual(values=c(16, 1)) 
 numentrance1consistent
 
 pdf(file="../figures/01_behavior/numentrance1consistent.pdf", width=3.25, height=2.25)
 plot(numentrance1consistent)
 dev.off()
 
-numentrance1conflict <- behaviorsummaryNum %>%
+
+
+
+numentrance1conflict<- behaviorsummaryNum %>%
   filter(conflict == "conflict") %>%
   ggplot(aes(x= TrainSessionComboNum, y=m, shape=Genotype)) + 
-    geom_errorbar(aes(ymin=m-se, ymax=m+se, color=Genotype), width=.1, position = dodge) +
-    geom_line(aes(colour=genoAPA)) +
-    geom_point(size = 2.5, aes(colour=Genotype), position = dodge) +
-    scale_color_manual(values = colorvalAPA8) +
+  geom_errorbar(aes(ymin=m-se, ymax=m+se, color=APA2), width=.1) +
+  geom_line(aes(colour=APA2, linetype=Genotype)) +
+  geom_point(size = 2.5, aes(colour=APA2, shape=Genotype)) +
+  scale_color_manual(values = colorvalAPA4) +
+    scale_y_continuous(name="Number of Entrances",
+                       limits = c(0,35)) +
+    scale_x_continuous(name = NULL, 
+                       breaks = c(1, 2, 3, 4, 5, 6, 7, 8, 9),
+                       labels=c("1" = "Hab. ", "2" = "T1", "3" = "T2", 
+                                "4" = "T3", "5" = "Retest", "6" = "T4",
+                                "7" = "T5", "8" = "T6", "9"= "Reten.")) +
+  theme_cowplot(font_size = 8, line_size = 0.25) +
+  background_grid(major = "y", minor = "y") +
+  theme( legend.position="none") +
+  scale_shape_manual(values=c(16, 1)) 
+numentrance1conflict
+
+
+
+pdf(file="../figures/01_behavior/numentrance1conflict.pdf", width=3.25, height=2.25)
+plot(numentrance1conflict)
+dev.off()
+
+
+
+
+
+behaviorsummaryNum$behvaior <- "Number of Entrances"
+numentrance1all <- behaviorsummaryNum %>%
+  ggplot(aes(x= TrainSessionComboNum, y=m, shape=Genotype)) + 
+  geom_errorbar(aes(ymin=m-se, ymax=m+se, color=APA2), width=.1) +
+  geom_line(aes(colour=APA2, linetype=genoAPA)) +
+  geom_point(size = 2.5, aes(colour=genoAPA, shape=Genotype)) +
+  #scale_color_manual(values = colorvalAPA4) +
     scale_y_continuous(name="Number of Entrances",
                        limits = c(0,35)) +
     scale_x_continuous(name = NULL, 
@@ -158,18 +137,19 @@ numentrance1conflict <- behaviorsummaryNum %>%
                        labels=c("1" = "Hab. ", "2" = "T1", "3" = "T2", 
                                 "4" = "T3", "5" = "Retest", "6" = "C1",
                                 "7" = "C2", "8" = "C3", "9"= "Reten.")) +
-  theme_cowplot(font_size = 9, line_size = 0.25) +
+  theme_cowplot(font_size = 8, line_size = 0.25) +
   background_grid(major = "y", minor = "y") +
-  #theme( 
-  #      legend.position = "top",
-  #      legend.title=element_blank(),
-  #      legend.justification = c(0.1, 0.8))
-  theme(legend.position = "none")
-numentrance1conflict
+  theme( legend.position="none",
+         axis.title.y = element_blank()) +
+  #scale_linetype_manual(values = c(1,2,1,2)) +
+  #scale_shape_manual(values=c(16, 1)) +
+  facet_wrap(~behvaior)
+numentrance1all
 
-pdf(file="../figures/01_behavior/numentrance1conflict.pdf", width=3.25, height=2.25)
-plot(numentrance1conflict)
+pdf(file="../figures/01_behavior/numentrance1all.pdf", width=3.25, height=2.25)
+plot(numentrance1all)
 dev.off()
+
 
 
 ```

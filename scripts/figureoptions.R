@@ -19,7 +19,7 @@ colorvalAPA <- c("#404040", "#f4a582", "#ca0020")
 #f4a582 ## pink - conflict
 #ca0020 ## red - consistent 
 
-colorvalAPA2 <-  c( "#404040","#bababa", "#ca0020", "#f4a582")
+colorvalAPA2 <-  c( "#404040","#ca0020","#bababa",  "#f4a582")
 
 #404040 ## darkgrey - yoked-consistent
 #bababa ## light grey - yoked-conflict
@@ -54,13 +54,16 @@ colorvalAPA9<-  c("conflict" = "#f4a582", "yoked-conflict" = "#bababa", "FMR1KO_
 
 colorvalAPA10<-  c("WT" = "#bf5700", "FMR1KO" = "#54278f", "FMR1KO_consistent" = "#ca0020","WT_consistent" = "#ca0020",  "FMR1KO_yoked-consistent" = "#404040","WT_yoked-consistent" = "#404040" )
 
+colorvalAPA11<-  c("WT_consistent" = "#ca0020", "FMR1KO_consistent" = "white",
+                   "WT_yoked-consistent" = "#404040", "FMR1KO_yoked-consistent" = "white",
+                   "WT_conflict" = "#f4a582",   "FMR1KO_conflict" = "white",  
+                   "WT_yoked-conflict" = "#bababa", "FMR1KO_yoked_conflict" = "white" )
 
-#bababa ## light grey - yoked-conflict
-#404040 ## darkgrey - yoked-consistent
-#f4a582 ## pink - conflict
-#ca0020 ## red - consistent
-# burnt orange WT #bf5700
-# purple FRM1KO #54278f
+colorvalAPA00 <-  c( "#404040","#ca0020", "#bababa", "#f4a582")
+#404040 ## darkgrey - Yoked_NoConflict
+#ca0020 ## red - Trained_NoConflict 
+#bababa ## light grey - Yoked_Conflict
+#f4a582 ## pink - Trained_Conflict
 
 
 
@@ -153,10 +156,8 @@ ann_colors7 = list(
 
 
 ann_colorsGenotype = list(
-  Genotype =  c('FMR1' = (values=c("#54278f")), 
-            'WT' = (values=c("#bf5700"))))
-
-
+  Genotype =  c('FMR1' = (values=c("white")), 
+            'WT' = (values=c("#404040"))))
 
 APAsession = list(
   APA =  c(control = (values=c("#404040")), 

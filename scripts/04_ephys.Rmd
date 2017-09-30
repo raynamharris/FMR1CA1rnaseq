@@ -1,5 +1,11 @@
-```{r}
 
+
+
+
+```{r}
+library(ggplot2)
+library(reshape2)
+library(tidyr)
 source("figureoptions.R")
 library(magrittr)  # for function function "%<>%"
 
@@ -26,20 +32,17 @@ ephys2$APA2 <- ifelse(grepl("TTT", ephys2$group), "consistent",
 ephys2$Year <- ifelse(grepl("151", ephys2$ID), "2015", 
                       ifelse(grepl("16-", ephys2$ID), "2016", NA))
 
-ephys2$genoAPA <- as.factor(paste(ephys2$Genotype,ephys2$APA,sep="_"))
-
-
 
 ## reorder, drop old group coloumn
-ephys2 <- ephys2[c(2,15:19,3:14)]
+ephys2 <- ephys2[c(2,15:18,3:14)]
 
 ### Drop the voltages with very little recording and the Vmax
-ephys2 <- ephys2[c(-11,-13, -15, -17, -18)]
+ephys2 <- ephys2[c(-10,-12, -16, -17)]
 
 
 ## make characters either factors or numbers, as appropriate
 str(ephys2)
-colsfactor = c(1:6)
+colsfactor = c(1:5)
 #colsnumeric = c(18)
 ephys2[,colsfactor] %<>% lapply(function(x) as.factor(as.factor(x)))
 #ephys2[,colsnumeric] %<>% lapply(function(x) as.numeric(as.integer(x)))
@@ -55,11 +58,12 @@ ephys2$Genotype <- factor(ephys2$Genotype,
 ephys2$APA <- factor(ephys2$APA, 
                      levels = c("control", "consistent", "conflict"))
 
-
+ephys2$APA2 <- factor(ephys2$APA2,
+                      levels = c("control-consistent","consistent","control-conflict", "conflict"))
 
 
 ## make long and tidy
-ephys2_long <- melt(ephys2, id = c(1:6))
+ephys2_long <- melt(ephys2, id = c(1:5))
 
 ## add numeric for stat smooth
 ephys2_long$variablenumeric <- ifelse((ephys2_long$variable == "V0"), "1", 
@@ -71,13 +75,21 @@ ephys2_long$variablenumeric <- ifelse((ephys2_long$variable == "V0"), "1",
                                                                          ifelse(grepl("V50", ephys2_long$variable), "7", NA)))))))
 ephys2_long <- ephys2_long %>% drop_na()
 
-levels(ephys2_long$variable)
 ephys2_long$variablenumeric <- as.numeric(ephys2_long$variablenumeric)
 
 ephys2_long$Genotype <- factor(ephys2_long$Genotype, 
                                levels = c("WT", "FMR1KO"))
 ephys2_long$APA <- factor(ephys2_long$APA, 
                           levels = c("control", "consistent", "conflict"))
+
+
+ephys2summaryNum$APA2 <- factor(ephys2summaryNum$APA2,
+                      levels = c("control-consistent","consistent","control-conflict", "conflict"))
+ephys2$genoAPA <- as.factor(paste(ephys2$Genotype,ephys2$APA2,sep="_"))
+
+
+
+
 ######################################
 ## make a WT 2016 only
 ephys2015 <- ephys2 %>%
@@ -89,17 +101,20 @@ ephys2015_long <- ephys2_long %>%
 
 
 
-levels(ephys2$APA2) <- c("yoked-consistent","yoked-conflict","consistent", "conflict")
-levels(ephys2_long$APA2) <- c("yoked-consistent","yoked-conflict","consistent", "conflict")
 
-head(ephys2)
+
 ephys2summaryNum <- dplyr::summarise(group_by(ephys2, Genotype, APA2, genoAPA), m = mean(min), se = sd(min)/sqrt(length(min)), len = length(min))
 ephys2summaryNum <- as.data.frame(ephys2summaryNum)
 levels(ephys2summaryNum$Genotype) <- c("WT","FMR1KO")
-levels(ephys2summaryNum$APA2) <- c("yoked-consistent","yoked-conflict", "consistent", "conflict")
+
+levels(ephys2$APA2) <- c("yoked-consistent","consistent", "yoked-conflict", "conflict")
+levels(ephys2_long$APA2) <- c("yoked-consistent","consistent", "yoked-conflict", "conflict")
+levels(ephys2summaryNum$APA2) <- c("yoked-consistent","consistent", "yoked-conflict", "conflict")
+ephys2$genoAPA <- as.factor(paste(ephys2$Genotype,ephys2$APA2,sep="_"))
+#levels(ephys2$genoAPA) <- c("WT_yoked-consistent","WT_consistent", "WT_yoked-conflict", "WT_conflict","FMR1KO_yoked-consistent","FMR1KO_consistent", "FMR1KO_yoked-conflict", "FMR1KO_conflict")
 
 
-ephys2$APA2 <- factor(ephys2$APA2, levels = c("yoked-consistent",  "consistent", "yoked-conflict", "conflict"))
+
 
 ## Stimulus strength on x fepsp slope on y
 ephys2_long %>% 
@@ -117,61 +132,50 @@ ephys2_long %>%
   labs(x = "Stimulus Strenght (V)", y = "fEPSP Slope") + 
   theme(legend.position="none")
 
-ephys2_long %>% 
-  ggplot(aes(x=variablenumeric, y=value, color=Genotype )) + 
-  stat_smooth(alpha=0.2, size=2) +
-  geom_jitter(size=2, width = 0.5) +
-  background_grid(major = "xy", minor = "none") + 
-  theme_cowplot(font_size = 20, line_size = 1) + 
-  facet_wrap(~APA2,nrow=2) +   
-  scale_y_continuous(trans = "reverse") + 
-  scale_x_continuous(breaks=c(1,2,3,4,5,6,7),
-                     labels=c("0", "10", "15", "20", "30", "40", "50")) +
-  scale_color_manual(values = colorvalGenotype) + 
-  labs(x = "Stimulus Strenght (V)", y = "fEPSP Slope") + 
-  theme(legend.position="none")
 
-ephys2 %>% 
-  ggplot(aes(x=APA2, y=min, fill=APA2)) +
-  geom_boxplot() +
+plot1 <- ephys2 %>% 
+  filter(Genotype== "WT") %>% 
+  ggplot(aes(x=APA2, y=max, fill=APA2, color=APA2)) +
+  geom_violin() +
+  geom_point(size=2) +
   scale_y_continuous(trans = "reverse") + 
   background_grid(major = "xy", minor = "none") + 
-  theme_cowplot(font_size = 20, line_size = 1) + 
-  scale_fill_manual(values = colorvalAPA2) +
+  theme_cowplot(font_size = 8, line_size = 0.25) + 
+  scale_color_manual(values = colorvalAPA00) +
+  scale_fill_manual(values=alpha(c( "#404040","#ca0020", "#bababa", "#f4a582"), .3)) +
   labs(y = "Maximum fEPSP Slope", x = NULL) +
-  facet_grid(~Genotype)
+  facet_wrap(~Genotype) + 
+  theme(legend.position="none",
+        axis.text.x = element_blank())
+plot1
 
-myggplot <- ephys2 %>% 
-  ggplot(aes(x=Genotype, y=min, fill=Genotype)) +
-  geom_boxplot() +
-  scale_y_continuous(trans = "reverse") + 
-  background_grid(major = "xy", minor = "none") + 
-  theme_cowplot(font_size = 8, line_size = 1) + 
-  scale_fill_manual(values = colorvalGenotype) +
-  labs(y = "Maximum fEPSP Slope", x = NULL) +
-  facet_grid(~APA2)  +
-  theme(legend.position="none")
-myggplot
-
-pdf(file="~/Github/FMR1rnaseqCA1/figures/04_ephys/ephys1.pdf", width=3.5, height=2.5)
-plot(myggplot)
+pdf(file="~/Github/FMR1CA1rnaseq/figures/04_ephys/ephys1.pdf", width=2, height=2.5)
+plot(plot1)
 dev.off()
 
+FMR1 <- ephys2 %>% 
+  filter(Genotype != "WT") 
+levels(FMR1$APA2)
 
-myggplot <- ephys2 %>% 
-  ggplot(aes(x=Genotype, y=min, fill=Genotype)) +
-  geom_boxplot() +
+plot2 <- FMR1 %>% 
+  filter(Genotype != "WT") %>% 
+  ggplot(aes(x=APA2, y=max, color=APA2)) +
+  geom_violin() +
+  geom_point(size=2) +
   scale_y_continuous(trans = "reverse") + 
   background_grid(major = "xy", minor = "none") + 
-  theme_cowplot(font_size = 8, line_size = 0.5) + 
-  scale_fill_manual(values = colorvalGenotype) +
+  theme_cowplot(font_size = 8, line_size = 0.25) + 
+  scale_color_manual(values = c("#f4a582" ,"#ca0020" ,"#bababa",   "#404040")) +
   labs(y = "Maximum fEPSP Slope", x = NULL) +
-  facet_wrap(~APA2, nrow=2) +
-  theme(legend.position="none")
+  facet_wrap(~Genotype) + 
+  theme(legend.position="none",
+        axis.text.x = element_blank())
+plot2
 
-pdf(file="~/Github/FMR1rnaseqCA1/figures/04_ephys/ephys2.pdf", width=2.5, height=2.5)
-plot(myggplot)
+pdf(file="~/Github/FMR1CA1rnaseq/figures/04_ephys/ephys2.pdf", width=2, height=2.5)
+plot(plot2)
 dev.off()
+
 
 
 aov1 <- aov(min ~ Genotype, data=ephys2)

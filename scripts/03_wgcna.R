@@ -11,7 +11,6 @@ library(dplyr)
 library(DESeq2) ## for gene expression analysis
 library(viridis) # for awesome color pallette
 
-
 options(stringsAsFactors=FALSE)
 allowWGCNAThreads()
 
@@ -20,7 +19,7 @@ allowWGCNAThreads()
 ########################################################    
 
 datExpr0 <- read.csv("../data/02_vsd.csv", header = T, check.names = F, row.names = 1)
-datExpr0 <- datExpr0[rowMeans(datExpr0[, -1])>1, ] ## remove rows with rowsum > some value
+datExpr0 <- datExpr0[rowMeans(datExpr0[, -1]) > 8, ] ## remove rows with rowsum > some value
 datExpr0 <- t(datExpr0) ## transpose data
 datExpr0 <- as.data.frame(datExpr0)
 
@@ -30,14 +29,11 @@ gsg$goodSamples
 
 #-----Make a trait data frame from just sample info without beahvior
 datTraits <- read.csv("../data/02_ColData.csv", header = T, check.names = F, row.names = 1)
-datTraits <- datTraits[c(1,3,6)]
+datTraits <- datTraits[c(3,6)]
 
-
-datTraits$RNAseqID <- as.integer(factor(datTraits$RNAseqID))
 datTraits$Genotype <- as.integer(factor(datTraits$Genotype))
 datTraits$daytime <- as.integer(factor(datTraits$daytime))
 
-datTraits$RNAseqID <- as.numeric(factor(datTraits$RNAseqID))
 datTraits$Genotype <- as.numeric(factor(datTraits$Genotype))
 datTraits$daytime <- as.numeric(factor(datTraits$daytime))
 
@@ -70,13 +66,10 @@ datColors=data.frame(outlier=outlierColor,traitColors)
 #      Plot the sample dendrogram
 #######   #################    ################   ####### 
 
-pdf(file="../figures/00_WGCNA/SampleDendro.pdf", width=6, height=6)
+pdf(file="../figures/03_WGCNA/SampleDendro.pdf", width=6, height=6)
 plotDendroAndColors(sampleTree,groupLabels=names(datColors),
                     colors=datColors,main="Sample dendrogram and trait heatmap")
 dev.off()
-
-
-# Plot a line to show the cut
 
 # Determine cluster under the line
 clust = cutreeStatic(sampleTree, cutHeight = 0.45, minSize = 10)
@@ -96,7 +89,6 @@ Z.k=scale(k)
 dim(datExpr0)
 dim(datTraits)
 
-
 #######   #################    ################   #######    
 #                     Choose soft threshold
 #######   #################    ################   #######     
@@ -104,7 +96,7 @@ dim(datTraits)
 powers= c(seq(1,10,by=1), seq(from =12, to=20, by=2)) #choosing a set of soft-thresholding powers
 sft = pickSoftThreshold(datExpr0, powerVector=powers, verbose =5,networkType="signed") #call network topology analysis function
 
-pdf(file="../figures/02f_RNAseq_WGCNA/softthreshold.pdf", width=6, height=5)
+pdf(file="../figures/03_WGCNA/softthreshold.pdf", width=6, height=5)
 par(mfrow= c(1,2))
 cex1=0.9
 plot(sft$fitIndices[,1], -sign(sft$fitIndices[,3])*sft$fitIndices[,2], xlab= "Soft Threshold (power)", ylab="Scale Free Topology Model Fit, signed", type= "n", main= paste("Scale independence"))
@@ -114,28 +106,22 @@ plot(sft$fitIndices[,1], sft$fitIndices[,5], xlab= "Soft Threshold (power)", yla
 text(sft$fitIndices[,1], sft$fitIndices[,5], labels=powers, cex=cex1, col="red")
 dev.off()
 
-#softPower=13
-
-
-
 #######   #################    ################   #######    
 #                    Construct network
 #######   #################    ################   #######     
 
-
-adjacency=adjacency(datExpr0, type="signed", power=13 )  #add  if adjusting 
+adjacency=adjacency(datExpr0, type="signed", power=20 )  #add  if adjusting 
 TOM= TOMsimilarity(adjacency, TOMType="signed")
 dissTOM= 1-TOM
 geneTree= flashClust(as.dist(dissTOM), method="average")
 
 plot(geneTree, xlab="", sub="", main= "Gene Clustering on TOM-based dissimilarity", labels= FALSE, hang=0.04)
 
-
 #######   #################    ################   #######    
 #                    Make modules
 #######   #################    ################   ####### 
 
-minModuleSize=100
+minModuleSize=50
 dynamicMods= cutreeDynamic(dendro= geneTree, distM= dissTOM, deepSplit=2, pamRespectsDendro= FALSE, minClusterSize= minModuleSize)
 table(dynamicMods)
 dynamicColors= labels2colors(dynamicMods)
@@ -151,7 +137,7 @@ MEDiss= 1-cor(MEs, use = 'pairwise.complete.obs')
 METree= flashClust(as.dist(MEDiss), method= "average")
 
 plot(METree, main= "Clustering of module eigengenes", xlab= "", sub= "")
-MEDissThres= 0.01
+MEDissThres= 0.9
 abline(h=MEDissThres, col="red")
 merge= mergeCloseModules(datExpr0, dynamicColors, cutHeight= MEDissThres, verbose =3)
 mergedColors= merge$colors
@@ -184,7 +170,6 @@ moduleGenePvalue = corPvalueStudent(moduleGeneCor, nSamples);
 moduleTraitCor = cor(MEs, datTraits);
 moduleTraitPvalue = corPvalueStudent(moduleTraitCor, nSamples);
 
-
 #---------------------Module-trait heatmap
 
 #quartz()
@@ -211,7 +196,7 @@ labeledHeatmap(Matrix = moduleTraitCor,
 
 
 #---------------------Eigengene heatmap
-which.module="yellow" #replace with module of interest
+which.module="brown" #replace with module of interest
 datME=MEs
 datExpr=datt
 #quartz()
@@ -224,16 +209,13 @@ par(mar=c(5, 4.2, 0, 0.7))
 barplot(ME, col=which.module, main="", names.arg=(datTraits$genoAPA), cex.names=0.5, cex.main=2,
         ylab="eigengene expression",xlab="sample")
 
-
-
-
 # Define variable weight containing the weight column of datTrait
 newdatTraits <- datTraits 
 newdatTraits$names <- rownames(datTraits)
 newdatTraits$names <- NULL
 
-punch = as.data.frame(newdatTraits$Punch);
-names(punch) = "punch"
+Genotype = as.data.frame(newdatTraits$Genotype);
+names(Genotype) = "Genotype"
 
 # names (colors) of the modules
 modNames = substring(names(MEs), 3)
@@ -244,12 +226,11 @@ MMPvalue = as.data.frame(corPvalueStudent(as.matrix(geneModuleMembership), nSamp
 names(geneModuleMembership) = paste("MM", modNames, sep="");
 names(MMPvalue) = paste("p.MM", modNames, sep="");
 
-geneTraitSignificance = as.data.frame(cor(datExpr, punch, use = "p"));
+geneTraitSignificance = as.data.frame(cor(datExpr, Genotype, use = "p"));
 GSPvalue = as.data.frame(corPvalueStudent(as.matrix(geneTraitSignificance), nSamples));
 
-names(geneTraitSignificance) = paste("GS.", names(punch), sep="");
-names(GSPvalue) = paste("p.GS.", names(punch), sep="");
-
+names(geneTraitSignificance) = paste("GS.", names(Genotype), sep="");
+names(GSPvalue) = paste("p.GS.", names(Genotype), sep="");
 
 
 #### output "gene" list ----
@@ -260,30 +241,6 @@ names(GSPvalue) = paste("p.GS.", names(punch), sep="");
 blue <- as.data.frame(colnames(datExpr0)[moduleColors=='blue'])
 blue$module <- "blue"
 colnames(blue)[1] <- "gene"
-red <- as.data.frame(colnames(datExpr0)[moduleColors=='red'])
-red$module <- "red"
-colnames(red)[1] <- "gene"
-green <- as.data.frame(colnames(datExpr0)[moduleColors=='green'])
-green$module <- "green"
-colnames(green)[1] <- "gene"
-yellow <- as.data.frame(colnames(datExpr0)[moduleColors=='yellow'])
-yellow$module <- "yellow"
-colnames(yellow)[1] <- "gene"
 brown <- as.data.frame(colnames(datExpr0)[moduleColors=='brown'])
 brown$module <- "brown"
 colnames(brown)[1] <- "gene"
-turquoise <- as.data.frame(colnames(datExpr0)[moduleColors=='turquoise'])
-turquoise$module <- "turquoise"
-colnames(turquoise)[1] <- "gene"
-black <- as.data.frame(colnames(datExpr0)[moduleColors=='black'])
-black$module <- "black"
-colnames(black)[1] <- "gene"
-magenta <- as.data.frame(colnames(datExpr0)[moduleColors=='magenta'])
-magenta$module <- "magenta"
-colnames(magenta)[1] <- "gene"
-pink <- as.data.frame(colnames(datExpr0)[moduleColors=='pink'])
-pink$module <- "pink"
-colnames(pink)[1] <- "gene"
-purple <- as.data.frame(colnames(datExpr0)[moduleColors=='purple'])
-purple$module <- "purple"
-colnames(purple)[1] <- "gene"

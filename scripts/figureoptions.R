@@ -4,57 +4,35 @@ volcanoGenotype <-  c("FMR1" = "#54278f",
                "WT" = "#bf5700", 
                "none" = "#d9d9d9")
 
-colorvalPunch <- c("#d95f02","#1b9e77", "#7570b3")
-## DG  "#d95f02"
-## CA3 "#1b9e77"
-## CA1 "#7570b3")
-
-colorvalGenotype <-  c( "#bf5700", "#54278f")
-# burnt orange WT #bf5700
-# purple FRM1KO #54278f
-# "Genotype", "FMR1", "WT"
-
-colorvalAPA <- c("#404040", "#f4a582", "#ca0020")
-#404040 ## darkgrey - yoked
-#f4a582 ## pink - conflict
-#ca0020 ## red - consistent 
-
 colorvalAPA2 <-  c( "#404040","#ca0020","#bababa",  "#f4a582")
-
 #404040 ## darkgrey - yoked-consistent
 #bababa ## light grey - yoked-conflict
 #ca0020 ## red - consistent 
 #f4a582 ## pink - conflict
 
-colorvalAPA3 <-  c( "#bababa","#404040", "#f4a582", "#ca0020")
-#bababa ## light grey - Yoked_Conflict
-#404040 ## darkgrey - Yoked_NoConflict
-#f4a582 ## pink - Trained_Conflict
-#ca0020 ## red - Trained_NoConflict 
-
-colorvalAPA4<-  c( "#bababa","#f4a582")
+colorvalAPA4 <-  c( "#bababa","#f4a582")
 #bababa ## light grey - yoked-conflict
 #f4a582 ## pink - conflict
 
-colorvalAPA5<-  c( "#404040","#ca0020")
+colorvalAPA5 <-  c( "#404040","#ca0020")
 #404040 ## darkgrey - yoked-consistent
 #ca0020 ## red - consistent 
 
-colorvalAPA6<-  c( "#f4a582","#ca0020")
+colorvalAPA6 <-  c( "#f4a582","#ca0020")
 #f4a582 ## pink - conflict
 #ca0020 ## red - consistent 
 
-colorvalAPA7<-  c( "#bababa","#404040")
+colorvalAPA7 <-  c( "#bababa","#404040")
 #bababa ## light grey - yoked-conflict
 #404040 ## darkgrey - yoked-consistent
 
-colorvalAPA8<-  c("WT" = "#bf5700", "FMR1KO" = "#54278f", "FMR1KO_conflict" = "#f4a582","WT_conflict" = "#f4a582",  "FMR1KO_yoked-conflict" = "#bababa","WT_yoked-conflict" = "#bababa" )
+colorvalAPA8 <-  c("WT" = "#bf5700", "FMR1KO" = "#54278f", "FMR1KO_conflict" = "#f4a582","WT_conflict" = "#f4a582",  "FMR1KO_yoked-conflict" = "#bababa","WT_yoked-conflict" = "#bababa" )
 
-colorvalAPA9<-  c("conflict" = "#f4a582", "yoked-conflict" = "#bababa", "FMR1KO_conflict" = "#54278f","WT_conflict" = "#bf5700",  "FMR1KO_yoked-conflict" = "#54278f","WT_yoked-conflict" = "#bf5700" )
+colorvalAPA9 <-  c("conflict" = "#f4a582", "yoked-conflict" = "#bababa", "FMR1KO_conflict" = "#54278f","WT_conflict" = "#bf5700",  "FMR1KO_yoked-conflict" = "#54278f","WT_yoked-conflict" = "#bf5700" )
 
-colorvalAPA10<-  c("WT" = "#bf5700", "FMR1KO" = "#54278f", "FMR1KO_consistent" = "#ca0020","WT_consistent" = "#ca0020",  "FMR1KO_yoked-consistent" = "#404040","WT_yoked-consistent" = "#404040" )
+colorvalAPA10 <-  c("WT" = "#bf5700", "FMR1KO" = "#54278f", "FMR1KO_consistent" = "#ca0020","WT_consistent" = "#ca0020",  "FMR1KO_yoked-consistent" = "#404040","WT_yoked-consistent" = "#404040" )
 
-colorvalAPA11<-  c("WT_consistent" = "#ca0020", "FMR1KO_consistent" = "white",
+colorvalAPA11 <-  c("WT_consistent" = "#ca0020", "FMR1KO_consistent" = "white",
                    "WT_yoked-consistent" = "#404040", "FMR1KO_yoked-consistent" = "white",
                    "WT_conflict" = "#f4a582",   "FMR1KO_conflict" = "white",  
                    "WT_yoked-conflict" = "#bababa", "FMR1KO_yoked_conflict" = "white" )
@@ -65,125 +43,34 @@ colorvalAPA00 <-  c( "#404040","#ca0020", "#bababa", "#f4a582")
 #bababa ## light grey - Yoked_Conflict
 #f4a582 ## pink - Trained_Conflict
 
-
-
-DGConflictControl <- c("#bababa","#f4a582")
-DGConsistentControl <- c("#bababa","#ca0020")
-DGConflictConsistent <- c("#f4a582","#ca0020")
-
-
-volcano1 <-  c("consistent" = "#ca0020",
-           "yoked_consistent" = "#404040", 
-           "none" = "#d9d9d9")
-
-volcano2 <-  c("consistent" = "#ca0020",
-               "conflict" = "#f4a582", 
-               "none" = "#d9d9d9")
-
-volcano3 <-  c("yoked_consistent" = "#404040",
-               "yoked_conflict" = "#bababa", 
-               "none" = "#d9d9d9")
-
-
-
-
-## pheatmap
-colorpalette <-  colorRampPalette(c("Deep Sky Blue 3", "white", "red"))( 30 )
-
-
-ann_colors1 = list(
-  Group =  c(control = (values=c("#404040")), 
-             conflict = (values=c("#f4a582")), 
-             consistent = (values=c("#ca0020"))),
-  Region = c(CA1 = (values=c("#7570b3")),
-            CA3 = (values=c("#1b9e77")), 
-            DG = (values=c("#d95f02"))))
-
-ann_colors2 = list(
-  APA =  c(Control = (values=c("#404040")), 
-           Conflict = (values=c("#f4a582")), 
-             Consistent = (values=c("#ca0020"))),
-  Punch = c(CA1 = (values=c("#7570b3")),
-             CA3 = (values=c("#1b9e77")), 
-             DG = (values=c("#d95f02"))))
-
-ann_colors3 = list(
-  APA3 =  c(Yoked_Conflict = (values=c("#bababa")), 
-           Yoked_NoConflict = (values=c("#404040")), 
-           Trained_Conflict = (values=c("#f4a582")),
-           Trained_NoConflict = (values=c("#ca0020"))),
-  Punch = c(CA1 = (values=c("#7570b3")),
-            CA3 = (values=c("#1b9e77")), 
-            DG = (values=c("#d95f02"))))
-
-ann_colors4 = list(
-  APA2 =  c('yoked_conflict' = (values=c("#bababa")),
-            'yoked_consistent' = (values=c("#404040")), 
-            'conflict' = (values=c("#f4a582")),
-            'consistent' = (values=c("#ca0020"))),
-  Punch = c(CA1 = (values=c("#7570b3")),
-            CA3 = (values=c("#1b9e77")), 
-            DG = (values=c("#d95f02"))))
-
-ann_colors5 = list(
-  APA2 =  c('yoked_consistent' = (values=c("#404040")), 
-            'consistent' = (values=c("#ca0020"))),
-  Punch = c(CA1 = (values=c("#7570b3")),
-            CA3 = (values=c("#1b9e77")), 
-            DG = (values=c("#d95f02"))))
-
-ann_colors6 = list(
-  APA2 =  c('conflict' = (values=c("#f4a582")), 
-            'consistent' = (values=c("#ca0020"))),
-  Punch = c(CA1 = (values=c("#7570b3")),
-            CA3 = (values=c("#1b9e77")), 
-            DG = (values=c("#d95f02"))))
-
-ann_colors7 = list(
-  APA2 =  c('yoked_consistent' = (values=c("#404040")), 
-            'yoked_conflict' = (values=c("#bababa"))),
-  Punch = c(CA1 = (values=c("#7570b3")),
-            CA3 = (values=c("#1b9e77")), 
-            DG = (values=c("#d95f02"))))
-
-
-ann_colors7 = list(
-  APA2 =  c('yoked_consistent' = (values=c("#404040")), 
-            'yoked_conflict' = (values=c("#bababa"))),
-  Punch = c(CA1 = (values=c("#7570b3")),
-            CA3 = (values=c("#1b9e77")), 
-            DG = (values=c("#d95f02"))))
-
-
 ann_colorsGenotype = list(
   Genotype =  c('FMR1' = (values=c("white")), 
             'WT' = (values=c("#404040"))))
 
-APAsession = list(
-  APA =  c(control = (values=c("#404040")), 
-           conflict = (values=c("#f4a582")),
-           consistent = (values=c("#ca0020"))),
-  Session =  c(Hab = (values=c("#eff3ff")), 
-               T1 = (values=c("#dfc27d")),
-               T2 = (values=c("#bf812d")),
-               T3 = (values=c("#8c510a")),
-               Retest = (values=c("#543005")),
-               T4_C1 = (values=c("#cbc9e2")),
-               T5_C2 = (values=c("#9e9ac8")),
-               T6_C3 = (values=c("#756bb1")),
-               Retention = (values=c("#54278f"))))
+ann_colorsdaytime2 = list(
+  daytime2 =  c('beforenoon' = (values=c("orange")), 
+                'afternoon' = (values=c("red"))))
 
-APAsession2 = list(
-  APA =  c('yoked-conflict' = (values=c("#bababa")),
-           'yoked-consistent' = (values=c("#404040")), 
-           'conflict' = (values=c("#f4a582")),
-           'consistent' = (values=c("#ca0020"))),
-  Session =  c(Hab = (values=c("#eff3ff")), 
-               T1 = (values=c("#dfc27d")),
-               T2 = (values=c("#bf812d")),
-               T3 = (values=c("#8c510a")),
-               Retest = (values=c("#543005")),
-               T4_C1 = (values=c("#cbc9e2")),
-               T5_C2 = (values=c("#9e9ac8")),
-               T6_C3 = (values=c("#756bb1")),
-               Retention = (values=c("#54278f"))))
+ann_colorsdaytime3 = list(
+  daytime3 =  c('daytime' = (values=c("orange")), 
+                'nighttime' = (values=c("blue"))))
+
+ann_colorsdaytime = list(
+  daytime =  c('afternoon' = (values=c("red")), 
+                'beforenoon' = (values=c("orange")),
+               'evening' = (values=c("blue")), 
+               'nighttime' = (values=c("black"))))
+
+ann_colorsall = list(
+  daytime =  c('afternoon' = (values=c("red")), 
+               'beforenoon' = (values=c("orange")),
+               'evening' = (values=c("blue")), 
+               'nighttime' = (values=c("black"))),
+  Genotype =  c('FMR1' = (values=c("white")), 
+                'WT' = (values=c("#404040"))))
+
+ann_colorsdaytime3frm1 = list(
+  Genotype =  c('FMR1' = (values=c("white")), 
+                'WT' = (values=c("#404040"))),
+  daytime3 =  c('daytime' = (values=c("orange")), 
+                'nighttime' = (values=c("blue"))))

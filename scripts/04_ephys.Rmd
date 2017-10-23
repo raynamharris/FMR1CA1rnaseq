@@ -83,33 +83,12 @@ ephys2_long$APA <- factor(ephys2_long$APA,
                           levels = c("control", "consistent", "conflict"))
 
 
-ephys2summaryNum$APA2 <- factor(ephys2summaryNum$APA2,
-                      levels = c("control-consistent","consistent","control-conflict", "conflict"))
-ephys2$genoAPA <- as.factor(paste(ephys2$Genotype,ephys2$APA2,sep="_"))
 
 
-
-
-######################################
-## make a WT 2016 only
-ephys2015 <- ephys2 %>%
-  filter(Year %in% c("2015"))
-ephys2015_long <- ephys2_long %>%
-  filter(Year %in% c("2015"))
-
-
-
-
-
-
-
-ephys2summaryNum <- dplyr::summarise(group_by(ephys2, Genotype, APA2, genoAPA), m = mean(min), se = sd(min)/sqrt(length(min)), len = length(min))
+ephys2summaryNum <- dplyr::summarise(group_by(ephys2, Genotype, APA2), m = mean(min), se = sd(min)/sqrt(length(min)), len = length(min))
 ephys2summaryNum <- as.data.frame(ephys2summaryNum)
 levels(ephys2summaryNum$Genotype) <- c("WT","FMR1KO")
 
-levels(ephys2$APA2) <- c("yoked-consistent","consistent", "yoked-conflict", "conflict")
-levels(ephys2_long$APA2) <- c("yoked-consistent","consistent", "yoked-conflict", "conflict")
-levels(ephys2summaryNum$APA2) <- c("yoked-consistent","consistent", "yoked-conflict", "conflict")
 ephys2$genoAPA <- as.factor(paste(ephys2$Genotype,ephys2$APA2,sep="_"))
 #levels(ephys2$genoAPA) <- c("WT_yoked-consistent","WT_consistent", "WT_yoked-conflict", "WT_conflict","FMR1KO_yoked-consistent","FMR1KO_consistent", "FMR1KO_yoked-conflict", "FMR1KO_conflict")
 
@@ -138,7 +117,8 @@ plot1 <- ephys2 %>%
   ggplot(aes(x=APA2, y=max, fill=APA2, color=APA2)) +
   geom_violin() +
   geom_point(size=2) +
-  scale_y_continuous(trans = "reverse") + 
+  scale_y_continuous(trans = "reverse",
+                     limits = c(0.001 , -0.002)) + 
   background_grid(major = "xy", minor = "none") + 
   theme_cowplot(font_size = 8, line_size = 0.25) + 
   scale_color_manual(values = colorvalAPA00) +
@@ -153,16 +133,14 @@ pdf(file="~/Github/FMR1CA1rnaseq/figures/04_ephys/ephys1.pdf", width=2, height=2
 plot(plot1)
 dev.off()
 
-FMR1 <- ephys2 %>% 
-  filter(Genotype != "WT") 
-levels(FMR1$APA2)
 
-plot2 <- FMR1 %>% 
+plot2 <- ephys2 %>% 
   filter(Genotype != "WT") %>% 
   ggplot(aes(x=APA2, y=max, color=APA2)) +
   geom_violin() +
   geom_point(size=2) +
-  scale_y_continuous(trans = "reverse") + 
+  scale_y_continuous(trans = "reverse",
+                     limits = c(0.001 , -0.002)) + 
   background_grid(major = "xy", minor = "none") + 
   theme_cowplot(font_size = 8, line_size = 0.25) + 
   scale_color_manual(values = c("#f4a582" ,"#ca0020" ,"#bababa",   "#404040")) +
@@ -171,6 +149,8 @@ plot2 <- FMR1 %>%
   theme(legend.position="none",
         axis.text.x = element_blank())
 plot2
+
+summary(ephys2$max)
 
 pdf(file="~/Github/FMR1CA1rnaseq/figures/04_ephys/ephys2.pdf", width=2, height=2.5)
 plot(plot2)

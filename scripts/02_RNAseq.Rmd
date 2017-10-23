@@ -12,7 +12,7 @@ output:
 This workflow was modified from the DESeq2 tutorial found at: https://www.bioconductor.org/packages/release/bioc/vignettes/DESeq2/inst/doc/DESeq2.pdf
 
 First I load a handful of packages for data wrangling, gene expression analysis, data visualization, and statistics.
-```{r setup, message=F, warning=F, echo=F}
+```{r setup, message=F, warning=F}
 library(dplyr) ## for filtering and selecting rows
 library(DESeq2) ## for gene expression analysis
 library(edgeR)  ## for basic read counts status
@@ -35,7 +35,7 @@ knitr::opts_chunk$set(fig.path = '../figures/02_RNAseq/')
 
 We are ready to calculate differential gene expression using the DESeq package. For simplicity, I will use the standard nameing of "countData" and "colData" for the gene counts and gene information, respectively.
 
-```{r prepforDESeq2, message=F, warning=F, echo=F}
+```{r prepforDESeq2, message=F, warning=F}
 colData <- read.csv("../data/fmr1ColData.csv", header = T)
 countData <- read.csv("../data/fmr1CountData.csv", header = T, check.names = F, row.names = 1)
 
@@ -71,7 +71,7 @@ colData %>% select(Genotype, APA, daytime, daytime2, daytime3)  %>%  summary()
 ## Total Gene Counts Per Sample 
 this could say something about data before normalization
 
-```{r totalRNAseqcounts, message=F, warning=F, echo=F}
+```{r totalRNAseqcounts, message=F, warning=F}
 ## stats
 dim(countData)
 counts <- countData
@@ -94,7 +94,7 @@ hist(rowsum$millioncounts)
 
 ## DeSeq2
 
-```{r DESeq2, message=F, warning=F, echo=F}
+```{r DESeq2, message=F, warning=F}
 ## create DESeq object using the factor Genotyp
 dds <- DESeqDataSetFromMatrix(countData = countData,
                               colData = colData,
@@ -113,7 +113,7 @@ vsd <- getVarianceStabilizedData(dds)
 
 ## PCA
 
-```{r pca, message=F, warning=F, echo=F}
+```{r pca, message=F, warning=F}
 # create the dataframe using my function pcadataframe
 pcadata <- pcadataframe(rld, intgroup=c("Genotype"), returnData=TRUE)
 percentVar <- round(100 * attr(pcadata, "percentVar"))
@@ -158,7 +158,7 @@ dev.off()
 
 # Number of differentially expressed genes per two-way contrast
 
-```{r Twowaycontrasts3, message=F, warning=F, echo=F}
+```{r Twowaycontrasts3, message=F, warning=F}
 #calculate significance of all two way comparisions
 contrast1 <- resvals(contrastvector = c("Genotype", "FMR1", "WT"), mypval = 0.1) # 11
 
@@ -220,7 +220,7 @@ dev.off()
 ```
 
 
-```{r heatmap, message=F, warning=F, echo=F}
+```{r heatmap, message=F, warning=F}
 DEGes <- assay(rld)
 DEGes <- cbind(DEGes, contrast1)
 DEGes <- as.data.frame(DEGes) # convert matrix to dataframe
@@ -296,7 +296,7 @@ pheatmap(DEGes, show_colnames=F, show_rownames = T,
 
 ## Daytime 2
 
-```{r, message=F, warning=F, echo=F}
+```{r, message=F, warning=F}
 dds <- DESeqDataSetFromMatrix(countData = countData,
                               colData = colData,
                               design = ~ daytime2)
@@ -371,7 +371,7 @@ pheatmap(DEGes, show_colnames=F, show_rownames = F,
 
 ## Daytime 3  - daytime nighttime
 
-```{r, message=F, warning=F, echo=F}
+```{r, message=F, warning=F}
 dds <- DESeqDataSetFromMatrix(countData = countData,
                               colData = colData,
                               design = ~ daytime3)
@@ -444,7 +444,7 @@ pheatmap(DEGes, show_colnames=F, show_rownames = F,
 
 ## Daytime - all four options
 
-```{r, message=F, warning=F, echo=F}
+```{r, message=F, warning=F}
 dds <- DESeqDataSetFromMatrix(countData = countData,
                               colData = colData,
                               design = ~ daytime)
@@ -516,7 +516,7 @@ pheatmap(DEGes, show_colnames=F, show_rownames = F,
 
 ## Daytime3  and FMR1 - all data points
 
-```{r, message=F, warning=F, echo=F}
+```{r, message=F, warning=F}
 dds <- DESeqDataSetFromMatrix(countData = countData,
                               colData = colData,
                               design = ~ Genotype * daytime )
@@ -587,7 +587,7 @@ pheatmap(DEGes, show_colnames=F, show_rownames = F,
 
 ## Daytime3  and FMR1 - no outliers removed
 
-```{r, message=F, warning=F, echo=F}
+```{r, message=F, warning=F}
 dds <- DESeqDataSetFromMatrix(countData = countData,
                               colData = colData,
                               design = ~ Genotype * daytime3 )
@@ -656,7 +656,7 @@ pheatmap(DEGes, show_colnames=F, show_rownames = F,
 
 ## Daytime 3 and genotype - 2 samples removed
 
-```{r, message=F, warning=F, echo=F}
+```{r, message=F, warning=F}
 dds <- DESeqDataSetFromMatrix(countData = countData,
                               colData = colData,
                               design = ~ Genotype * daytime )
@@ -727,7 +727,7 @@ pheatmap(DEGes, show_colnames=F, show_rownames = T,
 
 ## Daytime3  and FMR1 - no outliers removed
 
-```{r, message=F, warning=F, echo=F}
+```{r, message=F, warning=F}
 colData <- read.csv("../data/fmr1ColData.csv", header = T)
 countData <- read.csv("../data/fmr1CountData.csv", header = T, check.names = F, row.names = 1)
 
@@ -819,7 +819,7 @@ pheatmap(DEGes, show_colnames=F, show_rownames = T,
 
 ## Write the files
 
-```{r writecsv, message=F, warning=F, echo=F}
+```{r writecsv, message=F, warning=F}
 # write.csv(vsd, file = "../data/02_vsd.csv", row.names = T)
 # write.csv(rlddf, file = "../data/02_rlddf.csv", row.names = T)
 # write.csv(colData, file = "../data/02_colData.csv", row.names = T)

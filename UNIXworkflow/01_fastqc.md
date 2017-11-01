@@ -101,7 +101,7 @@ multiqc .
 ~~~
 
 The results of the MutliQC analysis of quality are here:
-![](./figures/02_RNAseq/multiqc.png)
+![](../figures/02_RNAseq/multiqc.png)
 
 The interpretion is that these data are of high enough quality to proceed to quanitification with out filtering. 
 

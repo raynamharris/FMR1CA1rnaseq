@@ -6,10 +6,11 @@ library(dplyr) ## for filtering and selecting rows
 library(reshape2) ## for melting dataframe
 library(ggplot2)
 library(cowplot)
+library(pheatmap)
+library(viridis)
+library(tidyverse) # for loop anova
 
-
-## load functions 
-source("functions_behavior.R")
+## load color settings
 source("figureoptions.R")
 ```
 
@@ -29,13 +30,7 @@ levels(behavior$APA2)
 ## relevel then rename factors treatment
 behavior$APA2 <- factor(behavior$APA2, levels = c("controlconsistent", "controlconflict", "consistent", "conflict"))
 levels(behavior$APA2) <- c("yoked-consistent","yoked-conflict","consistent", "conflict")
-levels(behavior$APA2)
-```
 
-    ## [1] "yoked-consistent" "yoked-conflict"   "consistent"      
-    ## [4] "conflict"
-
-``` r
 #relevel APA
 levels(behavior$APA) <- c("control","consistent","conflict")
 
@@ -55,134 +50,84 @@ behaviorsummaryNum <- as.data.frame(behaviorsummaryNum)
 levels(behaviorsummaryNum$Genotype) <- c("WT","FMR1KO")
 levels(behaviorsummaryNum$APA2) <- c("yoked-consistent","yoked-conflict", "consistent", "conflict")
 levels(behaviorsummaryNum$conflict) <- c("consistent","conflict")
+
+behaviorsummaryNum$genoAPA <- as.factor(paste(behaviorsummaryNum$Genotype,behaviorsummaryNum$APA2,sep="_"))
 ```
 
-Plotting number of entrances
-----------------------------
+``` r
+behaviorsummaryboth <- behavior
+behaviorsummaryboth$APA1 <- ifelse(grepl("control", behaviorsummaryboth$APA), "yoked", "trained")
+behaviorsummaryboth <- dplyr::summarise(group_by(behaviorsummaryboth, Genotype, APA1, TrainSessionComboNum), m = mean(NumEntrances), se = sd(NumEntrances)/sqrt(length(NumEntrances)), len = length(NumEntrances))
+behaviorsummaryboth <- as.data.frame(behaviorsummaryboth)
+levels(behaviorsummaryboth$Genotype) <- c("WT","FMR1KO")
+levels(behaviorsummaryboth$APA1) <- c("yoked","trained")
+behaviorsummaryboth$genoAPA <- as.factor(paste(behaviorsummaryboth$Genotype,behaviorsummaryboth$APA1,sep="_"))
+```
 
 ``` r
-# plotting mean and se for time to total number of entrances
-numentrance1WT <- behaviorsummaryNum %>%
-  filter(Genotype == "WT") %>%
-  ggplot(aes(x=, TrainSessionComboNum, y=m, color=APA2)) + 
-    geom_errorbar(aes(ymin=m-se, ymax=m+se, color=APA2), width=.1) +
-    geom_point(size = 2) +
-   geom_line() +
-    scale_y_continuous(name="Number of Entrances\nper 10 min training session") +
-    scale_x_continuous(name = NULL, 
-                       breaks = c(1, 2, 3, 4, 5, 6, 7, 8, 9),
+# Standard error of the mean
+behaviorsummaryboth$behvaior <- "Number of Entrances"
+habretest <- behaviorsummaryboth %>%
+  filter(TrainSessionComboNum <= 5) %>%
+  ggplot(aes(x=TrainSessionComboNum, y=m, 
+                                colour=APA1,shape=Genotype)) + 
+    geom_errorbar(aes(ymin=m-se, ymax=m+se), width=.1) +
+    geom_line(aes(linetype=Genotype)) +
+    geom_point(aes(shape=Genotype)) +
+    theme_cowplot(font_size = 8, line_size = 0.25) +
+    scale_color_manual(values = colorvalAPA5) +
+    scale_y_continuous(name="Number of Entrances",
+                       limits = c(0,35)) +
+    scale_x_continuous(name = "Training Session", 
+                       breaks = c(1, 2, 3, 4, 5),
                        labels=c("1" = "Habituation ", "2" = "T1", "3" = "T2", 
-                                "4" = "T3", "5" = "Retest", "6" = "T4/C1",
-                                "7" = "T5/C2", "8" = "T6/C3", "9"= "Retention")) +
+                                "4" = "T3", "5" = "Retest")) +
+    theme(legend.position="none") +
+    scale_linetype_manual(values = c(1,2,1,2)) +
+    scale_shape_manual(values=c(16, 1)) 
+habretest
+```
+
+![](01_behavior_files/figure-markdown_github/splitfigure-1.png)
+
+``` r
+pdf(file="../figures/01_behavior/habretest.pdf", width=2.5, height=2.25)
+plot(habretest)
+dev.off()
+```
+
+    ## quartz_off_screen 
+    ##                 2
+
+Plotting number of consistent
+-----------------------------
+
+``` r
+numentrance1consistent<- behaviorsummaryNum %>%
+  filter(conflict == "consistent") %>%
+  filter(TrainSessionComboNum >= 5) %>%
+  ggplot(aes(x= TrainSessionComboNum, y=m, shape=Genotype)) + 
+  geom_errorbar(aes(ymin=m-se, ymax=m+se, color=APA2), width=.1) +
+  geom_line(aes(colour=APA2, linetype=Genotype)) +
+  geom_point(size = 2.5, aes(colour=APA2, shape=Genotype)) +
+  scale_color_manual(values = colorvalAPA5) +
+    scale_y_continuous(name="Number of Entrances",
+                       limits = c(0,35)) +
+    scale_x_continuous(name = "Training Session", 
+                       breaks = c(5, 6, 7, 8, 9),
+                       labels=c("5" = "Retest", "6" = "T4",
+                                "7" = "T5", "8" = "T6", "9"= "Reten.")) +
   theme_cowplot(font_size = 8, line_size = 0.25) +
-  background_grid(major = "y", minor = "y") +
-  scale_color_manual(values = colorvalAPA2)  + 
-  labs(title = "WT")
-numentrance1WT
+  #background_grid(major = "y", minor = "y") +
+  theme( legend.position="none") +
+  scale_shape_manual(values=c(16, 1))
+numentrance1consistent
 ```
 
 ![](01_behavior_files/figure-markdown_github/numentrance-1.png)
 
 ``` r
-pdf(file="../figures/01_behavior/numentrance1WT.pdf", width=4, height=2)
-plot(numentrance1WT)
-dev.off()
-```
-
-    ## quartz_off_screen 
-    ##                 2
-
-``` r
-# plotting mean and se for time to total number of entrances
-numentrance1FMR1 <- behaviorsummaryNum %>%
-  filter(Genotype == "FMR1KO") %>%
-  ggplot(aes(x=, TrainSessionComboNum, y=m, color=APA2)) + 
-    geom_errorbar(aes(ymin=m-se, ymax=m+se, color=APA2), width=.1) +
-    geom_point(size = 2) +
-   geom_line() +
-    scale_y_continuous(name="Number of Entrances\nper 10 min training session") +
-    scale_x_continuous(name = NULL, 
-                       breaks = c(1, 2, 3, 4, 5, 6, 7, 8, 9),
-                       labels=c("1" = "Habituation ", "2" = "T1", "3" = "T2", 
-                                "4" = "T3", "5" = "Retest", "6" = "T4/C1",
-                                "7" = "T5/C2", "8" = "T6/C3", "9"= "Retention")) +
-  theme_cowplot(font_size = 8, line_size = 0.25) +
-  background_grid(major = "y", minor = "y") +
-  scale_color_manual(values = colorvalAPA2) + 
-  #theme(legend.position=c(0.7, 0.8))  +
-  theme(legend.position="none")  + 
-  labs(title = "FMR1-KO")
-numentrance1FMR1
-```
-
-![](01_behavior_files/figure-markdown_github/numentrance-2.png)
-
-``` r
-pdf(file="../figures/01_behavior/numentrance1FMR1.pdf", width=4, height=2)
-plot(numentrance1FMR1)
-dev.off()
-```
-
-    ## quartz_off_screen 
-    ##                 2
-
-``` r
-numentrance1wrap <- behaviorsummaryNum %>%
-  ggplot(aes(x=, TrainSessionComboNum, y=m, color=APA2, shape = Genotype)) + 
-  facet_wrap(~conflict,nrow =2) +
-    geom_errorbar(aes(ymin=m-se, ymax=m+se, color=APA2), width=.1) +
-    geom_point(size = 3) +
-   geom_line() +
-    scale_y_continuous(name="Number of Entrances\nper 10 min training session") +
-    scale_x_continuous(name = NULL, 
-                       breaks = c(1, 2, 3, 4, 5, 6, 7, 8, 9),
-                       labels=c("1" = "Habituation ", "2" = "T1", "3" = "T2", 
-                                "4" = "T3", "5" = "Retest", "6" = "T4/C1",
-                                "7" = "T5/C2", "8" = "T6/C3", "9"= "Retention")) +
-  theme_cowplot(font_size = 8, line_size = 0.25) +
-  background_grid(major = "y", minor = "y") +
-  scale_color_manual(values = colorvalAPA2) 
-numentrance1wrap
-```
-
-![](01_behavior_files/figure-markdown_github/numentrance-3.png)
-
-``` r
-pdf(file="../figures/01_behavior/numentrance1wrap.pdf", width=4, height=4)
-plot(numentrance1wrap)
-dev.off()
-```
-
-    ## quartz_off_screen 
-    ##                 2
-
-``` r
-numentrance1consistent<- behaviorsummaryNum %>%
-  filter(conflict == "consistent") %>%
-  ggplot(aes(x=, TrainSessionComboNum, y=m, color=APA2, shape=Genotype)) + 
-    geom_errorbar(aes(ymin=m-se, ymax=m+se, color=APA2), width=.1) +
-    geom_point(size = 2) +
-   geom_line() +
-    scale_y_continuous(name="Number of Entrances\nper 10 min training session") +
-    scale_x_continuous(name = NULL, 
-                       breaks = c(1, 2, 3, 4, 5, 6, 7, 8, 9),
-                       labels=c("1" = "Habituation ", "2" = "T1", "3" = "T2", 
-                                "4" = "T3", "5" = "Retest", "6" = "T4/C1",
-                                "7" = "T5/C2", "8" = "T6/C3", "9"= "Retention")) +
-  theme_cowplot(font_size = 8, line_size = 0.25) +
-  background_grid(major = "y", minor = "y") +
-  scale_color_manual(values = colorvalAPA5) +
-  theme( 
-        legend.position = "top",
-        legend.title=element_blank(),
-        legend.justification = c(0.1, 0.8))
-numentrance1consistent
-```
-
-![](01_behavior_files/figure-markdown_github/numentrance-4.png)
-
-``` r
-pdf(file="../figures/01_behavior/numentrance1consistent.pdf", width=4, height=2.5)
+pdf(file="../figures/01_behavior/numentrance1consistent2.pdf", width=3.25, height=2.25)
 plot(numentrance1consistent)
 dev.off()
 ```
@@ -191,32 +136,32 @@ dev.off()
     ##                 2
 
 ``` r
+behaviorsummaryNum$head2 <- "Conflict Training"
 numentrance1conflict<- behaviorsummaryNum %>%
   filter(conflict == "conflict") %>%
-  ggplot(aes(x=, TrainSessionComboNum, y=m, color=APA2, shape=Genotype)) + 
-    geom_errorbar(aes(ymin=m-se, ymax=m+se, color=APA2), width=.1) +
-    geom_point(size = 2) +
-   geom_line() +
-    scale_y_continuous(name="Number of Entrances\nper 10 min training session") +
-    scale_x_continuous(name = NULL, 
-                       breaks = c(1, 2, 3, 4, 5, 6, 7, 8, 9),
-                       labels=c("1" = "Habituation ", "2" = "T1", "3" = "T2", 
-                                "4" = "T3", "5" = "Retest", "6" = "T4/C1",
-                                "7" = "T5/C2", "8" = "T6/C3", "9"= "Retention")) +
-  theme_cowplot(font_size = 8, line_size = 0.25) +
-  background_grid(major = "y", minor = "y") +
+  filter(TrainSessionComboNum >= 5) %>%
+  ggplot(aes(x= TrainSessionComboNum, y=m, shape=Genotype)) + 
+  geom_errorbar(aes(ymin=m-se, ymax=m+se, color=APA2), width=.1) +
+  geom_line(aes(colour=APA2, linetype=Genotype)) +
+  geom_point(size = 2.5, aes(colour=APA2, shape=Genotype)) +
   scale_color_manual(values = colorvalAPA4) +
-  theme( 
-        legend.position = "top",
-        legend.title=element_blank(),
-        legend.justification = c(0.1, 0.8))
+    scale_y_continuous(name="Number of Entrances",
+                       limits = c(0,35)) +
+    scale_x_continuous(name = "Training Session", 
+                       breaks = c(5, 6, 7, 8, 9),
+                       labels=c("5" = "Retest", "6" = "C1",
+                                "7" = "C2", "8" = "C3", "9"= "Reten.")) +
+  theme_cowplot(font_size = 8, line_size = 0.25) +
+  #background_grid(major = "y", minor = "y") +
+  theme( legend.position="none") +
+  scale_shape_manual(values=c(16, 1)) 
 numentrance1conflict
 ```
 
-![](01_behavior_files/figure-markdown_github/numentrance-5.png)
+![](01_behavior_files/figure-markdown_github/numentrance-2.png)
 
 ``` r
-pdf(file="../figures/01_behavior/numentrance1conflict.pdf", width=4, height=2.5)
+pdf(file="../figures/01_behavior/numentrance1conflict2.pdf", width=3.25, height=2.25)
 plot(numentrance1conflict)
 dev.off()
 ```
@@ -224,12 +169,71 @@ dev.off()
     ## quartz_off_screen 
     ##                 2
 
+``` r
+# num entrances
+numentr <- dplyr::summarise(group_by(behavior, Genotype, APA2, TrainSessionComboNum), m = mean(NumEntrances), se = sd(NumEntrances)/sqrt(length(NumEntrances)), len = length(NumEntrances))
+
+## speed
+speedsummary <- dplyr::summarise(group_by(behavior, Genotype, APA2, TrainSessionComboNum), m = mean(Speed1), se = sd(Speed1)/sqrt(length(Speed1)))
+
+## max avoidance time
+maxavoid <- dplyr::summarise(group_by(behavior, Genotype, APA2, TrainSessionComboNum), m = mean(MaxTimeAvoid), se = sd(MaxTimeAvoid)/sqrt(length(MaxTimeAvoid)))
+
+## create the column for faceting
+numentr$measure <- "Number of Entrances"
+speedsummary$measure <- "Speed"
+maxavoid$measure <- "Max Avoidance Time"
+
+# rbind
+threeplots <- rbind(numentr,speedsummary,maxavoid)
+behaviorwrap <- ggplot(threeplots, aes(x=, TrainSessionComboNum, y=m, color=APA2, shape=Genotype)) + 
+    geom_errorbar(aes(ymin=m-se, ymax=m+se), width=.1) +
+    geom_point(size = 2) +
+   geom_line(aes(colour=APA2, linetype=Genotype)) +
+   scale_y_continuous(name= NULL) +
+    scale_x_continuous(name="Training Session", 
+                       breaks = c(1, 2, 3, 4, 5, 6, 7, 8, 9),
+                       labels = c( "Hab.", "T1", "T2", "T3",
+                                   "Retest", "T4", "T5", "T6", "Reten.")) +
+  theme_cowplot(font_size = 8, line_size = 0.25) +
+  #background_grid(major = "y", minor = "y") +
+  #scale_color_manual(values = colorvalAPA00)  +
+  theme(legend.title=element_blank()) +
+  #theme(legend.position="none") +
+  facet_wrap(~measure, ncol=1, scales = "free_y")
+behaviorwrap
+```
+
+![](01_behavior_files/figure-markdown_github/unnamed-chunk-1-1.png)
+
+``` r
+numentrance1consistent<- speedsummary %>%
+  filter(APA2 %in% c("yoked-conflict", "conflict")) %>%
+  filter(TrainSessionComboNum >= 5) %>%
+  ggplot(aes(x= TrainSessionComboNum, y=m, shape=Genotype)) + 
+  geom_errorbar(aes(ymin=m-se, ymax=m+se, color=APA2), width=.1) +
+  geom_line(aes(colour=APA2, linetype=Genotype)) +
+  geom_point(size = 2.5, aes(colour=APA2, shape=Genotype)) +
+  #scale_color_manual(values = colorvalAPA5) +
+    scale_y_continuous(name="Speed") +
+    scale_x_continuous(name = "Training Session", 
+                       breaks = c(5, 6, 7, 8, 9),
+                       labels=c("5" = "Retest", "6" = "T4",
+                                "7" = "T5", "8" = "T6", "9"= "Reten.")) +
+  theme_cowplot(font_size = 8, line_size = 0.25) +
+  #background_grid(major = "y", minor = "y") +
+  #theme( legend.position="none") +
+  scale_shape_manual(values=c(16, 1))
+numentrance1consistent
+```
+
+![](01_behavior_files/figure-markdown_github/unnamed-chunk-1-2.png)
+
 Anovas ALL data
 ---------------
 
 ``` r
-aov1 <- aov(NumEntrances ~ APA2 * Genotype * TrainSession, data=behavior)
-summary(aov1) 
+summary(aov(NumEntrances ~ APA2 * Genotype * TrainSession, data=behavior)) 
 ```
 
     ##                             Df Sum Sq Mean Sq F value   Pr(>F)    
@@ -247,181 +251,131 @@ summary(aov1)
 ``` r
 hab <- behavior %>%
   filter(TrainSession == "Hab") 
-aov1 <- aov(NumEntrances ~ APA2 * Genotype, data=hab)
-summary(aov1) 
+T1 <- behavior %>%
+  filter(TrainSession == "T1") 
+T2 <- behavior %>%
+  filter(TrainSession == "T2") 
+T3 <- behavior %>%
+  filter(TrainSession == "T3") 
+Retest <- behavior %>%
+  filter(TrainSession == "Retest") 
+T4 <- behavior %>%
+  filter(TrainSession %in% c("T4", "C1")) 
+T5 <- behavior %>%
+  filter(TrainSession %in% c("T5", "C2")) 
+T6 <- behavior %>%
+  filter(TrainSession %in% c("T6", "C3")) 
+Retention <- behavior %>%
+  filter(TrainSession == "Retention")
+
+summary(aov(NumEntrances ~ Genotype * APA2, data=hab)) 
 ```
 
     ##               Df Sum Sq Mean Sq F value Pr(>F)
-    ## APA2           3  133.4   44.48   1.717  0.181
-    ## Genotype       1    2.7    2.74   0.106  0.747
-    ## APA2:Genotype  3  127.6   42.55   1.643  0.197
+    ## Genotype       1    6.1    6.11   0.236  0.630
+    ## APA2           3  130.1   43.36   1.674  0.190
+    ## Genotype:APA2  3  127.6   42.55   1.643  0.197
     ## Residuals     35  906.6   25.90
 
 ``` r
-T1 <- behavior %>%
-  filter(TrainSession == "T1") 
-aov1 <- aov(NumEntrances ~ APA2 * Genotype, data=T1)
-summary(aov1) 
+summary(aov(NumEntrances ~ Genotype * APA2, data=T1)) 
 ```
 
     ##               Df Sum Sq Mean Sq F value Pr(>F)  
-    ## APA2           3  146.7   48.91   3.923 0.0166 *
-    ## Genotype       1    3.0    2.98   0.239 0.6281  
-    ## APA2:Genotype  3   54.3   18.10   1.452 0.2449  
+    ## Genotype       1    0.1    0.07   0.006 0.9401  
+    ## APA2           3  149.6   49.88   4.000 0.0153 *
+    ## Genotype:APA2  3   54.3   18.10   1.452 0.2449  
     ## Residuals     34  423.9   12.47                 
     ## ---
     ## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
 
 ``` r
-T2 <- behavior %>%
-  filter(TrainSession == "T2") 
-aov1 <- aov(NumEntrances ~ APA2 * Genotype, data=T2)
-summary(aov1) 
+summary(aov(NumEntrances ~ Genotype * APA2, data=T2)) 
 ```
 
     ##               Df Sum Sq Mean Sq F value   Pr(>F)    
-    ## APA2           3  423.8  141.27   7.133 0.000701 ***
-    ## Genotype       1   15.0   15.05   0.760 0.389176    
-    ## APA2:Genotype  3   13.2    4.39   0.222 0.880602    
+    ## Genotype       1    0.0    0.02   0.001 0.975500    
+    ## APA2           3  438.8  146.28   7.386 0.000559 ***
+    ## Genotype:APA2  3   13.2    4.39   0.222 0.880602    
     ## Residuals     36  712.9   19.80                     
     ## ---
     ## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
 
 ``` r
-T3 <- behavior %>%
-  filter(TrainSession == "T3") 
-aov1 <- aov(NumEntrances ~ APA2 * Genotype, data=T3)
-summary(aov1) # 
+summary(aov(NumEntrances ~ Genotype * APA2, data=T3))
 ```
 
     ##               Df Sum Sq Mean Sq F value   Pr(>F)    
-    ## APA2           3 1071.7   357.2  24.240 1.43e-08 ***
-    ## Genotype       1   59.0    59.0   4.005   0.0534 .  
-    ## APA2:Genotype  3    8.2     2.7   0.184   0.9062    
+    ## Genotype       1  119.1   119.1   8.081  0.00751 ** 
+    ## APA2           3 1011.7   337.2  22.882 2.74e-08 ***
+    ## Genotype:APA2  3    8.2     2.7   0.184  0.90621    
     ## Residuals     34  501.1    14.7                     
     ## ---
     ## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
 
 ``` r
-Retest <- behavior %>%
-  filter(TrainSession == "Retest") 
-aov1 <- aov(NumEntrances ~ APA2 * Genotype, data=Retest)
-summary(aov1) 
+summary(aov(NumEntrances ~ Genotype * APA2, data=Retest)) 
 ```
 
     ##               Df Sum Sq Mean Sq F value   Pr(>F)    
-    ## APA2           3  841.0  280.34   8.755 0.000253 ***
-    ## Genotype       1   32.2   32.22   1.006 0.323862    
-    ## APA2:Genotype  3  103.1   34.38   1.074 0.375079    
+    ## Genotype       1   97.5   97.55   3.046 0.091154 .  
+    ## APA2           3  775.7  258.56   8.075 0.000432 ***
+    ## Genotype:APA2  3  103.1   34.38   1.074 0.375079    
     ## Residuals     30  960.6   32.02                     
     ## ---
     ## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
 
 ``` r
-T4 <- behavior %>%
-  filter(TrainSession %in% c("T4", "C1")) 
-aov1 <- aov(NumEntrances ~ APA2 * Genotype, data=T4)
-summary(aov1)  
+summary(aov(NumEntrances ~ Genotype * APA2, data=T4)) 
 ```
 
     ##               Df Sum Sq Mean Sq F value   Pr(>F)    
-    ## APA2           3 1056.3   352.1  12.939 6.89e-06 ***
-    ## Genotype       1    0.4     0.4   0.016    0.900    
-    ## APA2:Genotype  3   41.7    13.9   0.511    0.677    
+    ## Genotype       1    6.3     6.3   0.231    0.634    
+    ## APA2           3 1050.5   350.2  12.867 7.25e-06 ***
+    ## Genotype:APA2  3   41.7    13.9   0.511    0.677    
     ## Residuals     36  979.7    27.2                     
     ## ---
     ## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
 
 ``` r
-T5 <- behavior %>%
-  filter(TrainSession %in% c("T5", "C2")) 
-aov1 <- aov(NumEntrances ~ APA2 * Genotype, data=T5)
-summary(aov1)  
+summary(aov(NumEntrances ~ Genotype * APA2, data=T5)) 
 ```
 
-    ##               Df Sum Sq Mean Sq F value   Pr(>F)    
-    ## APA2           3  983.9   328.0  10.566 4.66e-05 ***
-    ## Genotype       1   14.9    14.9   0.480    0.493    
-    ## APA2:Genotype  3   22.3     7.4   0.239    0.868    
-    ## Residuals     34 1055.4    31.0                     
+    ##               Df Sum Sq Mean Sq F value  Pr(>F)    
+    ## Genotype       1  101.1  101.07   3.256   0.080 .  
+    ## APA2           3  897.8  299.25   9.640 9.5e-05 ***
+    ## Genotype:APA2  3   22.3    7.43   0.239   0.868    
+    ## Residuals     34 1055.4   31.04                    
     ## ---
     ## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
 
 ``` r
-T6 <- behavior %>%
-  filter(TrainSession %in% c("T6", "C3")) 
-aov1 <- aov(NumEntrances ~ APA2 * Genotype, data=T6)
-summary(aov1)  
+summary(aov(NumEntrances ~ Genotype * APA2, data=T6)) 
 ```
 
     ##               Df Sum Sq Mean Sq F value   Pr(>F)    
-    ## APA2           3 1215.1   405.0  22.129 3.98e-08 ***
-    ## Genotype       1    4.6     4.6   0.253    0.618    
-    ## APA2:Genotype  3   68.1    22.7   1.241    0.310    
+    ## Genotype       1   54.7    54.7   2.987    0.093 .  
+    ## APA2           3 1165.0   388.3  21.217 6.32e-08 ***
+    ## Genotype:APA2  3   68.1    22.7   1.241    0.310    
     ## Residuals     34  622.3    18.3                     
     ## ---
     ## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
 
 ``` r
-Retention <- behavior %>%
-  filter(TrainSession == "Retention") 
-aov1 <- aov(NumEntrances ~ APA2 * Genotype, data=Retention)
-summary(aov1) 
+summary(aov(NumEntrances ~ Genotype * APA2, data=Retention)) 
 ```
 
     ##               Df Sum Sq Mean Sq F value   Pr(>F)    
-    ## APA2           3 1622.5   540.8   14.32 1.44e-06 ***
-    ## Genotype       1    1.5     1.5    0.04    0.843    
-    ## APA2:Genotype  3   37.4    12.5    0.33    0.803    
+    ## Genotype       1   33.3    33.3   0.883    0.353    
+    ## APA2           3 1590.7   530.2  14.037 1.77e-06 ***
+    ## Genotype:APA2  3   37.4    12.5   0.330    0.803    
     ## Residuals     42 1586.5    37.8                     
     ## ---
     ## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
 
 ``` r
-#### Gentoype
-aov1 <- aov(NumEntrances ~ Genotype, data=behavior)
-summary(aov1) # p = 0.0641 .
-```
-
-    ##              Df Sum Sq Mean Sq F value Pr(>F)  
-    ## Genotype      1    265  264.94   3.447 0.0641 .
-    ## Residuals   385  29591   76.86                 
-    ## ---
-    ## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
-
-``` r
-aov1 <- aov(NumEntrances ~ Genotype * APA2, data=behavior)
-summary(aov1) 
-```
-
-    ##                Df Sum Sq Mean Sq F value   Pr(>F)    
-    ## Genotype        1    265   264.9   4.094   0.0437 *  
-    ## APA2            3   5052  1683.9  26.021 2.51e-15 ***
-    ## Genotype:APA2   3     13     4.5   0.069   0.9765    
-    ## Residuals     379  24526    64.7                     
-    ## ---
-    ## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
-
-``` r
-aov1 <- aov(NumEntrances ~ Genotype * APA2 * TrainSession , data=behavior)
-summary(aov1) 
-```
-
-    ##                             Df Sum Sq Mean Sq F value   Pr(>F)    
-    ## Genotype                     1    265   264.9  10.770  0.00115 ** 
-    ## APA2                         3   5052  1683.9  68.451  < 2e-16 ***
-    ## TrainSession                11  14435  1312.3  53.345  < 2e-16 ***
-    ## Genotype:APA2                3     11     3.5   0.144  0.93334    
-    ## Genotype:TrainSession       11    244    22.2   0.901  0.54015    
-    ## APA2:TrainSession           21   1675    79.8   3.242 3.78e-06 ***
-    ## Genotype:APA2:TrainSession  21    426    20.3   0.824  0.68958    
-    ## Residuals                  315   7749    24.6                     
-    ## ---
-    ## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
-
-``` r
-lm1 <- lm(NumEntrances ~ Genotype * APA2 * TrainSession , data=behavior)
-summary(lm1) 
+# linear model
+summary(lm(NumEntrances ~ Genotype * APA2 * TrainSession , data=behavior)) 
 ```
 
     ## 
@@ -731,215 +685,8 @@ summary(lm1)
     ## Multiple R-squared:  0.7405, Adjusted R-squared:  0.6819 
     ## F-statistic: 12.66 on 71 and 315 DF,  p-value: < 2.2e-16
 
-``` r
-# no difference
-aov1 <- aov(NumEntrances ~ Genotype, data=hab)
-summary(aov1) 
-```
-
-    ##             Df Sum Sq Mean Sq F value Pr(>F)
-    ## Genotype     1    6.1   6.105   0.215  0.645
-    ## Residuals   41 1164.4  28.399
-
-``` r
-aov1 <- aov(NumEntrances ~ Genotype *APA2, data=hab)
-summary(aov1) 
-```
-
-    ##               Df Sum Sq Mean Sq F value Pr(>F)
-    ## Genotype       1    6.1    6.11   0.236  0.630
-    ## APA2           3  130.1   43.36   1.674  0.190
-    ## Genotype:APA2  3  127.6   42.55   1.643  0.197
-    ## Residuals     35  906.6   25.90
-
-``` r
-# effect of training
-aov1 <- aov(NumEntrances ~ Genotype, data=T1)
-summary(aov1) 
-```
-
-    ##             Df Sum Sq Mean Sq F value Pr(>F)
-    ## Genotype     1    0.1   0.071   0.005  0.947
-    ## Residuals   40  627.8  15.696
-
-``` r
-aov1 <- aov(NumEntrances ~ Genotype *APA2, data=T1)
-summary(aov1) 
-```
-
-    ##               Df Sum Sq Mean Sq F value Pr(>F)  
-    ## Genotype       1    0.1    0.07   0.006 0.9401  
-    ## APA2           3  149.6   49.88   4.000 0.0153 *
-    ## Genotype:APA2  3   54.3   18.10   1.452 0.2449  
-    ## Residuals     34  423.9   12.47                 
-    ## ---
-    ## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
-
-``` r
-# effect of training
-aov1 <- aov(NumEntrances ~ Genotype, data=T2)
-summary(aov1) 
-```
-
-    ##             Df Sum Sq Mean Sq F value Pr(>F)
-    ## Genotype     1      0   0.019   0.001  0.979
-    ## Residuals   42   1165  27.737
-
-``` r
-aov1 <- aov(NumEntrances ~ Genotype *APA2, data=T2)
-summary(aov1) 
-```
-
-    ##               Df Sum Sq Mean Sq F value   Pr(>F)    
-    ## Genotype       1    0.0    0.02   0.001 0.975500    
-    ## APA2           3  438.8  146.28   7.386 0.000559 ***
-    ## Genotype:APA2  3   13.2    4.39   0.222 0.880602    
-    ## Residuals     36  712.9   19.80                     
-    ## ---
-    ## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
-
-``` r
-# geneotyp and training is significant
-aov1 <- aov(NumEntrances ~ Genotype, data=T3)
-summary(aov1) 
-```
-
-    ##             Df Sum Sq Mean Sq F value Pr(>F)  
-    ## Genotype     1  119.1  119.10   3.132 0.0844 .
-    ## Residuals   40 1520.9   38.02                 
-    ## ---
-    ## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
-
-``` r
-aov1 <- aov(NumEntrances ~ Genotype * APA2, data=T3)
-summary(aov1) 
-```
-
-    ##               Df Sum Sq Mean Sq F value   Pr(>F)    
-    ## Genotype       1  119.1   119.1   8.081  0.00751 ** 
-    ## APA2           3 1011.7   337.2  22.882 2.74e-08 ***
-    ## Genotype:APA2  3    8.2     2.7   0.184  0.90621    
-    ## Residuals     34  501.1    14.7                     
-    ## ---
-    ## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
-
-``` r
-## training significant
-aov1 <- aov(NumEntrances ~ Genotype, data=Retest)
-summary(aov1) 
-```
-
-    ##             Df Sum Sq Mean Sq F value Pr(>F)
-    ## Genotype     1   97.5   97.55   1.909  0.176
-    ## Residuals   36 1839.4   51.10
-
-``` r
-aov1 <- aov(NumEntrances ~ Genotype * APA2, data=Retest)
-summary(aov1) 
-```
-
-    ##               Df Sum Sq Mean Sq F value   Pr(>F)    
-    ## Genotype       1   97.5   97.55   3.046 0.091154 .  
-    ## APA2           3  775.7  258.56   8.075 0.000432 ***
-    ## Genotype:APA2  3  103.1   34.38   1.074 0.375079    
-    ## Residuals     30  960.6   32.02                     
-    ## ---
-    ## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
-
-``` r
-## training significant
-aov1 <- aov(NumEntrances ~ Genotype, data=T4)
-summary(aov1) 
-```
-
-    ##             Df Sum Sq Mean Sq F value Pr(>F)
-    ## Genotype     1    6.3    6.27   0.127  0.723
-    ## Residuals   42 2071.9   49.33
-
-``` r
-aov1 <- aov(NumEntrances ~ Genotype * APA2, data=T4)
-summary(aov1) 
-```
-
-    ##               Df Sum Sq Mean Sq F value   Pr(>F)    
-    ## Genotype       1    6.3     6.3   0.231    0.634    
-    ## APA2           3 1050.5   350.2  12.867 7.25e-06 ***
-    ## Genotype:APA2  3   41.7    13.9   0.511    0.677    
-    ## Residuals     36  979.7    27.2                     
-    ## ---
-    ## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
-
-``` r
-## training significant, genotype p<0.1
-aov1 <- aov(NumEntrances ~ Genotype, data=T5)
-summary(aov1) 
-```
-
-    ##             Df Sum Sq Mean Sq F value Pr(>F)
-    ## Genotype     1  101.1  101.07   2.046   0.16
-    ## Residuals   40 1975.5   49.39
-
-``` r
-aov1 <- aov(NumEntrances ~ Genotype * APA2, data=T5)
-summary(aov1) 
-```
-
-    ##               Df Sum Sq Mean Sq F value  Pr(>F)    
-    ## Genotype       1  101.1  101.07   3.256   0.080 .  
-    ## APA2           3  897.8  299.25   9.640 9.5e-05 ***
-    ## Genotype:APA2  3   22.3    7.43   0.239   0.868    
-    ## Residuals     34 1055.4   31.04                    
-    ## ---
-    ## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
-
-``` r
-## training significant, genotype p<0.1
-aov1 <- aov(NumEntrances ~ Genotype, data=T6)
-summary(aov1) 
-```
-
-    ##             Df Sum Sq Mean Sq F value Pr(>F)
-    ## Genotype     1   54.7   54.67   1.179  0.284
-    ## Residuals   40 1855.4   46.39
-
-``` r
-aov1 <- aov(NumEntrances ~ Genotype * APA2, data=T6)
-summary(aov1) 
-```
-
-    ##               Df Sum Sq Mean Sq F value   Pr(>F)    
-    ## Genotype       1   54.7    54.7   2.987    0.093 .  
-    ## APA2           3 1165.0   388.3  21.217 6.32e-08 ***
-    ## Genotype:APA2  3   68.1    22.7   1.241    0.310    
-    ## Residuals     34  622.3    18.3                     
-    ## ---
-    ## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
-
-``` r
-## training significant
-aov1 <- aov(NumEntrances ~ Genotype, data=Retention)
-summary(aov1) 
-```
-
-    ##             Df Sum Sq Mean Sq F value Pr(>F)
-    ## Genotype     1     33   33.35   0.498  0.484
-    ## Residuals   48   3215   66.97
-
-``` r
-aov1 <- aov(NumEntrances ~ Genotype * APA2, data=Retention)
-summary(aov1) 
-```
-
-    ##               Df Sum Sq Mean Sq F value   Pr(>F)    
-    ## Genotype       1   33.3    33.3   0.883    0.353    
-    ## APA2           3 1590.7   530.2  14.037 1.77e-06 ***
-    ## Genotype:APA2  3   37.4    12.5   0.330    0.803    
-    ## Residuals     42 1586.5    37.8                     
-    ## ---
-    ## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
-
-Anovas Consistent only
-----------------------
+Anovas Consistent only - No significant effect of genotype
+----------------------------------------------------------
 
 ``` r
 consistent <- behavior %>%
@@ -961,19 +708,7 @@ T6 <- consistent %>%
 Retention <- consistent %>%
   filter(TrainSession == "Retention") 
 
-
-# habituation not significant
-aov1 <- aov(NumEntrances ~ Genotype, data=hab)
-summary(aov1) 
-```
-
-    ##             Df Sum Sq Mean Sq F value Pr(>F)
-    ## Genotype     1    6.1   6.105   0.215  0.645
-    ## Residuals   41 1164.4  28.399
-
-``` r
-aov1 <- aov(NumEntrances ~ Genotype *APA2, data=hab)
-summary(aov1) 
+summary(aov(NumEntrances ~ Genotype *APA2, data=hab)) 
 ```
 
     ##               Df Sum Sq Mean Sq F value Pr(>F)
@@ -983,18 +718,7 @@ summary(aov1)
     ## Residuals     35  906.6   25.90
 
 ``` r
-# T1 genotype not signficant
-aov1 <- aov(NumEntrances ~ Genotype, data=T1)
-summary(aov1) 
-```
-
-    ##             Df Sum Sq Mean Sq F value Pr(>F)
-    ## Genotype     1  28.44   28.44    2.55  0.126
-    ## Residuals   20 223.02   11.15
-
-``` r
-aov1 <- aov(NumEntrances ~ Genotype *APA2, data=T1)
-summary(aov1) 
+summary(aov(NumEntrances ~ Genotype *APA2, data=T1)) 
 ```
 
     ##               Df Sum Sq Mean Sq F value Pr(>F)
@@ -1004,18 +728,7 @@ summary(aov1)
     ## Residuals     18 199.26  11.070
 
 ``` r
-# T2 genotype not signficant
-aov1 <- aov(NumEntrances ~ Genotype, data=T2)
-summary(aov1) 
-```
-
-    ##             Df Sum Sq Mean Sq F value Pr(>F)
-    ## Genotype     1    4.2   4.167   0.155  0.698
-    ## Residuals   22  591.8  26.902
-
-``` r
-aov1 <- aov(NumEntrances ~ Genotype *APA2, data=T2)
-summary(aov1) 
+summary(aov(NumEntrances ~ Genotype *APA2, data=T2)) 
 ```
 
     ##               Df Sum Sq Mean Sq F value Pr(>F)  
@@ -1027,18 +740,7 @@ summary(aov1)
     ## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
 
 ``` r
-## genotype not signficant
-aov1 <- aov(NumEntrances ~ Genotype, data=T3)
-summary(aov1) 
-```
-
-    ##             Df Sum Sq Mean Sq F value Pr(>F)
-    ## Genotype     1   15.8   15.76   0.394  0.537
-    ## Residuals   20  800.1   40.01
-
-``` r
-aov1 <- aov(NumEntrances ~ Genotype * APA2, data=T3)
-summary(aov1) 
+summary(aov(NumEntrances ~ Genotype *APA2, data=T3))
 ```
 
     ##               Df Sum Sq Mean Sq F value   Pr(>F)    
@@ -1050,18 +752,7 @@ summary(aov1)
     ## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
 
 ``` r
-## genotype not signficant
-aov1 <- aov(NumEntrances ~ Genotype, data=Retest)
-summary(aov1) 
-```
-
-    ##             Df Sum Sq Mean Sq F value Pr(>F)
-    ## Genotype     1    0.2    0.21   0.004  0.948
-    ## Residuals   18  864.8   48.04
-
-``` r
-aov1 <- aov(NumEntrances ~ Genotype * APA2, data=Retest)
-summary(aov1) 
+summary(aov(NumEntrances ~ Genotype * APA2, data=Retest)) 
 ```
 
     ##               Df Sum Sq Mean Sq F value  Pr(>F)   
@@ -1073,18 +764,7 @@ summary(aov1)
     ## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
 
 ``` r
-## genotype not signficant
-aov1 <- aov(NumEntrances ~ Genotype, data=T4)
-summary(aov1) 
-```
-
-    ##             Df Sum Sq Mean Sq F value Pr(>F)
-    ## Genotype     1   37.5   37.50   1.025  0.322
-    ## Residuals   22  804.5   36.57
-
-``` r
-aov1 <- aov(NumEntrances ~ Genotype * APA2, data=T4)
-summary(aov1) 
+summary(aov(NumEntrances ~ Genotype *APA2, data=T4)) 
 ```
 
     ##               Df Sum Sq Mean Sq F value   Pr(>F)    
@@ -1096,18 +776,7 @@ summary(aov1)
     ## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
 
 ``` r
-## genotype not signficant
-aov1 <- aov(NumEntrances ~ Genotype, data=T5)
-summary(aov1) 
-```
-
-    ##             Df Sum Sq Mean Sq F value Pr(>F)
-    ## Genotype     1   44.6   44.61   0.737    0.4
-    ## Residuals   21 1271.4   60.54
-
-``` r
-aov1 <- aov(NumEntrances ~ Genotype * APA2, data=T5)
-summary(aov1) 
+summary(aov(NumEntrances ~ Genotype *APA2, data=T5)) 
 ```
 
     ##               Df Sum Sq Mean Sq F value   Pr(>F)    
@@ -1119,18 +788,7 @@ summary(aov1)
     ## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
 
 ``` r
-## genotype not signficant
-aov1 <- aov(NumEntrances ~ Genotype, data=T6)
-summary(aov1) 
-```
-
-    ##             Df Sum Sq Mean Sq F value Pr(>F)
-    ## Genotype     1    7.1    7.12    0.13  0.722
-    ## Residuals   21 1152.8   54.90
-
-``` r
-aov1 <- aov(NumEntrances ~ Genotype * APA2, data=T6)
-summary(aov1) 
+summary(aov(NumEntrances ~ Genotype *APA2, data=T6)) 
 ```
 
     ##               Df Sum Sq Mean Sq F value   Pr(>F)    
@@ -1142,18 +800,7 @@ summary(aov1)
     ## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
 
 ``` r
-## genotype not signficant
-aov1 <- aov(NumEntrances ~ Genotype, data=Retention)
-summary(aov1) 
-```
-
-    ##             Df Sum Sq Mean Sq F value Pr(>F)
-    ## Genotype     1   43.6   43.57   0.561  0.461
-    ## Residuals   26 2018.9   77.65
-
-``` r
-aov1 <- aov(NumEntrances ~ Genotype * APA2, data=Retention)
-summary(aov1) 
+summary(aov(NumEntrances ~ Genotype * APA2, data=Retention)) 
 ```
 
     ##               Df Sum Sq Mean Sq F value   Pr(>F)    
@@ -1188,18 +835,7 @@ Retention <- conflict %>%
   filter(TrainSession == "Retention") 
 
 
-# habituation genotype ns
-aov1 <- aov(NumEntrances ~ Genotype, data=hab)
-summary(aov1) 
-```
-
-    ##             Df Sum Sq Mean Sq F value Pr(>F)
-    ## Genotype     1    6.1   6.105   0.215  0.645
-    ## Residuals   41 1164.4  28.399
-
-``` r
-aov1 <- aov(NumEntrances ~ Genotype *APA2, data=hab)
-summary(aov1) 
+summary(aov(NumEntrances ~ Genotype *APA2, data=hab)) 
 ```
 
     ##               Df Sum Sq Mean Sq F value Pr(>F)
@@ -1209,18 +845,7 @@ summary(aov1)
     ## Residuals     35  906.6   25.90
 
 ``` r
-# T1 genotype not signficant
-aov1 <- aov(NumEntrances ~ Genotype, data=T1)
-summary(aov1) 
-```
-
-    ##             Df Sum Sq Mean Sq F value Pr(>F)
-    ## Genotype     1   37.4   37.41   1.988  0.176
-    ## Residuals   18  338.8   18.82
-
-``` r
-aov1 <- aov(NumEntrances ~ Genotype *APA2, data=T1)
-summary(aov1) 
+summary(aov(NumEntrances ~ Genotype *APA2, data=T1)) 
 ```
 
     ##               Df Sum Sq Mean Sq F value Pr(>F)  
@@ -1232,18 +857,7 @@ summary(aov1)
     ## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
 
 ``` r
-# T2 genotype not signficant
-aov1 <- aov(NumEntrances ~ Genotype, data=T2)
-summary(aov1) 
-```
-
-    ##             Df Sum Sq Mean Sq F value Pr(>F)
-    ## Genotype     1    3.7   3.675    0.12  0.733
-    ## Residuals   18  550.9  30.604
-
-``` r
-aov1 <- aov(NumEntrances ~ Genotype *APA2, data=T2)
-summary(aov1) 
+summary(aov(NumEntrances ~ Genotype *APA2, data=T2)) 
 ```
 
     ##               Df Sum Sq Mean Sq F value  Pr(>F)   
@@ -1255,20 +869,7 @@ summary(aov1)
     ## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
 
 ``` r
-# T3 genotype not signficant
-aov1 <- aov(NumEntrances ~ Genotype, data=T3)
-summary(aov1) 
-```
-
-    ##             Df Sum Sq Mean Sq F value Pr(>F)  
-    ## Genotype     1  140.8  140.83   3.723 0.0696 .
-    ## Residuals   18  680.9   37.83                 
-    ## ---
-    ## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
-
-``` r
-aov1 <- aov(NumEntrances ~ Genotype * APA2, data=T3)
-summary(aov1) 
+summary(aov(NumEntrances ~ Genotype *APA2, data=T3))      # * significant
 ```
 
     ##               Df Sum Sq Mean Sq F value   Pr(>F)    
@@ -1280,20 +881,7 @@ summary(aov1)
     ## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
 
 ``` r
-## Retest genotype not signficant
-aov1 <- aov(NumEntrances ~ Genotype, data=Retest)
-summary(aov1) 
-```
-
-    ##             Df Sum Sq Mean Sq F value Pr(>F)  
-    ## Genotype     1  220.0  220.03    4.19 0.0575 .
-    ## Residuals   16  840.2   52.52                 
-    ## ---
-    ## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
-
-``` r
-aov1 <- aov(NumEntrances ~ Genotype * APA2, data=Retest)
-summary(aov1) 
+summary(aov(NumEntrances ~ Genotype * APA2, data=Retest)) # * significant
 ```
 
     ##               Df Sum Sq Mean Sq F value Pr(>F)  
@@ -1305,18 +893,7 @@ summary(aov1)
     ## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
 
 ``` r
-## genotype not signficant
-aov1 <- aov(NumEntrances ~ Genotype, data=T4)
-summary(aov1) 
-```
-
-    ##             Df Sum Sq Mean Sq F value Pr(>F)
-    ## Genotype     1    0.0    0.03   0.001  0.979
-    ## Residuals   18  869.2   48.29
-
-``` r
-aov1 <- aov(NumEntrances ~ Genotype * APA2, data=T4)
-summary(aov1) 
+summary(aov(NumEntrances ~ Genotype *APA2, data=T4)) 
 ```
 
     ##               Df Sum Sq Mean Sq F value Pr(>F)  
@@ -1328,18 +905,7 @@ summary(aov1)
     ## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
 
 ``` r
-## genotype not signficant
-aov1 <- aov(NumEntrances ~ Genotype, data=T5)
-summary(aov1) 
-```
-
-    ##             Df Sum Sq Mean Sq F value Pr(>F)
-    ## Genotype     1   55.6   55.64    1.35  0.261
-    ## Residuals   17  700.8   41.22
-
-``` r
-aov1 <- aov(NumEntrances ~ Genotype * APA2, data=T5)
-summary(aov1) 
+summary(aov(NumEntrances ~ Genotype *APA2, data=T5)) 
 ```
 
     ##               Df Sum Sq Mean Sq F value Pr(>F)  
@@ -1351,18 +917,7 @@ summary(aov1)
     ## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
 
 ``` r
-## genotype in geno*apa p<0.05
-aov1 <- aov(NumEntrances ~ Genotype, data=T6)
-summary(aov1) 
-```
-
-    ##             Df Sum Sq Mean Sq F value Pr(>F)
-    ## Genotype     1   67.0   67.00   1.667  0.214
-    ## Residuals   17  683.1   40.18
-
-``` r
-aov1 <- aov(NumEntrances ~ Genotype * APA2, data=T6)
-summary(aov1) 
+summary(aov(NumEntrances ~ Genotype *APA2, data=T6))  # * significant
 ```
 
     ##               Df Sum Sq Mean Sq F value   Pr(>F)    
@@ -1374,18 +929,7 @@ summary(aov1)
     ## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
 
 ``` r
-## genotype not signficant
-aov1 <- aov(NumEntrances ~ Genotype, data=Retention)
-summary(aov1) 
-```
-
-    ##             Df Sum Sq Mean Sq F value Pr(>F)
-    ## Genotype     1    0.1    0.07   0.001  0.972
-    ## Residuals   20 1149.0   57.45
-
-``` r
-aov1 <- aov(NumEntrances ~ Genotype * APA2, data=Retention)
-summary(aov1) 
+summary(aov(NumEntrances ~ Genotype * APA2, data=Retention)) 
 ```
 
     ##               Df Sum Sq Mean Sq F value  Pr(>F)   
@@ -1395,3 +939,1892 @@ summary(aov1)
     ## Residuals     18  668.7    37.1                   
     ## ---
     ## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+
+``` r
+# percent contribution
+behaviormatrix <- behavior[c(13:52)]  # for 2nd pca analysis
+behaviormatrix %>% 
+  scale() %>%                 # scale to 0 mean and unit variance
+  prcomp() ->                 # do PCA
+  pca                         # store result as `pca`
+percent <- round(100*pca$sdev^2/sum(pca$sdev^2),2)
+perc_data <- data.frame(percent=percent, PC=1:length(percent))
+res.pca <- prcomp(behaviormatrix,  scale = TRUE)
+ggplot(perc_data, aes(x=PC, y=percent)) + 
+  geom_bar(stat="identity") + 
+  geom_text(aes(label=round(percent, 2)), size=4, vjust=-.5) + 
+  xlim(0, 10)
+```
+
+    ## Warning: Removed 30 rows containing missing values (position_stack).
+
+    ## Warning: Removed 30 rows containing missing values (geom_text).
+
+![](01_behavior_files/figure-markdown_github/unnamed-chunk-2-1.png)
+
+``` r
+# PCA
+longdata <- melt(behavior, id = c(1:12));
+  longdata <- longdata %>% drop_na();
+  longdata$bysession <- as.factor(paste(longdata$TrainSessionCombo, longdata$variable, sep="_"));
+  longdata <- dcast(longdata, ID + APA2 + Genotype ~ bysession, value.var= "value", fun.aggregate = mean)
+Z <- longdata[,4:363]
+Z <- Z[ , apply(Z, 2, function(x) !any(is.na(x)))]
+pc = prcomp(Z, scale=TRUE)
+loadings <- pc$rotation
+scores <- pc$x
+scoresdf <- as.data.frame(scores)
+scoresdf$ID <-  longdata$ID
+scoresdf$APA2 <- longdata$APA2
+scoresdf$Genotype <- longdata$Genotype
+scoresdf$APA2 <- factor(scoresdf$APA2, levels = c("yoked-consistent" ,"consistent", "yoked-conflict", "conflict"))
+rotationdf <- data.frame(pc$rotation, variable=row.names(pc$rotation))
+
+pca12 <- ggplot(scoresdf, aes(PC1,PC2, color=APA2, shape=Genotype)) +
+    geom_point(size=3, alpha = 0.7) +
+    xlab(paste0("PC 1: ", percent[1],"% variance")) +
+    ylab(paste0("PC 2: ", percent[2],"% variance")) +
+    scale_colour_manual(values=c(colorvalAPA00)) +
+    scale_shape_manual(values=c(16, 1)) +
+    #theme(legend.position="none") + 
+    theme_cowplot(font_size = 8, line_size = 0.25) 
+pca12
+```
+
+![](01_behavior_files/figure-markdown_github/unnamed-chunk-2-2.png)
+
+Heatmap
+-------
+
+``` r
+## make annotation df and ann_colors for pheatmap
+  averagedata <- melt(behavior, id = c(1:12));  #longdata <- melt(behavior, id = c(1:18))
+  averagedata <- averagedata %>% drop_na();
+  # then widen with group averages, add row names, scale, and transpose
+  averagedata$GenoAPA2session <- as.factor(paste(averagedata$Genotype, averagedata$APA2,averagedata$TrainSessionCombo, sep="_"))
+  averagedata <- dcast(averagedata, GenoAPA2session ~ variable, value.var= "value", fun.aggregate=mean);
+  rownames(averagedata) <- averagedata$GenoAPA2session;    
+  averagedata[1] <- NULL;
+  scaledaveragedata <- scale(averagedata)
+  scaledaveragedata <- t(scaledaveragedata)
+  scaledaveragedata <- scaledaveragedata[-1,]
+
+  
+makecolumnannotations <- function(data){  
+  columnannotations <- as.data.frame(colnames(data))
+  names(columnannotations)[names(columnannotations)=="colnames(data)"] <- "column"
+  rownames(columnannotations) <- columnannotations$column
+  columnannotations$Genotype <- sapply(strsplit(as.character(columnannotations$column),'\\_'), "[", 1)
+  columnannotations$APA2    <- sapply(strsplit(as.character(columnannotations$column),'\\_'), "[", 2)
+  #columnannotations$Session <- sapply(strsplit(as.character(columnannotations$column),'\\_'), "[", 3)
+  columnannotations$column <- NULL
+  return(columnannotations)
+}
+  
+# create a rubric for the color coding and load the colors from figureoptions.R
+df2 <- as.data.frame(makecolumnannotations(scaledaveragedata))
+ann_colors <- list(
+  Genotype =  c('FMR1KO' = (values=c("white")), 
+            'WT' = (values=c("#404040"))),
+  APA2 = c('yoked-conflict' = (values=c("#bababa")),
+           'yoked-consistent' = (values=c("#404040")), 
+           'conflict' = (values=c("#f4a582")),
+           'consistent' = (values=c("#ca0020"))))
+
+
+# set color breaks
+paletteLength <- 30
+myBreaks <- c(seq(min(scaledaveragedata), 0, length.out=ceiling(paletteLength/2) + 1), 
+              seq(max(scaledaveragedata)/paletteLength, max(scaledaveragedata), length.out=floor(paletteLength/2)))
+
+## pheatmap for markdown
+pheatmap(scaledaveragedata, show_colnames=F, show_rownames = F,
+         annotation_col=df2, 
+         annotation_colors = ann_colors,
+         treeheight_row = 50, treeheight_col = 50,
+         border_color = "grey60" ,
+         color = viridis(30),
+         clustering_method="average",
+         breaks=myBreaks,
+         clustering_distance_cols="correlation" ,
+         clustering_distance_rows = "correlation"
+         )
+```
+
+![](01_behavior_files/figure-markdown_github/unnamed-chunk-3-1.png)
+
+anova habituation
+-----------------
+
+``` r
+slim1 <- behavior[,c(2,4,8,13:52)]
+slim2 <- slim1 %>% filter(TrainSession == "Hab") 
+Genotype <- slim2[,1]
+APA <- slim2[,3]
+slim3 <- slim2[,c(4:43)]
+
+for(y in names(slim3)){
+  ymod<- summary(aov(slim3[[y]] ~ Genotype * APA))
+  cat(paste('\nDependent var:', y, '\n'))
+  print(ymod)
+}
+```
+
+    ## 
+    ## Dependent var: SdevSpeedArena 
+    ##              Df Sum Sq Mean Sq F value Pr(>F)
+    ## Genotype      1  0.017 0.01695   0.096  0.758
+    ## APA           3  0.669 0.22288   1.263  0.302
+    ## Genotype:APA  3  0.586 0.19547   1.108  0.359
+    ## Residuals    35  6.177 0.17649               
+    ## 
+    ## Dependent var: Linearity.Arena. 
+    ##              Df  Sum Sq   Mean Sq F value Pr(>F)
+    ## Genotype      1 0.00005 0.0000531   0.026  0.874
+    ## APA           3 0.00450 0.0015009   0.722  0.546
+    ## Genotype:APA  3 0.00123 0.0004116   0.198  0.897
+    ## Residuals    35 0.07278 0.0020793               
+    ## 
+    ## Dependent var: NumEntrances 
+    ##              Df Sum Sq Mean Sq F value Pr(>F)
+    ## Genotype      1    6.1    6.11   0.236  0.630
+    ## APA           3  130.1   43.36   1.674  0.190
+    ## Genotype:APA  3  127.6   42.55   1.643  0.197
+    ## Residuals    35  906.6   25.90               
+    ## 
+    ## Dependent var: Time1stEntr 
+    ##              Df Sum Sq Mean Sq F value Pr(>F)
+    ## Genotype      1    3.1    3.05   0.039  0.845
+    ## APA           3  302.7  100.90   1.286  0.294
+    ## Genotype:APA  3  179.3   59.77   0.762  0.523
+    ## Residuals    35 2746.6   78.48               
+    ## 
+    ## Dependent var: Path1stEntr 
+    ##              Df Sum Sq Mean Sq F value Pr(>F)
+    ## Genotype      1  0.025 0.02459   0.124  0.727
+    ## APA           3  0.946 0.31535   1.589  0.210
+    ## Genotype:APA  3  0.098 0.03277   0.165  0.919
+    ## Residuals    35  6.947 0.19848               
+    ## 
+    ## Dependent var: Speed1stEntr.cm.s. 
+    ##              Df Sum Sq Mean Sq F value Pr(>F)
+    ## Genotype      1    8.0   8.018   0.366  0.549
+    ## APA           3   44.0  14.655   0.669  0.577
+    ## Genotype:APA  3   51.0  17.013   0.776  0.515
+    ## Residuals    35  766.8  21.910               
+    ## 
+    ## Dependent var: Dist1stEntr.m. 
+    ##              Df Sum Sq Mean Sq F value  Pr(>F)   
+    ## Genotype      1 0.0017 0.00173   0.061 0.80562   
+    ## APA           3 0.3922 0.13073   4.653 0.00771 **
+    ## Genotype:APA  3 0.0361 0.01205   0.429 0.73368   
+    ## Residuals    35 0.9834 0.02810                   
+    ## ---
+    ## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+    ## 
+    ## Dependent var: NumShock 
+    ##              Df Sum Sq Mean Sq F value Pr(>F)
+    ## Genotype      1      0    0.01   0.000  0.994
+    ## APA           3    245   81.83   0.886  0.458
+    ## Genotype:APA  3     93   31.07   0.336  0.799
+    ## Residuals    35   3233   92.37               
+    ## 
+    ## Dependent var: MaxTimeAvoid 
+    ##              Df Sum Sq Mean Sq F value Pr(>F)
+    ## Genotype      1      6     5.9   0.011  0.916
+    ## APA           3   3382  1127.4   2.148  0.112
+    ## Genotype:APA  3    485   161.6   0.308  0.819
+    ## Residuals    35  18367   524.8               
+    ## 
+    ## Dependent var: Time2ndEntr 
+    ##              Df Sum Sq Mean Sq F value Pr(>F)  
+    ## Genotype      1   40.2   40.24   0.666 0.4198  
+    ## APA           3  682.6  227.54   3.768 0.0192 *
+    ## Genotype:APA  3  401.2  133.75   2.215 0.1037  
+    ## Residuals    35 2113.4   60.38                 
+    ## ---
+    ## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+    ## 
+    ## Dependent var: Path2ndEntr 
+    ##              Df Sum Sq Mean Sq F value  Pr(>F)   
+    ## Genotype      1  0.011  0.0110   0.063 0.80367   
+    ## APA           3  2.308  0.7693   4.404 0.00991 **
+    ## Genotype:APA  3  0.433  0.1444   0.827 0.48811   
+    ## Residuals    35  6.114  0.1747                   
+    ## ---
+    ## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+    ## 
+    ## Dependent var: Speed2ndEntr 
+    ##              Df Sum Sq Mean Sq F value Pr(>F)  
+    ## Genotype      1    0.7    0.72   0.056  0.815  
+    ## APA           3   37.4   12.47   0.963  0.421  
+    ## Genotype:APA  3  151.0   50.32   3.884  0.017 *
+    ## Residuals    35  453.4   12.95                 
+    ## ---
+    ## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+    ## 
+    ## Dependent var: TimeTarget 
+    ##              Df Sum Sq Mean Sq F value Pr(>F)
+    ## Genotype      1     35    34.6   0.095  0.760
+    ## APA           3    684   227.9   0.626  0.603
+    ## Genotype:APA  3     88    29.3   0.081  0.970
+    ## Residuals    35  12733   363.8               
+    ## 
+    ## Dependent var: pTimeTarget 
+    ##              Df  Sum Sq   Mean Sq F value Pr(>F)
+    ## Genotype      1 0.00040 0.0003954   0.178  0.676
+    ## APA           3 0.00366 0.0012196   0.549  0.652
+    ## Genotype:APA  3 0.00088 0.0002938   0.132  0.940
+    ## Residuals    35 0.07780 0.0022229               
+    ## 
+    ## Dependent var: pTimeCCW 
+    ##              Df  Sum Sq   Mean Sq F value Pr(>F)
+    ## Genotype      1 0.00008 0.0000753   0.024  0.878
+    ## APA           3 0.00902 0.0030082   0.961  0.422
+    ## Genotype:APA  3 0.00766 0.0025548   0.816  0.494
+    ## Residuals    35 0.10959 0.0031311               
+    ## 
+    ## Dependent var: pTimeOPP 
+    ##              Df  Sum Sq   Mean Sq F value Pr(>F)
+    ## Genotype      1 0.00007 0.0000709   0.043  0.836
+    ## APA           3 0.00522 0.0017405   1.066  0.376
+    ## Genotype:APA  3 0.00643 0.0021428   1.312  0.286
+    ## Residuals    35 0.05717 0.0016334               
+    ## 
+    ## Dependent var: pTimeCW 
+    ##              Df  Sum Sq   Mean Sq F value Pr(>F)
+    ## Genotype      1 0.00039 0.0003894   0.139  0.712
+    ## APA           3 0.00418 0.0013934   0.497  0.687
+    ## Genotype:APA  3 0.00555 0.0018505   0.660  0.582
+    ## Residuals    35 0.09820 0.0028056               
+    ## 
+    ## Dependent var: RayleigLength 
+    ##              Df  Sum Sq  Mean Sq F value Pr(>F)
+    ## Genotype      1 0.00070 0.000698   0.169  0.684
+    ## APA           3 0.00387 0.001291   0.312  0.816
+    ## Genotype:APA  3 0.02303 0.007676   1.857  0.155
+    ## Residuals    35 0.14466 0.004133               
+    ## 
+    ## Dependent var: RayleigAngle 
+    ##              Df Sum Sq Mean Sq F value Pr(>F)
+    ## Genotype      1      2       2   0.000  0.992
+    ## APA           3  13670    4557   0.313  0.816
+    ## Genotype:APA  3  21666    7222   0.496  0.687
+    ## Residuals    35 509123   14546               
+    ## 
+    ## Dependent var: PolarAvgVal 
+    ##              Df Sum Sq Mean Sq F value Pr(>F)
+    ## Genotype      1      1    1.17   0.009  0.926
+    ## APA           3    773  257.81   1.914  0.145
+    ## Genotype:APA  3    116   38.65   0.287  0.835
+    ## Residuals    35   4715  134.72               
+    ## 
+    ## Dependent var: PolarSdVal 
+    ##              Df Sum Sq Mean Sq F value Pr(>F)
+    ## Genotype      1    0.0    0.05   0.001  0.970
+    ## APA           3   13.5    4.50   0.137  0.937
+    ## Genotype:APA  3   70.7   23.55   0.717  0.548
+    ## Residuals    35 1149.1   32.83               
+    ## 
+    ## Dependent var: PolarMinVal 
+    ##              Df    Sum Sq   Mean Sq F value Pr(>F)
+    ## Genotype      1 2.000e-08 1.800e-08   0.003  0.955
+    ## APA           3 2.999e-05 9.997e-06   1.754  0.174
+    ## Genotype:APA  3 7.630e-06 2.545e-06   0.447  0.721
+    ## Residuals    35 1.994e-04 5.699e-06               
+    ## 
+    ## Dependent var: PolarMinBin 
+    ##              Df Sum Sq Mean Sq F value Pr(>F)
+    ## Genotype      1   3175    3175   0.335  0.566
+    ## APA           3  11675    3892   0.411  0.746
+    ## Genotype:APA  3  12673    4224   0.446  0.722
+    ## Residuals    35 331394    9468               
+    ## 
+    ## Dependent var: Min50.RngLoBin 
+    ##              Df Sum Sq Mean Sq F value Pr(>F)
+    ## Genotype      1    286     286   0.042  0.839
+    ## APA           3  28346    9449   1.377  0.266
+    ## Genotype:APA  3   7191    2397   0.349  0.790
+    ## Residuals    35 240204    6863               
+    ## 
+    ## Dependent var: Min50.RngHiBin 
+    ##              Df Sum Sq Mean Sq F value Pr(>F)
+    ## Genotype      1   5612    5612   0.353  0.556
+    ## APA           3   1250     417   0.026  0.994
+    ## Genotype:APA  3  43355   14452   0.910  0.446
+    ## Residuals    35 555644   15876               
+    ## 
+    ## Dependent var: PolarMaxVal 
+    ##              Df    Sum Sq   Mean Sq F value  Pr(>F)   
+    ## Genotype      1 0.0000051 5.140e-06   0.183 0.67150   
+    ## APA           3 0.0000825 2.749e-05   0.977 0.41445   
+    ## Genotype:APA  3 0.0003867 1.289e-04   4.583 0.00827 **
+    ## Residuals    35 0.0009843 2.812e-05                   
+    ## ---
+    ## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+    ## 
+    ## Dependent var: PolarMaxBin 
+    ##              Df Sum Sq Mean Sq F value Pr(>F)  
+    ## Genotype      1   6851    6851   0.746 0.3935  
+    ## APA           3  98528   32843   3.578 0.0234 *
+    ## Genotype:APA  3   6791    2264   0.247 0.8632  
+    ## Residuals    35 321278    9179                 
+    ## ---
+    ## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+    ## 
+    ## Dependent var: Max50.RngLoBin 
+    ##              Df Sum Sq Mean Sq F value Pr(>F)
+    ## Genotype      1   2977    2977   0.176  0.677
+    ## APA           3  18709    6236   0.369  0.776
+    ## Genotype:APA  3  36563   12188   0.722  0.546
+    ## Residuals    35 591114   16889               
+    ## 
+    ## Dependent var: Max50.RngHiBin 
+    ##              Df Sum Sq Mean Sq F value Pr(>F)
+    ## Genotype      1   1131    1131   0.136  0.715
+    ## APA           3  44676   14892   1.785  0.168
+    ## Genotype:APA  3   7960    2653   0.318  0.812
+    ## Residuals    35 292079    8345               
+    ## 
+    ## Dependent var: AnnularMinVal 
+    ##              Df   Sum Sq   Mean Sq F value Pr(>F)  
+    ## Genotype      1 0.000393 0.0003931   0.940 0.3390  
+    ## APA           3 0.005065 0.0016883   4.035 0.0145 *
+    ## Genotype:APA  3 0.001090 0.0003634   0.869 0.4665  
+    ## Residuals    35 0.014643 0.0004184                 
+    ## ---
+    ## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+    ## 
+    ## Dependent var: AnnularMinBin 
+    ##              Df Sum Sq Mean Sq F value Pr(>F)  
+    ## Genotype      1   6.19   6.190   3.416  0.073 .
+    ## APA           3  11.38   3.792   2.093  0.119  
+    ## Genotype:APA  3   2.37   0.791   0.437  0.728  
+    ## Residuals    35  63.43   1.812                 
+    ## ---
+    ## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+    ## 
+    ## Dependent var: AnnularMaxVal 
+    ##              Df  Sum Sq  Mean Sq F value Pr(>F)  
+    ## Genotype      1 0.00696 0.006956   2.947 0.0949 .
+    ## APA           3 0.00450 0.001502   0.636 0.5968  
+    ## Genotype:APA  3 0.00259 0.000862   0.365 0.7785  
+    ## Residuals    35 0.08262 0.002361                 
+    ## ---
+    ## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+    ## 
+    ## Dependent var: AnnularMaxBin 
+    ##              Df Sum Sq Mean Sq F value Pr(>F)  
+    ## Genotype      1   3.14   3.137   1.543  0.222  
+    ## APA           3   8.53   2.842   1.398  0.260  
+    ## Genotype:APA  3  18.25   6.082   2.991  0.044 *
+    ## Residuals    35  71.16   2.033                 
+    ## ---
+    ## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+    ## 
+    ## Dependent var: AnnularAvg 
+    ##              Df Sum Sq Mean Sq F value Pr(>F)
+    ## Genotype      1  0.126  0.1262   0.432  0.515
+    ## APA           3  1.580  0.5268   1.804  0.164
+    ## Genotype:APA  3  0.228  0.0761   0.261  0.853
+    ## Residuals    35 10.218  0.2920               
+    ## 
+    ## Dependent var: AnnularSd 
+    ##              Df Sum Sq Mean Sq F value Pr(>F)
+    ## Genotype      1   0.51   0.512   0.128  0.723
+    ## APA           3  23.52   7.841   1.954  0.139
+    ## Genotype:APA  3   2.17   0.722   0.180  0.909
+    ## Residuals    35 140.47   4.013               
+    ## 
+    ## Dependent var: AnnularSkewnes 
+    ##              Df Sum Sq Mean Sq F value Pr(>F)
+    ## Genotype      1 0.0524 0.05239   0.688  0.412
+    ## APA           3 0.2159 0.07195   0.945  0.429
+    ## Genotype:APA  3 0.0825 0.02750   0.361  0.781
+    ## Residuals    35 2.6645 0.07613               
+    ## 
+    ## Dependent var: AnnularKurtosis 
+    ##              Df Sum Sq Mean Sq F value Pr(>F)
+    ## Genotype      1   0.02  0.0193   0.018  0.895
+    ## APA           3   4.85  1.6165   1.489  0.235
+    ## Genotype:APA  3   2.33  0.7758   0.714  0.550
+    ## Residuals    35  38.01  1.0859               
+    ## 
+    ## Dependent var: Speed1 
+    ##              Df   Sum Sq   Mean Sq F value Pr(>F)  
+    ## Genotype      1 0.001660 0.0016604   3.300 0.0778 .
+    ## APA           3 0.000774 0.0002580   0.513 0.6761  
+    ## Genotype:APA  3 0.001233 0.0004110   0.817 0.4933  
+    ## Residuals    35 0.017608 0.0005031                 
+    ## ---
+    ## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+    ## 
+    ## Dependent var: Speed2 
+    ##              Df   Sum Sq   Mean Sq F value Pr(>F)  
+    ## Genotype      1 0.000280 0.0002805   3.059 0.0890 .
+    ## APA           3 0.000478 0.0001595   1.740 0.1768  
+    ## Genotype:APA  3 0.000995 0.0003317   3.618 0.0224 *
+    ## Residuals    35 0.003209 0.0000917                 
+    ## ---
+    ## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+    ## 
+    ## Dependent var: Time1stEntrLog 
+    ##              Df Sum Sq Mean Sq F value Pr(>F)
+    ## Genotype      1   2.17   2.166   1.321  0.258
+    ## APA           3   2.72   0.906   0.553  0.650
+    ## Genotype:APA  3   5.13   1.709   1.042  0.386
+    ## Residuals    35  57.39   1.640
+
+anova conflict
+--------------
+
+``` r
+slim1 <- behavior[,c(2,9,8,13:52)]
+slim2 <- slim1 %>% filter(TrainSessionCombo == "T4_C1", APA2 == "conflict") 
+Genotype <- slim2[,1]
+APA <- slim2[,3]
+slim3 <- slim2[,c(4:43)]
+
+for(y in names(slim3)){
+  ymod<- summary(aov(slim3[[y]] ~ Genotype ))
+  cat(paste('\nDependent var:', y, '\n'))
+  print(ymod)
+}
+```
+
+    ## 
+    ## Dependent var: SdevSpeedArena 
+    ##             Df Sum Sq Mean Sq F value Pr(>F)
+    ## Genotype     1 0.0169 0.01687    0.44  0.521
+    ## Residuals   11 0.4215 0.03832               
+    ## 
+    ## Dependent var: Linearity.Arena. 
+    ##             Df  Sum Sq  Mean Sq F value Pr(>F)
+    ## Genotype     1 0.00038 0.000382   0.103  0.754
+    ## Residuals   11 0.04072 0.003701               
+    ## 
+    ## Dependent var: NumEntrances 
+    ##             Df Sum Sq Mean Sq F value Pr(>F)
+    ## Genotype     1   24.0   24.01   0.519  0.486
+    ## Residuals   11  509.2   46.29               
+    ## 
+    ## Dependent var: Time1stEntr 
+    ##             Df Sum Sq Mean Sq F value Pr(>F)
+    ## Genotype     1      2     2.1   0.002  0.969
+    ## Residuals   11  14114  1283.1               
+    ## 
+    ## Dependent var: Path1stEntr 
+    ##             Df Sum Sq Mean Sq F value Pr(>F)
+    ## Genotype     1  0.009  0.0085   0.016  0.902
+    ## Residuals   11  5.870  0.5336               
+    ## 
+    ## Dependent var: Speed1stEntr.cm.s. 
+    ##             Df Sum Sq Mean Sq F value Pr(>F)
+    ## Genotype     1   8.97   8.967   0.829  0.382
+    ## Residuals   11 118.97  10.816               
+    ## 
+    ## Dependent var: Dist1stEntr.m. 
+    ##             Df Sum Sq Mean Sq F value Pr(>F)
+    ## Genotype     1 0.0637  0.0637   0.459  0.512
+    ## Residuals   11 1.5263  0.1388               
+    ## 
+    ## Dependent var: NumShock 
+    ##             Df Sum Sq Mean Sq F value Pr(>F)
+    ## Genotype     1   44.3   44.31   0.466  0.509
+    ## Residuals   11 1046.0   95.09               
+    ## 
+    ## Dependent var: MaxTimeAvoid 
+    ##             Df Sum Sq Mean Sq F value Pr(>F)
+    ## Genotype     1    164     164   0.032   0.86
+    ## Residuals   11  55557    5051               
+    ## 
+    ## Dependent var: Time2ndEntr 
+    ##             Df Sum Sq Mean Sq F value Pr(>F)
+    ## Genotype     1   8333    8333   0.992  0.341
+    ## Residuals   11  92437    8403               
+    ## 
+    ## Dependent var: Path2ndEntr 
+    ##             Df Sum Sq Mean Sq F value Pr(>F)
+    ## Genotype     1   4.38   4.375   0.944  0.352
+    ## Residuals   11  51.00   4.636               
+    ## 
+    ## Dependent var: Speed2ndEntr 
+    ##             Df Sum Sq Mean Sq F value Pr(>F)
+    ## Genotype     1   0.69   0.689    0.17  0.688
+    ## Residuals   11  44.47   4.043               
+    ## 
+    ## Dependent var: TimeTarget 
+    ##             Df Sum Sq Mean Sq F value Pr(>F)
+    ## Genotype     1   82.3   82.31   0.412  0.534
+    ## Residuals   11 2196.1  199.65               
+    ## 
+    ## Dependent var: pTimeTarget 
+    ##             Df   Sum Sq   Mean Sq F value Pr(>F)
+    ## Genotype     1 0.000362 0.0003623   0.316  0.585
+    ## Residuals   11 0.012613 0.0011466               
+    ## 
+    ## Dependent var: pTimeCCW 
+    ##             Df  Sum Sq  Mean Sq F value Pr(>F)
+    ## Genotype     1 0.00093 0.000927   0.081  0.781
+    ## Residuals   11 0.12551 0.011410               
+    ## 
+    ## Dependent var: pTimeOPP 
+    ##             Df Sum Sq Mean Sq F value Pr(>F)
+    ## Genotype     1 0.0053 0.00530   0.188  0.673
+    ## Residuals   11 0.3103 0.02821               
+    ## 
+    ## Dependent var: pTimeCW 
+    ##             Df Sum Sq Mean Sq F value Pr(>F)
+    ## Genotype     1 0.0071 0.00711   0.216  0.651
+    ## Residuals   11 0.3624 0.03294               
+    ## 
+    ## Dependent var: RayleigLength 
+    ##             Df  Sum Sq Mean Sq F value Pr(>F)
+    ## Genotype     1 0.03627 0.03627   1.499  0.246
+    ## Residuals   11 0.26622 0.02420               
+    ## 
+    ## Dependent var: RayleigAngle 
+    ##             Df Sum Sq Mean Sq F value Pr(>F)
+    ## Genotype     1     68      68   0.015  0.906
+    ## Residuals   11  50565    4597               
+    ## 
+    ## Dependent var: PolarAvgVal 
+    ##             Df Sum Sq Mean Sq F value Pr(>F)
+    ## Genotype     1    214   214.3   0.174  0.685
+    ## Residuals   11  13541  1231.0               
+    ## 
+    ## Dependent var: PolarSdVal 
+    ##             Df Sum Sq Mean Sq F value Pr(>F)
+    ## Genotype     1     43    42.7   0.095  0.764
+    ## Residuals   11   4968   451.6               
+    ## 
+    ## Dependent var: PolarMinVal 
+    ##             Df    Sum Sq   Mean Sq F value Pr(>F)
+    ## Genotype     1 8.200e-08 8.210e-08   0.103  0.754
+    ## Residuals   11 8.766e-06 7.969e-07               
+    ## 
+    ## Dependent var: PolarMinBin 
+    ##             Df Sum Sq Mean Sq F value Pr(>F)  
+    ## Genotype     1  56892   56892   4.395   0.06 .
+    ## Residuals   11 142400   12945                 
+    ## ---
+    ## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+    ## 
+    ## Dependent var: Min50.RngLoBin 
+    ##             Df Sum Sq Mean Sq F value Pr(>F)
+    ## Genotype     1    262     262   0.046  0.834
+    ## Residuals   11  62231    5657               
+    ## 
+    ## Dependent var: Min50.RngHiBin 
+    ##             Df Sum Sq Mean Sq F value Pr(>F)
+    ## Genotype     1     36      36   0.008  0.932
+    ## Residuals   11  52564    4779               
+    ## 
+    ## Dependent var: PolarMaxVal 
+    ##             Df    Sum Sq   Mean Sq F value Pr(>F)
+    ## Genotype     1 0.0002507 0.0002506   1.045  0.329
+    ## Residuals   11 0.0026391 0.0002399               
+    ## 
+    ## Dependent var: PolarMaxBin 
+    ##             Df Sum Sq Mean Sq F value Pr(>F)
+    ## Genotype     1   2267    2267   0.489  0.499
+    ## Residuals   11  50964    4633               
+    ## 
+    ## Dependent var: Max50.RngLoBin 
+    ##             Df Sum Sq Mean Sq F value Pr(>F)
+    ## Genotype     1     69      69   0.019  0.894
+    ## Residuals   11  40700    3700               
+    ## 
+    ## Dependent var: Max50.RngHiBin 
+    ##             Df Sum Sq Mean Sq F value Pr(>F)
+    ## Genotype     1   1888    1888   0.438  0.522
+    ## Residuals   11  47389    4308               
+    ## 
+    ## Dependent var: AnnularMinVal 
+    ##             Df    Sum Sq   Mean Sq F value Pr(>F)
+    ## Genotype     1 0.0000642 6.417e-05    1.11  0.315
+    ## Residuals   11 0.0006362 5.784e-05               
+    ## 
+    ## Dependent var: AnnularMinBin 
+    ##             Df Sum Sq Mean Sq F value Pr(>F)
+    ## Genotype     1   6.42   6.417   0.395  0.543
+    ## Residuals   11 178.72  16.247               
+    ## 
+    ## Dependent var: AnnularMaxVal 
+    ##             Df  Sum Sq  Mean Sq F value Pr(>F)
+    ## Genotype     1 0.00045 0.000452   0.036  0.854
+    ## Residuals   11 0.13946 0.012679               
+    ## 
+    ## Dependent var: AnnularMaxBin 
+    ##             Df Sum Sq Mean Sq F value Pr(>F)  
+    ## Genotype     1  2.693  2.6928   6.025  0.032 *
+    ## Residuals   11  4.916  0.4469                 
+    ## ---
+    ## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+    ## 
+    ## Dependent var: AnnularAvg 
+    ##             Df Sum Sq Mean Sq F value Pr(>F)
+    ## Genotype     1  0.056 0.05623    0.18   0.68
+    ## Residuals   11  3.442 0.31292               
+    ## 
+    ## Dependent var: AnnularSd 
+    ##             Df Sum Sq Mean Sq F value Pr(>F)  
+    ## Genotype     1  73.37   73.37    6.73  0.025 *
+    ## Residuals   11 119.92   10.90                 
+    ## ---
+    ## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+    ## 
+    ## Dependent var: AnnularSkewnes 
+    ##             Df Sum Sq Mean Sq F value Pr(>F)
+    ## Genotype     1  0.592  0.5924   1.494  0.247
+    ## Residuals   11  4.363  0.3966               
+    ## 
+    ## Dependent var: AnnularKurtosis 
+    ##             Df Sum Sq Mean Sq F value Pr(>F)
+    ## Genotype     1   76.3    76.3   2.535   0.14
+    ## Residuals   11  331.2    30.1               
+    ## 
+    ## Dependent var: Speed1 
+    ##             Df    Sum Sq   Mean Sq F value Pr(>F)
+    ## Genotype     1 0.0000042 4.220e-06   0.032  0.861
+    ## Residuals   11 0.0014493 1.318e-04               
+    ## 
+    ## Dependent var: Speed2 
+    ##             Df    Sum Sq   Mean Sq F value Pr(>F)
+    ## Genotype     1 0.0000107 1.065e-05   0.217   0.65
+    ## Residuals   11 0.0005393 4.903e-05               
+    ## 
+    ## Dependent var: Time1stEntrLog 
+    ##             Df Sum Sq Mean Sq F value Pr(>F)
+    ## Genotype     1   0.04   0.041    0.01  0.921
+    ## Residuals   11  42.93   3.903
+
+``` r
+# * AnnularSd, AnnularMaxBin 
+# . PolarMinBin 
+
+slim1 <- behavior[,c(2,9,8,13:52)]
+slim2 <- slim1 %>% filter(TrainSessionCombo == "T3", APA2 == "conflict") 
+Genotype <- slim2[,1]
+APA <- slim2[,3]
+slim3 <- slim2[,c(4:43)]
+
+for(y in names(slim3)){
+  ymod<- summary(aov(slim3[[y]] ~ Genotype ))
+  cat(paste('\nDependent var:', y, '\n'))
+  print(ymod)
+}
+```
+
+    ## 
+    ## Dependent var: SdevSpeedArena 
+    ##             Df Sum Sq Mean Sq F value Pr(>F)
+    ## Genotype     1 0.0093 0.00933   0.087  0.773
+    ## Residuals   11 1.1757 0.10688               
+    ## 
+    ## Dependent var: Linearity.Arena. 
+    ##             Df   Sum Sq   Mean Sq F value Pr(>F)
+    ## Genotype     1 0.000426 0.0004256   0.229  0.642
+    ## Residuals   11 0.020468 0.0018607               
+    ## 
+    ## Dependent var: NumEntrances 
+    ##             Df Sum Sq Mean Sq F value Pr(>F)
+    ## Genotype     1  30.26   30.26    2.12  0.173
+    ## Residuals   11 156.97   14.27               
+    ## 
+    ## Dependent var: Time1stEntr 
+    ##             Df Sum Sq Mean Sq F value Pr(>F)
+    ## Genotype     1    362   362.2   0.476  0.504
+    ## Residuals   11   8366   760.5               
+    ## 
+    ## Dependent var: Path1stEntr 
+    ##             Df Sum Sq Mean Sq F value Pr(>F)
+    ## Genotype     1  0.062  0.0623   0.173  0.685
+    ## Residuals   11  3.952  0.3593               
+    ## 
+    ## Dependent var: Speed1stEntr.cm.s. 
+    ##             Df Sum Sq Mean Sq F value Pr(>F)
+    ## Genotype     1   0.21   0.211   0.022  0.885
+    ## Residuals   11 106.33   9.666               
+    ## 
+    ## Dependent var: Dist1stEntr.m. 
+    ##             Df Sum Sq Mean Sq F value Pr(>F)
+    ## Genotype     1 0.1123 0.11231   2.743  0.126
+    ## Residuals   11 0.4504 0.04094               
+    ## 
+    ## Dependent var: NumShock 
+    ##             Df Sum Sq Mean Sq F value Pr(>F)
+    ## Genotype     1  79.59   79.59   2.961  0.113
+    ## Residuals   11 295.64   26.88               
+    ## 
+    ## Dependent var: MaxTimeAvoid 
+    ##             Df Sum Sq Mean Sq F value Pr(>F)  
+    ## Genotype     1  59456   59456   4.789 0.0511 .
+    ## Residuals   11 136580   12416                 
+    ## ---
+    ## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+    ## 
+    ## Dependent var: Time2ndEntr 
+    ##             Df Sum Sq Mean Sq F value Pr(>F)
+    ## Genotype     1  12280   12280   0.321  0.583
+    ## Residuals   11 421285   38299               
+    ## 
+    ## Dependent var: Path2ndEntr 
+    ##             Df Sum Sq Mean Sq F value Pr(>F)
+    ## Genotype     1   9.12   9.122   0.408  0.536
+    ## Residuals   11 246.07  22.370               
+    ## 
+    ## Dependent var: Speed2ndEntr 
+    ##             Df Sum Sq Mean Sq F value Pr(>F)
+    ## Genotype     1   2.22   2.224   0.153  0.703
+    ## Residuals   11 160.21  14.564               
+    ## 
+    ## Dependent var: TimeTarget 
+    ##             Df Sum Sq Mean Sq F value Pr(>F)
+    ## Genotype     1  179.7  179.73   3.095  0.106
+    ## Residuals   11  638.7   58.06               
+    ## 
+    ## Dependent var: pTimeTarget 
+    ##             Df   Sum Sq   Mean Sq F value Pr(>F)
+    ## Genotype     1 0.001094 0.0010942   3.164  0.103
+    ## Residuals   11 0.003805 0.0003459               
+    ## 
+    ## Dependent var: pTimeCCW 
+    ##             Df Sum Sq Mean Sq F value Pr(>F)
+    ## Genotype     1 0.0003 0.00032   0.011   0.92
+    ## Residuals   11 0.3329 0.03026               
+    ## 
+    ## Dependent var: pTimeOPP 
+    ##             Df  Sum Sq Mean Sq F value Pr(>F)
+    ## Genotype     1 0.01561 0.01561   0.684  0.426
+    ## Residuals   11 0.25123 0.02284               
+    ## 
+    ## Dependent var: pTimeCW 
+    ##             Df  Sum Sq  Mean Sq F value Pr(>F)
+    ## Genotype     1 0.01203 0.012029   2.622  0.134
+    ## Residuals   11 0.05047 0.004588               
+    ## 
+    ## Dependent var: RayleigLength 
+    ##             Df  Sum Sq Mean Sq F value Pr(>F)
+    ## Genotype     1 0.05321 0.05321   3.168  0.103
+    ## Residuals   11 0.18476 0.01680               
+    ## 
+    ## Dependent var: RayleigAngle 
+    ##             Df Sum Sq Mean Sq F value Pr(>F)
+    ## Genotype     1     29    29.5   0.071  0.795
+    ## Residuals   11   4597   417.9               
+    ## 
+    ## Dependent var: PolarAvgVal 
+    ##             Df Sum Sq Mean Sq F value Pr(>F)
+    ## Genotype     1  187.7   187.7   0.727  0.412
+    ## Residuals   11 2840.0   258.2               
+    ## 
+    ## Dependent var: PolarSdVal 
+    ##             Df Sum Sq Mean Sq F value Pr(>F)
+    ## Genotype     1    437   437.0   2.995  0.111
+    ## Residuals   11   1605   145.9               
+    ## 
+    ## Dependent var: PolarMinVal 
+    ##             Df    Sum Sq   Mean Sq F value Pr(>F)
+    ## Genotype     1 4.561e-06 4.561e-06   2.814  0.122
+    ## Residuals   11 1.783e-05 1.621e-06               
+    ## 
+    ## Dependent var: PolarMinBin 
+    ##             Df Sum Sq Mean Sq F value Pr(>F)
+    ## Genotype     1  42503   42503   1.657  0.224
+    ## Residuals   11 282189   25654               
+    ## 
+    ## Dependent var: Min50.RngLoBin 
+    ##             Df Sum Sq Mean Sq F value Pr(>F)
+    ## Genotype     1    694   694.2   0.743  0.407
+    ## Residuals   11  10275   934.1               
+    ## 
+    ## Dependent var: Min50.RngHiBin 
+    ##             Df Sum Sq Mean Sq F value Pr(>F)
+    ## Genotype     1     94    94.2   0.139  0.717
+    ## Residuals   11   7475   679.5               
+    ## 
+    ## Dependent var: PolarMaxVal 
+    ##             Df   Sum Sq   Mean Sq F value Pr(>F)
+    ## Genotype     1 0.000889 0.0008887   1.926  0.193
+    ## Residuals   11 0.005075 0.0004613               
+    ## 
+    ## Dependent var: PolarMaxBin 
+    ##             Df Sum Sq Mean Sq F value Pr(>F)
+    ## Genotype     1    513   513.0   0.566  0.467
+    ## Residuals   11   9964   905.8               
+    ## 
+    ## Dependent var: Max50.RngLoBin 
+    ##             Df Sum Sq Mean Sq F value Pr(>F)
+    ## Genotype     1     62    61.8   0.085  0.777
+    ## Residuals   11   8031   730.1               
+    ## 
+    ## Dependent var: Max50.RngHiBin 
+    ##             Df Sum Sq Mean Sq F value Pr(>F)
+    ## Genotype     1   2311    2311   1.641  0.226
+    ## Residuals   11  15489    1408               
+    ## 
+    ## Dependent var: AnnularMinVal 
+    ##             Df    Sum Sq   Mean Sq F value Pr(>F)  
+    ## Genotype     1 0.0003708 0.0003708   3.771 0.0782 .
+    ## Residuals   11 0.0010818 0.0000983                 
+    ## ---
+    ## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+    ## 
+    ## Dependent var: AnnularMinBin 
+    ##             Df Sum Sq Mean Sq F value Pr(>F)
+    ## Genotype     1   46.0   46.05   1.584  0.234
+    ## Residuals   11  319.7   29.06               
+    ## 
+    ## Dependent var: AnnularMaxVal 
+    ##             Df  Sum Sq  Mean Sq F value Pr(>F)
+    ## Genotype     1 0.00002 0.000024   0.001   0.97
+    ## Residuals   11 0.17715 0.016105               
+    ## 
+    ## Dependent var: AnnularMaxBin 
+    ##             Df Sum Sq Mean Sq F value Pr(>F)
+    ## Genotype     1  1.872   1.872   1.279  0.282
+    ## Residuals   11 16.096   1.463               
+    ## 
+    ## Dependent var: AnnularAvg 
+    ##             Df Sum Sq Mean Sq F value Pr(>F)
+    ## Genotype     1  1.078  1.0779   1.746  0.213
+    ## Residuals   11  6.792  0.6174               
+    ## 
+    ## Dependent var: AnnularSd 
+    ##             Df Sum Sq Mean Sq F value Pr(>F)  
+    ## Genotype     1   76.9   76.90   3.568 0.0856 .
+    ## Residuals   11  237.1   21.56                 
+    ## ---
+    ## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+    ## 
+    ## Dependent var: AnnularSkewnes 
+    ##             Df Sum Sq Mean Sq F value Pr(>F)
+    ## Genotype     1  0.918  0.9182    1.44  0.255
+    ## Residuals   11  7.012  0.6375               
+    ## 
+    ## Dependent var: AnnularKurtosis 
+    ##             Df Sum Sq Mean Sq F value Pr(>F)
+    ## Genotype     1   56.5   56.54   1.322  0.275
+    ## Residuals   11  470.6   42.78               
+    ## 
+    ## Dependent var: Speed1 
+    ##             Df    Sum Sq   Mean Sq F value Pr(>F)
+    ## Genotype     1 0.0000433 4.330e-05   0.944  0.352
+    ## Residuals   11 0.0005045 4.587e-05               
+    ## 
+    ## Dependent var: Speed2 
+    ##             Df    Sum Sq   Mean Sq F value Pr(>F)
+    ## Genotype     1 6.590e-06 6.590e-06   0.263  0.618
+    ## Residuals   11 2.759e-04 2.508e-05               
+    ## 
+    ## Dependent var: Time1stEntrLog 
+    ##             Df Sum Sq Mean Sq F value Pr(>F)
+    ## Genotype     1  3.836   3.836   2.504  0.142
+    ## Residuals   11 16.847   1.532
+
+``` r
+# . AnnularSd, AnnularMinVal, MaxTimeAvoid 
+
+hist(slim3$AnnularSd)
+```
+
+![](01_behavior_files/figure-markdown_github/unnamed-chunk-5-1.png)
+
+``` r
+boxplot(slim3$AnnularSd ~ Genotype)
+```
+
+![](01_behavior_files/figure-markdown_github/unnamed-chunk-5-2.png)
+
+``` r
+summary(aov(slim3$AnnularSd ~ Genotype)) 
+```
+
+    ##             Df Sum Sq Mean Sq F value Pr(>F)  
+    ## Genotype     1   76.9   76.90   3.568 0.0856 .
+    ## Residuals   11  237.1   21.56                 
+    ## ---
+    ## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+
+``` r
+t.test(slim3$AnnularSd ~ Genotype)
+```
+
+    ## 
+    ##  Welch Two Sample t-test
+    ## 
+    ## data:  slim3$AnnularSd by Genotype
+    ## t = -1.4854, df = 3.7981, p-value = 0.2153
+    ## alternative hypothesis: true difference in means is not equal to 0
+    ## 95 percent confidence interval:
+    ##  -15.329371   4.789926
+    ## sample estimates:
+    ##     mean in group WT mean in group FMR1KO 
+    ##             11.07778             16.34750
+
+``` r
+hist(slim3$AnnularMinVal)
+```
+
+![](01_behavior_files/figure-markdown_github/unnamed-chunk-5-3.png)
+
+``` r
+boxplot(slim3$AnnularMinVal ~ Genotype)
+```
+
+![](01_behavior_files/figure-markdown_github/unnamed-chunk-5-4.png)
+
+``` r
+summary(aov(slim3$AnnularMinVal ~ Genotype)) 
+```
+
+    ##             Df    Sum Sq   Mean Sq F value Pr(>F)  
+    ## Genotype     1 0.0003708 0.0003708   3.771 0.0782 .
+    ## Residuals   11 0.0010818 0.0000983                 
+    ## ---
+    ## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+
+``` r
+t.test(slim3$AnnularMinVal ~ Genotype)
+```
+
+    ## 
+    ##  Welch Two Sample t-test
+    ## 
+    ## data:  slim3$AnnularMinVal by Genotype
+    ## t = -1.3096, df = 3.1932, p-value = 0.2766
+    ## alternative hypothesis: true difference in means is not equal to 0
+    ## 95 percent confidence interval:
+    ##  -0.03875485  0.01561041
+    ## sample estimates:
+    ##     mean in group WT mean in group FMR1KO 
+    ##          0.003877778          0.015450000
+
+``` r
+hist(slim3$MaxTimeAvoid)
+```
+
+![](01_behavior_files/figure-markdown_github/unnamed-chunk-5-5.png)
+
+``` r
+boxplot(slim3$MaxTimeAvoid ~ Genotype)
+```
+
+![](01_behavior_files/figure-markdown_github/unnamed-chunk-5-6.png)
+
+``` r
+summary(aov(slim3$MaxTimeAvoid ~ Genotype)) 
+```
+
+    ##             Df Sum Sq Mean Sq F value Pr(>F)  
+    ## Genotype     1  59456   59456   4.789 0.0511 .
+    ## Residuals   11 136580   12416                 
+    ## ---
+    ## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+
+``` r
+t.test(slim3$MaxTimeAvoid ~ Genotype)
+```
+
+    ## 
+    ##  Welch Two Sample t-test
+    ## 
+    ## data:  slim3$MaxTimeAvoid by Genotype
+    ## t = 2.1136, df = 5.3987, p-value = 0.08412
+    ## alternative hypothesis: true difference in means is not equal to 0
+    ## 95 percent confidence interval:
+    ##  -27.79532 320.85088
+    ## sample estimates:
+    ##     mean in group WT mean in group FMR1KO 
+    ##             374.7778             228.2500
+
+habituation genotype
+--------------------
+
+``` r
+slim1 <- behavior[,c(2,9,8,13:52)]
+slim2 <- slim1 %>% filter(TrainSessionCombo == "Hab") 
+Genotype <- slim2[,1]
+APA <- slim2[,3]
+slim3 <- slim2[,c(4:43)]
+
+for(y in names(slim3)){
+  ymod<- summary(aov(slim3[[y]] ~ Genotype ))
+  cat(paste('\nDependent var:', y, '\n'))
+  print(ymod)
+}
+```
+
+    ## 
+    ## Dependent var: SdevSpeedArena 
+    ##             Df Sum Sq Mean Sq F value Pr(>F)
+    ## Genotype     1  0.017 0.01695   0.094  0.761
+    ## Residuals   41  7.432 0.18127               
+    ## 
+    ## Dependent var: Linearity.Arena. 
+    ##             Df  Sum Sq   Mean Sq F value Pr(>F)
+    ## Genotype     1 0.00005 0.0000531   0.028  0.869
+    ## Residuals   41 0.07851 0.0019150               
+    ## 
+    ## Dependent var: NumEntrances 
+    ##             Df Sum Sq Mean Sq F value Pr(>F)
+    ## Genotype     1    6.1   6.105   0.215  0.645
+    ## Residuals   41 1164.4  28.399               
+    ## 
+    ## Dependent var: Time1stEntr 
+    ##             Df Sum Sq Mean Sq F value Pr(>F)
+    ## Genotype     1      3    3.05   0.039  0.845
+    ## Residuals   41   3229   78.75               
+    ## 
+    ## Dependent var: Path1stEntr 
+    ##             Df Sum Sq Mean Sq F value Pr(>F)
+    ## Genotype     1  0.025 0.02459   0.126  0.724
+    ## Residuals   41  7.991 0.19491               
+    ## 
+    ## Dependent var: Speed1stEntr.cm.s. 
+    ##             Df Sum Sq Mean Sq F value Pr(>F)
+    ## Genotype     1    8.0   8.018   0.381   0.54
+    ## Residuals   41  861.8  21.021               
+    ## 
+    ## Dependent var: Dist1stEntr.m. 
+    ##             Df Sum Sq Mean Sq F value Pr(>F)
+    ## Genotype     1 0.0017 0.00173    0.05  0.824
+    ## Residuals   41 1.4117 0.03443               
+    ## 
+    ## Dependent var: NumShock 
+    ##             Df Sum Sq Mean Sq F value Pr(>F)
+    ## Genotype     1      0    0.01       0  0.994
+    ## Residuals   41   3572   87.11               
+    ## 
+    ## Dependent var: MaxTimeAvoid 
+    ##             Df Sum Sq Mean Sq F value Pr(>F)
+    ## Genotype     1      6     5.9   0.011  0.917
+    ## Residuals   41  22234   542.3               
+    ## 
+    ## Dependent var: Time2ndEntr 
+    ##             Df Sum Sq Mean Sq F value Pr(>F)
+    ## Genotype     1     40   40.24   0.516  0.477
+    ## Residuals   41   3197   77.98               
+    ## 
+    ## Dependent var: Path2ndEntr 
+    ##             Df Sum Sq Mean Sq F value Pr(>F)
+    ## Genotype     1  0.011 0.01096   0.051  0.823
+    ## Residuals   41  8.855 0.21597               
+    ## 
+    ## Dependent var: Speed2ndEntr 
+    ##             Df Sum Sq Mean Sq F value Pr(>F)
+    ## Genotype     1    0.7   0.722   0.046  0.831
+    ## Residuals   41  641.8  15.653               
+    ## 
+    ## Dependent var: TimeTarget 
+    ##             Df Sum Sq Mean Sq F value Pr(>F)
+    ## Genotype     1     35    34.6   0.105  0.747
+    ## Residuals   41  13504   329.4               
+    ## 
+    ## Dependent var: pTimeTarget 
+    ##             Df  Sum Sq   Mean Sq F value Pr(>F)
+    ## Genotype     1 0.00040 0.0003954   0.197   0.66
+    ## Residuals   41 0.08234 0.0020084               
+    ## 
+    ## Dependent var: pTimeCCW 
+    ##             Df  Sum Sq  Mean Sq F value Pr(>F)
+    ## Genotype     1 0.00008 7.53e-05   0.024  0.877
+    ## Residuals   41 0.12628 3.08e-03               
+    ## 
+    ## Dependent var: pTimeOPP 
+    ##             Df  Sum Sq   Mean Sq F value Pr(>F)
+    ## Genotype     1 0.00007 0.0000709   0.042  0.838
+    ## Residuals   41 0.06882 0.0016785               
+    ## 
+    ## Dependent var: pTimeCW 
+    ##             Df  Sum Sq   Mean Sq F value Pr(>F)
+    ## Genotype     1 0.00039 0.0003894   0.148  0.703
+    ## Residuals   41 0.10793 0.0026324               
+    ## 
+    ## Dependent var: RayleigLength 
+    ##             Df Sum Sq  Mean Sq F value Pr(>F)
+    ## Genotype     1 0.0007 0.000698   0.167  0.685
+    ## Residuals   41 0.1716 0.004184               
+    ## 
+    ## Dependent var: RayleigAngle 
+    ##             Df Sum Sq Mean Sq F value Pr(>F)
+    ## Genotype     1      2       2       0  0.991
+    ## Residuals   41 544459   13279               
+    ## 
+    ## Dependent var: PolarAvgVal 
+    ##             Df Sum Sq Mean Sq F value Pr(>F)
+    ## Genotype     1      1    1.17   0.009  0.927
+    ## Residuals   41   5605  136.70               
+    ## 
+    ## Dependent var: PolarSdVal 
+    ##             Df Sum Sq Mean Sq F value Pr(>F)
+    ## Genotype     1      0   0.048   0.002  0.968
+    ## Residuals   41   1233  30.080               
+    ## 
+    ## Dependent var: PolarMinVal 
+    ##             Df    Sum Sq   Mean Sq F value Pr(>F)
+    ## Genotype     1 2.000e-08 1.800e-08   0.003  0.956
+    ## Residuals   41 2.371e-04 5.782e-06               
+    ## 
+    ## Dependent var: PolarMinBin 
+    ##             Df Sum Sq Mean Sq F value Pr(>F)
+    ## Genotype     1   3175    3175   0.366  0.549
+    ## Residuals   41 355741    8677               
+    ## 
+    ## Dependent var: Min50.RngLoBin 
+    ##             Df Sum Sq Mean Sq F value Pr(>F)
+    ## Genotype     1    286     286   0.043  0.838
+    ## Residuals   41 275741    6725               
+    ## 
+    ## Dependent var: Min50.RngHiBin 
+    ##             Df Sum Sq Mean Sq F value Pr(>F)
+    ## Genotype     1   5612    5612   0.383  0.539
+    ## Residuals   41 600248   14640               
+    ## 
+    ## Dependent var: PolarMaxVal 
+    ##             Df    Sum Sq   Mean Sq F value Pr(>F)
+    ## Genotype     1 0.0000051 5.140e-06   0.145  0.705
+    ## Residuals   41 0.0014535 3.545e-05               
+    ## 
+    ## Dependent var: PolarMaxBin 
+    ##             Df Sum Sq Mean Sq F value Pr(>F)
+    ## Genotype     1   6851    6851   0.658  0.422
+    ## Residuals   41 426596   10405               
+    ## 
+    ## Dependent var: Max50.RngLoBin 
+    ##             Df Sum Sq Mean Sq F value Pr(>F)
+    ## Genotype     1   2977    2977   0.189  0.666
+    ## Residuals   41 646386   15766               
+    ## 
+    ## Dependent var: Max50.RngHiBin 
+    ##             Df Sum Sq Mean Sq F value Pr(>F)
+    ## Genotype     1   1131    1131   0.135  0.716
+    ## Residuals   41 344715    8408               
+    ## 
+    ## Dependent var: AnnularMinVal 
+    ##             Df   Sum Sq   Mean Sq F value Pr(>F)
+    ## Genotype     1 0.000393 0.0003931   0.775  0.384
+    ## Residuals   41 0.020798 0.0005073               
+    ## 
+    ## Dependent var: AnnularMinBin 
+    ##             Df Sum Sq Mean Sq F value Pr(>F)  
+    ## Genotype     1   6.19   6.190   3.289 0.0771 .
+    ## Residuals   41  77.18   1.882                 
+    ## ---
+    ## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+    ## 
+    ## Dependent var: AnnularMaxVal 
+    ##             Df  Sum Sq  Mean Sq F value Pr(>F)  
+    ## Genotype     1 0.00696 0.006956   3.179  0.082 .
+    ## Residuals   41 0.08971 0.002188                 
+    ## ---
+    ## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+    ## 
+    ## Dependent var: AnnularMaxBin 
+    ##             Df Sum Sq Mean Sq F value Pr(>F)
+    ## Genotype     1   3.14   3.137   1.313  0.258
+    ## Residuals   41  97.93   2.389               
+    ## 
+    ## Dependent var: AnnularAvg 
+    ##             Df Sum Sq Mean Sq F value Pr(>F)
+    ## Genotype     1  0.126  0.1262    0.43  0.516
+    ## Residuals   41 12.027  0.2933               
+    ## 
+    ## Dependent var: AnnularSd 
+    ##             Df Sum Sq Mean Sq F value Pr(>F)
+    ## Genotype     1   0.51   0.512   0.126  0.724
+    ## Residuals   41 166.16   4.053               
+    ## 
+    ## Dependent var: AnnularSkewnes 
+    ##             Df Sum Sq Mean Sq F value Pr(>F)
+    ## Genotype     1 0.0524 0.05239   0.725  0.399
+    ## Residuals   41 2.9629 0.07226               
+    ## 
+    ## Dependent var: AnnularKurtosis 
+    ##             Df Sum Sq Mean Sq F value Pr(>F)
+    ## Genotype     1   0.02  0.0193   0.017  0.895
+    ## Residuals   41  45.18  1.1020               
+    ## 
+    ## Dependent var: Speed1 
+    ##             Df  Sum Sq   Mean Sq F value Pr(>F)  
+    ## Genotype     1 0.00166 0.0016604   3.471 0.0696 .
+    ## Residuals   41 0.01962 0.0004784                 
+    ## ---
+    ## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+    ## 
+    ## Dependent var: Speed2 
+    ##             Df   Sum Sq   Mean Sq F value Pr(>F)
+    ## Genotype     1 0.000280 0.0002805   2.456  0.125
+    ## Residuals   41 0.004682 0.0001142               
+    ## 
+    ## Dependent var: Time1stEntrLog 
+    ##             Df Sum Sq Mean Sq F value Pr(>F)
+    ## Genotype     1   2.17   2.166   1.361   0.25
+    ## Residuals   41  65.23   1.591
+
+``` r
+# . Speed1, AnnularMinBin 
+
+hist(slim3$Speed1)
+```
+
+![](01_behavior_files/figure-markdown_github/unnamed-chunk-6-1.png)
+
+``` r
+boxplot(slim3$Speed1 ~ Genotype)
+```
+
+![](01_behavior_files/figure-markdown_github/unnamed-chunk-6-2.png)
+
+``` r
+summary(aov(slim3$Speed1 ~ Genotype)) 
+```
+
+    ##             Df  Sum Sq   Mean Sq F value Pr(>F)  
+    ## Genotype     1 0.00166 0.0016604   3.471 0.0696 .
+    ## Residuals   41 0.01962 0.0004784                 
+    ## ---
+    ## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+
+``` r
+t.test(slim3$Speed1 ~ Genotype)
+```
+
+    ## 
+    ##  Welch Two Sample t-test
+    ## 
+    ## data:  slim3$Speed1 by Genotype
+    ## t = 1.8505, df = 37.705, p-value = 0.07209
+    ## alternative hypothesis: true difference in means is not equal to 0
+    ## 95 percent confidence interval:
+    ##  -0.001179299  0.026204878
+    ## sample estimates:
+    ##     mean in group WT mean in group FMR1KO 
+    ##           0.04385850           0.03134571
+
+``` r
+hist(slim3$AnnularMinBin)
+```
+
+![](01_behavior_files/figure-markdown_github/unnamed-chunk-6-3.png)
+
+``` r
+boxplot(slim3$AnnularMinBin ~ Genotype)
+```
+
+![](01_behavior_files/figure-markdown_github/unnamed-chunk-6-4.png)
+
+``` r
+summary(aov(slim3$AnnularMinBin ~ Genotype)) 
+```
+
+    ##             Df Sum Sq Mean Sq F value Pr(>F)  
+    ## Genotype     1   6.19   6.190   3.289 0.0771 .
+    ## Residuals   41  77.18   1.882                 
+    ## ---
+    ## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+
+``` r
+t.test(slim3$AnnularMinBin ~ Genotype)
+```
+
+    ## 
+    ##  Welch Two Sample t-test
+    ## 
+    ## data:  slim3$AnnularMinBin by Genotype
+    ## t = -2.0041, df = 27.95, p-value = 0.05484
+    ## alternative hypothesis: true difference in means is not equal to 0
+    ## 95 percent confidence interval:
+    ##  -1.54503702  0.01696684
+    ## sample estimates:
+    ##     mean in group WT mean in group FMR1KO 
+    ##             15.38333             16.14737
+
+retention genotype
+------------------
+
+``` r
+slim1 <- behavior[,c(2,9,8,13:52)]
+slim2 <- slim1 %>% filter(TrainSessionCombo == "Retention") 
+Genotype <- slim2[,1]
+APA <- slim2[,3]
+slim3 <- slim2[,c(4:43)]
+
+for(y in names(slim3)){
+  ymod<- summary(aov(slim3[[y]] ~ Genotype * APA ))
+  cat(paste('\nDependent var:', y, '\n'))
+  print(ymod)
+}
+```
+
+    ## 
+    ## Dependent var: SdevSpeedArena 
+    ##              Df Sum Sq Mean Sq F value Pr(>F)  
+    ## Genotype      1  0.291  0.2915   1.635 0.2080  
+    ## APA           3  1.758  0.5859   3.287 0.0298 *
+    ## Genotype:APA  3  0.307  0.1024   0.574 0.6352  
+    ## Residuals    42  7.487  0.1783                 
+    ## ---
+    ## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+    ## 
+    ## Dependent var: Linearity.Arena. 
+    ##              Df  Sum Sq  Mean Sq F value Pr(>F)
+    ## Genotype      1 0.00033 0.000329   0.062  0.805
+    ## APA           3 0.02984 0.009946   1.865  0.150
+    ## Genotype:APA  3 0.00814 0.002715   0.509  0.678
+    ## Residuals    42 0.22392 0.005331               
+    ## 
+    ## Dependent var: NumEntrances 
+    ##              Df Sum Sq Mean Sq F value   Pr(>F)    
+    ## Genotype      1   33.3    33.3   0.883    0.353    
+    ## APA           3 1590.7   530.2  14.037 1.77e-06 ***
+    ## Genotype:APA  3   37.4    12.5   0.330    0.803    
+    ## Residuals    42 1586.5    37.8                     
+    ## ---
+    ## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+    ## 
+    ## Dependent var: Time1stEntr 
+    ##              Df Sum Sq Mean Sq F value  Pr(>F)    
+    ## Genotype      1  16373   16373   0.987 0.32615    
+    ## APA           3 333963  111321   6.711 0.00084 ***
+    ## Genotype:APA  3  25213    8404   0.507 0.67980    
+    ## Residuals    42 696671   16587                    
+    ## ---
+    ## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+    ## 
+    ## Dependent var: Path1stEntr 
+    ##              Df Sum Sq Mean Sq F value  Pr(>F)   
+    ## Genotype      1    4.4    4.40   0.477 0.49371   
+    ## APA           3  162.1   54.03   5.851 0.00196 **
+    ## Genotype:APA  3    8.8    2.94   0.318 0.81215   
+    ## Residuals    42  387.8    9.23                   
+    ## ---
+    ## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+    ## 
+    ## Dependent var: Speed1stEntr.cm.s. 
+    ##              Df Sum Sq Mean Sq F value Pr(>F)
+    ## Genotype      1    7.7   7.677   0.552  0.462
+    ## APA           3   65.2  21.736   1.563  0.213
+    ## Genotype:APA  3   20.8   6.930   0.498  0.686
+    ## Residuals    42  584.3  13.911               
+    ## 
+    ## Dependent var: Dist1stEntr.m. 
+    ##              Df Sum Sq Mean Sq F value   Pr(>F)    
+    ## Genotype      1  0.041  0.0409   0.278 0.600486    
+    ## APA           3  3.808  1.2694   8.644 0.000139 ***
+    ## Genotype:APA  3  0.128  0.0426   0.290 0.832501    
+    ## Residuals    42  6.168  0.1469                     
+    ## ---
+    ## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+    ## 
+    ## Dependent var: NumShock 
+    ##              Df Sum Sq Mean Sq F value   Pr(>F)    
+    ## Genotype      1     94      94   0.241    0.626    
+    ## APA           3  12811    4270  10.921 1.97e-05 ***
+    ## Genotype:APA  3    377     126   0.321    0.810    
+    ## Residuals    42  16423     391                     
+    ## ---
+    ## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+    ## 
+    ## Dependent var: MaxTimeAvoid 
+    ##              Df Sum Sq Mean Sq F value   Pr(>F)    
+    ## Genotype      1  38313   38313   3.196 0.081054 .  
+    ## APA           3 254517   84839   7.076 0.000591 ***
+    ## Genotype:APA  3  10341    3447   0.288 0.834141    
+    ## Residuals    42 503548   11989                     
+    ## ---
+    ## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+    ## 
+    ## Dependent var: Time2ndEntr 
+    ##              Df Sum Sq Mean Sq F value   Pr(>F)    
+    ## Genotype      1  42088   42088   1.924 0.172740    
+    ## APA           3 574685  191562   8.757 0.000125 ***
+    ## Genotype:APA  3  28691    9564   0.437 0.727550    
+    ## Residuals    42 918788   21876                     
+    ## ---
+    ## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+    ## 
+    ## Dependent var: Path2ndEntr 
+    ##              Df Sum Sq Mean Sq F value   Pr(>F)    
+    ## Genotype      1   12.0   12.02   0.955 0.334118    
+    ## APA           3  288.6   96.21   7.641 0.000347 ***
+    ## Genotype:APA  3    9.3    3.11   0.247 0.863035    
+    ## Residuals    42  528.8   12.59                     
+    ## ---
+    ## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+    ## 
+    ## Dependent var: Speed2ndEntr 
+    ##              Df Sum Sq Mean Sq F value  Pr(>F)   
+    ## Genotype      1  116.4  116.39  10.577 0.00226 **
+    ## APA           3   21.8    7.25   0.659 0.58190   
+    ## Genotype:APA  3   40.6   13.55   1.231 0.31040   
+    ## Residuals    42  462.2   11.00                   
+    ## ---
+    ## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+    ## 
+    ## Dependent var: TimeTarget 
+    ##              Df Sum Sq Mean Sq F value   Pr(>F)    
+    ## Genotype      1    171     171   0.110    0.742    
+    ## APA           3  49915   16638  10.741 2.29e-05 ***
+    ## Genotype:APA  3   1215     405   0.261    0.853    
+    ## Residuals    42  65059    1549                     
+    ## ---
+    ## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+    ## 
+    ## Dependent var: pTimeTarget 
+    ##              Df Sum Sq Mean Sq F value   Pr(>F)    
+    ## Genotype      1 0.0025 0.00249   0.278    0.600    
+    ## APA           3 0.3169 0.10563  11.798 9.73e-06 ***
+    ## Genotype:APA  3 0.0029 0.00097   0.108    0.955    
+    ## Residuals    42 0.3760 0.00895                     
+    ## ---
+    ## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+    ## 
+    ## Dependent var: pTimeCCW 
+    ##              Df Sum Sq  Mean Sq F value Pr(>F)  
+    ## Genotype      1 0.0289 0.028896   2.926 0.0946 .
+    ## APA           3 0.0519 0.017302   1.752 0.1711  
+    ## Genotype:APA  3 0.0167 0.005554   0.562 0.6429  
+    ## Residuals    42 0.4148 0.009876                 
+    ## ---
+    ## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+    ## 
+    ## Dependent var: pTimeOPP 
+    ##              Df Sum Sq Mean Sq F value  Pr(>F)   
+    ## Genotype      1 0.0156 0.01558   0.915 0.34424   
+    ## APA           3 0.3045 0.10149   5.962 0.00176 **
+    ## Genotype:APA  3 0.0025 0.00083   0.049 0.98550   
+    ## Residuals    42 0.7149 0.01702                   
+    ## ---
+    ## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+    ## 
+    ## Dependent var: pTimeCW 
+    ##              Df Sum Sq Mean Sq F value   Pr(>F)    
+    ## Genotype      1 0.0090 0.00903   0.777 0.383205    
+    ## APA           3 0.3046 0.10153   8.732 0.000128 ***
+    ## Genotype:APA  3 0.0130 0.00432   0.372 0.773696    
+    ## Residuals    42 0.4883 0.01163                     
+    ## ---
+    ## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+    ## 
+    ## Dependent var: RayleigLength 
+    ##              Df Sum Sq Mean Sq F value   Pr(>F)    
+    ## Genotype      1 0.0860 0.08600   2.950 0.093226 .  
+    ## APA           3 0.6136 0.20453   7.017 0.000626 ***
+    ## Genotype:APA  3 0.0737 0.02457   0.843 0.478122    
+    ## Residuals    42 1.2243 0.02915                     
+    ## ---
+    ## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+    ## 
+    ## Dependent var: RayleigAngle 
+    ##              Df Sum Sq Mean Sq F value Pr(>F)   
+    ## Genotype      1  34326   34326   6.537 0.0143 * 
+    ## APA           3  20704    6901   1.314 0.2824   
+    ## Genotype:APA  3  91096   30365   5.783 0.0021 **
+    ## Residuals    42 220551    5251                  
+    ## ---
+    ## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+    ## 
+    ## Dependent var: PolarAvgVal 
+    ##              Df Sum Sq Mean Sq F value   Pr(>F)    
+    ## Genotype      1    159     159   0.253    0.618    
+    ## APA           3  27909    9303  14.848 9.83e-07 ***
+    ## Genotype:APA  3    509     170   0.271    0.846    
+    ## Residuals    42  26316     627                     
+    ## ---
+    ## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+    ## 
+    ## Dependent var: PolarSdVal 
+    ##              Df Sum Sq Mean Sq F value Pr(>F)  
+    ## Genotype      1    289   289.1   1.031  0.316  
+    ## APA           3   3237  1079.0   3.850  0.016 *
+    ## Genotype:APA  3    223    74.4   0.266  0.850  
+    ## Residuals    42  11770   280.2                 
+    ## ---
+    ## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+    ## 
+    ## Dependent var: PolarMinVal 
+    ##              Df    Sum Sq   Mean Sq F value   Pr(>F)    
+    ## Genotype      1 0.0000312 3.117e-05   1.620    0.210    
+    ## APA           3 0.0005290 1.763e-04   9.162 8.76e-05 ***
+    ## Genotype:APA  3 0.0000432 1.441e-05   0.748    0.529    
+    ## Residuals    42 0.0008083 1.925e-05                     
+    ## ---
+    ## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+    ## 
+    ## Dependent var: PolarMinBin 
+    ##              Df Sum Sq Mean Sq F value Pr(>F)
+    ## Genotype      1  11742   11742   0.642  0.427
+    ## APA           3  37200   12400   0.678  0.570
+    ## Genotype:APA  3  32158   10719   0.586  0.627
+    ## Residuals    42 768108   18288               
+    ## 
+    ## Dependent var: Min50.RngLoBin 
+    ##              Df Sum Sq Mean Sq F value Pr(>F)  
+    ## Genotype      1   1101    1101   0.186 0.6684  
+    ## APA           3  70381   23460   3.967 0.0141 *
+    ## Genotype:APA  3    932     311   0.053 0.9839  
+    ## Residuals    42 248394    5914                 
+    ## ---
+    ## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+    ## 
+    ## Dependent var: Min50.RngHiBin 
+    ##              Df Sum Sq Mean Sq F value Pr(>F)  
+    ## Genotype      1  35158   35158   4.405 0.0419 *
+    ## APA           3  39477   13159   1.649 0.1926  
+    ## Genotype:APA  3  15740    5247   0.657 0.5828  
+    ## Residuals    42 335186    7981                 
+    ## ---
+    ## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+    ## 
+    ## Dependent var: PolarMaxVal 
+    ##              Df   Sum Sq   Mean Sq F value Pr(>F)   
+    ## Genotype      1 0.000830 0.0008296   2.932 0.0942 . 
+    ## APA           3 0.004280 0.0014266   5.041 0.0045 **
+    ## Genotype:APA  3 0.000619 0.0002063   0.729 0.5405   
+    ## Residuals    42 0.011886 0.0002830                  
+    ## ---
+    ## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+    ## 
+    ## Dependent var: PolarMaxBin 
+    ##              Df Sum Sq Mean Sq F value Pr(>F)
+    ## Genotype      1    720     720   0.104  0.749
+    ## APA           3  45706   15235   2.197  0.103
+    ## Genotype:APA  3  42764   14255   2.055  0.121
+    ## Residuals    42 291307    6936               
+    ## 
+    ## Dependent var: Max50.RngLoBin 
+    ##              Df Sum Sq Mean Sq F value Pr(>F)
+    ## Genotype      1  13760   13760   1.546  0.221
+    ## APA           3  24323    8108   0.911  0.444
+    ## Genotype:APA  3  10856    3619   0.406  0.749
+    ## Residuals    42 373893    8902               
+    ## 
+    ## Dependent var: Max50.RngHiBin 
+    ##              Df Sum Sq Mean Sq F value Pr(>F)  
+    ## Genotype      1     21      21   0.003 0.9549  
+    ## APA           3  71879   23960   3.787 0.0172 *
+    ## Genotype:APA  3   2597     866   0.137 0.9375  
+    ## Residuals    42 265754    6327                 
+    ## ---
+    ## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+    ## 
+    ## Dependent var: AnnularMinVal 
+    ##              Df   Sum Sq   Mean Sq F value Pr(>F)
+    ## Genotype      1 0.000593 0.0005927   1.832  0.183
+    ## APA           3 0.001242 0.0004141   1.280  0.294
+    ## Genotype:APA  3 0.001314 0.0004378   1.354  0.270
+    ## Residuals    42 0.013585 0.0003235               
+    ## 
+    ## Dependent var: AnnularMinBin 
+    ##              Df Sum Sq Mean Sq F value Pr(>F)  
+    ## Genotype      1   12.5   12.47   0.398 0.5314  
+    ## APA           3  212.3   70.77   2.260 0.0954 .
+    ## Genotype:APA  3   62.0   20.66   0.660 0.5814  
+    ## Residuals    42 1315.3   31.32                 
+    ## ---
+    ## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+    ## 
+    ## Dependent var: AnnularMaxVal 
+    ##              Df  Sum Sq  Mean Sq F value Pr(>F)
+    ## Genotype      1 0.00031 0.000314   0.068  0.795
+    ## APA           3 0.02451 0.008171   1.778  0.166
+    ## Genotype:APA  3 0.00536 0.001787   0.389  0.762
+    ## Residuals    42 0.19306 0.004597               
+    ## 
+    ## Dependent var: AnnularMaxBin 
+    ##              Df Sum Sq Mean Sq F value Pr(>F)  
+    ## Genotype      1   2.30   2.295   1.144 0.2909  
+    ## APA           3  18.55   6.182   3.082 0.0375 *
+    ## Genotype:APA  3  11.82   3.940   1.964 0.1340  
+    ## Residuals    42  84.24   2.006                 
+    ## ---
+    ## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+    ## 
+    ## Dependent var: AnnularAvg 
+    ##              Df Sum Sq Mean Sq F value  Pr(>F)   
+    ## Genotype      1   0.48   0.483   0.354 0.55504   
+    ## APA           3  19.10   6.366   4.669 0.00665 **
+    ## Genotype:APA  3   1.87   0.623   0.457 0.71377   
+    ## Residuals    42  57.27   1.364                   
+    ## ---
+    ## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+    ## 
+    ## Dependent var: AnnularSd 
+    ##              Df Sum Sq Mean Sq F value   Pr(>F)    
+    ## Genotype      1    5.2    5.25   0.397 0.531867    
+    ## APA           3  284.2   94.74   7.174 0.000539 ***
+    ## Genotype:APA  3   10.8    3.60   0.273 0.844825    
+    ## Residuals    42  554.7   13.21                     
+    ## ---
+    ## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+    ## 
+    ## Dependent var: AnnularSkewnes 
+    ##              Df Sum Sq Mean Sq F value Pr(>F)  
+    ## Genotype      1  0.102  0.1023   0.278  0.601  
+    ## APA           3  3.654  1.2179   3.312  0.029 *
+    ## Genotype:APA  3  0.411  0.1370   0.373  0.773  
+    ## Residuals    42 15.443  0.3677                 
+    ## ---
+    ## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+    ## 
+    ## Dependent var: AnnularKurtosis 
+    ##              Df Sum Sq Mean Sq F value Pr(>F)  
+    ## Genotype      1    6.8    6.80   0.663 0.4202  
+    ## APA           3   97.1   32.36   3.154 0.0346 *
+    ## Genotype:APA  3    3.6    1.20   0.117 0.9497  
+    ## Residuals    42  431.0   10.26                 
+    ## ---
+    ## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+    ## 
+    ## Dependent var: Speed1 
+    ##              Df   Sum Sq   Mean Sq F value Pr(>F)
+    ## Genotype      1 0.000016 1.570e-05   0.133  0.717
+    ## APA           3 0.000250 8.319e-05   0.704  0.555
+    ## Genotype:APA  3 0.000180 5.992e-05   0.507  0.679
+    ## Residuals    42 0.004962 1.181e-04               
+    ## 
+    ## Dependent var: Speed2 
+    ##              Df    Sum Sq   Mean Sq F value Pr(>F)
+    ## Genotype      1 0.0000507 0.0000507   0.693  0.410
+    ## APA           3 0.0003928 0.0001309   1.791  0.164
+    ## Genotype:APA  3 0.0000429 0.0000143   0.196  0.899
+    ## Residuals    42 0.0030703 0.0000731               
+    ## 
+    ## Dependent var: Time1stEntrLog 
+    ##              Df Sum Sq Mean Sq F value   Pr(>F)    
+    ## Genotype      1   0.74   0.739   0.387    0.537    
+    ## APA           3  65.34  21.779  11.415 1.32e-05 ***
+    ## Genotype:APA  3   3.37   1.122   0.588    0.626    
+    ## Residuals    42  80.14   1.908                     
+    ## ---
+    ## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+
+``` r
+# ** Speed2ndEntr
+# * RayleigAngle 
+# . Min50.RngHiBin, RayleigLength, pTimeCCW, MaxTimeAvoid  
+
+hist(slim3$Speed2ndEntr) # bi modal
+```
+
+![](01_behavior_files/figure-markdown_github/unnamed-chunk-7-1.png)
+
+``` r
+boxplot(slim3$Speed2ndEntr ~ Genotype)
+```
+
+![](01_behavior_files/figure-markdown_github/unnamed-chunk-7-2.png)
+
+``` r
+summary(aov(slim3$Speed2ndEntr ~ Genotype)) 
+```
+
+    ##             Df Sum Sq Mean Sq F value  Pr(>F)   
+    ## Genotype     1  116.4  116.39   10.65 0.00203 **
+    ## Residuals   48  524.6   10.93                   
+    ## ---
+    ## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+
+``` r
+t.test(slim3$Speed2ndEntr ~ Genotype)
+```
+
+    ## 
+    ##  Welch Two Sample t-test
+    ## 
+    ## data:  slim3$Speed2ndEntr by Genotype
+    ## t = -3.2706, df = 47.962, p-value = 0.001991
+    ## alternative hypothesis: true difference in means is not equal to 0
+    ## 95 percent confidence interval:
+    ##  -4.931379 -1.176441
+    ## sample estimates:
+    ##     mean in group WT mean in group FMR1KO 
+    ##             3.369167             6.423077
+
+``` r
+hist(slim3$RayleigAngle) # pretty normal!
+```
+
+![](01_behavior_files/figure-markdown_github/unnamed-chunk-7-3.png)
+
+``` r
+boxplot(slim3$RayleigAngle ~ Genotype)
+```
+
+![](01_behavior_files/figure-markdown_github/unnamed-chunk-7-4.png)
+
+``` r
+summary(aov(slim3$RayleigAngle ~ Genotype)) 
+```
+
+    ##             Df Sum Sq Mean Sq F value Pr(>F)  
+    ## Genotype     1  34326   34326   4.957 0.0307 *
+    ## Residuals   48 332352    6924                 
+    ## ---
+    ## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+
+``` r
+t.test(slim3$RayleigAngle ~ Genotype)
+```
+
+    ## 
+    ##  Welch Two Sample t-test
+    ## 
+    ## data:  slim3$RayleigAngle by Genotype
+    ## t = -2.2141, df = 45.824, p-value = 0.03184
+    ## alternative hypothesis: true difference in means is not equal to 0
+    ## 95 percent confidence interval:
+    ##  -100.128292   -4.761323
+    ## sample estimates:
+    ##     mean in group WT mean in group FMR1KO 
+    ##             151.6225             204.0673
+
+``` r
+hist(slim3$Min50.RngHiBin) # not normal
+```
+
+![](01_behavior_files/figure-markdown_github/unnamed-chunk-7-5.png)
+
+``` r
+boxplot(slim3$Min50.RngHiBin ~ Genotype)
+```
+
+![](01_behavior_files/figure-markdown_github/unnamed-chunk-7-6.png)
+
+``` r
+summary(aov(slim3$Min50.RngHiBin ~ Genotype)) 
+```
+
+    ##             Df Sum Sq Mean Sq F value Pr(>F)  
+    ## Genotype     1  35158   35158   4.323  0.043 *
+    ## Residuals   48 390404    8133                 
+    ## ---
+    ## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+
+``` r
+t.test(slim3$Min50.RngHiBin ~ Genotype)
+```
+
+    ## 
+    ##  Welch Two Sample t-test
+    ## 
+    ## data:  slim3$Min50.RngHiBin by Genotype
+    ## t = 2.0653, df = 45.317, p-value = 0.04464
+    ## alternative hypothesis: true difference in means is not equal to 0
+    ## 95 percent confidence interval:
+    ##    1.32652 104.82733
+    ## sample estimates:
+    ##     mean in group WT mean in group FMR1KO 
+    ##             195.0000             141.9231
+
+``` r
+hist(slim3$RayleigLength) # not normal not significant
+```
+
+![](01_behavior_files/figure-markdown_github/unnamed-chunk-7-7.png)
+
+``` r
+boxplot(slim3$RayleigLength ~ Genotype)
+```
+
+![](01_behavior_files/figure-markdown_github/unnamed-chunk-7-8.png)
+
+``` r
+summary(aov(slim3$RayleigLength ~ Genotype)) 
+```
+
+    ##             Df Sum Sq Mean Sq F value Pr(>F)
+    ## Genotype     1  0.086 0.08600   2.159  0.148
+    ## Residuals   48  1.912 0.03982
+
+``` r
+t.test(slim3$RayleigLength ~ Genotype)
+```
+
+    ## 
+    ##  Welch Two Sample t-test
+    ## 
+    ## data:  slim3$RayleigLength by Genotype
+    ## t = 1.4572, df = 44.374, p-value = 0.1521
+    ## alternative hypothesis: true difference in means is not equal to 0
+    ## 95 percent confidence interval:
+    ##  -0.03176933  0.19779498
+    ## sample estimates:
+    ##     mean in group WT mean in group FMR1KO 
+    ##            0.3491667            0.2661538
+
+``` r
+hist(slim3$pTimeCCW) # very normal!
+```
+
+![](01_behavior_files/figure-markdown_github/unnamed-chunk-7-9.png)
+
+``` r
+boxplot(slim3$pTimeCCW ~ Genotype)
+```
+
+![](01_behavior_files/figure-markdown_github/unnamed-chunk-7-10.png)
+
+``` r
+summary(aov(slim3$pTimeCCW ~ Genotype)) 
+```
+
+    ##             Df Sum Sq Mean Sq F value Pr(>F)  
+    ## Genotype     1 0.0289 0.02890   2.869 0.0968 .
+    ## Residuals   48 0.4834 0.01007                 
+    ## ---
+    ## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+
+``` r
+t.test(slim3$pTimeCCW ~ Genotype)
+```
+
+    ## 
+    ##  Welch Two Sample t-test
+    ## 
+    ## data:  slim3$pTimeCCW by Genotype
+    ## t = -1.6837, df = 45.591, p-value = 0.09908
+    ## alternative hypothesis: true difference in means is not equal to 0
+    ## 95 percent confidence interval:
+    ##  -0.105659616  0.009423078
+    ## sample estimates:
+    ##     mean in group WT mean in group FMR1KO 
+    ##            0.2119125            0.2600308
+
+``` r
+hist(slim3$MaxTimeAvoid) # not normal not significant
+```
+
+![](01_behavior_files/figure-markdown_github/unnamed-chunk-7-11.png)
+
+``` r
+boxplot(slim3$MaxTimeAvoid ~ Genotype)
+```
+
+![](01_behavior_files/figure-markdown_github/unnamed-chunk-7-12.png)
+
+``` r
+summary(aov(slim3$MaxTimeAvoid ~ Genotype)) 
+```
+
+    ##             Df Sum Sq Mean Sq F value Pr(>F)
+    ## Genotype     1  38313   38313   2.393  0.128
+    ## Residuals   48 768406   16008
+
+``` r
+t.test(slim3$MaxTimeAvoid ~ Genotype)
+```
+
+    ## 
+    ##  Welch Two Sample t-test
+    ## 
+    ## data:  slim3$MaxTimeAvoid by Genotype
+    ## t = 1.5229, df = 39.624, p-value = 0.1357
+    ## alternative hypothesis: true difference in means is not equal to 0
+    ## 95 percent confidence interval:
+    ##  -18.14469 128.95879
+    ## sample estimates:
+    ##     mean in group WT mean in group FMR1KO 
+    ##             205.7917             150.3846

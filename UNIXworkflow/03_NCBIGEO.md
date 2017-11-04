@@ -9,12 +9,12 @@ So, first I'll move these extranous files to a temporary folder. Then, I'll zip 
 ~~~{.bash
 cds
 cd FMR1
-mv 00_rawdata.zip/*.slurm temp/
-mv 00_rawdata.zip/*.e8* temp/
-mv 00_rawdata.zip/*.o8* temp/
-mv 00_rawdata.zip/*.cmds temp/
-mv 00_rawdata.zip/*.sh temp/
-mv 00_rawdata.zip/multiqc* temp/
+mv 00_rawdata/*.slurm temp/
+mv 00_rawdata./*.e8* temp/
+mv 00_rawdata/*.o8* temp/
+mv 00_rawdata/*.cmds temp/
+mv 00_rawdata/*.sh temp/
+mv 00_rawdata/multiqc* temp/
 ~~~
 
 Then zip

@@ -27,12 +27,13 @@ Then turn the extra files to their home.
 
 ~~~{.bash
 mv temp/* 00_rawdata
+rm temp
 ~~~
 
-Then I'll do the same for kallisto
+Then I'll do the same for kallisto. FIrst, let's rename the files so that they have the sample name in the file name. 
 
 ~~~{.bash
-
+cd 02_kallistoquant
 for abund in */abundance.tsv; do
     newAbund=$(echo $abund | perl -pe 's|(.*)/.*|\1/abundance_\1.tsv|')
     echo $abund $newAbund
@@ -46,4 +47,16 @@ for abund in */run_info.json; do
     echo $abund $newAbund
 done
 ~~~
+
+Now, lets move the h5 and jason files.
+
+~~~{.bash
+mkdir ../hd5runinfo
+mv */*h5 ../hd5runinfo
+mv */*json ../hd5runinfo
+~~~
+
+~~~{.bash
+cd ..
+tar -cvpf 02_kallistoquant.zip 2_kallistoquant
 ~~~

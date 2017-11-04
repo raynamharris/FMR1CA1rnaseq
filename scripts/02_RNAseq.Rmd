@@ -817,6 +817,30 @@ pheatmap(DEGes, show_colnames=F, show_rownames = T,
          )
 ```
 
+```{r multiqc}
+multiqc01 <- read.csv(file = "../data/multiqc_report_01.csv")
+summary(multiqc01)
+# mean 3.9 million reads per sample. Min 3.3 max 5.1
+hist(multiqc01$MillionReads)
+
+boxplot(multiqc01$MillionReads,
+        xlab = "All samples",
+        ylab = "Million reads per sample")
+
+multiqc03 <- read.csv(file = "../data/multiqc_report_03.csv")
+summary(multiqc03)
+# mean 2.2 million reads alligned per sample. max 3.3 min 0.4
+hist(multiqc03$MillionAligned)
+
+boxplot(multiqc03$MillionAligned,
+        xlab = "All samples",
+        ylab = "Million reads aligned per sample")
+
+boxplot(multiqc03$FractionAligned,
+        xlab = "All samples",
+        ylab = "Fraction aligned")
+```
+
 ## Write the files
 
 ```{r writecsv, message=F, warning=F}

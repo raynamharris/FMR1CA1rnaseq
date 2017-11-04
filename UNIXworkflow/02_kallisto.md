@@ -13,55 +13,45 @@ mkdir ../02_kallistoquant
 
 ## 02_kallistoquant
 
-Now, we will use the `kallistoquant` function to quantify reads! Again, we use a for loop to create the commands file. The output for each pair of samples will be stored in a subdirectory. The kallsito index from the M7 mouse transcriptome is stored in a different directory. 
+Now, we will use the `kallistoquant` function to quantify reads.
+
+This process has taken me a long time to perfect. The challenge is that critical information is sent to standard output and I don't know how to catptuer that information well if I run all the jobs at once in one script. 
+
+So, I make a commands file and slurm file for every script. This way I get an standard output and error file for each sample as well. These files are needed for MultiQC and for stats about reads mapped. 
+
+### Create the commands files
 
 ~~~ {.bash}
-rm 02_kallistoquant.cmds
 for R1 in *R1_001.fastq.gz
 do
     R2=$(basename $R1 R1_001.fastq.gz)R2_001.fastq.gz
     samp=$(basename $R1 _R1_001.fastq.gz)
     echo $R1 $R2 $samp
-    echo "kallisto quant -b 100 -i /work/02189/rmharris/SingleNeuronSeq/data/reference_genomes/gencode.vM7.transcripts.idx  -o ../02_kallistoquant/${samp} $R1 $R2" >> 02_kallistoquant.cmds
+    echo "kallisto quant -b 100 -t 16 -i /work/02189/rmharris/SingleNeuronSeq/data/reference_genomes/gencode.vM7.transcripts.idx  -o ../03_kallistoquant/${samp} $R1 $R2" > ${samp}_03_kallistoquant.cmds
 done
 ~~~
 
-### Option 1: Submit a job on Stampede.
-Then create the launcher script. Kallisto is not a TACC supported module, so we must use the version of Kallisto that was build by TACC user "wallen" and stored in his public directory. I use the `largemem` node on TACC because kallisto need more memory than the normal nodes support.
+### Create the slurm files and a bash file to execute them
 
 ~~~ {.bash}
-launcher_creator.py -t 1:00:00 -j 02_kallistoquant.cmds -n 02_kallistoquant -l 02_kallistoquant.slurm -A NeuroEthoEvoDevo -q largemem -m 'module use -a /work/03439/wallen/public/modulefiles; module load gcc/4.9.1; module load hdf5/1.8.15; module load zlib/1.2.8; module load kallisto/0.42.3'
-sbatch 02_kallistoquant.slurm
+rm 03_kallistoquant.sh
+for cmd in *03_kallistoquant.cmds
+do
+	samp=$(basename $cmd _L002_03_kallistoquant.cmds)
+	slurm=$(basename $cmd _L002_03_kallistoquant.cmds).slurm
+	echo $cmd $samp
+	echo "launcher_creator.py -t 0:30:00 -j $cmd -n $samp -l $slurm -A NeuroEthoEvoDevo -q normal -m 'module use -a /work/03439/wallen/public/modulefiles; module load gcc/4.9.1; module load hdf5/1.8.15; module load zlib/1.2.8; module load kallisto/0.42.3'" >> 03_kallistoquant.sh
+	echo "sbatch $slurm" >> 03_kallistoquant.sh
+done
+cat 03_kallistoquant.sh		
 ~~~
 
-Note: The largemem node has compute limitations. If you have two many samples, the job may need to be split in two. One can use the lane identifiers (like L002 and L003) to subset the data. 
-
-### Option 2: Use an interactive compute node
-Request compute time, makde cmd file executable, load modules, run commands. Note: Kallisto is not a TACC supported module, so we must use the version of Kallisto that was build by TACC user "wallen" and stored in his public directory.
+### Launch all the jobs
 
 ~~~ {.bash}
-idev -m 120
-module use -a /work/03439/wallen/public/modulefiles
-module load gcc/4.9.1
-module load hdf5/1.8.15
-module load zlib/1.2.8
-module load kallisto/0.42.3
-chmod a+x 04_kallistoquant.cmds
-bash 04_kallistoquant.cmds
-~~~
-
-
-## Some quick summary stats
-One of the output files contains information about the number of reads that survied trimming and filtering, number of reads mapped, and the average read lenght. We can view that with this command. We can extract that information with grep and awk commands and then save it to a tsv file.
-
-~~~{.bash}echo 'totalreads, pseudoaligned, avelenght' > readsprocessed.csv
-grep -A 1 'processed' 04_kallistoquant.e* | awk 'BEGIN {RS = "--"; OFS="\t"}; {print $3, $5, $13}' > readsprocessed.tsv
-~~~
-
-## Now, save the data locally
-
-Save the data locally using scp.
-
+chmod a+x 03_kallistoquant.sh
+bash a+x 03_kallistoquant.sh
+~~~ 
 
 ## Optional - sample name cleanup
 
@@ -87,6 +77,23 @@ do
 done
 ~~~
 
+## MultiQC
+
+Setup MultiQC on Stampede and run for all files in working directory. Use scp to save the `multiqc_report.html` file to your local computer.
+
+~~~ {.bash}
+module load python
+export PATH="/work/projects/BioITeam/stampede/bin/multiqc-1.0:$PATH"
+export PYTHONPATH="/work/projects/BioITeam/stampede/lib/python2.7/annab-packages:$PYTHONPATH"
+multiqc .
+~~~
+
+## Now, save the data locally
+
+Copy the kallisto directories and all it's subdirectories in a folder named 02_kallisto quant locally using scp -r. Copy the multiqc_report.html locally and rename it multiqc_report_02.html.
+
 
 ## References
 - Kallisto: https://pachterlab.github.io/kallisto/
+- MultiQC: http://multiqc.info
+- MultiQC tutorial for Stampede: https://wikis.utexas.edu/display/bioiteam/Using+MultiQC

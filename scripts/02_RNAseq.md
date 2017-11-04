@@ -1339,6 +1339,104 @@ pheatmap(DEGes, show_colnames=F, show_rownames = T,
          )
 ```
 
+``` r
+multiqc01 <- read.csv(file = "../data/multiqc_report_01.csv")
+summary(multiqc01)
+```
+
+    ##                   Sample.Name      Dups            X..GC       
+    ##  16_116B_S3_L002_R1_001 : 1   Min.   :0.3600   Min.   :0.4400  
+    ##  16_116B_S3_L002_R2_001 : 1   1st Qu.:0.4725   1st Qu.:0.4800  
+    ##  16_116D_S5_L002_R1_001 : 1   Median :0.5250   Median :0.4900  
+    ##  16_116D_S5_L002_R2_001 : 1   Mean   :0.5459   Mean   :0.4841  
+    ##  16_117D_S15_L002_R1_001: 1   3rd Qu.:0.6175   3rd Qu.:0.4900  
+    ##  16_117D_S15_L002_R2_001: 1   Max.   :0.7900   Max.   :0.5000  
+    ##  (Other)                :28                                    
+    ##   MillionReads  
+    ##  Min.   :3.300  
+    ##  1st Qu.:3.600  
+    ##  Median :3.800  
+    ##  Mean   :3.918  
+    ##  3rd Qu.:4.200  
+    ##  Max.   :5.100  
+    ## 
+
+``` r
+# mean 3.9 million reads per sample. Min 3.3 max 5.1
+hist(multiqc01$MillionReads)
+```
+
+![](../figures/02_RNAseq/multiqc-1.png)
+
+``` r
+boxplot(multiqc01$MillionReads,
+        xlab = "All samples",
+        ylab = "Million reads per sample")
+```
+
+![](../figures/02_RNAseq/multiqc-2.png)
+
+``` r
+multiqc03 <- read.csv(file = "../data/multiqc_report_03.csv")
+summary(multiqc03)
+```
+
+    ##                   Sample.Name   FragLength    FractionAligned 
+    ##  16_116B_S3_L002_R1_001 : 1   Min.   :210.0   Min.   :0.1000  
+    ##  16_116D_S5_L002_R1_001 : 1   1st Qu.:224.9   1st Qu.:0.5700  
+    ##  16_117D_S15_L002_R1_001: 1   Median :230.4   Median :0.6500  
+    ##  16_118B_S16_L002_R1_001: 1   Mean   :229.5   Mean   :0.5735  
+    ##  16_118D_S17_L002_R1_001: 1   3rd Qu.:236.0   3rd Qu.:0.7000  
+    ##  16_119B_S8_L002_R1_001 : 1   Max.   :237.1   Max.   :0.7700  
+    ##  (Other)                :11                                   
+    ##  MillionAligned                        R1        R1_Dups      
+    ##  Min.   :0.400   16_116B_S3_L002_R1_001 : 1   Min.   :0.4300  
+    ##  1st Qu.:2.100   16_116D_S5_L002_R1_001 : 1   1st Qu.:0.5300  
+    ##  Median :2.600   16_117D_S15_L002_R1_001: 1   Median :0.5900  
+    ##  Mean   :2.212   16_118B_S16_L002_R1_001: 1   Mean   :0.5971  
+    ##  3rd Qu.:2.800   16_118D_S17_L002_R1_001: 1   3rd Qu.:0.6300  
+    ##  Max.   :3.300   16_119B_S8_L002_R1_001 : 1   Max.   :0.7900  
+    ##                  (Other)                :11                   
+    ##      R1_GC        MillionReads_R1                       R2    
+    ##  Min.   :0.4400   Min.   :3.300   16_116B_S3_L002_R2_001 : 1  
+    ##  1st Qu.:0.4800   1st Qu.:3.600   16_116D_S5_L002_R2_001 : 1  
+    ##  Median :0.4900   Median :3.800   16_117D_S15_L002_R2_001: 1  
+    ##  Mean   :0.4829   Mean   :3.918   16_118B_S16_L002_R2_001: 1  
+    ##  3rd Qu.:0.4900   3rd Qu.:4.200   16_118D_S17_L002_R2_001: 1  
+    ##  Max.   :0.5000   Max.   :5.100   16_119B_S8_L002_R2_001 : 1  
+    ##                                   (Other)                :11  
+    ##     R2_Dups           R2_GC        MillionReads_R2
+    ##  Min.   :0.3600   Min.   :0.4400   Min.   :3.300  
+    ##  1st Qu.:0.4300   1st Qu.:0.4800   1st Qu.:3.600  
+    ##  Median :0.4900   Median :0.4900   Median :3.800  
+    ##  Mean   :0.4947   Mean   :0.4853   Mean   :3.918  
+    ##  3rd Qu.:0.5200   3rd Qu.:0.5000   3rd Qu.:4.200  
+    ##  Max.   :0.6500   Max.   :0.5000   Max.   :5.100  
+    ## 
+
+``` r
+# mean 2.2 million reads alligned per sample. max 3.3 min 0.4
+hist(multiqc03$MillionAligned)
+```
+
+![](../figures/02_RNAseq/multiqc-3.png)
+
+``` r
+boxplot(multiqc03$MillionAligned,
+        xlab = "All samples",
+        ylab = "Million reads aligned per sample")
+```
+
+![](../figures/02_RNAseq/multiqc-4.png)
+
+``` r
+boxplot(multiqc03$FractionAligned,
+        xlab = "All samples",
+        ylab = "Fraction aligned")
+```
+
+![](../figures/02_RNAseq/multiqc-5.png)
+
 Write the files
 ---------------
 

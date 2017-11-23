@@ -1,9 +1,5 @@
 dodge <- position_dodge(.3)
 
-volcanoGenotype <-  c("FMR1" = "#54278f",
-               "WT" = "#bf5700", 
-               "none" = "#d9d9d9")
-
 colorvalAPA2 <-  c( "#404040","#ca0020","#bababa",  "#f4a582")
 #404040 ## darkgrey - yoked-consistent
 #bababa ## light grey - yoked-conflict

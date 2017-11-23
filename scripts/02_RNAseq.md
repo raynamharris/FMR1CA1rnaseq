@@ -385,7 +385,8 @@ ggplot(data, aes(x = lfc, y = pvalue)) +
   scale_color_manual(values = c("black", "grey", "black"))  + 
   scale_shape_manual(values = c(1,16,16))  + 
   xlab(paste0("Log Fold Change")) +       
-  ylab(paste0("-log(p-value)")) +       
+  ylab(paste0("-log(p-value)")) +  
+  scale_x_continuous( limits=c(-2, 2)) +
   theme(panel.grid.minor=element_blank(),
         legend.position = "none", # remove legend 
         panel.grid.major=element_blank())
@@ -401,7 +402,8 @@ FMR1volcano <- ggplot(data, aes(x = lfc, y = pvalue)) +
   scale_color_manual(values = c("black", "grey", "black"))  + 
   scale_shape_manual(values = c(1,16,16))  + 
   xlab(paste0("Log Fold Change")) +       
-  ylab(paste0("-log(p-value)")) +       
+  ylab(paste0("-log(p-value)")) + 
+    scale_x_continuous( limits=c(-2, 2)) +
   theme(panel.grid.minor=element_blank(),
         legend.position = "none", # remove legend 
         panel.grid.major=element_blank())
@@ -411,7 +413,7 @@ FMR1volcano
 ![](../figures/02_RNAseq/Twowaycontrasts3-3.png)
 
 ``` r
-pdf(file="../figures/02_RNAseq/FMR1volcano.pdf", width=1.5, height=2)
+pdf(file="../figures/02_RNAseq/FMR1volcano.pdf", width=2, height=2)
 plot(FMR1volcano)
 dev.off()
 ```
@@ -466,12 +468,14 @@ pheatmap(DEGes, show_colnames=F, show_rownames = T,
 # for adobe
 pheatmap(DEGes, show_colnames=F, show_rownames = T,
          annotation_col=df, annotation_colors = ann_colors,
-         treeheight_row = 25, treeheight_col = 25,
-         fontsize = 10, 
-         width=4.5, height=2.25,
+         treeheight_row = 10, treeheight_col = 10,
+         legend=T,
+         fontsize = 4.5, 
+         width=3.5, height=2.25,
          border_color = "grey60" ,
          color = viridis(30),
          cellwidth = 8, 
+         cellheight = 4.5, 
          clustering_method="average",
          breaks=myBreaks,
          clustering_distance_cols="correlation",
@@ -1413,6 +1417,13 @@ summary(multiqc03)
     ##  3rd Qu.:0.5200   3rd Qu.:0.5000   3rd Qu.:4.200  
     ##  Max.   :0.6500   Max.   :0.5000   Max.   :5.100  
     ## 
+
+``` r
+library(stats) # for standard deviation
+sd(multiqc03$FragLength)
+```
+
+    ## [1] 6.943167
 
 ``` r
 # mean 2.2 million reads alligned per sample. max 3.3 min 0.4

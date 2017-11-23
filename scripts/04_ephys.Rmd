@@ -1,4 +1,11 @@
-
+---
+title: "Electrophysiology Data Analysis"
+author: "Rayna M Harris"
+date: "November 23, 2017"
+output:
+  md_document:
+    variant: markdown_github
+---
 
 
 
@@ -6,8 +13,11 @@
 library(ggplot2)
 library(reshape2)
 library(tidyr)
-source("figureoptions.R")
+library(cowplot)
+library(dplyr)
 library(magrittr)  # for function function "%<>%"
+
+source("figureoptions.R")
 
 
 ## read and transform data
@@ -113,7 +123,7 @@ ephys2_long %>%
 
 
 plot1 <- ephys2 %>% 
-  filter(Genotype== "WT") %>% 
+  filter(Genotype == "WT") %>% 
   ggplot(aes(x=APA2, y=max, fill=APA2, color=APA2)) +
   geom_violin() +
   geom_point(size=2) +
@@ -157,11 +167,35 @@ plot(plot2)
 dev.off()
 
 
+plot3 <- ephys2 %>% 
+  #filter(Genotype != "WT") %>% 
+  ggplot(aes(x=Genotype, y=max, color=APA2)) +
+  geom_violin(aes(fill = factor(Genotype))) +
+  geom_point(size=2) +
+  scale_y_continuous(trans = "reverse",
+                     limits = c(0.001 , -0.002)) + 
+  background_grid(major = "xy", minor = "none") + 
+  theme_cowplot(font_size = 8, line_size = 0.25) + 
+  scale_color_manual(values = colorvalAPA00) +
+  scale_fill_manual(values=alpha(c( "#404040","white"), .1)) +
+  labs(y = "Maximum fEPSP Slope", x = "Genotype") +
+  facet_wrap(~APA2, nrow = 1) + 
+  theme(legend.position="none")
+plot3
+
+
+pdf(file="~/Github/FMR1CA1rnaseq/figures/04_ephys/ephys3.pdf", width=6, height=2.5)
+plot(plot3)
+dev.off()
+
+
 
 aov1 <- aov(min ~ Genotype, data=ephys2)
 summary(aov1) 
+
 aov1 <- aov(min ~ Genotype * APA2, data=ephys2)
 summary(aov1) 
+TukeyHSD(aov1)
 
 aov1 <- aov(max ~ Genotype, data=ephys2)
 summary(aov1) 

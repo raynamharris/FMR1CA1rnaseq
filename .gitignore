@@ -1,2 +1,4 @@
 ../data/*.xls
 figures/*.ai
+scripts/06_GO_MWU/*tab
+scripts/06_GO_MWU/*.pdf

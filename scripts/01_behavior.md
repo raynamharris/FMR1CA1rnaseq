@@ -1,725 +1,255 @@
-``` r
-## load libraries 
-library(tidyr) ## for respahing data
-library(plyr) ## for renmaing factors
-library(dplyr) ## for filtering and selecting rows
-library(reshape2) ## for melting dataframe
-library(ggplot2)
-library(cowplot)
-library(pheatmap)
-library(viridis)
-library(tidyverse) # for loop anova
+    ## load libraries 
+    library(tidyr) ## for respahing data
+    library(plyr) ## for renmaing factors
+    library(dplyr) ## for filtering and selecting rows
+    library(reshape2) ## for melting dataframe
+    library(ggplot2)
+    library(cowplot)
+    library(pheatmap)
+    library(viridis)
+    library(ez) # for non-parametric ANOVA
 
-## load color settings
-source("figureoptions.R")
-```
+    ## load color settings
+    source("figureoptions.R")
 
-``` r
-## read intermediate data (raw data from video tracker program analyzed in matlab)
-behavior <- read.csv("../data/fmr1.csv", header = T)
+    knitr::opts_chunk$set(fig.path = '../figures/01_behavior/')
 
-behavior$APA <- as.factor(behavior$APA)
-behavior$APA2 <- as.factor(behavior$APA2)
-levels(behavior$APA2)
-```
+    ## read intermediate data (raw data from video tracker program analyzed in matlab)
+    behavior <- read.csv("../data/fmr1.csv", header = T)
 
-    ## [1] "conflict"          "consistent"        "controlconflict"  
-    ## [4] "controlconsistent"
+    behavior$APA <- as.factor(behavior$APA)
+    behavior$APA2 <- as.factor(behavior$APA2)
 
-``` r
-## relevel then rename factors treatment
-behavior$APA2 <- factor(behavior$APA2, levels = c("controlconsistent", "controlconflict", "consistent", "conflict"))
-levels(behavior$APA2) <- c("yoked-consistent","yoked-conflict","consistent", "conflict")
 
-#relevel APA
-levels(behavior$APA) <- c("control","consistent","conflict")
+    ## relevel then rename factors treatment
+    behavior$APA2 <- factor(behavior$APA2, levels = c("controlconsistent", "consistent", "controlconflict", "conflict"))
+    levels(behavior$APA2) <- c("yoked-consistent","consistent", "yoked-conflict","conflict")
+    levels(behavior$APA2)
 
-#relevel genotype
-levels(behavior$Genotype) <- c("WT","FMR1KO")
+    ## [1] "yoked-consistent" "consistent"       "yoked-conflict"  
+    ## [4] "conflict"
 
-behavior$Time1stEntrLog <- log(behavior$Time1stEntr)  ## log transformation
-behavior$conflict <- ifelse(grepl("conflict", behavior$APA2), "conflict", "consistent") # for splitting
-levels(behavior$conflict) <- c("consistent","conflict")
-behavior <- behavior[c(1,3,7,8,10,60,14:59)] # supset data
-behavior <- subset(behavior, !is.na(behavior$NumEntrances)) # remove nas
-```
+    #relevel genotype
+    levels(behavior$Genotype) <- c("WT","FMR1KO")
+    #levels(behavior$conflict) <- c("consistent","conflict")
 
-``` r
-behaviorsummaryNum <- dplyr::summarise(group_by(behavior, Genotype, APA2, conflict, TrainSessionComboNum), m = mean(NumEntrances), se = sd(NumEntrances)/sqrt(length(NumEntrances)), len = length(NumEntrances))
-behaviorsummaryNum <- as.data.frame(behaviorsummaryNum)
-levels(behaviorsummaryNum$Genotype) <- c("WT","FMR1KO")
-levels(behaviorsummaryNum$APA2) <- c("yoked-consistent","yoked-conflict", "consistent", "conflict")
-levels(behaviorsummaryNum$conflict) <- c("consistent","conflict")
+    behavior$Time1stEntrLog <- log(behavior$Time1stEntr)  ## log transformation
+    behavior$conflict <- ifelse(grepl("conflict", behavior$APA2), "conflict", "consistent") # for splitting
+    levels(behavior$conflict) <- c("consistent","conflict")
+    behavior <- behavior[c(1,3,7,8,10,60,14:59)] # supset data
+    behavior <- subset(behavior, !is.na(behavior$NumEntrances)) # remove nas
 
-behaviorsummaryNum$genoAPA <- as.factor(paste(behaviorsummaryNum$Genotype,behaviorsummaryNum$APA2,sep="_"))
-```
+    # sample sizes
+    behavior %>% 
+      filter(TrainSessionCombo == "Retention") %>%
+      select(APA2)  %>%  summary()
 
-``` r
-behaviorsummaryboth <- behavior
-behaviorsummaryboth$APA1 <- ifelse(grepl("control", behaviorsummaryboth$APA), "yoked", "trained")
-behaviorsummaryboth <- dplyr::summarise(group_by(behaviorsummaryboth, Genotype, APA1, TrainSessionComboNum), m = mean(NumEntrances), se = sd(NumEntrances)/sqrt(length(NumEntrances)), len = length(NumEntrances))
-behaviorsummaryboth <- as.data.frame(behaviorsummaryboth)
-levels(behaviorsummaryboth$Genotype) <- c("WT","FMR1KO")
-levels(behaviorsummaryboth$APA1) <- c("yoked","trained")
-behaviorsummaryboth$genoAPA <- as.factor(paste(behaviorsummaryboth$Genotype,behaviorsummaryboth$APA1,sep="_"))
-```
+    ##                APA2   
+    ##  yoked-consistent:11  
+    ##  consistent      :17  
+    ##  yoked-conflict  : 8  
+    ##  conflict        :14
 
-``` r
-# Standard error of the mean
-behaviorsummaryboth$behvaior <- "Number of Entrances"
-habretest <- behaviorsummaryboth %>%
-  filter(TrainSessionComboNum <= 5) %>%
-  ggplot(aes(x=TrainSessionComboNum, y=m, 
-                                colour=APA1,shape=Genotype)) + 
-    geom_errorbar(aes(ymin=m-se, ymax=m+se), width=.1) +
-    geom_line(aes(linetype=Genotype)) +
-    geom_point(aes(shape=Genotype)) +
-    theme_cowplot(font_size = 8, line_size = 0.25) +
-    scale_color_manual(values = colorvalAPA5) +
-    scale_y_continuous(name="Number of Entrances",
-                       limits = c(0,35)) +
-    scale_x_continuous(name = "Training Session", 
-                       breaks = c(1, 2, 3, 4, 5),
-                       labels=c("1" = "Habituation ", "2" = "T1", "3" = "T2", 
-                                "4" = "T3", "5" = "Retest")) +
-    theme(legend.position="none") +
-    scale_linetype_manual(values = c(1,2,1,2)) +
-    scale_shape_manual(values=c(16, 1)) 
-habretest
-```
+    behavior %>% 
+      filter(TrainSessionCombo == "Retention", Genotype == "WT") %>%
+      select(APA2, Genotype)  %>%  summary()
 
-![](01_behavior_files/figure-markdown_github/splitfigure-1.png)
+    ##                APA2     Genotype 
+    ##  yoked-consistent:4   WT    :24  
+    ##  consistent      :8   FMR1KO: 0  
+    ##  yoked-conflict  :3              
+    ##  conflict        :9
 
-``` r
-pdf(file="../figures/01_behavior/habretest.pdf", width=2.5, height=2.25)
-plot(habretest)
-dev.off()
-```
+    behavior %>% 
+      filter(TrainSessionCombo == "Retention", Genotype == "FMR1KO") %>%
+      select(APA2, Genotype)  %>%  summary()
 
-    ## quartz_off_screen 
-    ##                 2
+    ##                APA2     Genotype 
+    ##  yoked-consistent:7   WT    : 0  
+    ##  consistent      :9   FMR1KO:26  
+    ##  yoked-conflict  :5              
+    ##  conflict        :5
 
-Plotting number of consistent
------------------------------
+    # num entrances
+    numentr <- dplyr::summarise(group_by(behavior, Genotype, APA2, TrainSessionComboNum, conflict), m = mean(NumEntrances), se = sd(NumEntrances)/sqrt(length(NumEntrances)), len = length(NumEntrances))
 
-``` r
-numentrance1consistent<- behaviorsummaryNum %>%
-  filter(conflict == "consistent") %>%
-  filter(TrainSessionComboNum >= 5) %>%
-  ggplot(aes(x= TrainSessionComboNum, y=m, shape=Genotype)) + 
-  geom_errorbar(aes(ymin=m-se, ymax=m+se, color=APA2), width=.1) +
-  geom_line(aes(colour=APA2, linetype=Genotype)) +
-  geom_point(size = 2.5, aes(colour=APA2, shape=Genotype)) +
-  scale_color_manual(values = colorvalAPA5) +
-    scale_y_continuous(name="Number of Entrances",
-                       limits = c(0,35)) +
-    scale_x_continuous(name = "Training Session", 
-                       breaks = c(5, 6, 7, 8, 9),
-                       labels=c("5" = "Retest", "6" = "T4",
-                                "7" = "T5", "8" = "T6", "9"= "Reten.")) +
-  theme_cowplot(font_size = 8, line_size = 0.25) +
-  #background_grid(major = "y", minor = "y") +
-  theme( legend.position="none") +
-  scale_shape_manual(values=c(16, 1))
-numentrance1consistent
-```
+    ptime <- dplyr::summarise(group_by(behavior, Genotype, APA2, TrainSessionComboNum, conflict), m = mean(pTimeTarget), se = sd(pTimeTarget)/sqrt(length(pTimeTarget)), len = length(pTimeTarget))
 
-![](01_behavior_files/figure-markdown_github/numentrance-1.png)
+    levels(numentr$APA2) <- c("yoked-consistent","consistent", "yoked-conflict","conflict")
+    numentr$conflict = factor(numentr$conflict, levels = c("consistent","conflict"))
+    levels(numentr$conflict) <- c("Initial learning","Cognitive discrimination")
 
-``` r
-pdf(file="../figures/01_behavior/numentrance1consistent2.pdf", width=3.25, height=2.25)
-plot(numentrance1consistent)
-dev.off()
-```
+    oneplot <- ggplot(numentr, aes(x=, TrainSessionComboNum, y=m, color=APA2, shape=Genotype)) + 
+        geom_errorbar(aes(ymin=m-se, ymax=m+se), width=.1) +
+        geom_point(size = 2) +
+       geom_line(aes(colour=APA2, linetype=Genotype)) +
+       scale_y_continuous(name= "Number of Entrances") +
+        scale_x_continuous(name="Training Session", 
+                           breaks = c(1, 2, 3, 4, 5, 6, 7, 8, 9),
+                           labels = c( "Pre.", "T1", "T2", "T3",
+                                       "Retest", "T4/C1", "T5/C2", 
+                                       "T6/C3", "Reten.")) +
+      theme_cowplot(font_size = 8, line_size = 0.25) +
+      #background_grid(major = "y", minor = "y") +
+      scale_color_manual(values = colorvalAPA00)  +
+      theme(legend.title=element_blank()) +
+      #theme(legend.position="none") +
+      scale_shape_manual(values=c(16, 1)) 
+    oneplot
+
+![](../figures/01_behavior/unnamed-chunk-1-1.png)
+
+    pdf(file="../figures/01_behavior/oneplot.pdf", width=6, height=3)
+    plot(oneplot)
+    dev.off()
 
     ## quartz_off_screen 
     ##                 2
 
-``` r
-behaviorsummaryNum$head2 <- "Conflict Training"
-numentrance1conflict<- behaviorsummaryNum %>%
-  filter(conflict == "conflict") %>%
-  filter(TrainSessionComboNum >= 5) %>%
-  ggplot(aes(x= TrainSessionComboNum, y=m, shape=Genotype)) + 
-  geom_errorbar(aes(ymin=m-se, ymax=m+se, color=APA2), width=.1) +
-  geom_line(aes(colour=APA2, linetype=Genotype)) +
-  geom_point(size = 2.5, aes(colour=APA2, shape=Genotype)) +
-  scale_color_manual(values = colorvalAPA4) +
-    scale_y_continuous(name="Number of Entrances",
-                       limits = c(0,35)) +
-    scale_x_continuous(name = "Training Session", 
-                       breaks = c(5, 6, 7, 8, 9),
-                       labels=c("5" = "Retest", "6" = "C1",
-                                "7" = "C2", "8" = "C3", "9"= "Reten.")) +
-  theme_cowplot(font_size = 8, line_size = 0.25) +
-  #background_grid(major = "y", minor = "y") +
-  theme( legend.position="none") +
-  scale_shape_manual(values=c(16, 1)) 
-numentrance1conflict
-```
+    twoplot <- ggplot(numentr, aes(x=, TrainSessionComboNum, y=m, color=APA2, shape=Genotype)) + 
+        geom_errorbar(aes(ymin=m-se, ymax=m+se), width=.1) +
+        geom_point(size = 2) +
+       geom_line(aes(colour=APA2, linetype=Genotype)) +
+       scale_y_continuous(name= "Number of Entrances") +
+        scale_x_continuous(name="Training Session", 
+                           breaks = c(1, 2, 3, 4, 5, 6, 7, 8, 9),
+                           labels = c( "Pre.", "T1", "T2", "T3",
+                                       "Retest", "T4/C1", "T5/C2", "T6/C3", "Reten.")) +
+      theme_cowplot(font_size = 8, line_size = 0.25) +
+      background_grid(major = "y", minor = "y") +
+      scale_color_manual(values = colorvalAPA00)  +
+      theme(legend.title=element_blank()) +
+      #theme(legend.position="none") +
+      scale_shape_manual(values=c(16, 1)) +
+      facet_wrap(~conflict, nrow = 2) 
+    twoplot
 
-![](01_behavior_files/figure-markdown_github/numentrance-2.png)
+![](../figures/01_behavior/unnamed-chunk-1-2.png)
 
-``` r
-pdf(file="../figures/01_behavior/numentrance1conflict2.pdf", width=3.25, height=2.25)
-plot(numentrance1conflict)
-dev.off()
-```
+    pdf(file="../figures/01_behavior/twoplot.pdf", width=4.5, height=4)
+    plot(twoplot)
+    dev.off()
 
     ## quartz_off_screen 
     ##                 2
-
-``` r
-# num entrances
-numentr <- dplyr::summarise(group_by(behavior, Genotype, APA2, TrainSessionComboNum), m = mean(NumEntrances), se = sd(NumEntrances)/sqrt(length(NumEntrances)), len = length(NumEntrances))
-
-## speed
-speedsummary <- dplyr::summarise(group_by(behavior, Genotype, APA2, TrainSessionComboNum), m = mean(Speed1), se = sd(Speed1)/sqrt(length(Speed1)))
-
-## max avoidance time
-maxavoid <- dplyr::summarise(group_by(behavior, Genotype, APA2, TrainSessionComboNum), m = mean(MaxTimeAvoid), se = sd(MaxTimeAvoid)/sqrt(length(MaxTimeAvoid)))
-
-## create the column for faceting
-numentr$measure <- "Number of Entrances"
-speedsummary$measure <- "Speed"
-maxavoid$measure <- "Max Avoidance Time"
-
-# rbind
-threeplots <- rbind(numentr,speedsummary,maxavoid)
-behaviorwrap <- ggplot(threeplots, aes(x=, TrainSessionComboNum, y=m, color=APA2, shape=Genotype)) + 
-    geom_errorbar(aes(ymin=m-se, ymax=m+se), width=.1) +
-    geom_point(size = 2) +
-   geom_line(aes(colour=APA2, linetype=Genotype)) +
-   scale_y_continuous(name= NULL) +
-    scale_x_continuous(name="Training Session", 
-                       breaks = c(1, 2, 3, 4, 5, 6, 7, 8, 9),
-                       labels = c( "Hab.", "T1", "T2", "T3",
-                                   "Retest", "T4", "T5", "T6", "Reten.")) +
-  theme_cowplot(font_size = 8, line_size = 0.25) +
-  #background_grid(major = "y", minor = "y") +
-  #scale_color_manual(values = colorvalAPA00)  +
-  theme(legend.title=element_blank()) +
-  #theme(legend.position="none") +
-  facet_wrap(~measure, ncol=1, scales = "free_y")
-behaviorwrap
-```
-
-![](01_behavior_files/figure-markdown_github/unnamed-chunk-1-1.png)
-
-``` r
-numentrance1consistent<- speedsummary %>%
-  filter(APA2 %in% c("yoked-conflict", "conflict")) %>%
-  filter(TrainSessionComboNum >= 5) %>%
-  ggplot(aes(x= TrainSessionComboNum, y=m, shape=Genotype)) + 
-  geom_errorbar(aes(ymin=m-se, ymax=m+se, color=APA2), width=.1) +
-  geom_line(aes(colour=APA2, linetype=Genotype)) +
-  geom_point(size = 2.5, aes(colour=APA2, shape=Genotype)) +
-  #scale_color_manual(values = colorvalAPA5) +
-    scale_y_continuous(name="Speed") +
-    scale_x_continuous(name = "Training Session", 
-                       breaks = c(5, 6, 7, 8, 9),
-                       labels=c("5" = "Retest", "6" = "T4",
-                                "7" = "T5", "8" = "T6", "9"= "Reten.")) +
-  theme_cowplot(font_size = 8, line_size = 0.25) +
-  #background_grid(major = "y", minor = "y") +
-  #theme( legend.position="none") +
-  scale_shape_manual(values=c(16, 1))
-numentrance1consistent
-```
-
-![](01_behavior_files/figure-markdown_github/unnamed-chunk-1-2.png)
-
-Anovas ALL data
----------------
-
-``` r
-summary(aov(NumEntrances ~ APA2 * Genotype * TrainSession, data=behavior)) 
-```
-
-    ##                             Df Sum Sq Mean Sq F value   Pr(>F)    
-    ## APA2                         3   5286  1761.9  71.621  < 2e-16 ***
-    ## Genotype                     1     31    31.0   1.259    0.263    
-    ## TrainSession                11  14435  1312.3  53.345  < 2e-16 ***
-    ## APA2:Genotype                3     11     3.5   0.144    0.933    
-    ## APA2:TrainSession           21   1758    83.7   3.402 1.36e-06 ***
-    ## Genotype:TrainSession       11    161    14.6   0.595    0.833    
-    ## APA2:Genotype:TrainSession  21    426    20.3   0.824    0.690    
-    ## Residuals                  315   7749    24.6                     
-    ## ---
-    ## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
-
-``` r
-hab <- behavior %>%
-  filter(TrainSession == "Hab") 
-T1 <- behavior %>%
-  filter(TrainSession == "T1") 
-T2 <- behavior %>%
-  filter(TrainSession == "T2") 
-T3 <- behavior %>%
-  filter(TrainSession == "T3") 
-Retest <- behavior %>%
-  filter(TrainSession == "Retest") 
-T4 <- behavior %>%
-  filter(TrainSession %in% c("T4", "C1")) 
-T5 <- behavior %>%
-  filter(TrainSession %in% c("T5", "C2")) 
-T6 <- behavior %>%
-  filter(TrainSession %in% c("T6", "C3")) 
-Retention <- behavior %>%
-  filter(TrainSession == "Retention")
-
-summary(aov(NumEntrances ~ Genotype * APA2, data=hab)) 
-```
-
-    ##               Df Sum Sq Mean Sq F value Pr(>F)
-    ## Genotype       1    6.1    6.11   0.236  0.630
-    ## APA2           3  130.1   43.36   1.674  0.190
-    ## Genotype:APA2  3  127.6   42.55   1.643  0.197
-    ## Residuals     35  906.6   25.90
-
-``` r
-summary(aov(NumEntrances ~ Genotype * APA2, data=T1)) 
-```
-
-    ##               Df Sum Sq Mean Sq F value Pr(>F)  
-    ## Genotype       1    0.1    0.07   0.006 0.9401  
-    ## APA2           3  149.6   49.88   4.000 0.0153 *
-    ## Genotype:APA2  3   54.3   18.10   1.452 0.2449  
-    ## Residuals     34  423.9   12.47                 
-    ## ---
-    ## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
-
-``` r
-summary(aov(NumEntrances ~ Genotype * APA2, data=T2)) 
-```
-
-    ##               Df Sum Sq Mean Sq F value   Pr(>F)    
-    ## Genotype       1    0.0    0.02   0.001 0.975500    
-    ## APA2           3  438.8  146.28   7.386 0.000559 ***
-    ## Genotype:APA2  3   13.2    4.39   0.222 0.880602    
-    ## Residuals     36  712.9   19.80                     
-    ## ---
-    ## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
-
-``` r
-summary(aov(NumEntrances ~ Genotype * APA2, data=T3))
-```
-
-    ##               Df Sum Sq Mean Sq F value   Pr(>F)    
-    ## Genotype       1  119.1   119.1   8.081  0.00751 ** 
-    ## APA2           3 1011.7   337.2  22.882 2.74e-08 ***
-    ## Genotype:APA2  3    8.2     2.7   0.184  0.90621    
-    ## Residuals     34  501.1    14.7                     
-    ## ---
-    ## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
-
-``` r
-summary(aov(NumEntrances ~ Genotype * APA2, data=Retest)) 
-```
-
-    ##               Df Sum Sq Mean Sq F value   Pr(>F)    
-    ## Genotype       1   97.5   97.55   3.046 0.091154 .  
-    ## APA2           3  775.7  258.56   8.075 0.000432 ***
-    ## Genotype:APA2  3  103.1   34.38   1.074 0.375079    
-    ## Residuals     30  960.6   32.02                     
-    ## ---
-    ## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
-
-``` r
-summary(aov(NumEntrances ~ Genotype * APA2, data=T4)) 
-```
-
-    ##               Df Sum Sq Mean Sq F value   Pr(>F)    
-    ## Genotype       1    6.3     6.3   0.231    0.634    
-    ## APA2           3 1050.5   350.2  12.867 7.25e-06 ***
-    ## Genotype:APA2  3   41.7    13.9   0.511    0.677    
-    ## Residuals     36  979.7    27.2                     
-    ## ---
-    ## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
-
-``` r
-summary(aov(NumEntrances ~ Genotype * APA2, data=T5)) 
-```
-
-    ##               Df Sum Sq Mean Sq F value  Pr(>F)    
-    ## Genotype       1  101.1  101.07   3.256   0.080 .  
-    ## APA2           3  897.8  299.25   9.640 9.5e-05 ***
-    ## Genotype:APA2  3   22.3    7.43   0.239   0.868    
-    ## Residuals     34 1055.4   31.04                    
-    ## ---
-    ## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
-
-``` r
-summary(aov(NumEntrances ~ Genotype * APA2, data=T6)) 
-```
-
-    ##               Df Sum Sq Mean Sq F value   Pr(>F)    
-    ## Genotype       1   54.7    54.7   2.987    0.093 .  
-    ## APA2           3 1165.0   388.3  21.217 6.32e-08 ***
-    ## Genotype:APA2  3   68.1    22.7   1.241    0.310    
-    ## Residuals     34  622.3    18.3                     
-    ## ---
-    ## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
-
-``` r
-summary(aov(NumEntrances ~ Genotype * APA2, data=Retention)) 
-```
-
-    ##               Df Sum Sq Mean Sq F value   Pr(>F)    
-    ## Genotype       1   33.3    33.3   0.883    0.353    
-    ## APA2           3 1590.7   530.2  14.037 1.77e-06 ***
-    ## Genotype:APA2  3   37.4    12.5   0.330    0.803    
-    ## Residuals     42 1586.5    37.8                     
-    ## ---
-    ## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
-
-``` r
-# linear model
-summary(lm(NumEntrances ~ Genotype * APA2 * TrainSession , data=behavior)) 
-```
-
-    ## 
-    ## Call:
-    ## lm(formula = NumEntrances ~ Genotype * APA2 * TrainSession, data = behavior)
-    ## 
-    ## Residuals:
-    ##      Min       1Q   Median       3Q      Max 
-    ## -12.6667  -3.0000  -0.4444   2.5000  18.0000 
-    ## 
-    ## Coefficients: (24 not defined because of singularities)
-    ##                                                         Estimate
-    ## (Intercept)                                              23.5000
-    ## GenotypeFMR1KO                                           -2.7500
-    ## APA2yoked-conflict                                       -4.5000
-    ## APA2consistent                                          -13.5000
-    ## APA2conflict                                            -10.0556
-    ## TrainSessionC2                                           -7.3333
-    ## TrainSessionC3                                          -10.5556
-    ## TrainSessionHab                                           5.7500
-    ## TrainSessionRetention                                    -2.0000
-    ## TrainSessionRetest                                       -8.2500
-    ## TrainSessionT1                                          -10.0000
-    ## TrainSessionT2                                          -10.7500
-    ## TrainSessionT3                                           -9.0000
-    ## TrainSessionT4                                           -9.7500
-    ## TrainSessionT5                                           -6.5000
-    ## TrainSessionT6                                           -7.2500
-    ## GenotypeFMR1KO:APA2yoked-conflict                         2.7500
-    ## GenotypeFMR1KO:APA2consistent                             5.0000
-    ## GenotypeFMR1KO:APA2conflict                              -0.1944
-    ## GenotypeFMR1KO:TrainSessionC2                             5.0833
-    ## GenotypeFMR1KO:TrainSessionC3                             6.5556
-    ## GenotypeFMR1KO:TrainSessionHab                            3.7500
-    ## GenotypeFMR1KO:TrainSessionRetention                      3.9643
-    ## GenotypeFMR1KO:TrainSessionRetest                         3.8333
-    ## GenotypeFMR1KO:TrainSessionT1                            -2.0833
-    ## GenotypeFMR1KO:TrainSessionT2                             3.4000
-    ## GenotypeFMR1KO:TrainSessionT3                             6.2500
-    ## GenotypeFMR1KO:TrainSessionT4                             4.8000
-    ## GenotypeFMR1KO:TrainSessionT5                             2.5500
-    ## GenotypeFMR1KO:TrainSessionT6                            -0.5000
-    ## APA2yoked-conflict:TrainSessionC2                         4.3333
-    ## APA2consistent:TrainSessionC2                                 NA
-    ## APA2conflict:TrainSessionC2                                   NA
-    ## APA2yoked-conflict:TrainSessionC3                         7.8889
-    ## APA2consistent:TrainSessionC3                                 NA
-    ## APA2conflict:TrainSessionC3                                   NA
-    ## APA2yoked-conflict:TrainSessionHab                        2.9167
-    ## APA2consistent:TrainSessionHab                           12.3750
-    ## APA2conflict:TrainSessionHab                             10.6944
-    ## APA2yoked-conflict:TrainSessionRetention                  3.3333
-    ## APA2consistent:TrainSessionRetention                      0.6250
-    ## APA2conflict:TrainSessionRetention                       -1.4444
-    ## APA2yoked-conflict:TrainSessionRetest                     0.2500
-    ## APA2consistent:TrainSessionRetest                         5.0000
-    ## APA2conflict:TrainSessionRetest                          -0.9722
-    ## APA2yoked-conflict:TrainSessionT1                         5.0000
-    ## APA2consistent:TrainSessionT1                            10.6250
-    ## APA2conflict:TrainSessionT1                               4.6667
-    ## APA2yoked-conflict:TrainSessionT2                         6.0833
-    ## APA2consistent:TrainSessionT2                            10.0000
-    ## APA2conflict:TrainSessionT2                               3.8611
-    ## APA2yoked-conflict:TrainSessionT3                         5.0000
-    ## APA2consistent:TrainSessionT3                             3.7500
-    ## APA2conflict:TrainSessionT3                                   NA
-    ## APA2yoked-conflict:TrainSessionT4                             NA
-    ## APA2consistent:TrainSessionT4                             4.5000
-    ## APA2conflict:TrainSessionT4                                   NA
-    ## APA2yoked-conflict:TrainSessionT5                             NA
-    ## APA2consistent:TrainSessionT5                             1.0000
-    ## APA2conflict:TrainSessionT5                                   NA
-    ## APA2yoked-conflict:TrainSessionT6                             NA
-    ## APA2consistent:TrainSessionT6                                 NA
-    ## APA2conflict:TrainSessionT6                                   NA
-    ## GenotypeFMR1KO:APA2yoked-conflict:TrainSessionC2         -6.5833
-    ## GenotypeFMR1KO:APA2consistent:TrainSessionC2                  NA
-    ## GenotypeFMR1KO:APA2conflict:TrainSessionC2                    NA
-    ## GenotypeFMR1KO:APA2yoked-conflict:TrainSessionC3         -7.8889
-    ## GenotypeFMR1KO:APA2consistent:TrainSessionC3                  NA
-    ## GenotypeFMR1KO:APA2conflict:TrainSessionC3                    NA
-    ## GenotypeFMR1KO:APA2yoked-conflict:TrainSessionHab        -8.9167
-    ## GenotypeFMR1KO:APA2consistent:TrainSessionHab            -2.6964
-    ## GenotypeFMR1KO:APA2conflict:TrainSessionHab              -4.6944
-    ## GenotypeFMR1KO:APA2yoked-conflict:TrainSessionRetention  -6.6976
-    ## GenotypeFMR1KO:APA2consistent:TrainSessionRetention      -5.0615
-    ## GenotypeFMR1KO:APA2conflict:TrainSessionRetention        -3.2198
-    ## GenotypeFMR1KO:APA2yoked-conflict:TrainSessionRetest      4.5000
-    ## GenotypeFMR1KO:APA2consistent:TrainSessionRetest         -7.6333
-    ## GenotypeFMR1KO:APA2conflict:TrainSessionRetest            2.2222
-    ## GenotypeFMR1KO:APA2yoked-conflict:TrainSessionT1          2.5833
-    ## GenotypeFMR1KO:APA2consistent:TrainSessionT1             -1.2202
-    ## GenotypeFMR1KO:APA2conflict:TrainSessionT1                7.1667
-    ## GenotypeFMR1KO:APA2yoked-conflict:TrainSessionT2         -4.2333
-    ## GenotypeFMR1KO:APA2consistent:TrainSessionT2             -8.0429
-    ## GenotypeFMR1KO:APA2conflict:TrainSessionT2               -1.7611
-    ## GenotypeFMR1KO:APA2yoked-conflict:TrainSessionT3         -4.0000
-    ## GenotypeFMR1KO:APA2consistent:TrainSessionT3             -7.1071
-    ## GenotypeFMR1KO:APA2conflict:TrainSessionT3                    NA
-    ## GenotypeFMR1KO:APA2yoked-conflict:TrainSessionT4              NA
-    ## GenotypeFMR1KO:APA2consistent:TrainSessionT4             -5.5143
-    ## GenotypeFMR1KO:APA2conflict:TrainSessionT4                    NA
-    ## GenotypeFMR1KO:APA2yoked-conflict:TrainSessionT5              NA
-    ## GenotypeFMR1KO:APA2consistent:TrainSessionT5             -2.3000
-    ## GenotypeFMR1KO:APA2conflict:TrainSessionT5                    NA
-    ## GenotypeFMR1KO:APA2yoked-conflict:TrainSessionT6              NA
-    ## GenotypeFMR1KO:APA2consistent:TrainSessionT6                  NA
-    ## GenotypeFMR1KO:APA2conflict:TrainSessionT6                    NA
-    ##                                                         Std. Error t value
-    ## (Intercept)                                                 3.4084   6.895
-    ## GenotypeFMR1KO                                              5.6672  -0.485
-    ## APA2yoked-conflict                                          4.4516  -1.011
-    ## APA2consistent                                              3.0373  -4.445
-    ## APA2conflict                                                2.9805  -3.374
-    ## TrainSessionC2                                              2.3381  -3.136
-    ## TrainSessionC3                                              2.3381  -4.515
-    ## TrainSessionHab                                             4.2151   1.364
-    ## TrainSessionRetention                                       4.2151  -0.474
-    ## TrainSessionRetest                                          4.2151  -1.957
-    ## TrainSessionT1                                              4.2151  -2.372
-    ## TrainSessionT2                                              4.2151  -2.550
-    ## TrainSessionT3                                              2.3381  -3.849
-    ## TrainSessionT4                                              4.2151  -2.313
-    ## TrainSessionT5                                              4.2151  -1.542
-    ## TrainSessionT6                                              4.2151  -1.720
-    ## GenotypeFMR1KO:APA2yoked-conflict                           6.8167   0.403
-    ## GenotypeFMR1KO:APA2consistent                               4.2715   1.171
-    ## GenotypeFMR1KO:APA2conflict                                 4.8201  -0.040
-    ## GenotypeFMR1KO:TrainSessionC2                               4.2151   1.206
-    ## GenotypeFMR1KO:TrainSessionC3                               4.2151   1.555
-    ## GenotypeFMR1KO:TrainSessionHab                              6.6646   0.563
-    ## GenotypeFMR1KO:TrainSessionRetention                        6.4639   0.613
-    ## GenotypeFMR1KO:TrainSessionRetest                           6.8167   0.562
-    ## GenotypeFMR1KO:TrainSessionT1                               6.8167  -0.306
-    ## GenotypeFMR1KO:TrainSessionT2                               6.5717   0.517
-    ## GenotypeFMR1KO:TrainSessionT3                               4.2151   1.483
-    ## GenotypeFMR1KO:TrainSessionT4                               6.5717   0.730
-    ## GenotypeFMR1KO:TrainSessionT5                               6.5717   0.388
-    ## GenotypeFMR1KO:TrainSessionT6                               6.5717  -0.076
-    ## APA2yoked-conflict:TrainSessionC2                           5.0958   0.850
-    ## APA2consistent:TrainSessionC2                                   NA      NA
-    ## APA2conflict:TrainSessionC2                                     NA      NA
-    ## APA2yoked-conflict:TrainSessionC3                           4.6762   1.687
-    ## APA2consistent:TrainSessionC3                                   NA      NA
-    ## APA2conflict:TrainSessionC3                                     NA      NA
-    ## APA2yoked-conflict:TrainSessionHab                          5.8453   0.499
-    ## APA2consistent:TrainSessionHab                              4.2954   2.881
-    ## APA2conflict:TrainSessionHab                                4.2151   2.537
-    ## APA2yoked-conflict:TrainSessionRetention                    5.8453   0.570
-    ## APA2consistent:TrainSessionRetention                        4.2954   0.146
-    ## APA2conflict:TrainSessionRetention                          4.2151  -0.343
-    ## APA2yoked-conflict:TrainSessionRetest                       5.8453   0.043
-    ## APA2consistent:TrainSessionRetest                           4.2954   1.164
-    ## APA2conflict:TrainSessionRetest                             4.2151  -0.231
-    ## APA2yoked-conflict:TrainSessionT1                           5.8453   0.855
-    ## APA2consistent:TrainSessionT1                               4.2954   2.474
-    ## APA2conflict:TrainSessionT1                                 4.2151   1.107
-    ## APA2yoked-conflict:TrainSessionT2                           5.8453   1.041
-    ## APA2consistent:TrainSessionT2                               4.2954   2.328
-    ## APA2conflict:TrainSessionT2                                 4.2151   0.916
-    ## APA2yoked-conflict:TrainSessionT3                           4.6762   1.069
-    ## APA2consistent:TrainSessionT3                               4.2954   0.873
-    ## APA2conflict:TrainSessionT3                                     NA      NA
-    ## APA2yoked-conflict:TrainSessionT4                               NA      NA
-    ## APA2consistent:TrainSessionT4                               4.2954   1.048
-    ## APA2conflict:TrainSessionT4                                     NA      NA
-    ## APA2yoked-conflict:TrainSessionT5                               NA      NA
-    ## APA2consistent:TrainSessionT5                               4.2954   0.233
-    ## APA2conflict:TrainSessionT5                                     NA      NA
-    ## APA2yoked-conflict:TrainSessionT6                               NA      NA
-    ## APA2consistent:TrainSessionT6                                   NA      NA
-    ## APA2conflict:TrainSessionT6                                     NA      NA
-    ## GenotypeFMR1KO:APA2yoked-conflict:TrainSessionC2            7.1111  -0.926
-    ## GenotypeFMR1KO:APA2consistent:TrainSessionC2                    NA      NA
-    ## GenotypeFMR1KO:APA2conflict:TrainSessionC2                      NA      NA
-    ## GenotypeFMR1KO:APA2yoked-conflict:TrainSessionC3            6.9655  -1.133
-    ## GenotypeFMR1KO:APA2consistent:TrainSessionC3                    NA      NA
-    ## GenotypeFMR1KO:APA2conflict:TrainSessionC3                      NA      NA
-    ## GenotypeFMR1KO:APA2yoked-conflict:TrainSessionHab           8.5509  -1.043
-    ## GenotypeFMR1KO:APA2consistent:TrainSessionHab               6.0938  -0.442
-    ## GenotypeFMR1KO:APA2conflict:TrainSessionHab                 6.6646  -0.704
-    ## GenotypeFMR1KO:APA2yoked-conflict:TrainSessionRetention     8.3218  -0.805
-    ## GenotypeFMR1KO:APA2consistent:TrainSessionRetention         5.8067  -0.872
-    ## GenotypeFMR1KO:APA2conflict:TrainSessionRetention           6.3680  -0.506
-    ## GenotypeFMR1KO:APA2yoked-conflict:TrainSessionRetest        8.7874   0.512
-    ## GenotypeFMR1KO:APA2consistent:TrainSessionRetest            6.3711  -1.198
-    ## GenotypeFMR1KO:APA2conflict:TrainSessionRetest              6.9655   0.319
-    ## GenotypeFMR1KO:APA2yoked-conflict:TrainSessionT1            8.6700   0.298
-    ## GenotypeFMR1KO:APA2consistent:TrainSessionT1                6.2598  -0.195
-    ## GenotypeFMR1KO:APA2conflict:TrainSessionT1                  6.8167   1.051
-    ## GenotypeFMR1KO:APA2yoked-conflict:TrainSessionT2            8.4787  -0.499
-    ## GenotypeFMR1KO:APA2consistent:TrainSessionT2                5.9921  -1.342
-    ## GenotypeFMR1KO:APA2conflict:TrainSessionT2                  6.5717  -0.268
-    ## GenotypeFMR1KO:APA2yoked-conflict:TrainSessionT3            6.8167  -0.587
-    ## GenotypeFMR1KO:APA2consistent:TrainSessionT3                6.2598  -1.135
-    ## GenotypeFMR1KO:APA2conflict:TrainSessionT3                      NA      NA
-    ## GenotypeFMR1KO:APA2yoked-conflict:TrainSessionT4                NA      NA
-    ## GenotypeFMR1KO:APA2consistent:TrainSessionT4                5.9921  -0.920
-    ## GenotypeFMR1KO:APA2conflict:TrainSessionT4                      NA      NA
-    ## GenotypeFMR1KO:APA2yoked-conflict:TrainSessionT5                NA      NA
-    ## GenotypeFMR1KO:APA2consistent:TrainSessionT5                6.0408  -0.381
-    ## GenotypeFMR1KO:APA2conflict:TrainSessionT5                      NA      NA
-    ## GenotypeFMR1KO:APA2yoked-conflict:TrainSessionT6                NA      NA
-    ## GenotypeFMR1KO:APA2consistent:TrainSessionT6                    NA      NA
-    ## GenotypeFMR1KO:APA2conflict:TrainSessionT6                      NA      NA
-    ##                                                         Pr(>|t|)    
-    ## (Intercept)                                             2.96e-11 ***
-    ## GenotypeFMR1KO                                          0.627838    
-    ## APA2yoked-conflict                                      0.312857    
-    ## APA2consistent                                          1.22e-05 ***
-    ## APA2conflict                                            0.000834 ***
-    ## TrainSessionC2                                          0.001872 ** 
-    ## TrainSessionC3                                          8.98e-06 ***
-    ## TrainSessionHab                                         0.173495    
-    ## TrainSessionRetention                                   0.635482    
-    ## TrainSessionRetest                                      0.051201 .  
-    ## TrainSessionT1                                          0.018272 *  
-    ## TrainSessionT2                                          0.011234 *  
-    ## TrainSessionT3                                          0.000143 ***
-    ## TrainSessionT4                                          0.021360 *  
-    ## TrainSessionT5                                          0.124059    
-    ## TrainSessionT6                                          0.086413 .  
-    ## GenotypeFMR1KO:APA2yoked-conflict                       0.686913    
-    ## GenotypeFMR1KO:APA2consistent                           0.242660    
-    ## GenotypeFMR1KO:APA2conflict                             0.967848    
-    ## GenotypeFMR1KO:TrainSessionC2                           0.228729    
-    ## GenotypeFMR1KO:TrainSessionC3                           0.120889    
-    ## GenotypeFMR1KO:TrainSessionHab                          0.574059    
-    ## GenotypeFMR1KO:TrainSessionRetention                    0.540122    
-    ## GenotypeFMR1KO:TrainSessionRetest                       0.574282    
-    ## GenotypeFMR1KO:TrainSessionT1                           0.760095    
-    ## GenotypeFMR1KO:TrainSessionT2                           0.605262    
-    ## GenotypeFMR1KO:TrainSessionT3                           0.139136    
-    ## GenotypeFMR1KO:TrainSessionT4                           0.465687    
-    ## GenotypeFMR1KO:TrainSessionT5                           0.698259    
-    ## GenotypeFMR1KO:TrainSessionT6                           0.939401    
-    ## APA2yoked-conflict:TrainSessionC2                       0.395763    
-    ## APA2consistent:TrainSessionC2                                 NA    
-    ## APA2conflict:TrainSessionC2                                   NA    
-    ## APA2yoked-conflict:TrainSessionC3                       0.092589 .  
-    ## APA2consistent:TrainSessionC3                                 NA    
-    ## APA2conflict:TrainSessionC3                                   NA    
-    ## APA2yoked-conflict:TrainSessionHab                      0.618143    
-    ## APA2consistent:TrainSessionHab                          0.004236 ** 
-    ## APA2conflict:TrainSessionHab                            0.011657 *  
-    ## APA2yoked-conflict:TrainSessionRetention                0.568907    
-    ## APA2consistent:TrainSessionRetention                    0.884405    
-    ## APA2conflict:TrainSessionRetention                      0.732065    
-    ## APA2yoked-conflict:TrainSessionRetest                   0.965912    
-    ## APA2consistent:TrainSessionRetest                       0.245289    
-    ## APA2conflict:TrainSessionRetest                         0.817734    
-    ## APA2yoked-conflict:TrainSessionT1                       0.392985    
-    ## APA2consistent:TrainSessionT1                           0.013903 *  
-    ## APA2conflict:TrainSessionT1                             0.269081    
-    ## APA2yoked-conflict:TrainSessionT2                       0.298801    
-    ## APA2consistent:TrainSessionT2                           0.020541 *  
-    ## APA2conflict:TrainSessionT2                             0.360357    
-    ## APA2yoked-conflict:TrainSessionT3                       0.285781    
-    ## APA2consistent:TrainSessionT3                           0.383312    
-    ## APA2conflict:TrainSessionT3                                   NA    
-    ## APA2yoked-conflict:TrainSessionT4                             NA    
-    ## APA2consistent:TrainSessionT4                           0.295610    
-    ## APA2conflict:TrainSessionT4                                   NA    
-    ## APA2yoked-conflict:TrainSessionT5                             NA    
-    ## APA2consistent:TrainSessionT5                           0.816062    
-    ## APA2conflict:TrainSessionT5                                   NA    
-    ## APA2yoked-conflict:TrainSessionT6                             NA    
-    ## APA2consistent:TrainSessionT6                                 NA    
-    ## APA2conflict:TrainSessionT6                                   NA    
-    ## GenotypeFMR1KO:APA2yoked-conflict:TrainSessionC2        0.355267    
-    ## GenotypeFMR1KO:APA2consistent:TrainSessionC2                  NA    
-    ## GenotypeFMR1KO:APA2conflict:TrainSessionC2                    NA    
-    ## GenotypeFMR1KO:APA2yoked-conflict:TrainSessionC3        0.258255    
-    ## GenotypeFMR1KO:APA2consistent:TrainSessionC3                  NA    
-    ## GenotypeFMR1KO:APA2conflict:TrainSessionC3                    NA    
-    ## GenotypeFMR1KO:APA2yoked-conflict:TrainSessionHab       0.297852    
-    ## GenotypeFMR1KO:APA2consistent:TrainSessionHab           0.658443    
-    ## GenotypeFMR1KO:APA2conflict:TrainSessionHab             0.481716    
-    ## GenotypeFMR1KO:APA2yoked-conflict:TrainSessionRetention 0.421525    
-    ## GenotypeFMR1KO:APA2consistent:TrainSessionRetention     0.384057    
-    ## GenotypeFMR1KO:APA2conflict:TrainSessionRetention       0.613472    
-    ## GenotypeFMR1KO:APA2yoked-conflict:TrainSessionRetest    0.608941    
-    ## GenotypeFMR1KO:APA2consistent:TrainSessionRetest        0.231771    
-    ## GenotypeFMR1KO:APA2conflict:TrainSessionRetest          0.749912    
-    ## GenotypeFMR1KO:APA2yoked-conflict:TrainSessionT1        0.765927    
-    ## GenotypeFMR1KO:APA2consistent:TrainSessionT1            0.845571    
-    ## GenotypeFMR1KO:APA2conflict:TrainSessionT1              0.293909    
-    ## GenotypeFMR1KO:APA2yoked-conflict:TrainSessionT2        0.617922    
-    ## GenotypeFMR1KO:APA2consistent:TrainSessionT2            0.180482    
-    ## GenotypeFMR1KO:APA2conflict:TrainSessionT2              0.788887    
-    ## GenotypeFMR1KO:APA2yoked-conflict:TrainSessionT3        0.557763    
-    ## GenotypeFMR1KO:APA2consistent:TrainSessionT3            0.257086    
-    ## GenotypeFMR1KO:APA2conflict:TrainSessionT3                    NA    
-    ## GenotypeFMR1KO:APA2yoked-conflict:TrainSessionT4              NA    
-    ## GenotypeFMR1KO:APA2consistent:TrainSessionT4            0.358139    
-    ## GenotypeFMR1KO:APA2conflict:TrainSessionT4                    NA    
-    ## GenotypeFMR1KO:APA2yoked-conflict:TrainSessionT5              NA    
-    ## GenotypeFMR1KO:APA2consistent:TrainSessionT5            0.703647    
-    ## GenotypeFMR1KO:APA2conflict:TrainSessionT5                    NA    
-    ## GenotypeFMR1KO:APA2yoked-conflict:TrainSessionT6              NA    
-    ## GenotypeFMR1KO:APA2consistent:TrainSessionT6                  NA    
-    ## GenotypeFMR1KO:APA2conflict:TrainSessionT6                    NA    
-    ## ---
-    ## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
-    ## 
-    ## Residual standard error: 4.96 on 315 degrees of freedom
-    ## Multiple R-squared:  0.7405, Adjusted R-squared:  0.6819 
-    ## F-statistic: 12.66 on 71 and 315 DF,  p-value: < 2.2e-16
 
 Anovas Consistent only - No significant effect of genotype
 ----------------------------------------------------------
 
-``` r
-consistent <- behavior %>%
-  filter(conflict == "consistent") 
-T1 <- consistent %>%
-  filter(TrainSession == "T1") 
-T2 <- consistent %>%
-  filter(TrainSession == "T2") 
-T3 <- consistent %>%
-  filter(TrainSession == "T3") 
-Retest <- consistent %>%
-  filter(TrainSession == "Retest") 
-T4 <- consistent %>%
-  filter(TrainSession %in% c("T4", "C1")) 
-T5 <- consistent %>%
-  filter(TrainSession %in% c("T5", "C2")) 
-T6 <- consistent %>%
-  filter(TrainSession %in% c("T6", "C3")) 
-Retention <- consistent %>%
-  filter(TrainSession == "Retention") 
+    consistent <- behavior %>%
+      filter(conflict == "consistent")  %>%
+      droplevels()
 
-summary(aov(NumEntrances ~ Genotype *APA2, data=hab)) 
-```
+    m1 = aov(NumEntrances ~  Genotype + APA2 + TrainSessionCombo + Genotype * APA2  , data=consistent)
+    summary(m1)
+
+    ##                    Df Sum Sq Mean Sq F value Pr(>F)    
+    ## Genotype            1     92    92.4   3.551  0.061 .  
+    ## APA2                1   3029  3028.8 116.354 <2e-16 ***
+    ## TrainSessionCombo   8   8626  1078.2  41.420 <2e-16 ***
+    ## Genotype:APA2       1      1     0.7   0.025  0.874    
+    ## Residuals         197   5128    26.0                   
+    ## ---
+    ## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+
+    TukeyHSD(m1)
+
+    ##   Tukey multiple comparisons of means
+    ##     95% family-wise confidence level
+    ## 
+    ## Fit: aov(formula = NumEntrances ~ Genotype + APA2 + TrainSessionCombo + Genotype * APA2, data = consistent)
+    ## 
+    ## $Genotype
+    ##               diff         lwr      upr    p adj
+    ## FMR1KO-WT 1.330766 -0.06196487 2.723498 0.060992
+    ## 
+    ## $APA2
+    ##                                 diff       lwr       upr p adj
+    ## consistent-yoked-consistent -7.89679 -9.343586 -6.449994     0
+    ## 
+    ## $TrainSessionCombo
+    ##                         diff        lwr         upr     p adj
+    ## Retention-Hab    -15.7732787 -20.276739 -11.2698182 0.0000000
+    ## Retest-Hab       -20.1476636 -25.040487 -15.2548404 0.0000000
+    ## T1-Hab           -18.8953392 -23.667721 -14.1229572 0.0000000
+    ## T2-Hab           -19.9292724 -24.598914 -15.2596303 0.0000000
+    ## T3-Hab           -20.6680665 -25.440449 -15.8956844 0.0000000
+    ## T4_C1-Hab        -20.9292724 -25.598914 -16.2596303 0.0000000
+    ## T5_C2-Hab        -20.0404540 -24.759512 -15.3213963 0.0000000
+    ## T6_C3-Hab        -22.2578453 -26.976903 -17.5387876 0.0000000
+    ## Retest-Retention  -4.3743849  -9.059614   0.3108440 0.0882442
+    ## T1-Retention      -3.1220605  -7.681368   1.4372466 0.4441016
+    ## T2-Retention      -4.1559937  -8.607646   0.2956587 0.0882946
+    ## T3-Retention      -4.8947878  -9.454095  -0.3354806 0.0250875
+    ## T4_C1-Retention   -5.1559937  -9.607646  -0.7043413 0.0105595
+    ## T5_C2-Retention   -4.2671753  -8.770636   0.2362852 0.0787022
+    ## T6_C3-Retention   -6.4845666 -10.988027  -1.9811061 0.0003646
+    ## T1-Retest          1.2523243  -3.691949   6.1965981 0.9969211
+    ## T2-Retest          0.2183912  -4.626789   5.0635713 1.0000000
+    ## T3-Retest         -0.5204029  -5.464677   4.4238709 0.9999958
+    ## T4_C1-Retest      -0.7816088  -5.626789   4.0635713 0.9998866
+    ## T5_C2-Retest       0.1072096  -4.785614   5.0000327 1.0000000
+    ## T6_C3-Retest      -2.1101817  -7.003005   2.7826414 0.9137005
+    ## T2-T1             -1.0339332  -5.757458   3.6895912 0.9989093
+    ## T3-T1             -1.7727273  -6.597844   3.0523899 0.9651187
+    ## T4_C1-T1          -2.0339332  -6.757458   2.6895912 0.9144254
+    ## T5_C2-T1          -1.1451148  -5.917497   3.6272673 0.9978955
+    ## T6_C3-T1          -3.3625061  -8.134888   1.4098760 0.4033509
+    ## T3-T2             -0.7387941  -5.462318   3.9847303 0.9999103
+    ## T4_C1-T2          -1.0000000  -5.619698   3.6196980 0.9989938
+    ## T5_C2-T2          -0.1111816  -4.780824   4.5584605 1.0000000
+    ## T6_C3-T2          -2.3285729  -6.998215   2.3410692 0.8229393
+    ## T4_C1-T3          -0.2612059  -4.984730   4.4623185 1.0000000
+    ## T5_C2-T3           0.6276125  -4.144770   5.3999946 0.9999762
+    ## T6_C3-T3          -1.5897788  -6.362161   3.1826033 0.9808767
+    ## T5_C2-T4_C1        0.8888184  -3.780824   5.5584605 0.9996081
+    ## T6_C3-T4_C1       -1.3285729  -5.998215   3.3410692 0.9931656
+    ## T6_C3-T5_C2       -2.2173913  -6.936449   2.5016664 0.8663585
+    ## 
+    ## $`Genotype:APA2`
+    ##                                                   diff        lwr
+    ## FMR1KO:yoked-consistent-WT:yoked-consistent  0.6852697  -2.351775
+    ## WT:consistent-WT:yoked-consistent           -8.0474479 -10.745933
+    ## FMR1KO:consistent-WT:yoked-consistent       -7.1289323  -9.907336
+    ## WT:consistent-FMR1KO:yoked-consistent       -8.7327176 -11.339702
+    ## FMR1KO:consistent-FMR1KO:yoked-consistent   -7.8142020 -10.503825
+    ## FMR1KO:consistent-WT:consistent              0.9185156  -1.381974
+    ##                                                   upr     p adj
+    ## FMR1KO:yoked-consistent-WT:yoked-consistent  3.722314 0.9366202
+    ## WT:consistent-WT:yoked-consistent           -5.348963 0.0000000
+    ## FMR1KO:consistent-WT:yoked-consistent       -4.350529 0.0000000
+    ## WT:consistent-FMR1KO:yoked-consistent       -6.125733 0.0000000
+    ## FMR1KO:consistent-FMR1KO:yoked-consistent   -5.124579 0.0000000
+    ## FMR1KO:consistent-WT:consistent              3.219005 0.7293828
+
+    hab <- consistent %>%
+      filter(TrainSession == "Hab") 
+    T1 <- consistent %>%
+      filter(TrainSession == "T1") 
+    T2 <- consistent %>%
+      filter(TrainSession == "T2") 
+    T3 <- consistent %>%
+      filter(TrainSession == "T3") 
+    Retest <- consistent %>%
+      filter(TrainSession == "Retest") 
+    T4 <- consistent %>%
+      filter(TrainSession %in% c("T4", "C1")) 
+    T5 <- consistent %>%
+      filter(TrainSession %in% c("T5", "C2")) 
+    T6 <- consistent %>%
+      filter(TrainSession %in% c("T6", "C3")) 
+    Retention <- consistent %>%
+      filter(TrainSession == "Retention") 
+
+    summary(aov(NumEntrances ~ Genotype * APA2, data=hab)) 
 
     ##               Df Sum Sq Mean Sq F value Pr(>F)
-    ## Genotype       1    6.1    6.11   0.236  0.630
-    ## APA2           3  130.1   43.36   1.674  0.190
-    ## Genotype:APA2  3  127.6   42.55   1.643  0.197
-    ## Residuals     35  906.6   25.90
+    ## Genotype       1   35.9   35.87   1.852  0.190
+    ## APA2           1    0.0    0.00   0.000  1.000
+    ## Genotype:APA2  1    6.9    6.91   0.357  0.557
+    ## Residuals     19  368.1   19.37
 
-``` r
-summary(aov(NumEntrances ~ Genotype *APA2, data=T1)) 
-```
+    summary(aov(NumEntrances ~ Genotype * APA2, data=T1)) 
 
     ##               Df Sum Sq Mean Sq F value Pr(>F)
     ## Genotype       1  28.44  28.438   2.569  0.126
@@ -727,9 +257,7 @@ summary(aov(NumEntrances ~ Genotype *APA2, data=T1))
     ## Genotype:APA2  1  16.78  16.784   1.516  0.234
     ## Residuals     18 199.26  11.070
 
-``` r
-summary(aov(NumEntrances ~ Genotype *APA2, data=T2)) 
-```
+    summary(aov(NumEntrances ~ Genotype * APA2, data=T2)) 
 
     ##               Df Sum Sq Mean Sq F value Pr(>F)  
     ## Genotype       1    4.2    4.17   0.192 0.6661  
@@ -739,9 +267,7 @@ summary(aov(NumEntrances ~ Genotype *APA2, data=T2))
     ## ---
     ## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
 
-``` r
-summary(aov(NumEntrances ~ Genotype *APA2, data=T3))
-```
+    summary(aov(NumEntrances ~ Genotype * APA2, data=T3))
 
     ##               Df Sum Sq Mean Sq F value   Pr(>F)    
     ## Genotype       1   15.8    15.8   1.129    0.302    
@@ -751,9 +277,7 @@ summary(aov(NumEntrances ~ Genotype *APA2, data=T3))
     ## ---
     ## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
 
-``` r
-summary(aov(NumEntrances ~ Genotype * APA2, data=Retest)) 
-```
+    summary(aov(NumEntrances ~ Genotype * APA2, data=Retest)) 
 
     ##               Df Sum Sq Mean Sq F value  Pr(>F)   
     ## Genotype       1    0.2     0.2   0.008 0.93170   
@@ -763,9 +287,7 @@ summary(aov(NumEntrances ~ Genotype * APA2, data=Retest))
     ## ---
     ## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
 
-``` r
-summary(aov(NumEntrances ~ Genotype *APA2, data=T4)) 
-```
+    summary(aov(NumEntrances ~ Genotype * APA2, data=T4)) 
 
     ##               Df Sum Sq Mean Sq F value   Pr(>F)    
     ## Genotype       1   37.5    37.5   2.311    0.144    
@@ -775,9 +297,7 @@ summary(aov(NumEntrances ~ Genotype *APA2, data=T4))
     ## ---
     ## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
 
-``` r
-summary(aov(NumEntrances ~ Genotype *APA2, data=T5)) 
-```
+    summary(aov(NumEntrances ~ Genotype * APA2, data=T5)) 
 
     ##               Df Sum Sq Mean Sq F value   Pr(>F)    
     ## Genotype       1   44.6    44.6   1.430 0.246527    
@@ -787,9 +307,7 @@ summary(aov(NumEntrances ~ Genotype *APA2, data=T5))
     ## ---
     ## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
 
-``` r
-summary(aov(NumEntrances ~ Genotype *APA2, data=T6)) 
-```
+    summary(aov(NumEntrances ~ Genotype * APA2, data=T6)) 
 
     ##               Df Sum Sq Mean Sq F value   Pr(>F)    
     ## Genotype       1    7.1     7.1   0.288    0.598    
@@ -799,9 +317,7 @@ summary(aov(NumEntrances ~ Genotype *APA2, data=T6))
     ## ---
     ## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
 
-``` r
-summary(aov(NumEntrances ~ Genotype * APA2, data=Retention)) 
-```
+    summary(aov(NumEntrances ~ Genotype * APA2, data=Retention)) 
 
     ##               Df Sum Sq Mean Sq F value   Pr(>F)    
     ## Genotype       1   43.6    43.6   1.139    0.296    
@@ -814,39 +330,180 @@ summary(aov(NumEntrances ~ Genotype * APA2, data=Retention))
 Anovas Conflict only
 --------------------
 
-``` r
-conflict <- behavior %>%
-  filter(conflict == "conflict") 
-T1 <- conflict %>%
-  filter(TrainSession == "T1") 
-T2 <- conflict %>%
-  filter(TrainSession == "T2") 
-T3 <- conflict %>%
-  filter(TrainSession == "T3") 
-Retest <- conflict %>%
-  filter(TrainSession == "Retest") 
-T4 <- conflict %>%
-  filter(TrainSession %in% c("T4", "C1")) 
-T5 <- conflict %>%
-  filter(TrainSession %in% c("T5", "C2")) 
-T6 <- conflict %>%
-  filter(TrainSession %in% c("T6", "C3")) 
-Retention <- conflict %>%
-  filter(TrainSession == "Retention") 
+    conflict <- behavior %>%
+      filter(conflict == "conflict") %>%
+      droplevels()
 
+    m1 = lm(NumEntrances ~  Genotype + TrainSessionCombo + Genotype*TrainSessionCombo, data=conflict)
+    summary(m1)
 
-summary(aov(NumEntrances ~ Genotype *APA2, data=hab)) 
-```
+    ## 
+    ## Call:
+    ## lm(formula = NumEntrances ~ Genotype + TrainSessionCombo + Genotype * 
+    ##     TrainSessionCombo, data = conflict)
+    ## 
+    ## Residuals:
+    ##      Min       1Q   Median       3Q      Max 
+    ## -14.3333  -4.1667  -0.7667   4.2083  15.4167 
+    ## 
+    ## Coefficients:
+    ##                                           Estimate Std. Error t value
+    ## (Intercept)                                 29.333      1.824  16.083
+    ## GenotypeFMR1KO                              -5.083      2.884  -1.763
+    ## TrainSessionComboRetention                 -16.750      2.579  -6.494
+    ## TrainSessionComboRetest                    -23.417      2.579  -9.078
+    ## TrainSessionComboT1                        -19.750      2.579  -7.657
+    ## TrainSessionComboT2                        -20.833      2.579  -8.077
+    ## TrainSessionComboT3                        -22.250      2.579  -8.626
+    ## TrainSessionComboT4_C1                     -14.500      2.579  -5.622
+    ## TrainSessionComboT5_C2                     -21.424      2.637  -8.123
+    ## TrainSessionComboT6_C3                     -23.083      2.579  -8.949
+    ## GenotypeFMR1KO:TrainSessionComboRetention    5.200      3.954   1.315
+    ## GenotypeFMR1KO:TrainSessionComboRetest      12.500      4.277   2.922
+    ## GenotypeFMR1KO:TrainSessionComboT1           7.875      4.078   1.931
+    ## GenotypeFMR1KO:TrainSessionComboT2           5.958      4.078   1.461
+    ## GenotypeFMR1KO:TrainSessionComboT3          10.500      4.078   2.575
+    ## GenotypeFMR1KO:TrainSessionComboT4_C1        5.000      4.078   1.226
+    ## GenotypeFMR1KO:TrainSessionComboT5_C2        8.549      4.115   2.077
+    ## GenotypeFMR1KO:TrainSessionComboT6_C3        8.976      4.165   2.155
+    ##                                           Pr(>|t|)    
+    ## (Intercept)                                < 2e-16 ***
+    ## GenotypeFMR1KO                             0.07986 .  
+    ## TrainSessionComboRetention                1.01e-09 ***
+    ## TrainSessionComboRetest                   3.92e-16 ***
+    ## TrainSessionComboT1                       1.70e-12 ***
+    ## TrainSessionComboT2                       1.52e-13 ***
+    ## TrainSessionComboT3                       5.95e-15 ***
+    ## TrainSessionComboT4_C1                    8.23e-08 ***
+    ## TrainSessionComboT5_C2                    1.16e-13 ***
+    ## TrainSessionComboT6_C3                    8.56e-16 ***
+    ## GenotypeFMR1KO:TrainSessionComboRetention  0.19036    
+    ## GenotypeFMR1KO:TrainSessionComboRetest     0.00398 ** 
+    ## GenotypeFMR1KO:TrainSessionComboT1         0.05526 .  
+    ## GenotypeFMR1KO:TrainSessionComboT2         0.14599    
+    ## GenotypeFMR1KO:TrainSessionComboT3         0.01094 *  
+    ## GenotypeFMR1KO:TrainSessionComboT4_C1      0.22201    
+    ## GenotypeFMR1KO:TrainSessionComboT5_C2      0.03936 *  
+    ## GenotypeFMR1KO:TrainSessionComboT6_C3      0.03264 *  
+    ## ---
+    ## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+    ## 
+    ## Residual standard error: 6.318 on 160 degrees of freedom
+    ## Multiple R-squared:  0.5079, Adjusted R-squared:  0.4557 
+    ## F-statistic: 9.715 on 17 and 160 DF,  p-value: < 2.2e-16
 
-    ##               Df Sum Sq Mean Sq F value Pr(>F)
-    ## Genotype       1    6.1    6.11   0.236  0.630
-    ## APA2           3  130.1   43.36   1.674  0.190
-    ## Genotype:APA2  3  127.6   42.55   1.643  0.197
-    ## Residuals     35  906.6   25.90
+    m1 = aov(NumEntrances ~  Genotype + APA2 + TrainSessionCombo + Genotype * APA2  , data=conflict)
+    summary(m1)
 
-``` r
-summary(aov(NumEntrances ~ Genotype *APA2, data=T1)) 
-```
+    ##                    Df Sum Sq Mean Sq F value   Pr(>F)    
+    ## Genotype            1    186   185.8   6.269   0.0132 *  
+    ## APA2                1   2017  2016.8  68.069 4.64e-14 ***
+    ## TrainSessionCombo   8   5856   732.0  24.706  < 2e-16 ***
+    ## Genotype:APA2       1      3     3.0   0.101   0.7509    
+    ## Residuals         166   4918    29.6                     
+    ## ---
+    ## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+
+    TukeyHSD(m1)
+
+    ##   Tukey multiple comparisons of means
+    ##     95% family-wise confidence level
+    ## 
+    ## Fit: aov(formula = NumEntrances ~ Genotype + APA2 + TrainSessionCombo + Genotype * APA2, data = conflict)
+    ## 
+    ## $Genotype
+    ##               diff       lwr      upr     p adj
+    ## FMR1KO-WT 2.086218 0.4411924 3.731244 0.0132497
+    ## 
+    ## $APA2
+    ##                              diff       lwr       upr p adj
+    ## conflict-yoked-conflict -6.852357 -8.549568 -5.155146     0
+    ## 
+    ## $TrainSessionCombo
+    ##                         diff         lwr         upr     p adj
+    ## Retention-Hab    -14.7774433 -20.0634126  -9.4914740 0.0000000
+    ## Retest-Hab       -18.7720138 -24.3306324 -13.2133952 0.0000000
+    ## T1-Hab           -16.6000000 -22.0103621 -11.1896379 0.0000000
+    ## T2-Hab           -18.4500000 -23.8603621 -13.0396379 0.0000000
+    ## T3-Hab           -18.0500000 -23.4603621 -12.6396379 0.0000000
+    ## T4_C1-Hab        -12.5000000 -17.9103621  -7.0896379 0.0000000
+    ## T5_C2-Hab        -17.6857445 -23.1668332 -12.2046557 0.0000000
+    ## T6_C3-Hab        -19.3567280 -24.8378167 -13.8756392 0.0000000
+    ## Retest-Retention  -3.9945705  -9.4321890   1.4430479 0.3428037
+    ## T1-Retention      -1.8225567  -7.1085260   3.4634126 0.9758551
+    ## T2-Retention      -3.6725567  -8.9585260   1.6134126 0.4211013
+    ## T3-Retention      -3.2725567  -8.5585260   2.0134126 0.5830461
+    ## T4_C1-Retention    2.2774433  -3.0085260   7.5634126 0.9129406
+    ## T5_C2-Retention   -2.9083012  -8.2666394   2.4500369 0.7420989
+    ## T6_C3-Retention   -4.5792847  -9.9376229   0.7790534 0.1608819
+    ## T1-Retest          2.1720138  -3.3866048   7.7306324 0.9491669
+    ## T2-Retest          0.3220138  -5.2366048   5.8806324 1.0000000
+    ## T3-Retest          0.7220138  -4.8366048   6.2806324 0.9999778
+    ## T4_C1-Retest       6.2720138   0.7133952  11.8306324 0.0145773
+    ## T5_C2-Retest       1.0862693  -4.5412130   6.7137516 0.9995545
+    ## T6_C3-Retest      -0.5847142  -6.2121965   5.0427681 0.9999961
+    ## T2-T1             -1.8500000  -7.2603621   3.5603621 0.9770655
+    ## T3-T1             -1.4500000  -6.8603621   3.9603621 0.9953486
+    ## T4_C1-T1           4.1000000  -1.3103621   9.5103621 0.3008923
+    ## T5_C2-T1          -1.0857445  -6.5668332   4.3953443 0.9994609
+    ## T6_C3-T1          -2.7567280  -8.2378167   2.7243608 0.8139034
+    ## T3-T2              0.4000000  -5.0103621   5.8103621 0.9999997
+    ## T4_C1-T2           5.9500000   0.5396379  11.3603621 0.0194743
+    ## T5_C2-T2           0.7642555  -4.7168332   6.2453443 0.9999617
+    ## T6_C3-T2          -0.9067280  -6.3878167   4.5743608 0.9998594
+    ## T4_C1-T3           5.5500000   0.1396379  10.9603621 0.0395831
+    ## T5_C2-T3           0.3642555  -5.1168332   5.8453443 0.9999999
+    ## T6_C3-T3          -1.3067280  -6.7878167   4.1743608 0.9979430
+    ## T5_C2-T4_C1       -5.1857445 -10.6668332   0.2953443 0.0794519
+    ## T6_C3-T4_C1       -6.8567280 -12.3378167  -1.3756392 0.0038496
+    ## T6_C3-T5_C2       -1.6709835  -7.2218979   3.8799309 0.9898452
+    ## 
+    ## $`Genotype:APA2`
+    ##                                               diff        lwr       upr
+    ## FMR1KO:yoked-conflict-WT:yoked-conflict -0.1029878  -3.760456  3.554480
+    ## WT:conflict-WT:yoked-conflict           -7.6091256 -10.793316 -4.424935
+    ## FMR1KO:conflict-WT:yoked-conflict       -7.1457403 -10.781492 -3.509989
+    ## WT:conflict-FMR1KO:yoked-conflict       -7.5061377 -10.363654 -4.648621
+    ## FMR1KO:conflict-FMR1KO:yoked-conflict   -7.0427525 -10.396113 -3.689392
+    ## FMR1KO:conflict-WT:conflict              0.4633853  -2.366283  3.293053
+    ##                                             p adj
+    ## FMR1KO:yoked-conflict-WT:yoked-conflict 0.9998595
+    ## WT:conflict-WT:yoked-conflict           0.0000000
+    ## FMR1KO:conflict-WT:yoked-conflict       0.0000054
+    ## WT:conflict-FMR1KO:yoked-conflict       0.0000000
+    ## FMR1KO:conflict-FMR1KO:yoked-conflict   0.0000011
+    ## FMR1KO:conflict-WT:conflict             0.9741355
+
+    hab <- conflict %>%
+      filter(TrainSession == "Hab") 
+    T1 <- conflict %>%
+      filter(TrainSession == "T1") 
+    T2 <- conflict %>%
+      filter(TrainSession == "T2") 
+    T3 <- conflict %>%
+      filter(TrainSession == "T3") 
+    Retest <- conflict %>%
+      filter(TrainSession == "Retest") 
+    T4 <- conflict %>%
+      filter(TrainSession %in% c("T4", "C1")) 
+    T5 <- conflict %>%
+      filter(TrainSession %in% c("T5", "C2")) 
+    T6 <- conflict %>%
+      filter(TrainSession %in% c("T6", "C3")) 
+    Retention <- conflict %>%
+      filter(TrainSession == "Retention") 
+
+    summary(aov(NumEntrances ~ Genotype * APA2, data=hab)) # . genotype
+
+    ##               Df Sum Sq Mean Sq F value Pr(>F)  
+    ## Genotype       1  124.0  124.03   3.685 0.0729 .
+    ## APA2           1   33.9   33.88   1.007 0.3306  
+    ## Genotype:APA2  1    1.7    1.73   0.051 0.8236  
+    ## Residuals     16  538.6   33.66                 
+    ## ---
+    ## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+
+    summary(aov(NumEntrances ~ Genotype * APA2, data=T1)) 
 
     ##               Df Sum Sq Mean Sq F value Pr(>F)  
     ## Genotype       1  37.41   37.41   2.664 0.1221  
@@ -856,9 +513,7 @@ summary(aov(NumEntrances ~ Genotype *APA2, data=T1))
     ## ---
     ## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
 
-``` r
-summary(aov(NumEntrances ~ Genotype *APA2, data=T2)) 
-```
+    summary(aov(NumEntrances ~ Genotype * APA2, data=T2)) 
 
     ##               Df Sum Sq Mean Sq F value  Pr(>F)   
     ## Genotype       1   3.68    3.68   0.211 0.65214   
@@ -868,9 +523,7 @@ summary(aov(NumEntrances ~ Genotype *APA2, data=T2))
     ## ---
     ## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
 
-``` r
-summary(aov(NumEntrances ~ Genotype *APA2, data=T3))      # * significant
-```
+    summary(aov(NumEntrances ~ Genotype * APA2, data=T3))     # ** significant
 
     ##               Df Sum Sq Mean Sq F value   Pr(>F)    
     ## Genotype       1  140.8   140.8   9.023  0.00841 ** 
@@ -880,9 +533,7 @@ summary(aov(NumEntrances ~ Genotype *APA2, data=T3))      # * significant
     ## ---
     ## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
 
-``` r
-summary(aov(NumEntrances ~ Genotype * APA2, data=Retest)) # * significant
-```
+    summary(aov(NumEntrances ~ Genotype * APA2, data=Retest)) # * significant
 
     ##               Df Sum Sq Mean Sq F value Pr(>F)  
     ## Genotype       1  220.0  220.03   5.914 0.0290 *
@@ -892,9 +543,7 @@ summary(aov(NumEntrances ~ Genotype * APA2, data=Retest)) # * significant
     ## ---
     ## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
 
-``` r
-summary(aov(NumEntrances ~ Genotype *APA2, data=T4)) 
-```
+    summary(aov(NumEntrances ~ Genotype * APA2, data=T4)) 
 
     ##               Df Sum Sq Mean Sq F value Pr(>F)  
     ## Genotype       1    0.0    0.03   0.001 0.9776  
@@ -904,9 +553,38 @@ summary(aov(NumEntrances ~ Genotype *APA2, data=T4))
     ## ---
     ## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
 
-``` r
-summary(aov(NumEntrances ~ Genotype *APA2, data=T5)) 
-```
+    TukeyHSD(aov(NumEntrances ~ Genotype * APA2, data=T4))
+
+    ##   Tukey multiple comparisons of means
+    ##     95% family-wise confidence level
+    ## 
+    ## Fit: aov(formula = NumEntrances ~ Genotype * APA2, data = T4)
+    ## 
+    ## $Genotype
+    ##                  diff       lwr      upr     p adj
+    ## FMR1KO-WT -0.08333333 -6.275322 6.108655 0.9775921
+    ## 
+    ## $APA2
+    ##                              diff       lwr        upr     p adj
+    ## conflict-yoked-conflict -6.483516 -12.84334 -0.1236929 0.0461905
+    ## 
+    ## $`Genotype:APA2`
+    ##                                                  diff       lwr       upr
+    ## FMR1KO:yoked-conflict-WT:yoked-conflict  3.552714e-15 -13.98343 13.983426
+    ## WT:conflict-WT:yoked-conflict           -5.555556e+00 -17.76129  6.650179
+    ## FMR1KO:conflict-WT:yoked-conflict       -8.500000e+00 -22.48343  5.483426
+    ## WT:conflict-FMR1KO:yoked-conflict       -5.555556e+00 -16.55766  5.446545
+    ## FMR1KO:conflict-FMR1KO:yoked-conflict   -8.500000e+00 -21.44614  4.446137
+    ## FMR1KO:conflict-WT:conflict             -2.944444e+00 -13.94655  8.057656
+    ##                                             p adj
+    ## FMR1KO:yoked-conflict-WT:yoked-conflict 1.0000000
+    ## WT:conflict-WT:yoked-conflict           0.5746811
+    ## FMR1KO:conflict-WT:yoked-conflict       0.3369872
+    ## WT:conflict-FMR1KO:yoked-conflict       0.4914578
+    ## FMR1KO:conflict-FMR1KO:yoked-conflict   0.2755856
+    ## FMR1KO:conflict-WT:conflict             0.8686351
+
+    summary(aov(NumEntrances ~ Genotype * APA2, data=T5)) 
 
     ##               Df Sum Sq Mean Sq F value Pr(>F)  
     ## Genotype       1   55.6   55.64   1.804 0.1992  
@@ -916,9 +594,7 @@ summary(aov(NumEntrances ~ Genotype *APA2, data=T5))
     ## ---
     ## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
 
-``` r
-summary(aov(NumEntrances ~ Genotype *APA2, data=T6))  # * significant
-```
+    summary(aov(NumEntrances ~ Genotype * APA2, data=T6))     # * significant
 
     ##               Df Sum Sq Mean Sq F value   Pr(>F)    
     ## Genotype       1   67.0    67.0   6.588   0.0215 *  
@@ -928,9 +604,7 @@ summary(aov(NumEntrances ~ Genotype *APA2, data=T6))  # * significant
     ## ---
     ## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
 
-``` r
-summary(aov(NumEntrances ~ Genotype * APA2, data=Retention)) 
-```
+    summary(aov(NumEntrances ~ Genotype * APA2, data=Retention)) 
 
     ##               Df Sum Sq Mean Sq F value  Pr(>F)   
     ## Genotype       1    0.1     0.1   0.002 0.96483   
@@ -940,135 +614,942 @@ summary(aov(NumEntrances ~ Genotype * APA2, data=Retention))
     ## ---
     ## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
 
-``` r
-# percent contribution
-behaviormatrix <- behavior[c(13:52)]  # for 2nd pca analysis
-behaviormatrix %>% 
-  scale() %>%                 # scale to 0 mean and unit variance
-  prcomp() ->                 # do PCA
-  pca                         # store result as `pca`
-percent <- round(100*pca$sdev^2/sum(pca$sdev^2),2)
-perc_data <- data.frame(percent=percent, PC=1:length(percent))
-res.pca <- prcomp(behaviormatrix,  scale = TRUE)
-ggplot(perc_data, aes(x=PC, y=percent)) + 
-  geom_bar(stat="identity") + 
-  geom_text(aes(label=round(percent, 2)), size=4, vjust=-.5) + 
-  xlim(0, 10)
-```
+Mann-Whitney Conflict-trained only
+----------------------------------
 
-    ## Warning: Removed 30 rows containing missing values (position_stack).
+    conflict <- behavior %>%
+      filter(APA2 == "conflict") %>%
+      droplevels()
 
-    ## Warning: Removed 30 rows containing missing values (geom_text).
+    m1 = aov(NumEntrances ~  Genotype + TrainSessionCombo + Genotype*TrainSessionCombo, data=conflict)
+    summary(m1)
 
-![](01_behavior_files/figure-markdown_github/unnamed-chunk-2-1.png)
+    ##                            Df Sum Sq Mean Sq F value Pr(>F)    
+    ## Genotype                    1      5     5.1   0.202  0.654    
+    ## TrainSessionCombo           8   6002   750.3  29.566 <2e-16 ***
+    ## Genotype:TrainSessionCombo  8    197    24.6   0.970  0.464    
+    ## Residuals                  99   2512    25.4                   
+    ## ---
+    ## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
 
-``` r
-# PCA
-longdata <- melt(behavior, id = c(1:12));
-  longdata <- longdata %>% drop_na();
-  longdata$bysession <- as.factor(paste(longdata$TrainSessionCombo, longdata$variable, sep="_"));
-  longdata <- dcast(longdata, ID + APA2 + Genotype ~ bysession, value.var= "value", fun.aggregate = mean)
-Z <- longdata[,4:363]
-Z <- Z[ , apply(Z, 2, function(x) !any(is.na(x)))]
-pc = prcomp(Z, scale=TRUE)
-loadings <- pc$rotation
-scores <- pc$x
-scoresdf <- as.data.frame(scores)
-scoresdf$ID <-  longdata$ID
-scoresdf$APA2 <- longdata$APA2
-scoresdf$Genotype <- longdata$Genotype
-scoresdf$APA2 <- factor(scoresdf$APA2, levels = c("yoked-consistent" ,"consistent", "yoked-conflict", "conflict"))
-rotationdf <- data.frame(pc$rotation, variable=row.names(pc$rotation))
+    TukeyHSD(m1)
 
-pca12 <- ggplot(scoresdf, aes(PC1,PC2, color=APA2, shape=Genotype)) +
-    geom_point(size=3, alpha = 0.7) +
-    xlab(paste0("PC 1: ", percent[1],"% variance")) +
-    ylab(paste0("PC 2: ", percent[2],"% variance")) +
-    scale_colour_manual(values=c(colorvalAPA00)) +
-    scale_shape_manual(values=c(16, 1)) +
-    #theme(legend.position="none") + 
-    theme_cowplot(font_size = 8, line_size = 0.25) 
-pca12
-```
+    ##   Tukey multiple comparisons of means
+    ##     95% family-wise confidence level
+    ## 
+    ## Fit: aov(formula = NumEntrances ~ Genotype + TrainSessionCombo + Genotype * TrainSessionCombo, data = conflict)
+    ## 
+    ## $Genotype
+    ##                diff      lwr      upr     p adj
+    ## FMR1KO-WT 0.4537037 -1.54847 2.455877 0.6539568
+    ## 
+    ## $TrainSessionCombo
+    ##                         diff         lwr         upr     p adj
+    ## Retention-Hab    -19.5004579 -25.6540014 -13.3469144 0.0000000
+    ## Retest-Hab       -23.6661325 -30.0618134 -17.2704515 0.0000000
+    ## T1-Hab           -19.9230769 -26.1895389 -13.6566150 0.0000000
+    ## T2-Hab           -22.5384615 -28.8049235 -16.2719996 0.0000000
+    ## T3-Hab           -23.2307692 -29.4972312 -16.9643073 0.0000000
+    ## T4_C1-Hab        -16.1538462 -22.4203081  -9.8873842 0.0000000
+    ## T5_C2-Hab        -21.9230769 -28.1895389 -15.6566150 0.0000000
+    ## T6_C3-Hab        -24.6923077 -30.9587697 -18.4258457 0.0000000
+    ## Retest-Retention  -4.1656746 -10.4507591   2.1194099 0.4779737
+    ## T1-Retention      -0.4226190  -6.5761625   5.7309244 0.9999998
+    ## T2-Retention      -3.0380037  -9.1915472   3.1155398 0.8207071
+    ## T3-Retention      -3.7303114  -9.8838549   2.4232321 0.6000149
+    ## T4_C1-Retention    3.3466117  -2.8069318   9.5001552 0.7298967
+    ## T5_C2-Retention   -2.4226190  -8.5761625   3.7309244 0.9432529
+    ## T6_C3-Retention   -5.1918498 -11.3453933   0.9616937 0.1701471
+    ## T1-Retest          3.7430556  -2.6526254  10.1387365 0.6449501
+    ## T2-Retest          1.1276709  -5.2680100   7.5233519 0.9997474
+    ## T3-Retest          0.4353632  -5.9603177   6.8310442 0.9999998
+    ## T4_C1-Retest       7.5122863   1.1166054  13.9079673 0.0094574
+    ## T5_C2-Retest       1.7430556  -4.6526254   8.1387365 0.9942865
+    ## T6_C3-Retest      -1.0261752  -7.4218562   5.3695058 0.9998756
+    ## T2-T1             -2.6153846  -8.8818466   3.6510774 0.9218653
+    ## T3-T1             -3.3076923  -9.5741543   2.9587697 0.7606240
+    ## T4_C1-T1           3.7692308  -2.4972312  10.0356927 0.6101833
+    ## T5_C2-T1          -2.0000000  -8.2664620   4.2664620 0.9838805
+    ## T6_C3-T1          -4.7692308 -11.0356927   1.4972312 0.2883343
+    ## T3-T2             -0.6923077  -6.9587697   5.5741543 0.9999929
+    ## T4_C1-T2           6.3846154   0.1181534  12.6510774 0.0423589
+    ## T5_C2-T2           0.6153846  -5.6510774   6.8818466 0.9999972
+    ## T6_C3-T2          -2.1538462  -8.4203081   4.1126158 0.9744146
+    ## T4_C1-T3           7.0769231   0.8104611  13.3433850 0.0149551
+    ## T5_C2-T3           1.3076923  -4.9587697   7.5741543 0.9991258
+    ## T6_C3-T3          -1.4615385  -7.7280004   4.8049235 0.9980588
+    ## T5_C2-T4_C1       -5.7692308 -12.0356927   0.4972312 0.0964121
+    ## T6_C3-T4_C1       -8.5384615 -14.8049235  -2.2719996 0.0011876
+    ## T6_C3-T5_C2       -2.7692308  -9.0356927   3.4972312 0.8947072
+    ## 
+    ## $`Genotype:TrainSessionCombo`
+    ##                                        diff         lwr        upr
+    ## FMR1KO:Hab-WT:Hab               -3.88888889 -14.7345851   6.956807
+    ## WT:Retention-WT:Hab            -19.88888889 -28.3969530 -11.380825
+    ## FMR1KO:Retention-WT:Hab        -22.08888889 -32.1557661 -12.022012
+    ## WT:Retest-WT:Hab               -25.66666667 -34.1747308 -17.158603
+    ## FMR1KO:Retest-WT:Hab           -22.55555556 -34.5877752 -10.523336
+    ## WT:T1-WT:Hab                   -21.77777778 -30.2858419 -13.269714
+    ## FMR1KO:T1-WT:Hab               -19.63888889 -30.4845851  -8.793193
+    ## WT:T2-WT:Hab                   -23.33333333 -31.8413974 -14.825269
+    ## FMR1KO:T2-WT:Hab               -24.63888889 -35.4845851 -13.793193
+    ## WT:T3-WT:Hab                   -25.44444444 -33.9525085 -16.936380
+    ## FMR1KO:T3-WT:Hab               -22.13888889 -32.9845851 -11.293193
+    ## WT:T4_C1-WT:Hab                -16.44444444 -24.9525085  -7.936380
+    ## FMR1KO:T4_C1-WT:Hab            -19.38888889 -30.2345851  -8.543193
+    ## WT:T5_C2-WT:Hab                -23.77777778 -32.2858419 -15.269714
+    ## FMR1KO:T5_C2-WT:Hab            -21.63888889 -32.4845851 -10.793193
+    ## WT:T6_C3-WT:Hab                -27.00000000 -35.5080641 -18.491936
+    ## FMR1KO:T6_C3-WT:Hab            -23.38888889 -34.2345851 -12.543193
+    ## WT:Retention-FMR1KO:Hab        -16.00000000 -26.8456962  -5.154304
+    ## FMR1KO:Retention-FMR1KO:Hab    -18.20000000 -30.3071875  -6.092813
+    ## WT:Retest-FMR1KO:Hab           -21.77777778 -32.6234740 -10.932082
+    ## FMR1KO:Retest-FMR1KO:Hab       -18.66666667 -32.4513060  -4.882027
+    ## WT:T1-FMR1KO:Hab               -17.88888889 -28.7345851  -7.043193
+    ## FMR1KO:T1-FMR1KO:Hab           -15.75000000 -28.5120961  -2.987904
+    ## WT:T2-FMR1KO:Hab               -19.44444444 -30.2901407  -8.598748
+    ## FMR1KO:T2-FMR1KO:Hab           -20.75000000 -33.5120961  -7.987904
+    ## WT:T3-FMR1KO:Hab               -21.55555556 -32.4012518 -10.709859
+    ## FMR1KO:T3-FMR1KO:Hab           -18.25000000 -31.0120961  -5.487904
+    ## WT:T4_C1-FMR1KO:Hab            -12.55555556 -23.4012518  -1.709859
+    ## FMR1KO:T4_C1-FMR1KO:Hab        -15.50000000 -28.2620961  -2.737904
+    ## WT:T5_C2-FMR1KO:Hab            -19.88888889 -30.7345851  -9.043193
+    ## FMR1KO:T5_C2-FMR1KO:Hab        -17.75000000 -30.5120961  -4.987904
+    ## WT:T6_C3-FMR1KO:Hab            -23.11111111 -33.9568073 -12.265415
+    ## FMR1KO:T6_C3-FMR1KO:Hab        -19.50000000 -32.2620961  -6.737904
+    ## FMR1KO:Retention-WT:Retention   -2.20000000 -12.2668772   7.866877
+    ## WT:Retest-WT:Retention          -5.77777778 -14.2858419   2.730286
+    ## FMR1KO:Retest-WT:Retention      -2.66666667 -14.6988863   9.365553
+    ## WT:T1-WT:Retention              -1.88888889 -10.3969530   6.619175
+    ## FMR1KO:T1-WT:Retention           0.25000000 -10.5956962  11.095696
+    ## WT:T2-WT:Retention              -3.44444444 -11.9525085   5.063620
+    ## FMR1KO:T2-WT:Retention          -4.75000000 -15.5956962   6.095696
+    ## WT:T3-WT:Retention              -5.55555556 -14.0636196   2.952509
+    ## FMR1KO:T3-WT:Retention          -2.25000000 -13.0956962   8.595696
+    ## WT:T4_C1-WT:Retention            3.44444444  -5.0636196  11.952509
+    ## FMR1KO:T4_C1-WT:Retention        0.50000000 -10.3456962  11.345696
+    ## WT:T5_C2-WT:Retention           -3.88888889 -12.3969530   4.619175
+    ## FMR1KO:T5_C2-WT:Retention       -1.75000000 -12.5956962   9.095696
+    ## WT:T6_C3-WT:Retention           -7.11111111 -15.6191752   1.396953
+    ## FMR1KO:T6_C3-WT:Retention       -3.50000000 -14.3456962   7.345696
+    ## WT:Retest-FMR1KO:Retention      -3.57777778 -13.6446550   6.489099
+    ## FMR1KO:Retest-FMR1KO:Retention  -0.46666667 -13.6473029  12.713970
+    ## WT:T1-FMR1KO:Retention           0.31111111  -9.7557661  10.377988
+    ## FMR1KO:T1-FMR1KO:Retention       2.45000000  -9.6571875  14.557187
+    ## WT:T2-FMR1KO:Retention          -1.24444444 -11.3113216   8.822433
+    ## FMR1KO:T2-FMR1KO:Retention      -2.55000000 -14.6571875   9.557187
+    ## WT:T3-FMR1KO:Retention          -3.35555556 -13.4224327   6.711322
+    ## FMR1KO:T3-FMR1KO:Retention      -0.05000000 -12.1571875  12.057187
+    ## WT:T4_C1-FMR1KO:Retention        5.64444444  -4.4224327  15.711322
+    ## FMR1KO:T4_C1-FMR1KO:Retention    2.70000000  -9.4071875  14.807187
+    ## WT:T5_C2-FMR1KO:Retention       -1.68888889 -11.7557661   8.377988
+    ## FMR1KO:T5_C2-FMR1KO:Retention    0.45000000 -11.6571875  12.557187
+    ## WT:T6_C3-FMR1KO:Retention       -4.91111111 -14.9779883   5.155766
+    ## FMR1KO:T6_C3-FMR1KO:Retention   -1.30000000 -13.4071875  10.807187
+    ## FMR1KO:Retest-WT:Retest          3.11111111  -8.9211085  15.143331
+    ## WT:T1-WT:Retest                  3.88888889  -4.6191752  12.396953
+    ## FMR1KO:T1-WT:Retest              6.02777778  -4.8179184  16.873474
+    ## WT:T2-WT:Retest                  2.33333333  -6.1747308  10.841397
+    ## FMR1KO:T2-WT:Retest              1.02777778  -9.8179184  11.873474
+    ## WT:T3-WT:Retest                  0.22222222  -8.2858419   8.730286
+    ## FMR1KO:T3-WT:Retest              3.52777778  -7.3179184  14.373474
+    ## WT:T4_C1-WT:Retest               9.22222222   0.7141581  17.730286
+    ## FMR1KO:T4_C1-WT:Retest           6.27777778  -4.5679184  17.123474
+    ## WT:T5_C2-WT:Retest               1.88888889  -6.6191752  10.396953
+    ## FMR1KO:T5_C2-WT:Retest           4.02777778  -6.8179184  14.873474
+    ## WT:T6_C3-WT:Retest              -1.33333333  -9.8413974   7.174731
+    ## FMR1KO:T6_C3-WT:Retest           2.27777778  -8.5679184  13.123474
+    ## WT:T1-FMR1KO:Retest              0.77777778 -11.2544418  12.809997
+    ## FMR1KO:T1-FMR1KO:Retest          2.91666667 -10.8679726  16.701306
+    ## WT:T2-FMR1KO:Retest             -0.77777778 -12.8099974  11.254442
+    ## FMR1KO:T2-FMR1KO:Retest         -2.08333333 -15.8679726  11.701306
+    ## WT:T3-FMR1KO:Retest             -2.88888889 -14.9211085   9.143331
+    ## FMR1KO:T3-FMR1KO:Retest          0.41666667 -13.3679726  14.201306
+    ## WT:T4_C1-FMR1KO:Retest           6.11111111  -5.9211085  18.143331
+    ## FMR1KO:T4_C1-FMR1KO:Retest       3.16666667 -10.6179726  16.951306
+    ## WT:T5_C2-FMR1KO:Retest          -1.22222222 -13.2544418  10.809997
+    ## FMR1KO:T5_C2-FMR1KO:Retest       0.91666667 -12.8679726  14.701306
+    ## WT:T6_C3-FMR1KO:Retest          -4.44444444 -16.4766641   7.587775
+    ## FMR1KO:T6_C3-FMR1KO:Retest      -0.83333333 -14.6179726  12.951306
+    ## FMR1KO:T1-WT:T1                  2.13888889  -8.7068073  12.984585
+    ## WT:T2-WT:T1                     -1.55555556 -10.0636196   6.952509
+    ## FMR1KO:T2-WT:T1                 -2.86111111 -13.7068073   7.984585
+    ## WT:T3-WT:T1                     -3.66666667 -12.1747308   4.841397
+    ## FMR1KO:T3-WT:T1                 -0.36111111 -11.2068073  10.484585
+    ## WT:T4_C1-WT:T1                   5.33333333  -3.1747308  13.841397
+    ## FMR1KO:T4_C1-WT:T1               2.38888889  -8.4568073  13.234585
+    ## WT:T5_C2-WT:T1                  -2.00000000 -10.5080641   6.508064
+    ## FMR1KO:T5_C2-WT:T1               0.13888889 -10.7068073  10.984585
+    ## WT:T6_C3-WT:T1                  -5.22222222 -13.7302863   3.285842
+    ## FMR1KO:T6_C3-WT:T1              -1.61111111 -12.4568073   9.234585
+    ## WT:T2-FMR1KO:T1                 -3.69444444 -14.5401407   7.151252
+    ## FMR1KO:T2-FMR1KO:T1             -5.00000000 -17.7620961   7.762096
+    ## WT:T3-FMR1KO:T1                 -5.80555556 -16.6512518   5.040141
+    ## FMR1KO:T3-FMR1KO:T1             -2.50000000 -15.2620961  10.262096
+    ## WT:T4_C1-FMR1KO:T1               3.19444444  -7.6512518  14.040141
+    ## FMR1KO:T4_C1-FMR1KO:T1           0.25000000 -12.5120961  13.012096
+    ## WT:T5_C2-FMR1KO:T1              -4.13888889 -14.9845851   6.706807
+    ## FMR1KO:T5_C2-FMR1KO:T1          -2.00000000 -14.7620961  10.762096
+    ## WT:T6_C3-FMR1KO:T1              -7.36111111 -18.2068073   3.484585
+    ## FMR1KO:T6_C3-FMR1KO:T1          -3.75000000 -16.5120961   9.012096
+    ## FMR1KO:T2-WT:T2                 -1.30555556 -12.1512518   9.540141
+    ## WT:T3-WT:T2                     -2.11111111 -10.6191752   6.396953
+    ## FMR1KO:T3-WT:T2                  1.19444444  -9.6512518  12.040141
+    ## WT:T4_C1-WT:T2                   6.88888889  -1.6191752  15.396953
+    ## FMR1KO:T4_C1-WT:T2               3.94444444  -6.9012518  14.790141
+    ## WT:T5_C2-WT:T2                  -0.44444444  -8.9525085   8.063620
+    ## FMR1KO:T5_C2-WT:T2               1.69444444  -9.1512518  12.540141
+    ## WT:T6_C3-WT:T2                  -3.66666667 -12.1747308   4.841397
+    ## FMR1KO:T6_C3-WT:T2              -0.05555556 -10.9012518  10.790141
+    ## WT:T3-FMR1KO:T2                 -0.80555556 -11.6512518  10.040141
+    ## FMR1KO:T3-FMR1KO:T2              2.50000000 -10.2620961  15.262096
+    ## WT:T4_C1-FMR1KO:T2               8.19444444  -2.6512518  19.040141
+    ## FMR1KO:T4_C1-FMR1KO:T2           5.25000000  -7.5120961  18.012096
+    ## WT:T5_C2-FMR1KO:T2               0.86111111  -9.9845851  11.706807
+    ## FMR1KO:T5_C2-FMR1KO:T2           3.00000000  -9.7620961  15.762096
+    ## WT:T6_C3-FMR1KO:T2              -2.36111111 -13.2068073   8.484585
+    ## FMR1KO:T6_C3-FMR1KO:T2           1.25000000 -11.5120961  14.012096
+    ## FMR1KO:T3-WT:T3                  3.30555556  -7.5401407  14.151252
+    ## WT:T4_C1-WT:T3                   9.00000000   0.4919359  17.508064
+    ## FMR1KO:T4_C1-WT:T3               6.05555556  -4.7901407  16.901252
+    ## WT:T5_C2-WT:T3                   1.66666667  -6.8413974  10.174731
+    ## FMR1KO:T5_C2-WT:T3               3.80555556  -7.0401407  14.651252
+    ## WT:T6_C3-WT:T3                  -1.55555556 -10.0636196   6.952509
+    ## FMR1KO:T6_C3-WT:T3               2.05555556  -8.7901407  12.901252
+    ## WT:T4_C1-FMR1KO:T3               5.69444444  -5.1512518  16.540141
+    ## FMR1KO:T4_C1-FMR1KO:T3           2.75000000 -10.0120961  15.512096
+    ## WT:T5_C2-FMR1KO:T3              -1.63888889 -12.4845851   9.206807
+    ## FMR1KO:T5_C2-FMR1KO:T3           0.50000000 -12.2620961  13.262096
+    ## WT:T6_C3-FMR1KO:T3              -4.86111111 -15.7068073   5.984585
+    ## FMR1KO:T6_C3-FMR1KO:T3          -1.25000000 -14.0120961  11.512096
+    ## FMR1KO:T4_C1-WT:T4_C1           -2.94444444 -13.7901407   7.901252
+    ## WT:T5_C2-WT:T4_C1               -7.33333333 -15.8413974   1.174731
+    ## FMR1KO:T5_C2-WT:T4_C1           -5.19444444 -16.0401407   5.651252
+    ## WT:T6_C3-WT:T4_C1              -10.55555556 -19.0636196  -2.047491
+    ## FMR1KO:T6_C3-WT:T4_C1           -6.94444444 -17.7901407   3.901252
+    ## WT:T5_C2-FMR1KO:T4_C1           -4.38888889 -15.2345851   6.456807
+    ## FMR1KO:T5_C2-FMR1KO:T4_C1       -2.25000000 -15.0120961  10.512096
+    ## WT:T6_C3-FMR1KO:T4_C1           -7.61111111 -18.4568073   3.234585
+    ## FMR1KO:T6_C3-FMR1KO:T4_C1       -4.00000000 -16.7620961   8.762096
+    ## FMR1KO:T5_C2-WT:T5_C2            2.13888889  -8.7068073  12.984585
+    ## WT:T6_C3-WT:T5_C2               -3.22222222 -11.7302863   5.285842
+    ## FMR1KO:T6_C3-WT:T5_C2            0.38888889 -10.4568073  11.234585
+    ## WT:T6_C3-FMR1KO:T5_C2           -5.36111111 -16.2068073   5.484585
+    ## FMR1KO:T6_C3-FMR1KO:T5_C2       -1.75000000 -14.5120961  11.012096
+    ## FMR1KO:T6_C3-WT:T6_C3            3.61111111  -7.2345851  14.456807
+    ##                                    p adj
+    ## FMR1KO:Hab-WT:Hab              0.9979959
+    ## WT:Retention-WT:Hab            0.0000000
+    ## FMR1KO:Retention-WT:Hab        0.0000000
+    ## WT:Retest-WT:Hab               0.0000000
+    ## FMR1KO:Retest-WT:Hab           0.0000002
+    ## WT:T1-WT:Hab                   0.0000000
+    ## FMR1KO:T1-WT:Hab               0.0000005
+    ## WT:T2-WT:Hab                   0.0000000
+    ## FMR1KO:T2-WT:Hab               0.0000000
+    ## WT:T3-WT:Hab                   0.0000000
+    ## FMR1KO:T3-WT:Hab               0.0000000
+    ## WT:T4_C1-WT:Hab                0.0000001
+    ## FMR1KO:T4_C1-WT:Hab            0.0000008
+    ## WT:T5_C2-WT:Hab                0.0000000
+    ## FMR1KO:T5_C2-WT:Hab            0.0000000
+    ## WT:T6_C3-WT:Hab                0.0000000
+    ## FMR1KO:T6_C3-WT:Hab            0.0000000
+    ## WT:Retention-FMR1KO:Hab        0.0001053
+    ## FMR1KO:Retention-FMR1KO:Hab    0.0000691
+    ## WT:Retest-FMR1KO:Hab           0.0000000
+    ## FMR1KO:Retest-FMR1KO:Hab       0.0006120
+    ## WT:T1-FMR1KO:Hab               0.0000071
+    ## FMR1KO:T1-FMR1KO:Hab           0.0031351
+    ## WT:T2-FMR1KO:Hab               0.0000007
+    ## FMR1KO:T2-FMR1KO:Hab           0.0000104
+    ## WT:T3-FMR1KO:Hab               0.0000000
+    ## FMR1KO:T3-FMR1KO:Hab           0.0002056
+    ## WT:T4_C1-FMR1KO:Hab            0.0082870
+    ## FMR1KO:T4_C1-FMR1KO:Hab        0.0040437
+    ## WT:T5_C2-FMR1KO:Hab            0.0000004
+    ## FMR1KO:T5_C2-FMR1KO:Hab        0.0003630
+    ## WT:T6_C3-FMR1KO:Hab            0.0000000
+    ## FMR1KO:T6_C3-FMR1KO:Hab        0.0000475
+    ## FMR1KO:Retention-WT:Retention  0.9999976
+    ## WT:Retest-WT:Retention         0.5852613
+    ## FMR1KO:Retest-WT:Retention     0.9999970
+    ## WT:T1-WT:Retention             0.9999969
+    ## FMR1KO:T1-WT:Retention         1.0000000
+    ## WT:T2-WT:Retention             0.9921013
+    ## FMR1KO:T2-WT:Retention         0.9822374
+    ## WT:T3-WT:Retention             0.6532264
+    ## FMR1KO:T3-WT:Retention         0.9999989
+    ## WT:T4_C1-WT:Retention          0.9921013
+    ## FMR1KO:T4_C1-WT:Retention      1.0000000
+    ## WT:T5_C2-WT:Retention          0.9731739
+    ## FMR1KO:T5_C2-WT:Retention      1.0000000
+    ## WT:T6_C3-WT:Retention          0.2233689
+    ## FMR1KO:T6_C3-WT:Retention      0.9994509
+    ## WT:Retest-FMR1KO:Retention     0.9981964
+    ## FMR1KO:Retest-FMR1KO:Retention 1.0000000
+    ## WT:T1-FMR1KO:Retention         1.0000000
+    ## FMR1KO:T1-FMR1KO:Retention     0.9999992
+    ## WT:T2-FMR1KO:Retention         1.0000000
+    ## FMR1KO:T2-FMR1KO:Retention     0.9999986
+    ## WT:T3-FMR1KO:Retention         0.9991749
+    ## FMR1KO:T3-FMR1KO:Retention     1.0000000
+    ## WT:T4_C1-FMR1KO:Retention      0.8577218
+    ## FMR1KO:T4_C1-FMR1KO:Retention  0.9999967
+    ## WT:T5_C2-FMR1KO:Retention      1.0000000
+    ## FMR1KO:T5_C2-FMR1KO:Retention  1.0000000
+    ## WT:T6_C3-FMR1KO:Retention      0.9517074
+    ## FMR1KO:T6_C3-FMR1KO:Retention  1.0000000
+    ## FMR1KO:Retest-WT:Retest        0.9999721
+    ## WT:T1-WT:Retest                0.9731739
+    ## FMR1KO:T1-WT:Retest            0.8661425
+    ## WT:T2-WT:Retest                0.9999365
+    ## FMR1KO:T2-WT:Retest            1.0000000
+    ## WT:T3-WT:Retest                1.0000000
+    ## FMR1KO:T3-WT:Retest            0.9993930
+    ## WT:T4_C1-WT:Retest             0.0199413
+    ## FMR1KO:T4_C1-WT:Retest         0.8241580
+    ## WT:T5_C2-WT:Retest             0.9999969
+    ## FMR1KO:T5_C2-WT:Retest         0.9969787
+    ## WT:T6_C3-WT:Retest             1.0000000
+    ## FMR1KO:T6_C3-WT:Retest         0.9999987
+    ## WT:T1-FMR1KO:Retest            1.0000000
+    ## FMR1KO:T1-FMR1KO:Retest        0.9999985
+    ## WT:T2-FMR1KO:Retest            1.0000000
+    ## FMR1KO:T2-FMR1KO:Retest        1.0000000
+    ## WT:T3-FMR1KO:Retest            0.9999903
+    ## FMR1KO:T3-FMR1KO:Retest        1.0000000
+    ## WT:T4_C1-FMR1KO:Retest         0.9322959
+    ## FMR1KO:T4_C1-FMR1KO:Retest     0.9999949
+    ## WT:T5_C2-FMR1KO:Retest         1.0000000
+    ## FMR1KO:T5_C2-FMR1KO:Retest     1.0000000
+    ## WT:T6_C3-FMR1KO:Retest         0.9971610
+    ## FMR1KO:T6_C3-FMR1KO:Retest     1.0000000
+    ## FMR1KO:T1-WT:T1                0.9999995
+    ## WT:T2-WT:T1                    0.9999998
+    ## FMR1KO:T2-WT:T1                0.9999630
+    ## WT:T3-WT:T1                    0.9848738
+    ## FMR1KO:T3-WT:T1                1.0000000
+    ## WT:T4_C1-WT:T1                 0.7183770
+    ## FMR1KO:T4_C1-WT:T1             0.9999973
+    ## WT:T5_C2-WT:T1                 0.9999929
+    ## FMR1KO:T5_C2-WT:T1             1.0000000
+    ## WT:T6_C3-WT:T1                 0.7492432
+    ## FMR1KO:T6_C3-WT:T1             1.0000000
+    ## WT:T2-FMR1KO:T1                0.9989209
+    ## FMR1KO:T2-FMR1KO:T1            0.9944710
+    ## WT:T3-FMR1KO:T1                0.8979690
+    ## FMR1KO:T3-FMR1KO:T1            0.9999995
+    ## WT:T4_C1-FMR1KO:T1             0.9998330
+    ## FMR1KO:T4_C1-FMR1KO:T1         1.0000000
+    ## WT:T5_C2-FMR1KO:T1             0.9958779
+    ## FMR1KO:T5_C2-FMR1KO:T1         1.0000000
+    ## WT:T6_C3-FMR1KO:T1             0.5862644
+    ## FMR1KO:T6_C3-FMR1KO:T1         0.9998382
+    ## FMR1KO:T2-WT:T2                1.0000000
+    ## WT:T3-WT:T2                    0.9999845
+    ## FMR1KO:T3-WT:T2                1.0000000
+    ## WT:T4_C1-WT:T2                 0.2714821
+    ## FMR1KO:T4_C1-WT:T2             0.9976311
+    ## WT:T5_C2-WT:T2                 1.0000000
+    ## FMR1KO:T5_C2-WT:T2             1.0000000
+    ## WT:T6_C3-WT:T2                 0.9848738
+    ## FMR1KO:T6_C3-WT:T2             1.0000000
+    ## WT:T3-FMR1KO:T2                1.0000000
+    ## FMR1KO:T3-FMR1KO:T2            0.9999995
+    ## WT:T4_C1-FMR1KO:T2             0.3897734
+    ## FMR1KO:T4_C1-FMR1KO:T2         0.9906362
+    ## WT:T5_C2-FMR1KO:T2             1.0000000
+    ## FMR1KO:T5_C2-FMR1KO:T2         0.9999929
+    ## WT:T6_C3-FMR1KO:T2             0.9999977
+    ## FMR1KO:T6_C3-FMR1KO:T2         1.0000000
+    ## FMR1KO:T3-WT:T3                0.9997374
+    ## WT:T4_C1-WT:T3                 0.0268048
+    ## FMR1KO:T4_C1-WT:T3             0.8617950
+    ## WT:T5_C2-WT:T3                 0.9999995
+    ## FMR1KO:T5_C2-WT:T3             0.9984528
+    ## WT:T6_C3-WT:T3                 0.9999998
+    ## FMR1KO:T6_C3-WT:T3             0.9999997
+    ## WT:T4_C1-FMR1KO:T3             0.9118994
+    ## FMR1KO:T4_C1-FMR1KO:T3         0.9999980
+    ## WT:T5_C2-FMR1KO:T3             1.0000000
+    ## FMR1KO:T5_C2-FMR1KO:T3         1.0000000
+    ## WT:T6_C3-FMR1KO:T3             0.9777415
+    ## FMR1KO:T6_C3-FMR1KO:T3         1.0000000
+    ## FMR1KO:T4_C1-WT:T4_C1          0.9999448
+    ## WT:T5_C2-WT:T4_C1              0.1814590
+    ## FMR1KO:T5_C2-WT:T4_C1          0.9588977
+    ## WT:T6_C3-WT:T4_C1              0.0028778
+    ## FMR1KO:T6_C3-WT:T4_C1          0.6853395
+    ## WT:T5_C2-FMR1KO:T4_C1          0.9921385
+    ## FMR1KO:T5_C2-FMR1KO:T4_C1      0.9999999
+    ## WT:T6_C3-FMR1KO:T4_C1          0.5256596
+    ## FMR1KO:T6_C3-FMR1KO:T4_C1      0.9996221
+    ## FMR1KO:T5_C2-WT:T5_C2          0.9999995
+    ## WT:T6_C3-WT:T5_C2              0.9962180
+    ## FMR1KO:T6_C3-WT:T5_C2          1.0000000
+    ## WT:T6_C3-FMR1KO:T5_C2          0.9459544
+    ## FMR1KO:T6_C3-FMR1KO:T5_C2      1.0000000
+    ## FMR1KO:T6_C3-WT:T6_C3          0.9991863
 
-![](01_behavior_files/figure-markdown_github/unnamed-chunk-2-2.png)
+    hab <- conflict %>%
+      filter(TrainSession == "Hab") 
+    T1 <- conflict %>%
+      filter(TrainSession == "T1") 
+    T2 <- conflict %>%
+      filter(TrainSession == "T2") 
+    T3 <- conflict %>%
+      filter(TrainSession == "T3") 
+    Retest <- conflict %>%
+      filter(TrainSession == "Retest") 
+    T4 <- conflict %>%
+      filter(TrainSession %in% c("T4", "C1")) 
+    T5 <- conflict %>%
+      filter(TrainSession %in% c("T5", "C2")) 
+    T6 <- conflict %>%
+      filter(TrainSession %in% c("T6", "C3")) 
+    Retention <- conflict %>%
+      filter(TrainSession == "Retention") 
 
-Heatmap
--------
+    wilcox.test(NumEntrances ~ Genotype,  data=hab) 
 
-``` r
-## make annotation df and ann_colors for pheatmap
-  averagedata <- melt(behavior, id = c(1:12));  #longdata <- melt(behavior, id = c(1:18))
-  averagedata <- averagedata %>% drop_na();
-  # then widen with group averages, add row names, scale, and transpose
-  averagedata$GenoAPA2session <- as.factor(paste(averagedata$Genotype, averagedata$APA2,averagedata$TrainSessionCombo, sep="_"))
-  averagedata <- dcast(averagedata, GenoAPA2session ~ variable, value.var= "value", fun.aggregate=mean);
-  rownames(averagedata) <- averagedata$GenoAPA2session;    
-  averagedata[1] <- NULL;
-  scaledaveragedata <- scale(averagedata)
-  scaledaveragedata <- t(scaledaveragedata)
-  scaledaveragedata <- scaledaveragedata[-1,]
+    ## Warning in wilcox.test.default(x = c(28L, 37L, 32L, 30L, 34L, 24L, 30L, :
+    ## cannot compute exact p-value with ties
 
-  
-makecolumnannotations <- function(data){  
-  columnannotations <- as.data.frame(colnames(data))
-  names(columnannotations)[names(columnannotations)=="colnames(data)"] <- "column"
-  rownames(columnannotations) <- columnannotations$column
-  columnannotations$Genotype <- sapply(strsplit(as.character(columnannotations$column),'\\_'), "[", 1)
-  columnannotations$APA2    <- sapply(strsplit(as.character(columnannotations$column),'\\_'), "[", 2)
-  #columnannotations$Session <- sapply(strsplit(as.character(columnannotations$column),'\\_'), "[", 3)
-  columnannotations$column <- NULL
-  return(columnannotations)
-}
-  
-# create a rubric for the color coding and load the colors from figureoptions.R
-df2 <- as.data.frame(makecolumnannotations(scaledaveragedata))
-ann_colors <- list(
-  Genotype =  c('FMR1KO' = (values=c("white")), 
-            'WT' = (values=c("#404040"))),
-  APA2 = c('yoked-conflict' = (values=c("#bababa")),
-           'yoked-consistent' = (values=c("#404040")), 
-           'conflict' = (values=c("#f4a582")),
-           'consistent' = (values=c("#ca0020"))))
+    ## 
+    ##  Wilcoxon rank sum test with continuity correction
+    ## 
+    ## data:  NumEntrances by Genotype
+    ## W = 27, p-value = 0.1854
+    ## alternative hypothesis: true location shift is not equal to 0
 
+    wilcox.test(NumEntrances ~ Genotype, data=T1)
 
-# set color breaks
-paletteLength <- 30
-myBreaks <- c(seq(min(scaledaveragedata), 0, length.out=ceiling(paletteLength/2) + 1), 
-              seq(max(scaledaveragedata)/paletteLength, max(scaledaveragedata), length.out=floor(paletteLength/2)))
+    ## Warning in wilcox.test.default(x = c(9L, 6L, 13L, 5L, 6L, 5L, 12L, 11L, :
+    ## cannot compute exact p-value with ties
 
-## pheatmap for markdown
-pheatmap(scaledaveragedata, show_colnames=F, show_rownames = F,
-         annotation_col=df2, 
-         annotation_colors = ann_colors,
-         treeheight_row = 50, treeheight_col = 50,
-         border_color = "grey60" ,
-         color = viridis(30),
-         clustering_method="average",
-         breaks=myBreaks,
-         clustering_distance_cols="correlation" ,
-         clustering_distance_rows = "correlation"
-         )
-```
+    ## 
+    ##  Wilcoxon rank sum test with continuity correction
+    ## 
+    ## data:  NumEntrances by Genotype
+    ## W = 10.5, p-value = 0.27
+    ## alternative hypothesis: true location shift is not equal to 0
 
-![](01_behavior_files/figure-markdown_github/unnamed-chunk-3-1.png)
+    wilcox.test(NumEntrances ~ Genotype, data=T2) 
+
+    ## Warning in wilcox.test.default(x = c(5L, 8L, 19L, 1L, 2L, 5L, 5L, 8L, 6L:
+    ## cannot compute exact p-value with ties
+
+    ## 
+    ##  Wilcoxon rank sum test with continuity correction
+    ## 
+    ## data:  NumEntrances by Genotype
+    ## W = 19, p-value = 0.9375
+    ## alternative hypothesis: true location shift is not equal to 0
+
+    wilcox.test(NumEntrances ~ Genotype, data=T3)    
+
+    ## Warning in wilcox.test.default(x = c(2L, 6L, 4L, 11L, 4L, 2L, 2L, 2L, 7L:
+    ## cannot compute exact p-value with ties
+
+    ## 
+    ##  Wilcoxon rank sum test with continuity correction
+    ## 
+    ## data:  NumEntrances by Genotype
+    ## W = 10, p-value = 0.2379
+    ## alternative hypothesis: true location shift is not equal to 0
+
+    wilcox.test(NumEntrances ~ Genotype, data=Retest) 
+
+    ## Warning in wilcox.test.default(x = c(2L, 10L, 4L, 10L, 3L, 3L, 2L, 1L, 3L:
+    ## cannot compute exact p-value with ties
+
+    ## 
+    ##  Wilcoxon rank sum test with continuity correction
+    ## 
+    ## data:  NumEntrances by Genotype
+    ## W = 15.5, p-value = 0.7777
+    ## alternative hypothesis: true location shift is not equal to 0
+
+    wilcox.test(NumEntrances ~ Genotype, data=T4) 
+
+    ## 
+    ##  Wilcoxon rank sum test
+    ## 
+    ## data:  NumEntrances by Genotype
+    ## W = 23, p-value = 0.5035
+    ## alternative hypothesis: true location shift is not equal to 0
+
+    wilcox.test(NumEntrances ~ Genotype, data=T5) 
+
+    ## Warning in wilcox.test.default(x = c(5L, 8L, 8L, 3L, 3L, 6L, 18L, 2L, 2L:
+    ## cannot compute exact p-value with ties
+
+    ## 
+    ##  Wilcoxon rank sum test with continuity correction
+    ## 
+    ## data:  NumEntrances by Genotype
+    ## W = 14.5, p-value = 0.6402
+    ## alternative hypothesis: true location shift is not equal to 0
+
+    wilcox.test(NumEntrances ~ Genotype, data=T6)     # . p = 0.099
+
+    ## Warning in wilcox.test.default(x = c(2L, 2L, 4L, 0L, 2L, 9L, 5L, 2L, 0L), :
+    ## cannot compute exact p-value with ties
+
+    ## 
+    ##  Wilcoxon rank sum test with continuity correction
+    ## 
+    ## data:  NumEntrances by Genotype
+    ## W = 7, p-value = 0.09944
+    ## alternative hypothesis: true location shift is not equal to 0
+
+    wilcox.test(NumEntrances ~ Genotype, data=Retention)
+
+    ## Warning in wilcox.test.default(x = c(6L, 28L, 12L, 3L, 7L, 2L, 15L, 4L, :
+    ## cannot compute exact p-value with ties
+
+    ## 
+    ##  Wilcoxon rank sum test with continuity correction
+    ## 
+    ## data:  NumEntrances by Genotype
+    ## W = 23.5, p-value = 0.9467
+    ## alternative hypothesis: true location shift is not equal to 0
+
+Mann-Whitney conflict-yoked only
+--------------------------------
+
+    yoked <- behavior %>%
+      filter(APA2 == "yoked-conflict")  %>%
+      droplevels()
+
+    m1 = aov(NumEntrances ~  Genotype + TrainSessionCombo + Genotype*TrainSessionCombo, data=yoked)
+    summary(m1)
+
+    ##                            Df Sum Sq Mean Sq F value Pr(>F)  
+    ## Genotype                    1    0.1    0.11   0.004 0.9505  
+    ## TrainSessionCombo           8  644.8   80.60   2.796 0.0138 *
+    ## Genotype:TrainSessionCombo  8  179.6   22.45   0.779 0.6234  
+    ## Residuals                  43 1239.3   28.82                 
+    ## ---
+    ## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+
+    hab <- yoked %>%
+      filter(TrainSession == "Hab") 
+    T1 <- yoked %>%
+      filter(TrainSession == "T1") 
+    T2 <- yoked %>%
+      filter(TrainSession == "T2") 
+    T3 <- yoked %>%
+      filter(TrainSession == "T3") 
+    Retest <- yoked %>%
+      filter(TrainSession == "Retest") 
+    T4 <- yoked %>%
+      filter(TrainSession %in% c("T4", "C1")) 
+    T5 <- yoked %>%
+      filter(TrainSession %in% c("T5", "C2")) 
+    T6 <- yoked %>%
+      filter(TrainSession %in% c("T6", "C3")) 
+    Retention <- yoked %>%
+      filter(TrainSession == "Retention") 
+
+    wilcox.test(NumEntrances ~ Genotype, data=hab) 
+
+    ## 
+    ##  Wilcoxon rank sum test
+    ## 
+    ## data:  NumEntrances by Genotype
+    ## W = 8, p-value = 0.6286
+    ## alternative hypothesis: true location shift is not equal to 0
+
+    wilcox.test(NumEntrances ~ Genotype, data=T1)
+
+    ## Warning in wilcox.test.default(x = c(22L, 10L, 10L), y = c(14L, 13L, 19L, :
+    ## cannot compute exact p-value with ties
+
+    ## 
+    ##  Wilcoxon rank sum test with continuity correction
+    ## 
+    ## data:  NumEntrances by Genotype
+    ## W = 4, p-value = 0.5926
+    ## alternative hypothesis: true location shift is not equal to 0
+
+    wilcox.test(NumEntrances ~ Genotype, data=T2) 
+
+    ## Warning in wilcox.test.default(x = c(19L, 12L, 12L), y = c(16L, 14L, 14L, :
+    ## cannot compute exact p-value with ties
+
+    ## 
+    ##  Wilcoxon rank sum test with continuity correction
+    ## 
+    ## data:  NumEntrances by Genotype
+    ## W = 6, p-value = 1
+    ## alternative hypothesis: true location shift is not equal to 0
+
+    wilcox.test(NumEntrances ~ Genotype, data=T3)    
+
+    ## Warning in wilcox.test.default(x = c(15L, 20L, 10L), y = c(20L, 17L, 20L, :
+    ## cannot compute exact p-value with ties
+
+    ## 
+    ##  Wilcoxon rank sum test with continuity correction
+    ## 
+    ## data:  NumEntrances by Genotype
+    ## W = 4, p-value = 0.5821
+    ## alternative hypothesis: true location shift is not equal to 0
+
+    wilcox.test(NumEntrances ~ Genotype, data=Retest) 
+
+    ## 
+    ##  Wilcoxon rank sum test
+    ## 
+    ## data:  NumEntrances by Genotype
+    ## W = 2, p-value = 0.4
+    ## alternative hypothesis: true location shift is not equal to 0
+
+    wilcox.test(NumEntrances ~ Genotype, data=T4) 
+
+    ## 
+    ##  Wilcoxon rank sum test
+    ## 
+    ## data:  NumEntrances by Genotype
+    ## W = 7, p-value = 0.8571
+    ## alternative hypothesis: true location shift is not equal to 0
+
+    wilcox.test(NumEntrances ~ Genotype, data=T5) 
+
+    ## Warning in wilcox.test.default(x = c(11L, 21L), y = c(17L, 8L, 16L, 17L)):
+    ## cannot compute exact p-value with ties
+
+    ## 
+    ##  Wilcoxon rank sum test with continuity correction
+    ## 
+    ## data:  NumEntrances by Genotype
+    ## W = 5, p-value = 0.8143
+    ## alternative hypothesis: true location shift is not equal to 0
+
+    wilcox.test(NumEntrances ~ Genotype, data=T6)     
+
+    ## Warning in wilcox.test.default(x = c(13L, 18L, 18L), y = c(13L, 16L, 16L:
+    ## cannot compute exact p-value with ties
+
+    ## 
+    ##  Wilcoxon rank sum test with continuity correction
+    ## 
+    ## data:  NumEntrances by Genotype
+    ## W = 6.5, p-value = 0.4936
+    ## alternative hypothesis: true location shift is not equal to 0
+
+    wilcox.test(NumEntrances ~ Genotype, data=Retention)
+
+    ## Warning in wilcox.test.default(x = c(20L, 23L, 18L), y = c(14L, 23L, 12L, :
+    ## cannot compute exact p-value with ties
+
+    ## 
+    ##  Wilcoxon rank sum test with continuity correction
+    ## 
+    ## data:  NumEntrances by Genotype
+    ## W = 10, p-value = 0.5462
+    ## alternative hypothesis: true location shift is not equal to 0
+
+Mann-Whitney consistent-trained only
+------------------------------------
+
+    consistent <- behavior %>%
+      filter(APA2 == "consistent") %>%
+      droplevels()
+
+    m1 = aov(NumEntrances ~  Genotype + TrainSessionCombo + Genotype*TrainSessionCombo, data=consistent)
+    summary(m1)
+
+    ##                             Df Sum Sq Mean Sq F value Pr(>F)    
+    ## Genotype                     1     34    34.0   1.522  0.220    
+    ## TrainSessionCombo            8   7480   935.0  41.798 <2e-16 ***
+    ## Genotype:TrainSessionCombo   8    108    13.5   0.604  0.773    
+    ## Residuals                  115   2573    22.4                   
+    ## ---
+    ## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+
+    hab <- consistent %>%
+      filter(TrainSession == "Hab") 
+    T1 <- consistent %>%
+      filter(TrainSession == "T1") 
+    T2 <- consistent %>%
+      filter(TrainSession == "T2") 
+    T3 <- consistent %>%
+      filter(TrainSession == "T3") 
+    Retest <- consistent %>%
+      filter(TrainSession == "Retest") 
+    T4 <- consistent %>%
+      filter(TrainSession %in% c("T4", "C1")) 
+    T5 <- consistent %>%
+      filter(TrainSession %in% c("T5", "C2")) 
+    T6 <- consistent %>%
+      filter(TrainSession %in% c("T6", "C3")) 
+    Retention <- consistent %>%
+      filter(TrainSession == "Retention") 
+
+    wilcox.test(NumEntrances ~ Genotype,  data=hab) 
+
+    ## Warning in wilcox.test.default(x = c(27L, 30L, 29L, 25L, 36L, 29L, 29L, :
+    ## cannot compute exact p-value with ties
+
+    ## 
+    ##  Wilcoxon rank sum test with continuity correction
+    ## 
+    ## data:  NumEntrances by Genotype
+    ## W = 15.5, p-value = 0.1623
+    ## alternative hypothesis: true location shift is not equal to 0
+
+    wilcox.test(NumEntrances ~ Genotype, data=T1)
+
+    ## Warning in wilcox.test.default(x = c(16L, 8L, 12L, 10L, 8L, 11L, 7L, 13L:
+    ## cannot compute exact p-value with ties
+
+    ## 
+    ##  Wilcoxon rank sum test with continuity correction
+    ## 
+    ## data:  NumEntrances by Genotype
+    ## W = 33.5, p-value = 0.5597
+    ## alternative hypothesis: true location shift is not equal to 0
+
+    wilcox.test(NumEntrances ~ Genotype, data=T2) 
+
+    ## Warning in wilcox.test.default(x = c(9L, 14L, 9L, 1L, 9L, 4L, 13L, 15L), :
+    ## cannot compute exact p-value with ties
+
+    ## 
+    ##  Wilcoxon rank sum test with continuity correction
+    ## 
+    ## data:  NumEntrances by Genotype
+    ## W = 39.5, p-value = 0.199
+    ## alternative hypothesis: true location shift is not equal to 0
+
+    wilcox.test(NumEntrances ~ Genotype, data=T3)    
+
+    ## Warning in wilcox.test.default(x = c(3L, 5L, 9L, 2L, 6L, 2L, 7L, 4L), y =
+    ## c(8L, : cannot compute exact p-value with ties
+
+    ## 
+    ##  Wilcoxon rank sum test with continuity correction
+    ## 
+    ## data:  NumEntrances by Genotype
+    ## W = 24.5, p-value = 0.7263
+    ## alternative hypothesis: true location shift is not equal to 0
+
+    wilcox.test(NumEntrances ~ Genotype, data=Retest) 
+
+    ## Warning in wilcox.test.default(x = c(8L, 3L, 19L, 1L, 5L, 7L, 7L, 4L), y =
+    ## c(3L, : cannot compute exact p-value with ties
+
+    ## 
+    ##  Wilcoxon rank sum test with continuity correction
+    ## 
+    ## data:  NumEntrances by Genotype
+    ## W = 24.5, p-value = 0.5532
+    ## alternative hypothesis: true location shift is not equal to 0
+
+    wilcox.test(NumEntrances ~ Genotype, data=T4) 
+
+    ## Warning in wilcox.test.default(x = c(1L, 2L, 13L, 0L, 2L, 2L, 12L, 6L), :
+    ## cannot compute exact p-value with ties
+
+    ## 
+    ##  Wilcoxon rank sum test with continuity correction
+    ## 
+    ## data:  NumEntrances by Genotype
+    ## W = 18, p-value = 0.2681
+    ## alternative hypothesis: true location shift is not equal to 0
+
+    wilcox.test(NumEntrances ~ Genotype, data=T5) 
+
+    ## Warning in wilcox.test.default(x = c(1L, 2L, 14L, 0L, 1L, 2L, 13L, 3L), :
+    ## cannot compute exact p-value with ties
+
+    ## 
+    ##  Wilcoxon rank sum test with continuity correction
+    ## 
+    ## data:  NumEntrances by Genotype
+    ## W = 15, p-value = 0.2677
+    ## alternative hypothesis: true location shift is not equal to 0
+
+    wilcox.test(NumEntrances ~ Genotype, data=T6)     
+
+    ## Warning in wilcox.test.default(x = c(0L, 1L, 7L, 0L, 1L, 1L, 11L, 1L), y =
+    ## c(3L, : cannot compute exact p-value with ties
+
+    ## 
+    ##  Wilcoxon rank sum test with continuity correction
+    ## 
+    ## data:  NumEntrances by Genotype
+    ## W = 14.5, p-value = 0.2369
+    ## alternative hypothesis: true location shift is not equal to 0
+
+    wilcox.test(NumEntrances ~ Genotype, data=Retention)
+
+    ## Warning in wilcox.test.default(x = c(11L, 5L, 16L, 1L, 1L, 6L, 20L, 9L), :
+    ## cannot compute exact p-value with ties
+
+    ## 
+    ##  Wilcoxon rank sum test with continuity correction
+    ## 
+    ## data:  NumEntrances by Genotype
+    ## W = 31, p-value = 0.664
+    ## alternative hypothesis: true location shift is not equal to 0
+
+Mann-Whitney consistent-yoked only
+----------------------------------
+
+    yoked <- behavior %>%
+      filter(APA2 == "yoked-consistent") %>%
+      droplevels()
+
+    m1 = aov(NumEntrances ~  Genotype + TrainSessionCombo + Genotype*TrainSessionCombo, data=yoked)
+    summary(m1)
+
+    ##                            Df Sum Sq Mean Sq F value   Pr(>F)    
+    ## Genotype                    1    5.1    5.06   0.206    0.652    
+    ## TrainSessionCombo           8 2063.1  257.89  10.496 5.85e-09 ***
+    ## Genotype:TrainSessionCombo  8  102.2   12.77   0.520    0.837    
+    ## Residuals                  58 1425.1   24.57                     
+    ## ---
+    ## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+
+    hab <- yoked %>%
+      filter(TrainSession == "Hab") 
+    T1 <- yoked %>%
+      filter(TrainSession == "T1") 
+    T2 <- yoked %>%
+      filter(TrainSession == "T2") 
+    T3 <- yoked %>%
+      filter(TrainSession == "T3") 
+    Retest <- yoked %>%
+      filter(TrainSession == "Retest") 
+    T4 <- yoked %>%
+      filter(TrainSession %in% c("T4", "C1")) 
+    T5 <- yoked %>%
+      filter(TrainSession %in% c("T5", "C2")) 
+    T6 <- yoked %>%
+      filter(TrainSession %in% c("T6", "C3")) 
+    Retention <- yoked %>%
+      filter(TrainSession == "Retention") 
+
+    wilcox.test(NumEntrances ~ Genotype, data=hab) 
+
+    ## Warning in wilcox.test.default(x = c(33L, 32L, 25L, 27L), y = c(32L, 32L, :
+    ## cannot compute exact p-value with ties
+
+    ## 
+    ##  Wilcoxon rank sum test with continuity correction
+    ## 
+    ## data:  NumEntrances by Genotype
+    ## W = 8, p-value = 1
+    ## alternative hypothesis: true location shift is not equal to 0
+
+    wilcox.test(NumEntrances ~ Genotype, data=T1)
+
+    ## Warning in wilcox.test.default(x = c(17L, 11L, 18L, 8L), y = c(11L, 8L, :
+    ## cannot compute exact p-value with ties
+
+    ## 
+    ##  Wilcoxon rank sum test with continuity correction
+    ## 
+    ## data:  NumEntrances by Genotype
+    ## W = 10, p-value = 0.2076
+    ## alternative hypothesis: true location shift is not equal to 0
+
+    wilcox.test(NumEntrances ~ Genotype, data=T2) 
+
+    ## Warning in wilcox.test.default(x = c(19L, 12L, 18L, 2L), y = c(12L, 14L, :
+    ## cannot compute exact p-value with ties
+
+    ## 
+    ##  Wilcoxon rank sum test with continuity correction
+    ## 
+    ## data:  NumEntrances by Genotype
+    ## W = 11.5, p-value = 0.8049
+    ## alternative hypothesis: true location shift is not equal to 0
+
+    wilcox.test(NumEntrances ~ Genotype, data=T3)    
+
+    ## 
+    ##  Wilcoxon rank sum test
+    ## 
+    ## data:  NumEntrances by Genotype
+    ## W = 2, p-value = 0.2286
+    ## alternative hypothesis: true location shift is not equal to 0
+
+    wilcox.test(NumEntrances ~ Genotype, data=Retest) 
+
+    ## 
+    ##  Wilcoxon rank sum test
+    ## 
+    ## data:  NumEntrances by Genotype
+    ## W = 5, p-value = 0.8571
+    ## alternative hypothesis: true location shift is not equal to 0
+
+    wilcox.test(NumEntrances ~ Genotype, data=T4) 
+
+    ## Warning in wilcox.test.default(x = c(19L, 10L, 10L, 16L), y = c(14L, 14L, :
+    ## cannot compute exact p-value with ties
+
+    ## 
+    ##  Wilcoxon rank sum test with continuity correction
+    ## 
+    ## data:  NumEntrances by Genotype
+    ## W = 7, p-value = 0.5298
+    ## alternative hypothesis: true location shift is not equal to 0
+
+    wilcox.test(NumEntrances ~ Genotype, data=T5) 
+
+    ## Warning in wilcox.test.default(x = c(24L, 15L, 15L, 14L), y = c(17L, 21L, :
+    ## cannot compute exact p-value with ties
+
+    ## 
+    ##  Wilcoxon rank sum test with continuity correction
+    ## 
+    ## data:  NumEntrances by Genotype
+    ## W = 11, p-value = 0.9017
+    ## alternative hypothesis: true location shift is not equal to 0
+
+    wilcox.test(NumEntrances ~ Genotype, data=T6)     
+
+    ## Warning in wilcox.test.default(x = c(26L, 12L, 11L, 16L), y = c(14L, 21L, :
+    ## cannot compute exact p-value with ties
+
+    ## 
+    ##  Wilcoxon rank sum test with continuity correction
+    ## 
+    ## data:  NumEntrances by Genotype
+    ## W = 12.5, p-value = 0.6228
+    ## alternative hypothesis: true location shift is not equal to 0
+
+    wilcox.test(NumEntrances ~ Genotype, data=Retention)
+
+    ## Warning in wilcox.test.default(x = c(24L, 22L, 18L, 22L), y = c(20L, 27L, :
+    ## cannot compute exact p-value with ties
+
+    ## 
+    ##  Wilcoxon rank sum test with continuity correction
+    ## 
+    ## data:  NumEntrances by Genotype
+    ## W = 12.5, p-value = 0.8484
+    ## alternative hypothesis: true location shift is not equal to 0
 
 anova habituation
 -----------------
 
-``` r
-slim1 <- behavior[,c(2,4,8,13:52)]
-slim2 <- slim1 %>% filter(TrainSession == "Hab") 
-Genotype <- slim2[,1]
-APA <- slim2[,3]
-slim3 <- slim2[,c(4:43)]
+    slim1 <- behavior[,c(2,4,8,13:52)]
+    slim2 <- slim1 %>% filter(TrainSession == "Hab") 
+    Genotype <- slim2[,1]
+    APA <- slim2[,3]
+    slim3 <- slim2[,c(4:43)]
 
-for(y in names(slim3)){
-  ymod<- summary(aov(slim3[[y]] ~ Genotype * APA))
-  cat(paste('\nDependent var:', y, '\n'))
-  print(ymod)
-}
-```
+    for(y in names(slim3)){
+      ymod<- summary(aov(slim3[[y]] ~ Genotype * APA))
+      cat(paste('\nDependent var:', y, '\n'))
+      print(ymod)
+    }
 
     ## 
     ## Dependent var: SdevSpeedArena 
@@ -1378,19 +1859,17 @@ for(y in names(slim3)){
 anova conflict
 --------------
 
-``` r
-slim1 <- behavior[,c(2,9,8,13:52)]
-slim2 <- slim1 %>% filter(TrainSessionCombo == "T4_C1", APA2 == "conflict") 
-Genotype <- slim2[,1]
-APA <- slim2[,3]
-slim3 <- slim2[,c(4:43)]
+    slim1 <- behavior[,c(2,9,8,13:52)]
+    slim2 <- slim1 %>% filter(TrainSessionCombo == "T4_C1", APA2 == "conflict") 
+    Genotype <- slim2[,1]
+    APA <- slim2[,3]
+    slim3 <- slim2[,c(4:43)]
 
-for(y in names(slim3)){
-  ymod<- summary(aov(slim3[[y]] ~ Genotype ))
-  cat(paste('\nDependent var:', y, '\n'))
-  print(ymod)
-}
-```
+    for(y in names(slim3)){
+      ymod<- summary(aov(slim3[[y]] ~ Genotype ))
+      cat(paste('\nDependent var:', y, '\n'))
+      print(ymod)
+    }
 
     ## 
     ## Dependent var: SdevSpeedArena 
@@ -1599,22 +2078,20 @@ for(y in names(slim3)){
     ## Genotype     1   0.04   0.041    0.01  0.921
     ## Residuals   11  42.93   3.903
 
-``` r
-# * AnnularSd, AnnularMaxBin 
-# . PolarMinBin 
+    # * AnnularSd, AnnularMaxBin 
+    # . PolarMinBin 
 
-slim1 <- behavior[,c(2,9,8,13:52)]
-slim2 <- slim1 %>% filter(TrainSessionCombo == "T3", APA2 == "conflict") 
-Genotype <- slim2[,1]
-APA <- slim2[,3]
-slim3 <- slim2[,c(4:43)]
+    slim1 <- behavior[,c(2,9,8,13:52)]
+    slim2 <- slim1 %>% filter(TrainSessionCombo == "T3", APA2 == "conflict") 
+    Genotype <- slim2[,1]
+    APA <- slim2[,3]
+    slim3 <- slim2[,c(4:43)]
 
-for(y in names(slim3)){
-  ymod<- summary(aov(slim3[[y]] ~ Genotype ))
-  cat(paste('\nDependent var:', y, '\n'))
-  print(ymod)
-}
-```
+    for(y in names(slim3)){
+      ymod<- summary(aov(slim3[[y]] ~ Genotype ))
+      cat(paste('\nDependent var:', y, '\n'))
+      print(ymod)
+    }
 
     ## 
     ## Dependent var: SdevSpeedArena 
@@ -1823,138 +2300,22 @@ for(y in names(slim3)){
     ## Genotype     1  3.836   3.836   2.504  0.142
     ## Residuals   11 16.847   1.532
 
-``` r
-# . AnnularSd, AnnularMinVal, MaxTimeAvoid 
-
-hist(slim3$AnnularSd)
-```
-
-![](01_behavior_files/figure-markdown_github/unnamed-chunk-5-1.png)
-
-``` r
-boxplot(slim3$AnnularSd ~ Genotype)
-```
-
-![](01_behavior_files/figure-markdown_github/unnamed-chunk-5-2.png)
-
-``` r
-summary(aov(slim3$AnnularSd ~ Genotype)) 
-```
-
-    ##             Df Sum Sq Mean Sq F value Pr(>F)  
-    ## Genotype     1   76.9   76.90   3.568 0.0856 .
-    ## Residuals   11  237.1   21.56                 
-    ## ---
-    ## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
-
-``` r
-t.test(slim3$AnnularSd ~ Genotype)
-```
-
-    ## 
-    ##  Welch Two Sample t-test
-    ## 
-    ## data:  slim3$AnnularSd by Genotype
-    ## t = -1.4854, df = 3.7981, p-value = 0.2153
-    ## alternative hypothesis: true difference in means is not equal to 0
-    ## 95 percent confidence interval:
-    ##  -15.329371   4.789926
-    ## sample estimates:
-    ##     mean in group WT mean in group FMR1KO 
-    ##             11.07778             16.34750
-
-``` r
-hist(slim3$AnnularMinVal)
-```
-
-![](01_behavior_files/figure-markdown_github/unnamed-chunk-5-3.png)
-
-``` r
-boxplot(slim3$AnnularMinVal ~ Genotype)
-```
-
-![](01_behavior_files/figure-markdown_github/unnamed-chunk-5-4.png)
-
-``` r
-summary(aov(slim3$AnnularMinVal ~ Genotype)) 
-```
-
-    ##             Df    Sum Sq   Mean Sq F value Pr(>F)  
-    ## Genotype     1 0.0003708 0.0003708   3.771 0.0782 .
-    ## Residuals   11 0.0010818 0.0000983                 
-    ## ---
-    ## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
-
-``` r
-t.test(slim3$AnnularMinVal ~ Genotype)
-```
-
-    ## 
-    ##  Welch Two Sample t-test
-    ## 
-    ## data:  slim3$AnnularMinVal by Genotype
-    ## t = -1.3096, df = 3.1932, p-value = 0.2766
-    ## alternative hypothesis: true difference in means is not equal to 0
-    ## 95 percent confidence interval:
-    ##  -0.03875485  0.01561041
-    ## sample estimates:
-    ##     mean in group WT mean in group FMR1KO 
-    ##          0.003877778          0.015450000
-
-``` r
-hist(slim3$MaxTimeAvoid)
-```
-
-![](01_behavior_files/figure-markdown_github/unnamed-chunk-5-5.png)
-
-``` r
-boxplot(slim3$MaxTimeAvoid ~ Genotype)
-```
-
-![](01_behavior_files/figure-markdown_github/unnamed-chunk-5-6.png)
-
-``` r
-summary(aov(slim3$MaxTimeAvoid ~ Genotype)) 
-```
-
-    ##             Df Sum Sq Mean Sq F value Pr(>F)  
-    ## Genotype     1  59456   59456   4.789 0.0511 .
-    ## Residuals   11 136580   12416                 
-    ## ---
-    ## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
-
-``` r
-t.test(slim3$MaxTimeAvoid ~ Genotype)
-```
-
-    ## 
-    ##  Welch Two Sample t-test
-    ## 
-    ## data:  slim3$MaxTimeAvoid by Genotype
-    ## t = 2.1136, df = 5.3987, p-value = 0.08412
-    ## alternative hypothesis: true difference in means is not equal to 0
-    ## 95 percent confidence interval:
-    ##  -27.79532 320.85088
-    ## sample estimates:
-    ##     mean in group WT mean in group FMR1KO 
-    ##             374.7778             228.2500
+    # . AnnularSd, AnnularMinVal, MaxTimeAvoid 
 
 habituation genotype
 --------------------
 
-``` r
-slim1 <- behavior[,c(2,9,8,13:52)]
-slim2 <- slim1 %>% filter(TrainSessionCombo == "Hab") 
-Genotype <- slim2[,1]
-APA <- slim2[,3]
-slim3 <- slim2[,c(4:43)]
+    slim1 <- behavior[,c(2,9,8,13:52)]
+    slim2 <- slim1 %>% filter(TrainSessionCombo == "Hab") 
+    Genotype <- slim2[,1]
+    APA <- slim2[,3]
+    slim3 <- slim2[,c(4:43)]
 
-for(y in names(slim3)){
-  ymod<- summary(aov(slim3[[y]] ~ Genotype ))
-  cat(paste('\nDependent var:', y, '\n'))
-  print(ymod)
-}
-```
+    for(y in names(slim3)){
+      ymod<- summary(aov(slim3[[y]] ~ Genotype ))
+      cat(paste('\nDependent var:', y, '\n'))
+      print(ymod)
+    }
 
     ## 
     ## Dependent var: SdevSpeedArena 
@@ -2163,100 +2524,22 @@ for(y in names(slim3)){
     ## Genotype     1   2.17   2.166   1.361   0.25
     ## Residuals   41  65.23   1.591
 
-``` r
-# . Speed1, AnnularMinBin 
-
-hist(slim3$Speed1)
-```
-
-![](01_behavior_files/figure-markdown_github/unnamed-chunk-6-1.png)
-
-``` r
-boxplot(slim3$Speed1 ~ Genotype)
-```
-
-![](01_behavior_files/figure-markdown_github/unnamed-chunk-6-2.png)
-
-``` r
-summary(aov(slim3$Speed1 ~ Genotype)) 
-```
-
-    ##             Df  Sum Sq   Mean Sq F value Pr(>F)  
-    ## Genotype     1 0.00166 0.0016604   3.471 0.0696 .
-    ## Residuals   41 0.01962 0.0004784                 
-    ## ---
-    ## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
-
-``` r
-t.test(slim3$Speed1 ~ Genotype)
-```
-
-    ## 
-    ##  Welch Two Sample t-test
-    ## 
-    ## data:  slim3$Speed1 by Genotype
-    ## t = 1.8505, df = 37.705, p-value = 0.07209
-    ## alternative hypothesis: true difference in means is not equal to 0
-    ## 95 percent confidence interval:
-    ##  -0.001179299  0.026204878
-    ## sample estimates:
-    ##     mean in group WT mean in group FMR1KO 
-    ##           0.04385850           0.03134571
-
-``` r
-hist(slim3$AnnularMinBin)
-```
-
-![](01_behavior_files/figure-markdown_github/unnamed-chunk-6-3.png)
-
-``` r
-boxplot(slim3$AnnularMinBin ~ Genotype)
-```
-
-![](01_behavior_files/figure-markdown_github/unnamed-chunk-6-4.png)
-
-``` r
-summary(aov(slim3$AnnularMinBin ~ Genotype)) 
-```
-
-    ##             Df Sum Sq Mean Sq F value Pr(>F)  
-    ## Genotype     1   6.19   6.190   3.289 0.0771 .
-    ## Residuals   41  77.18   1.882                 
-    ## ---
-    ## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
-
-``` r
-t.test(slim3$AnnularMinBin ~ Genotype)
-```
-
-    ## 
-    ##  Welch Two Sample t-test
-    ## 
-    ## data:  slim3$AnnularMinBin by Genotype
-    ## t = -2.0041, df = 27.95, p-value = 0.05484
-    ## alternative hypothesis: true difference in means is not equal to 0
-    ## 95 percent confidence interval:
-    ##  -1.54503702  0.01696684
-    ## sample estimates:
-    ##     mean in group WT mean in group FMR1KO 
-    ##             15.38333             16.14737
+    # . Speed1, AnnularMinBin 
 
 retention genotype
 ------------------
 
-``` r
-slim1 <- behavior[,c(2,9,8,13:52)]
-slim2 <- slim1 %>% filter(TrainSessionCombo == "Retention") 
-Genotype <- slim2[,1]
-APA <- slim2[,3]
-slim3 <- slim2[,c(4:43)]
+    slim1 <- behavior[,c(2,9,8,13:52)]
+    slim2 <- slim1 %>% filter(TrainSessionCombo == "Retention") 
+    Genotype <- slim2[,1]
+    APA <- slim2[,3]
+    slim3 <- slim2[,c(4:43)]
 
-for(y in names(slim3)){
-  ymod<- summary(aov(slim3[[y]] ~ Genotype * APA ))
-  cat(paste('\nDependent var:', y, '\n'))
-  print(ymod)
-}
-```
+    for(y in names(slim3)){
+      ymod<- summary(aov(slim3[[y]] ~ Genotype * APA ))
+      cat(paste('\nDependent var:', y, '\n'))
+      print(ymod)
+    }
 
     ## 
     ## Dependent var: SdevSpeedArena 
@@ -2601,230 +2884,6 @@ for(y in names(slim3)){
     ## ---
     ## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
 
-``` r
-# ** Speed2ndEntr
-# * RayleigAngle 
-# . Min50.RngHiBin, RayleigLength, pTimeCCW, MaxTimeAvoid  
-
-hist(slim3$Speed2ndEntr) # bi modal
-```
-
-![](01_behavior_files/figure-markdown_github/unnamed-chunk-7-1.png)
-
-``` r
-boxplot(slim3$Speed2ndEntr ~ Genotype)
-```
-
-![](01_behavior_files/figure-markdown_github/unnamed-chunk-7-2.png)
-
-``` r
-summary(aov(slim3$Speed2ndEntr ~ Genotype)) 
-```
-
-    ##             Df Sum Sq Mean Sq F value  Pr(>F)   
-    ## Genotype     1  116.4  116.39   10.65 0.00203 **
-    ## Residuals   48  524.6   10.93                   
-    ## ---
-    ## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
-
-``` r
-t.test(slim3$Speed2ndEntr ~ Genotype)
-```
-
-    ## 
-    ##  Welch Two Sample t-test
-    ## 
-    ## data:  slim3$Speed2ndEntr by Genotype
-    ## t = -3.2706, df = 47.962, p-value = 0.001991
-    ## alternative hypothesis: true difference in means is not equal to 0
-    ## 95 percent confidence interval:
-    ##  -4.931379 -1.176441
-    ## sample estimates:
-    ##     mean in group WT mean in group FMR1KO 
-    ##             3.369167             6.423077
-
-``` r
-hist(slim3$RayleigAngle) # pretty normal!
-```
-
-![](01_behavior_files/figure-markdown_github/unnamed-chunk-7-3.png)
-
-``` r
-boxplot(slim3$RayleigAngle ~ Genotype)
-```
-
-![](01_behavior_files/figure-markdown_github/unnamed-chunk-7-4.png)
-
-``` r
-summary(aov(slim3$RayleigAngle ~ Genotype)) 
-```
-
-    ##             Df Sum Sq Mean Sq F value Pr(>F)  
-    ## Genotype     1  34326   34326   4.957 0.0307 *
-    ## Residuals   48 332352    6924                 
-    ## ---
-    ## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
-
-``` r
-t.test(slim3$RayleigAngle ~ Genotype)
-```
-
-    ## 
-    ##  Welch Two Sample t-test
-    ## 
-    ## data:  slim3$RayleigAngle by Genotype
-    ## t = -2.2141, df = 45.824, p-value = 0.03184
-    ## alternative hypothesis: true difference in means is not equal to 0
-    ## 95 percent confidence interval:
-    ##  -100.128292   -4.761323
-    ## sample estimates:
-    ##     mean in group WT mean in group FMR1KO 
-    ##             151.6225             204.0673
-
-``` r
-hist(slim3$Min50.RngHiBin) # not normal
-```
-
-![](01_behavior_files/figure-markdown_github/unnamed-chunk-7-5.png)
-
-``` r
-boxplot(slim3$Min50.RngHiBin ~ Genotype)
-```
-
-![](01_behavior_files/figure-markdown_github/unnamed-chunk-7-6.png)
-
-``` r
-summary(aov(slim3$Min50.RngHiBin ~ Genotype)) 
-```
-
-    ##             Df Sum Sq Mean Sq F value Pr(>F)  
-    ## Genotype     1  35158   35158   4.323  0.043 *
-    ## Residuals   48 390404    8133                 
-    ## ---
-    ## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
-
-``` r
-t.test(slim3$Min50.RngHiBin ~ Genotype)
-```
-
-    ## 
-    ##  Welch Two Sample t-test
-    ## 
-    ## data:  slim3$Min50.RngHiBin by Genotype
-    ## t = 2.0653, df = 45.317, p-value = 0.04464
-    ## alternative hypothesis: true difference in means is not equal to 0
-    ## 95 percent confidence interval:
-    ##    1.32652 104.82733
-    ## sample estimates:
-    ##     mean in group WT mean in group FMR1KO 
-    ##             195.0000             141.9231
-
-``` r
-hist(slim3$RayleigLength) # not normal not significant
-```
-
-![](01_behavior_files/figure-markdown_github/unnamed-chunk-7-7.png)
-
-``` r
-boxplot(slim3$RayleigLength ~ Genotype)
-```
-
-![](01_behavior_files/figure-markdown_github/unnamed-chunk-7-8.png)
-
-``` r
-summary(aov(slim3$RayleigLength ~ Genotype)) 
-```
-
-    ##             Df Sum Sq Mean Sq F value Pr(>F)
-    ## Genotype     1  0.086 0.08600   2.159  0.148
-    ## Residuals   48  1.912 0.03982
-
-``` r
-t.test(slim3$RayleigLength ~ Genotype)
-```
-
-    ## 
-    ##  Welch Two Sample t-test
-    ## 
-    ## data:  slim3$RayleigLength by Genotype
-    ## t = 1.4572, df = 44.374, p-value = 0.1521
-    ## alternative hypothesis: true difference in means is not equal to 0
-    ## 95 percent confidence interval:
-    ##  -0.03176933  0.19779498
-    ## sample estimates:
-    ##     mean in group WT mean in group FMR1KO 
-    ##            0.3491667            0.2661538
-
-``` r
-hist(slim3$pTimeCCW) # very normal!
-```
-
-![](01_behavior_files/figure-markdown_github/unnamed-chunk-7-9.png)
-
-``` r
-boxplot(slim3$pTimeCCW ~ Genotype)
-```
-
-![](01_behavior_files/figure-markdown_github/unnamed-chunk-7-10.png)
-
-``` r
-summary(aov(slim3$pTimeCCW ~ Genotype)) 
-```
-
-    ##             Df Sum Sq Mean Sq F value Pr(>F)  
-    ## Genotype     1 0.0289 0.02890   2.869 0.0968 .
-    ## Residuals   48 0.4834 0.01007                 
-    ## ---
-    ## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
-
-``` r
-t.test(slim3$pTimeCCW ~ Genotype)
-```
-
-    ## 
-    ##  Welch Two Sample t-test
-    ## 
-    ## data:  slim3$pTimeCCW by Genotype
-    ## t = -1.6837, df = 45.591, p-value = 0.09908
-    ## alternative hypothesis: true difference in means is not equal to 0
-    ## 95 percent confidence interval:
-    ##  -0.105659616  0.009423078
-    ## sample estimates:
-    ##     mean in group WT mean in group FMR1KO 
-    ##            0.2119125            0.2600308
-
-``` r
-hist(slim3$MaxTimeAvoid) # not normal not significant
-```
-
-![](01_behavior_files/figure-markdown_github/unnamed-chunk-7-11.png)
-
-``` r
-boxplot(slim3$MaxTimeAvoid ~ Genotype)
-```
-
-![](01_behavior_files/figure-markdown_github/unnamed-chunk-7-12.png)
-
-``` r
-summary(aov(slim3$MaxTimeAvoid ~ Genotype)) 
-```
-
-    ##             Df Sum Sq Mean Sq F value Pr(>F)
-    ## Genotype     1  38313   38313   2.393  0.128
-    ## Residuals   48 768406   16008
-
-``` r
-t.test(slim3$MaxTimeAvoid ~ Genotype)
-```
-
-    ## 
-    ##  Welch Two Sample t-test
-    ## 
-    ## data:  slim3$MaxTimeAvoid by Genotype
-    ## t = 1.5229, df = 39.624, p-value = 0.1357
-    ## alternative hypothesis: true difference in means is not equal to 0
-    ## 95 percent confidence interval:
-    ##  -18.14469 128.95879
-    ## sample estimates:
-    ##     mean in group WT mean in group FMR1KO 
-    ##             205.7917             150.3846
+    # ** Speed2ndEntr
+    # * RayleigAngle 
+    # . Min50.RngHiBin, RayleigLength, pTimeCCW, MaxTimeAvoid

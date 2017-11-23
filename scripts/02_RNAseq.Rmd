@@ -1,7 +1,7 @@
 ---
 title: "DESeq2 Data Analysis"
 author: "Rayna M Harris"
-date: "January 23, 2017"
+date: "November 23, 2017"
 output:
   md_document:
     variant: markdown_github
@@ -193,7 +193,8 @@ ggplot(data, aes(x = lfc, y = pvalue)) +
   scale_color_manual(values = c("black", "grey", "black"))  + 
   scale_shape_manual(values = c(1,16,16))  + 
   xlab(paste0("Log Fold Change")) +       
-  ylab(paste0("-log(p-value)")) +       
+  ylab(paste0("-log(p-value)")) +  
+  scale_x_continuous( limits=c(-2, 2)) +
   theme(panel.grid.minor=element_blank(),
         legend.position = "none", # remove legend 
         panel.grid.major=element_blank())
@@ -207,16 +208,39 @@ FMR1volcano <- ggplot(data, aes(x = lfc, y = pvalue)) +
   scale_color_manual(values = c("black", "grey", "black"))  + 
   scale_shape_manual(values = c(1,16,16))  + 
   xlab(paste0("Log Fold Change")) +       
-  ylab(paste0("-log(p-value)")) +       
+  ylab(paste0("-log(p-value)")) + 
+    scale_x_continuous( limits=c(-2, 2)) +
   theme(panel.grid.minor=element_blank(),
         legend.position = "none", # remove legend 
         panel.grid.major=element_blank())
 FMR1volcano
 
-pdf(file="../figures/02_RNAseq/FMR1volcano.pdf", width=1.5, height=2)
+pdf(file="../figures/02_RNAseq/FMR1volcano.pdf", width=2, height=2)
 plot(FMR1volcano)
 dev.off()
 
+```
+
+
+
+```{r GOsetup, echo=FALSE, message=FALSE, comment=FALSE, warning=FALSE }
+#calculate significance of all two way comparisions
+contrast1 <- resvals(contrastvector = c("Genotype", "FMR1", "WT"), mypval = 0.1) # 11
+
+GOpvals <- assay(rld)
+GOpvals <- cbind(GOpvals, contrast1)
+GOpvals <- as.data.frame(GOpvals)
+GOpvals <- GOpvals[ , grepl( "padj|pval" , names( GOpvals ) ) ]
+
+GOpvals$gene<-rownames(GOpvals)
+
+GOpvals <- GOpvals %>%
+  select(gene, pvalLocationventraldorsal)
+GOpvals$logP <- log(GOpvals$pvalRegionCA1DG)
+GOpvals <- GOpvals %>%
+  select(gene, logP)
+
+write.csv(GOpvals, "./06_GO_MWU/GenotypeFMR1KOWT_GOpvals.csv", row.names = F)
 ```
 
 
@@ -263,12 +287,14 @@ pheatmap(DEGes, show_colnames=F, show_rownames = T,
 # for adobe
 pheatmap(DEGes, show_colnames=F, show_rownames = T,
          annotation_col=df, annotation_colors = ann_colors,
-         treeheight_row = 25, treeheight_col = 25,
-         fontsize = 10, 
-         width=4.5, height=2.25,
+         treeheight_row = 10, treeheight_col = 10,
+         legend=T,
+         fontsize = 4.5, 
+         width=3.5, height=2.25,
          border_color = "grey60" ,
          color = viridis(30),
          cellwidth = 8, 
+         cellheight = 4.5, 
          clustering_method="average",
          breaks=myBreaks,
          clustering_distance_cols="correlation",
@@ -823,12 +849,15 @@ summary(multiqc01)
 # mean 3.9 million reads per sample. Min 3.3 max 5.1
 hist(multiqc01$MillionReads)
 
+
 boxplot(multiqc01$MillionReads,
         xlab = "All samples",
         ylab = "Million reads per sample")
 
 multiqc03 <- read.csv(file = "../data/multiqc_report_03.csv")
 summary(multiqc03)
+library(stats) # for standard deviation
+sd(multiqc03$FragLength)
 # mean 2.2 million reads alligned per sample. max 3.3 min 0.4
 hist(multiqc03$MillionAligned)
 

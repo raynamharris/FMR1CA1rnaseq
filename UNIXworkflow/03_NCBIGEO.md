@@ -20,7 +20,7 @@ mv 00_rawdata/multiqc* temp/
 Then zip
 
 ~~~{.bash
-tar -cvpf 00_rawdata.zip 00_rawdata
+tar -cvpf 00_rawdata.tar 00_rawdata
 ~~~
 
 Then turn the extra files to their home. 
@@ -58,5 +58,7 @@ mv */*json ../hd5runinfo
 
 ~~~{.bash
 cd ..
-tar -cvpf 02_kallistoquant.zip 2_kallistoquant
+tar -cvpf 02_kallistoquant.tar 02_kallistoquant
 ~~~
+
+Now use ftp to transfer the files (00_rawdata.tar, 02_kallistoquant.tar, and FMR1MetaData.xls) to NCBI. First, I copy the files to the Hofmann lab server so I can use Filzilla to transfer the files. The instructions are at: https://www.ncbi.nlm.nih.gov/geo/info/seq.html#data

@@ -31,7 +31,7 @@
 
 - For the NCBI data archive, include this inline: (Accession: GSE106595)
 - For the GitHub data-only archive Harris 2017 MouseHippocampusRNAseqData Zenodo 10.5281/zenodo.815048
-- For the GitHub data, code, and results repository cite Harris 2017
+- For the GitHub data, code, and results repository cite Harris 2017 FMR1CA1rnaseq 10.5281/zenodo.1067820
 - For the paper: cite the soon to be release bioRxiv paper or my thesis
 
 ## Scientific insights

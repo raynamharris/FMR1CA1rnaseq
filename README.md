@@ -29,7 +29,7 @@
 
 ## Citation and re-use 
 
-- For the NCBI data archive, include this inline: (Accession: GSE106595)
+- For the NCBI data archive, include this inline: ([Accession: GSE106595](https://www.ncbi.nlm.nih.gov/geo/query/acc.cgi?acc=GSE106595))
 - For the GitHub data-only archive cite [![DOI](https://zenodo.org/badge/94957366.svg)](https://zenodo.org/badge/latestdoi/94957366)
 - For the GitHub data, code, and results repository cite [![DOI](https://zenodo.org/badge/101933073.svg)](https://zenodo.org/badge/latestdoi/101933073)
 - For the paper: cite the soon to be release bioRxiv paper or my thesis

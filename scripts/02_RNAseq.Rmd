@@ -30,7 +30,6 @@ source("functions_RNAseq.R")
 
 ## set output file for figures 
 knitr::opts_chunk$set(fig.path = '../figures/02_RNAseq/')
-
 ```
 
 We are ready to calculate differential gene expression using the DESeq package. For simplicity, I will use the standard nameing of "countData" and "colData" for the gene counts and gene information, respectively.
@@ -65,14 +64,12 @@ colData$daytime3 <- as.factor(colData$daytime3)
 
 # summary data
 colData %>% select(Genotype, APA, daytime, daytime2, daytime3)  %>%  summary()
-
 ```
 
 ## Total Gene Counts Per Sample 
 this could say something about data before normalization
 
 ```{r totalRNAseqcounts, message=F, warning=F}
-## stats
 dim(countData)
 counts <- countData
 dim( counts )
@@ -166,7 +163,7 @@ contrast1 <- resvals(contrastvector = c("Genotype", "FMR1", "WT"), mypval = 0.1)
 res <- results(dds, contrast =c("Genotype", "FMR1", "WT"), independentFiltering = T, alpha = 0.1)
 summary(res)
 resOrdered <- res[order(res$padj),]
-head(resOrdered, 20)
+head(resOrdered, 10)
 
 data <- data.frame(gene = row.names(res), padj = (res$padj), lfc = res$log2FoldChange)
 data <- na.omit(data)
@@ -185,21 +182,6 @@ data <- data %>%
                         yes = "FMR1", 
                         no = ifelse(data$lfc < 0 & data$pvalue > 1, 
                                     yes = "WT", no = "none")))
-
-ggplot(data, aes(x = lfc, y = pvalue)) + 
-  geom_point(aes(color = factor(color), shape = factor(color)), size = 8, alpha = 0.8, na.rm = T) + # add gene points
-  theme_cowplot(font_size = 8, line_size = 0.25) +
-  geom_hline(yintercept = 1,  size = 0.25, linetype = 2) + 
-  scale_color_manual(values = c("black", "grey", "black"))  + 
-  scale_shape_manual(values = c(1,16,16))  + 
-  xlab(paste0("Log Fold Change")) +       
-  ylab(paste0("-log(p-value)")) +  
-  scale_x_continuous( limits=c(-2, 2)) +
-  theme(panel.grid.minor=element_blank(),
-        legend.position = "none", # remove legend 
-        panel.grid.major=element_blank())
-
-
 
 FMR1volcano <- ggplot(data, aes(x = lfc, y = pvalue)) + 
   geom_point(aes(color = factor(color), shape = factor(color)), size = 1, alpha = 0.8, na.rm = T) + # add gene points
@@ -220,7 +202,6 @@ plot(FMR1volcano)
 dev.off()
 
 ```
-
 
 
 ```{r GOsetup, echo=FALSE, message=FALSE, comment=FALSE, warning=FALSE }
@@ -468,149 +449,6 @@ pheatmap(DEGes, show_colnames=F, show_rownames = F,
 ```
 
 
-## Daytime - all four options
-
-```{r, message=F, warning=F}
-dds <- DESeqDataSetFromMatrix(countData = countData,
-                              colData = colData,
-                              design = ~ daytime)
-dds # view the DESeq object - note numnber of genes
-dds <- dds[ rowSums(counts(dds)) > 1, ]  # Pre-filtering genes with 0 counts
-dds # view number of genes afternormalization and the number of samples
-dds <- DESeq(dds) # Differential expression analysis
-rld <- rlog(dds, blind=FALSE) ## log transformed data
-
-contrast1 <- resvals(contrastvector = c("daytime", "evening", "beforenoon"), mypval = 0.1) # 897 (388 with outliers included)
-contrast2 <- resvals(contrastvector = c("daytime", "nighttime", "beforenoon"), mypval = 0.1) # 151 (14 with outliers included)
-contrast3 <- resvals(contrastvector = c("daytime", "nighttime", "evening"), mypval = 0.1) # 0 (0 with outliers included)
-
-DEGes <- assay(rld)
-DEGes <- cbind(DEGes, contrast1, contrast2)
-DEGes <- as.data.frame(DEGes) # convert matrix to dataframe
-DEGes$rownames <- rownames(DEGes)  # add the rownames to the dataframe
-DEGes$padjmin <- with(DEGes, pmin(padjdaytimeeveningbeforenoon, padjdaytimenighttimebeforenoon)) 
-
-# create new col with min padj
-DEGes <- DEGes %>% filter(padjmin < 0.1)
-rownames(DEGes) <- DEGes$rownames
-drop.cols <-colnames(DEGes[,grep("padj|pval|rownames", colnames(DEGes))])
-DEGes <- DEGes %>% dplyr::select(-one_of(drop.cols))
-DEGes <- as.matrix(DEGes)
-DEGes <- DEGes - rowMeans(DEGes)
-DEGes <- as.matrix(DEGes) 
-
-## the heatmap annotation file
-df <- as.data.frame(colData(dds)[,c("daytime")]) ## matrix to df
-rownames(df) <- names(countData)
-colnames(df) <- "daytime"
-ann_colors <- ann_colorsdaytime
-
-# set color breaks
-paletteLength <- 30
-myBreaks <- c(seq(min(DEGes), 0, length.out=ceiling(paletteLength/2) + 1), 
-              seq(max(DEGes)/paletteLength, max(DEGes), length.out=floor(paletteLength/2)))
-
-pheatmap(DEGes, show_colnames=T, show_rownames = F,
-         annotation_col=df, annotation_colors = ann_colors,
-         treeheight_row = 25, treeheight_col = 25,
-         fontsize = 11, 
-         width=4.5, height=2.25,
-         border_color = "grey60" ,
-         color = viridis(30),
-         cellwidth = 8, 
-         clustering_method="average",
-         breaks=myBreaks,
-         clustering_distance_cols="correlation" 
-         )
-
-# for adobe
-pheatmap(DEGes, show_colnames=F, show_rownames = F,
-         annotation_col=df, annotation_colors = ann_colors,
-         treeheight_row = 25, treeheight_col = 25,
-         fontsize = 10, 
-         width=4.5, height=2.25,
-         border_color = "grey60" ,
-         color = viridis(30),
-         cellwidth = 8, 
-         clustering_method="average",
-         breaks=myBreaks,
-         clustering_distance_cols="correlation",
-         filename = "../figures/02_RNAseq/alltimes.pdf"
-         )
-```
-
-
-## Daytime3  and FMR1 - all data points
-
-```{r, message=F, warning=F}
-dds <- DESeqDataSetFromMatrix(countData = countData,
-                              colData = colData,
-                              design = ~ Genotype * daytime )
-dds <- dds[ rowSums(counts(dds)) > 1, ]  # Pre-filtering genes with 0 counts
-dds # view number of genes afternormalization and the number of samples
-dds <- DESeq(dds) # Differential expression analysis
-rld <- rlog(dds, blind=FALSE) ## log transformed data
-
-contrast1 <- resvals(contrastvector = c("daytime", "evening", "beforenoon"), mypval = 0.1) # 281 (281 with outliers included)
-contrast2 <- resvals(contrastvector = c("daytime", "nighttime", "beforenoon"), mypval = 0.1) # 51 (51 with outliers included)
-contrast3 <- resvals(contrastvector = c("daytime", "nighttime", "evening"), mypval = 0.1) # 5  (5 with outliers included)
-contrast4 <- resvals(contrastvector = c("Genotype", "FMR1", "WT"), mypval = 0.1) # 1923 (1923 with outliers removed)
-
-DEGes <- assay(rld)
-DEGes <- cbind(DEGes, contrast1, contrast2, contrast3, contrast4)
-DEGes <- as.data.frame(DEGes) # convert matrix to dataframe
-DEGes$rownames <- rownames(DEGes)  # add the rownames to the dataframe
-DEGes$padjmin <- with(DEGes, pmin(padjdaytimeeveningbeforenoon, padjdaytimenighttimebeforenoon, padjdaytimenighttimeevening, padjGenotypeFMR1WT)) 
-
-# create new col with min padj
-DEGes <- DEGes %>% filter(padjmin < 0.1)
-rownames(DEGes) <- DEGes$rownames
-drop.cols <-colnames(DEGes[,grep("padj|pval|rownames", colnames(DEGes))])
-DEGes <- DEGes %>% dplyr::select(-one_of(drop.cols))
-DEGes <- as.matrix(DEGes)
-DEGes <- DEGes - rowMeans(DEGes)
-DEGes <- as.matrix(DEGes) 
-
-## the heatmap annotation file
-df <- as.data.frame(colData(dds)[,c("daytime", "Genotype")]) ## matrix to df
-rownames(df) <- names(countData)
-ann_colors <- ann_colorsall
-
-
-# set color breaks
-paletteLength <- 30
-myBreaks <- c(seq(min(DEGes), 0, length.out=ceiling(paletteLength/2) + 1), 
-              seq(max(DEGes)/paletteLength, max(DEGes), length.out=floor(paletteLength/2)))
-
-pheatmap(DEGes, show_colnames=F, show_rownames = F,
-        annotation_col=df, annotation_colors = ann_colors,
-         treeheight_row = 25, treeheight_col = 25,
-         fontsize = 11, 
-         width=4.5, height=2.25,
-         border_color = "grey60" ,
-         color = viridis(30),
-         cellwidth = 8, 
-         clustering_method="average",
-         breaks=myBreaks,
-         clustering_distance_cols="correlation" 
-         )
-
-# for adobe
-pheatmap(DEGes, show_colnames=F, show_rownames = F,
-         annotation_col=df, annotation_colors = ann_colors,
-         treeheight_row = 25, treeheight_col = 25,
-         fontsize = 10, 
-         width=4.5, height=2.25,
-         border_color = "grey60" ,
-         color = viridis(30),
-         cellwidth = 8, 
-         clustering_method="average",
-         breaks=myBreaks,
-         clustering_distance_cols="correlation",
-         filename = "../figures/02_RNAseq/alltimesGenotype.pdf"
-         )
-```
-
 ## Daytime3  and FMR1 - no outliers removed
 
 ```{r, message=F, warning=F}
@@ -680,168 +518,9 @@ pheatmap(DEGes, show_colnames=F, show_rownames = F,
 ```
 
 
-## Daytime 3 and genotype - 2 samples removed
-
-```{r, message=F, warning=F}
-dds <- DESeqDataSetFromMatrix(countData = countData,
-                              colData = colData,
-                              design = ~ Genotype * daytime )
-dds <- dds[ rowSums(counts(dds)) > 1, ]  # Pre-filtering genes with 0 counts
-dds # view number of genes afternormalization and the number of samples
-dds <- DESeq(dds) # Differential expression analysis
-rld <- rlog(dds, blind=FALSE) ## log transformed data
-
-contrast1 <- resvals(contrastvector = c("daytime", "evening", "beforenoon"), mypval = 0.1) # 281 (281 with outliers included)
-contrast2 <- resvals(contrastvector = c("daytime", "nighttime", "beforenoon"), mypval = 0.1) # 51 (51 with outliers included)
-contrast3 <- resvals(contrastvector = c("daytime", "nighttime", "evening"), mypval = 0.1) # 5  (5 with outliers included)
-contrast4 <- resvals(contrastvector = c("Genotype", "FMR1", "WT"), mypval = 0.1) # 1923 (1923 with outliers removed)
-
-DEGes <- assay(rld)
-DEGes <- cbind(DEGes, contrast1, contrast2, contrast3, contrast4)
-DEGes <- as.data.frame(DEGes) # convert matrix to dataframe
-DEGes$rownames <- rownames(DEGes)  # add the rownames to the dataframe
-DEGes$padjmin <- with(DEGes, pmin(padjdaytimeeveningbeforenoon, padjdaytimenighttimebeforenoon, padjdaytimenighttimeevening, padjGenotypeFMR1WT)) 
-
-# create new col with min padj
-DEGes <- DEGes %>% filter(padjmin < 0.1)
-rownames(DEGes) <- DEGes$rownames
-drop.cols <-colnames(DEGes[,grep("padj|pval|rownames", colnames(DEGes))])
-DEGes <- DEGes %>% dplyr::select(-one_of(drop.cols))
-DEGes <- as.matrix(DEGes)
-DEGes <- DEGes - rowMeans(DEGes)
-DEGes <- as.matrix(DEGes) 
-
-## the heatmap annotation file
-df <- as.data.frame(colData(dds)[,c("daytime", "Genotype")]) ## matrix to df
-rownames(df) <- names(countData)
-ann_colors <- ann_colorsall
 
 
-# set color breaks
-paletteLength <- 30
-myBreaks <- c(seq(min(DEGes), 0, length.out=ceiling(paletteLength/2) + 1), 
-              seq(max(DEGes)/paletteLength, max(DEGes), length.out=floor(paletteLength/2)))
 
-pheatmap(DEGes, show_colnames=F, show_rownames = F,
-        annotation_col=df, annotation_colors = ann_colors,
-         treeheight_row = 25, treeheight_col = 25,
-         fontsize = 11, 
-         width=4.5, height=2.25,
-         border_color = "grey60" ,
-         color = viridis(30),
-         cellwidth = 8, 
-         clustering_method="average",
-         breaks=myBreaks,
-         clustering_distance_cols="correlation" 
-         )
-
-# for adobe
-pheatmap(DEGes, show_colnames=F, show_rownames = T,
-         annotation_col=df, annotation_colors = ann_colors,
-         treeheight_row = 25, treeheight_col = 25,
-         fontsize = 10, 
-         width=4.5, height=2.25,
-         border_color = "grey60" ,
-         color = viridis(30),
-         cellwidth = 8, 
-         clustering_method="average",
-         breaks=myBreaks,
-         clustering_distance_cols="correlation",
-         filename = "../figures/02_RNAseq/alltimesGenotype.pdf"
-         )
-```
-
-## Daytime3  and FMR1 - no outliers removed
-
-```{r, message=F, warning=F}
-colData <- read.csv("../data/fmr1ColData.csv", header = T)
-countData <- read.csv("../data/fmr1CountData.csv", header = T, check.names = F, row.names = 1)
-
-## remove outliers
-colData <- colData %>% 
-  filter(RNAseqID != "16-123B")  %>% 
-  filter(RNAseqID != "16-125B") %>% 
-  droplevels()
-
-savecols <- as.character(colData$RNAseqID) 
-savecols <- as.vector(savecols) 
-countData <- countData %>% dplyr::select(one_of(savecols)) 
-
-# colData must be factors
-cols = c(1:6)
-colData[,cols] %<>% lapply(function(x) as.factor(as.character(x)))
-
-# daytime
-colData$daytime3 <- as.character(colData$daytime)
-colData$daytime3 <- ifelse(grepl("beforenoon", colData$daytime3), "daytime", 
-                           ifelse(grepl("afternoon", colData$daytime3), "daytime", "nighttime"))
-colData$daytime3 <- as.factor(colData$daytime3)
-
-
-dds <- DESeqDataSetFromMatrix(countData = countData,
-                              colData = colData,
-                              design = ~ Genotype * daytime3 )
-dds <- dds[ rowSums(counts(dds)) > 1, ]  # Pre-filtering genes with 0 counts
-dds # view number of genes afternormalization and the number of samples
-dds <- DESeq(dds) # Differential expression analysis
-rld <- rlog(dds, blind=FALSE) ## log transformed data
-
-contrast1 <- resvals(contrastvector = c("daytime3", "nighttime", "daytime"), mypval = 0.1) # 11 with or without outliers included)
-contrast2 <- resvals(contrastvector = c("Genotype", "FMR1", "WT"), mypval = 0.1) # 2 with or without outliers removed)
-
-DEGes <- assay(rld)
-DEGes <- cbind(DEGes, contrast1, contrast2)
-DEGes <- as.data.frame(DEGes) # convert matrix to dataframe
-DEGes$rownames <- rownames(DEGes)  # add the rownames to the dataframe
-DEGes$padjmin <- with(DEGes, pmin(padjdaytime3nighttimedaytime, padjGenotypeFMR1WT)) 
-
-# create new col with min padj
-DEGes <- DEGes %>% filter(padjmin < 0.1)
-rownames(DEGes) <- DEGes$rownames
-drop.cols <-colnames(DEGes[,grep("padj|pval|rownames", colnames(DEGes))])
-DEGes <- DEGes %>% dplyr::select(-one_of(drop.cols))
-DEGes <- as.matrix(DEGes)
-DEGes <- DEGes - rowMeans(DEGes)
-DEGes <- as.matrix(DEGes) 
-
-## the heatmap annotation file
-df <- as.data.frame(colData(dds)[,c("daytime3", "Genotype")]) ## matrix to df
-rownames(df) <- names(countData)
-ann_colors <- ann_colorsdaytime3frm1
-
-# set color breaks
-paletteLength <- 30
-myBreaks <- c(seq(min(DEGes), 0, length.out=ceiling(paletteLength/2) + 1), 
-              seq(max(DEGes)/paletteLength, max(DEGes), length.out=floor(paletteLength/2)))
-
-pheatmap(DEGes, show_colnames=F, show_rownames = T,
-        annotation_col=df, annotation_colors = ann_colors,
-         treeheight_row = 25, treeheight_col = 25,
-         fontsize = 11, 
-         width=4.5, height=2.25,
-         border_color = "grey60" ,
-         color = viridis(30),
-         cellwidth = 8, 
-         clustering_method="average",
-         breaks=myBreaks,
-         clustering_distance_cols="correlation" 
-         )
-
-# for adobe
-pheatmap(DEGes, show_colnames=F, show_rownames = T,
-         annotation_col=df, annotation_colors = ann_colors,
-         treeheight_row = 25, treeheight_col = 25,
-         fontsize = 10, 
-         width=4.5, height=2.25,
-         border_color = "grey60" ,
-         color = viridis(30),
-         cellwidth = 8, 
-         clustering_method="average",
-         breaks=myBreaks,
-         clustering_distance_cols="correlation",
-         filename = "../figures/02_RNAseq/daytime3Genotype2.pdf"
-         )
-```
 
 ```{r multiqc}
 multiqc01 <- read.csv(file = "../data/multiqc_report_01.csv")

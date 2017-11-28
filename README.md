@@ -25,9 +25,9 @@
 ## Data Availability
 
 - NCBI: The raw sequencing data, the counts matrix, and meta data at https://www.ncbi.nlm.nih.gov/geo/query/acc.cgi?acc=GSE106595
-- GitHub: This and more RNA-seq data can be found GitHub at https://github.com/raynamharris/MouseHippocampusRNAseqData
+- GitHub: A collection of RNA-seq datasets listed by GEO accession number https://github.com/raynamharris/MouseHippocampusRNAseqData
 
-## Citation and re-use 
+## Citation 
 
 - For the NCBI data archive, include this inline: ([Accession: GSE106595](https://www.ncbi.nlm.nih.gov/geo/query/acc.cgi?acc=GSE106595))
 - For the GitHub data-only archive cite [![DOI](https://zenodo.org/badge/94957366.svg)](https://zenodo.org/badge/latestdoi/94957366)

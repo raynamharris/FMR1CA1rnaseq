@@ -19,6 +19,7 @@
 	- 03_wgcna.R	- R script for weighted gene co-expression network analysis
 	- 04_ephys.Rmd	- knittable analysis hippocampal electrophysiology to measure synaptic properties
 	- 04_ephys.md - output of above script
+	- 05_Ceolin.Rmd - a replication of a recently published paper
 	- 06_GO_MWU	- directory with data, code, and results for Gene Ontology analysis
 	- figureoptions.R - my color pallet of choice for this experiment
 
@@ -64,7 +65,9 @@ I did not observe reduction in synaptic strength at the CA3-CA1 synapse (as meas
 Gene expression influenced more by the time of day than by genotype.
 Using a weight gene-expression analyses15, I identify hundreds of genes whose expression is influenced by time of day. 
 
+1. Reproduction of and comparision to the Ceolin et al. 201732 study
 
-
+![](./figures/fig3-01.png)
+A) Graphical representation of the samples for the Ceolin et al. 201732 study examining CA1 expression in WT and FMR1-KO mice. B)  Volcano plot showing enrichment of 88 genes that are up-regulated in FMR1-KO mice and the 146 genes that are up-regulated in WT mice. C) Hierarchical clustering showing the names and expression patterns of those same significant genes. D) GO analysis showing a very similar pattern of depletion of calcium channel activity as was shown in Fig. 2.4C). In contrast, Ceolin detected enrichment of ribosomal processes in response to FMR1-KO in CA1 pyramidal neurons.A) Graphical representation of the samples for the Ceolin et al. 201732 study examining CA1 expression in WT and FMR1-KO mice. B)  Volcano plot showing enrichment of 88 genes that are up-regulated in FMR1-KO mice and the 146 genes that are up-regulated in WT mice. C) Hierarchical clustering showing the names and expression patterns of those same significant genes. D) GO analysis showing a very similar pattern of depletion of calcium channel activity as was shown in Fig. 2.4C). In contrast, Ceolin detected enrichment of ribosomal processes in response to FMR1-KO in CA1 pyramidal neurons.
 
 

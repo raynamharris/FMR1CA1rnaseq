@@ -125,6 +125,7 @@ dev.off()
 ```{r anovaconsistent}
 consistent <- behavior %>%
   filter(conflict == "consistent")  %>%
+  filter(TrainSessionCombo != "Hab", TrainSessionCombo != "Retention") %>%
   droplevels()
 
 m1 = aov(NumEntrances ~  Genotype + APA2 + TrainSessionCombo + Genotype * APA2  , data=consistent)
@@ -166,10 +167,9 @@ summary(aov(NumEntrances ~ Genotype * APA2, data=Retention))
 ```{r anovaconflict}
 conflict <- behavior %>%
   filter(conflict == "conflict") %>%
+  filter(TrainSessionCombo != "Hab", TrainSessionCombo != "Retention", TrainSessionCombo != "T1", TrainSessionCombo != "T2",TrainSessionCombo != "T3") %>%
   droplevels()
 
-m1 = lm(NumEntrances ~  Genotype + TrainSessionCombo + Genotype*TrainSessionCombo, data=conflict)
-summary(m1)
 
 m1 = aov(NumEntrances ~  Genotype + APA2 + TrainSessionCombo + Genotype * APA2  , data=conflict)
 summary(m1)

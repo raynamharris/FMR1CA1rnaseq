@@ -1,0 +1,312 @@
+---
+title: "07_Ceolin.Rmd"
+author: "Rayna M Harris"
+date: November 28, 2017
+#output: html_document
+output:
+  md_document:
+  variant: markdown_github
+---
+
+## Ceolin et al. data reanalyzed
+
+From Ceolin L, Bouquier N, Vitre-Boubaker J, Rialle S et al. Cell Type-Specific mRNA Dysregulation in Hippocampal CA1 Pyramidal Neurons of the Fragile X Syndrome Mouse Model. Front Mol Neurosci 2017;10:340. PMID: 29104533
+
+This data was made available here [open source data](https://www.ncbi.nlm.nih.gov/geo/query/acc.cgi?acc=GSE94559).
+
+
+```{r setup, echo=FALSE, message=FALSE, results='hide',comment=FALSE, warning=FALSE}
+#source("http://www.bioconductor.org/biocLite.R")
+#biocLite("DESeq2")
+library(DESeq2)
+library(magrittr)
+library(tidyverse)
+library(plyr)
+library(reshape2)
+library(VennDiagram)
+library(genefilter)
+library(pheatmap)
+library(edgeR)
+library(colorRamps) # for a matlab like color scheme
+library(viridis)
+library(genefilter)  ## for PCA fuction
+library(ggrepel) ## for labeling volcano plot
+library(cowplot)
+
+# set output file for figures 
+knitr::opts_chunk$set(fig.path = '../figures/07_Ceolin/')
+```
+
+```{r ImportData, echo=FALSE, message=FALSE, results='hide',comment=FALSE, warning=FALSE}
+# contains a file with the gene name and transcript id
+geneids <- read.table("../data/geneids.tsv", header=T)
+
+#read count data 
+count <- read.table("../data/GSE94559_Raw_Counts_RNA-Seq_Ceolin.txt", header = T)
+
+# strip gene length from data
+count$Gene <- sapply(strsplit(as.character(count$Gene),'\\|'), "[", 1)
+count$gene <- sapply(strsplit(as.character(count$Gene),'\\|'), "[", 1)
+
+## join with geneids so we can look at gene level stuff
+countbygene <- full_join(geneids, count)
+countbygene <- countbygene %>% 
+  filter(gene != "-")
+countbygene <- countbygene[-c(1,3)] ## keep gene name and counts for samples)
+
+
+## lengthen the dataframe, then wide with gene level sums, then make gene the row name, then round the value to nearest integer
+countbygene <- melt(countbygene, id=c("gene")) 
+countbygene  <- dcast(countbygene, gene ~ variable, value.var= "value", fun.aggregate=sum)
+row.names(countbygene) <- countbygene$gene
+countbygene[1] <- NULL
+countbygene <- round(countbygene)
+
+# getting ready for DESeq2
+countData <- countbygene 
+
+
+# meta data
+sample=c("KO1", "KO2", "KO3", "KO4","KO5", "KO6", 
+           "WT1", "WT2","WT3", "WT4", "WT5", "WT6") 
+genotype=c("FMR1_KO", "FMR1_KO", "FMR1_KO", "FMR1_KO", "FMR1_KO", "FMR1_KO", 
+           "WT", "WT","WT", "WT", "WT", "WT") 
+
+colData <- data.frame(sample,genotype)
+rownames(colData) <- colData$sample
+
+
+# keep only data with >2 counts
+countData[countData < 2] <- 0
+
+# replace nas with 0
+countData[is.na(countData)] <- 0
+```
+
+The first thing I notice is that they have waay more reads per sample and thus gene counts per sample than I do. They have a mean gene counts per sample around 400 million counts per gene. My data had 5 million counts per gene. 
+
+```{r edgeR, echo=FALSE, message=FALSE, results='hide',comment=FALSE, warning=FALSE }
+counts <- countData
+dim( counts )
+colSums( counts ) / 1e06  # in millions of reads
+table( rowSums( counts ) )[ 1:30 ] # Number of genes with low counts
+
+rowsum <- as.data.frame(colSums( counts ) / 1e06 )
+names(rowsum)[1] <- "millioncounts"
+rowsum$sample <- row.names(rowsum)
+
+ggplot(rowsum, aes(x=millioncounts)) + 
+  geom_histogram(bins = 20, colour = "black", fill = "darkgrey") +
+  theme_classic() +
+  scale_x_continuous(name = "Millions of Gene Counts per Sample") +
+  scale_y_continuous(name = "Number of Samples")
+```
+
+# Differential gene experssion with DESeq2 modeling genotype
+
+```{r DifferentialGeneExpressionAnalysis, comment=FALSE, warning=FALSE}
+dds <- DESeqDataSetFromMatrix(countData = countData,
+                              colData = colData,
+                              design = ~ genotype )
+dds <- dds[ rowSums(counts(dds)) > 2, ] ## filter genes with 0 counts
+dds <- DESeq(dds) # Differential expression analysis
+dds
+
+## for variance stablized gene expression and log transformed data
+rld <- rlog(dds, blind=FALSE)
+```
+
+There are 12 samples (6 WT and 6 FMR1-KO) and 37,167 genes were included in the analysis, but most were discarded during the normalizaiton and analysis iwth DESeq such that the expression of only 19,361 genes were analysed.
+
+```{r viewcoldata, echo=FALSE,message=FALSE, warning=FALSE}
+colData$genotype <- as.factor(colData$genotype)
+colData %>% select(genotype)  %>%  summary()
+
+dim(countData)
+
+dim(rld)
+```
+
+# Principle component analysis
+
+```{r PCA, echo=FALSE, message=FALSE, results='hide',comment=FALSE, warning=FALSE}
+
+# create the dataframe using my function pcadataframe
+pcadata <- pcadataframe(rld, intgroup=c("genotype"), returnData=TRUE)
+percentVar <- round(100 * attr(pcadata, "percentVar"))
+
+## PC1 vs PC2
+
+PCA12 <- ggplot(pcadata, aes(PC1, PC2, shape = genotype, color = genotype)) + 
+  geom_point(size = 3, alpha = 1) +
+    xlab(paste0("PC1: ", percentVar[1],"% variance")) +
+    ylab(paste0("PC2: ", percentVar[2],"% variance")) +
+    scale_color_manual(values =c("#404040", "#404040")) +
+    theme_cowplot(font_size = 8, line_size = 0.25)  +
+    #theme(legend.position="none") +
+    scale_shape_manual(values=c(1, 16)) 
+PCA12
+```
+
+Nice clusering of points. PC1 and PC2 together separate samples by genotype. PC2 is signfificant
+
+# ANOVA PCA
+
+```{r, echo=TRUE, message=FALSE, comment=FALSE, warning=FALSE}
+aov1 <- aov(PC1 ~ genotype, data=pcadata)
+summary(aov1) 
+
+
+aov2 <- aov(PC2 ~ genotype, data=pcadata)
+summary(aov2) 
+
+aov3 <- aov(PC3 ~ genotype, data=pcadata)
+summary(aov3) 
+
+```
+
+
+# Heatmap
+
+```{r HeatmapPadj, echo=FALSE, message=FALSE, results='hide',comment=FALSE, warning=FALSE}
+contrast1 <- resvals(contrastvector = c('genotype', 'FMR1_KO', 'WT'), mypval = 0.1)
+
+## Any padj <0.1
+DEGes <- assay(rld)
+DEGes <- cbind(DEGes, contrast1)
+DEGes <- as.data.frame(DEGes) # convert matrix to dataframe
+DEGes$rownames <- rownames(DEGes)  # add the rownames to the dataframe
+
+DEGes <- DEGes %>% filter(padjgenotypeFMR1_KOWT < 0.01)
+
+rownames(DEGes) <- DEGes$rownames
+drop.cols <-colnames(DEGes[,grep("padj|pval|rownames", colnames(DEGes))])
+DEGes <- DEGes %>% select(-one_of(drop.cols))
+DEGes <- as.matrix(DEGes)
+DEGes <- DEGes - rowMeans(DEGes)
+
+
+# setting color options
+ann_colors <- list(
+  genotype =  c('FMR1_KO' = (values=c("white")), 
+            'WT' = (values=c("#404040"))))
+
+df <- as.data.frame(colData(dds)[,c( "genotype")])
+rownames(df) <- names(countData)
+colnames(df) <- "genotype"
+
+paletteLength <- 40
+myBreaks <- c(seq(min(DEGes), 0, length.out=ceiling(paletteLength/2) + 1), 
+              seq(max(DEGes)/paletteLength, max(DEGes), length.out=floor(paletteLength/2)))
+
+
+pheatmap(DEGes, show_colnames=T, show_rownames = T,
+         annotation_col=df, 
+         annotation_colors = ann_colors,
+         treeheight_row = 0, treeheight_col = 50,
+         fontsize = 11, 
+         #width=4.5, height=3,
+         border_color = "grey60" ,
+         color = viridis(40),
+         cellwidth = 10, 
+         clustering_distance_cols="correlation" ,
+         breaks=myBreaks,
+         clustering_method="average"
+         )
+
+# for adobe
+pheatmap(DEGes, show_colnames=F, show_rownames = T,
+         annotation_col=df, annotation_colors = ann_colors,
+         treeheight_row = 0, treeheight_col = 25,
+         fontsize = 6, 
+         width=3, height=4.5,
+         border_color = "grey60" ,
+         color = viridis(40),
+         cellwidth = 6, 
+         clustering_distance_cols="correlation" ,
+         breaks=myBreaks,
+         clustering_method="average",
+         filename = "../figures/07_Ceolin/HeatmapPadj-1.pdf"
+         )
+
+```
+
+
+
+```{r GOsetup, echo=FALSE, message=FALSE, comment=FALSE, warning=FALSE }
+#create a new DF with the gene counts
+GOpvals <- assay(rld)
+GOpvals <- cbind(GOpvals, contrast1)
+GOpvals <- as.data.frame(GOpvals)
+GOpvals <- GOpvals[ , grepl( "padj|pval" , names( GOpvals ) ) ]
+
+GOpvals$gene<-rownames(GOpvals)
+
+GOpvals <- GOpvals %>%
+  select(gene, padjgenotypeFMR1_KOWT)
+GOpvals$logP <- log(GOpvals$padjgenotypeFMR1_KOWT)
+GOpvals <- GOpvals %>%
+  select(gene, logP)
+
+write.csv(GOpvals, "./06_GO_MWU/07_Ceolin_GOpvals.csv", row.names = F)
+```
+
+
+# Differentially expressed genes
+
+out of 19361 with nonzero total read count
+adjusted p-value < 0.1
+LFC > 0 (up)     : 88, 0.45% 
+LFC < 0 (down)   : 146, 0.75%
+
+### Serpina3n was in my list, right? and Ccnd1?
+
+```{r volcanos}
+res <- results(dds, contrast =c("genotype", "FMR1_KO", "WT"), independentFiltering = T, alpha = 0.1)
+summary(res)
+resOrdered <- res[order(res$padj),]
+head(resOrdered, 10)
+data <- data.frame(gene = row.names(res), pvalue = -log10(res$padj), lfc = res$log2FoldChange)
+data <- na.omit(data)
+data <- data %>%
+  mutate(color = ifelse(data$lfc > 0 & data$pvalue > 1.3, 
+                        yes = "FRM1_KO", 
+                        no = ifelse(data$lfc < 0 & data$pvalue > 1.3, 
+                                    yes = "WT", 
+                                    no = "none")))
+top_labelled <- top_n(data, n = 5, wt = pvalue)
+
+# Color corresponds to fold change directionality
+colored <- ggplot(data, aes(x = lfc, y = pvalue)) + 
+  geom_point(aes(color = factor(color), shape = factor(color)), size = 3, alpha = 0.5, na.rm = T) + # add gene points
+  theme_bw(base_size = 8) + # clean up theme
+  theme(legend.position = "none") + # remove legend 
+  scale_color_manual(values = c("FRM1_KO" = "black",
+                                "WT" = "black", 
+                                "none" = "grey")) + theme(panel.grid.minor=element_blank(),
+           panel.grid.major=element_blank()) + 
+  scale_x_continuous(name="Log Fold Change") +
+  scale_y_continuous(name="-log10 (adjusted p-value)") +
+  geom_hline(yintercept = 1.3,  size = 0.25, linetype = 2 ) + 
+  scale_shape_manual(values = c(1,16,16))  
+colored
+
+colored <- ggplot(data, aes(x = lfc, y = pvalue)) + 
+  geom_point(aes(color = factor(color), shape = factor(color)), size = 1, alpha = 0.5, na.rm = T) + # add gene points
+  theme_bw(base_size = 8) + # clean up theme
+  theme(legend.position = "none") + # remove legend 
+  scale_color_manual(values = c("FRM1_KO" = "black",
+                                "WT" = "black", 
+                                "none" = "grey")) + theme(panel.grid.minor=element_blank(),
+           panel.grid.major=element_blank()) + 
+  scale_x_continuous(name="Log Fold Change") +
+  scale_y_continuous(name="-log10 (adjusted p-value)") +
+  geom_hline(yintercept = 1.3,  size = 0.25, linetype = 2 ) + 
+  scale_shape_manual(values = c(1,16,16))  
+colored
+
+pdf(file="../figures/07_Ceolin/volcano.pdf", width=1.5, height=1.75)
+plot(colored)
+dev.off()
+```
+

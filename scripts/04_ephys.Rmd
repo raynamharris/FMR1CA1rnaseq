@@ -7,8 +7,6 @@ output:
     variant: markdown_github
 ---
 
-
-
 ```{r}
 library(ggplot2)
 library(reshape2)
@@ -36,8 +34,8 @@ ephys2$APA <- ifelse(grepl("TTT", ephys2$group), "consistent",
 
 ephys2$APA2 <- ifelse(grepl("TTT", ephys2$group), "consistent", 
                       ifelse(grepl("TCT", ephys2$group), "conflict",
-                             ifelse(grepl("TTY", ephys2$group), "control-consistent",
-                                    ifelse(grepl("TCY", ephys2$group), "control-conflict", NA))))
+                             ifelse(grepl("TTY", ephys2$group), "yoked-consistent",
+                                    ifelse(grepl("TCY", ephys2$group), "yoked-conflict", NA))))
 
 ephys2$Year <- ifelse(grepl("151", ephys2$ID), "2015", 
                       ifelse(grepl("16-", ephys2$ID), "2016", NA))
@@ -69,7 +67,7 @@ ephys2$APA <- factor(ephys2$APA,
                      levels = c("control", "consistent", "conflict"))
 
 ephys2$APA2 <- factor(ephys2$APA2,
-                      levels = c("control-consistent","consistent","control-conflict", "conflict"))
+                      levels = c("yoked-consistent","consistent","yoked-conflict", "conflict"))
 
 
 ## make long and tidy

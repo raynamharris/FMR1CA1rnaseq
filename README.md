@@ -39,13 +39,13 @@
 
 These are the main conclusions from the research
 
-1. Confirm that FMR1-KO does not impair learning or memory, but unexpectidly, find that FMR1-KO impairs cognitive discrimination
+### Confirm that FMR1-KO does not impair learning or memory, but unexpectidly, find that FMR1-KO impairs cognitive discrimination
 
 ![](./figures/fig1-02.png)
 WT and FMR1-KO mice exhibit place avoidance and cognitive discrimination
 Top) Consistently trained mice (red) from both WT (solid lines, filled circles) and FMR1-KO (dashes lines, open circles) make fewer entrances into the shock zone than yoked-mice (grey). Bottom) Conflict trained mice (pink) from both WT (solid lines, filled circles) and FMR1-KO (dashes lines, open circles) learn to avoid the initial and the conflicting shock zones. Data are reported as mean +/- SEM. A Mann-Whitney statistical test shows that there are no significant differences due to genotype for any treatment at any time point (as evidenced by all overlapping standard error bars). Inserts) The pie-shaped shaded regions of the inserts highlight the region used to count the number of entrances. Sample sizes for each treatment group and genotype are shown on the bottom right.
 
-2. Identify transcriptional response to constitutive gene knockdown of fragile x mental retardation protein (FMRP)
+### Identify transcriptional response to constitutive gene knockdown of fragile x mental retardation protein (FMRP)
 
 ![](./figures/fig1-03.png)
 WT and FMR1-KO show evidence of differential gene expression in the CA1
@@ -55,7 +55,7 @@ A)  The sample size for RNA-sequencing is 8 WT and 8 FMR1-KO tissues from the CA
 Downregulation of ion transport in the the the CA1 subfield 
 Down-regulation of ion channel binding, receptor binding, calcium binding, metal ion membrane transport, calcium ion transmembrane transporter, delayed rectifier potassium channel, channel, cation channel, channel regulator, calmodulin binding, PDZ domain binding, structural molecular, and structural constituent of ribosome. On the plot, different fonts are used to indicate significance (bold: p < 0.01, regular: p < 0.05) and color indicates enrichment with either up (red) or down (blue) regulated genes. The fraction next to GO category name indicates the fraction of "good" genes that exceed the p-value cutoff. The tree on the plot is hierarchical clustering of GO categories based on shared genes. Categories with no branch length between them are subsets of each other.
 
-1. Show that synaptic strength not diminished despite reduced calcium activity 
+### Show that synaptic strength not diminished despite reduced calcium activity 
 
 ![](./figures/ephys3.png)
 CA3-CA1 synaptic strength is not altered by genotype or place avoidance training.
@@ -65,7 +65,7 @@ I did not observe reduction in synaptic strength at the CA3-CA1 synapse (as meas
 Gene expression influenced more by the time of day than by genotype.
 Using a weight gene-expression analyses15, I identify hundreds of genes whose expression is influenced by time of day. 
 
-1. Reproduction of and comparision to the Ceolin et al. 201732 study
+### Reproduction of and comparision to the Ceolin et al. 201732 study
 
 ![](./figures/fig3-01.png)
 A) Graphical representation of the samples for the Ceolin et al. 201732 study examining CA1 expression in WT and FMR1-KO mice. B)  Volcano plot showing enrichment of 88 genes that are up-regulated in FMR1-KO mice and the 146 genes that are up-regulated in WT mice. C) Hierarchical clustering showing the names and expression patterns of those same significant genes. D) GO analysis showing a very similar pattern of depletion of calcium channel activity as was shown in Fig. 2.4C). In contrast, Ceolin detected enrichment of ribosomal processes in response to FMR1-KO in CA1 pyramidal neurons.A) Graphical representation of the samples for the Ceolin et al. 201732 study examining CA1 expression in WT and FMR1-KO mice. B)  Volcano plot showing enrichment of 88 genes that are up-regulated in FMR1-KO mice and the 146 genes that are up-regulated in WT mice. C) Hierarchical clustering showing the names and expression patterns of those same significant genes. D) GO analysis showing a very similar pattern of depletion of calcium channel activity as was shown in Fig. 2.4C). In contrast, Ceolin detected enrichment of ribosomal processes in response to FMR1-KO in CA1 pyramidal neurons.

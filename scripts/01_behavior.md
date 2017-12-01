@@ -1,3 +1,6 @@
+Setup - load libraries and favorite colors
+==========================================
+
     ## load libraries 
     library(tidyr) ## for respahing data
     library(plyr) ## for renmaing factors
@@ -13,6 +16,9 @@
     source("figureoptions.R")
 
     knitr::opts_chunk$set(fig.path = '../figures/01_behavior/')
+
+Behavior data wrangling and sample sizes
+========================================
 
     ## read intermediate data (raw data from video tracker program analyzed in matlab)
     behavior <- read.csv("../data/fmr1.csv", header = T)
@@ -70,64 +76,243 @@
     ##  yoked-conflict  :5              
     ##  conflict        :5
 
-    # num entrances
+Creating dataframes and plotting mean with standard error
+=========================================================
+
+    # behaviors
     numentr <- dplyr::summarise(group_by(behavior, Genotype, APA2, TrainSessionComboNum, conflict), m = mean(NumEntrances), se = sd(NumEntrances)/sqrt(length(NumEntrances)), len = length(NumEntrances))
 
-    ptime <- dplyr::summarise(group_by(behavior, Genotype, APA2, TrainSessionComboNum, conflict), m = mean(pTimeTarget), se = sd(pTimeTarget)/sqrt(length(pTimeTarget)), len = length(pTimeTarget))
+    pathentr <- dplyr::summarise(group_by(behavior, Genotype, APA2, TrainSessionComboNum, conflict), m = mean(Path1stEntr), se = sd(Path1stEntr)/sqrt(length(Path1stEntr)), len = length(Path1stEntr))
+
 
     levels(numentr$APA2) <- c("yoked-consistent","consistent", "yoked-conflict","conflict")
-    numentr$conflict = factor(numentr$conflict, levels = c("consistent","conflict"))
-    levels(numentr$conflict) <- c("Initial learning","Cognitive discrimination")
+    levels(pathentr$APA2) <- c("yoked-consistent","consistent", "yoked-conflict","conflict")
 
-    oneplot <- ggplot(numentr, aes(x=, TrainSessionComboNum, y=m, color=APA2, shape=Genotype)) + 
-        geom_errorbar(aes(ymin=m-se, ymax=m+se), width=.1) +
-        geom_point(size = 2) +
-       geom_line(aes(colour=APA2, linetype=Genotype)) +
-       scale_y_continuous(name= "Number of Entrances") +
-        scale_x_continuous(name="Training Session", 
-                           breaks = c(1, 2, 3, 4, 5, 6, 7, 8, 9),
-                           labels = c( "Pre.", "T1", "T2", "T3",
-                                       "Retest", "T4/C1", "T5/C2", 
-                                       "T6/C3", "Reten.")) +
-      theme_cowplot(font_size = 8, line_size = 0.25) +
-      #background_grid(major = "y", minor = "y") +
-      scale_color_manual(values = colorvalAPA00)  +
-      theme(legend.title=element_blank()) +
-      #theme(legend.position="none") +
-      scale_shape_manual(values=c(16, 1)) 
-    oneplot
+    numentr$conflict = factor(numentr$conflict, levels = c("consistent","conflict"))
+    pathentr$conflict = factor(numentr$conflict, levels = c("consistent","conflict"))
+    numentr$measure <- "Number of Entrances"
+    pathentr$measure <- "Path to the 1st Entrance"
+
+
+    PathNum <- rbind(pathentr,numentr)
+    PathNum$measure <- as.factor(PathNum$measure)
+    write.csv(PathNum, "../data/01_behaviordatasummary.csv")
+
+    summary(pathentr)
+
+    ##    Genotype                APA2    TrainSessionComboNum       conflict 
+    ##  WT    :36   yoked-consistent:18   Min.   :1            consistent:36  
+    ##  FMR1KO:36   consistent      :18   1st Qu.:3            conflict  :36  
+    ##              yoked-conflict  :18   Median :5                           
+    ##              conflict        :18   Mean   :5                           
+    ##                                    3rd Qu.:7                           
+    ##                                    Max.   :9                           
+    ##        m                se              len          measure         
+    ##  Min.   : 0.000   Min.   :0.0000   Min.   :2.000   Length:72         
+    ##  1st Qu.: 0.476   1st Qu.:0.1880   1st Qu.:4.000   Class :character  
+    ##  Median : 1.052   Median :0.6821   Median :4.000   Mode  :character  
+    ##  Mean   : 2.194   Mean   :1.1937   Mean   :5.375                     
+    ##  3rd Qu.: 3.810   3rd Qu.:1.5221   3rd Qu.:8.000                     
+    ##  Max.   :12.023   Max.   :5.2897   Max.   :9.000
+
+    summary(numentr)
+
+    ##    Genotype                APA2    TrainSessionComboNum       conflict 
+    ##  WT    :36   yoked-consistent:18   Min.   :1            consistent:36  
+    ##  FMR1KO:36   consistent      :18   1st Qu.:3            conflict  :36  
+    ##              yoked-conflict  :18   Median :5                           
+    ##              conflict        :18   Mean   :5                           
+    ##                                    3rd Qu.:7                           
+    ##                                    Max.   :9                           
+    ##        m               se              len          measure         
+    ##  Min.   : 2.75   Min.   :0.8539   Min.   :2.000   Length:72         
+    ##  1st Qu.: 7.25   1st Qu.:1.3254   1st Qu.:4.000   Class :character  
+    ##  Median :13.42   Median :1.9195   Median :4.000   Mode  :character  
+    ##  Mean   :13.30   Mean   :2.2038   Mean   :5.375                     
+    ##  3rd Qu.:16.85   3rd Qu.:2.5951   3rd Qu.:8.000                     
+    ##  Max.   :31.43   Max.   :6.9602   Max.   :9.000
+
+    boxplot(numentr$m ~ numentr$TrainSessionComboNum)
 
 ![](../figures/01_behavior/unnamed-chunk-1-1.png)
 
-    pdf(file="../figures/01_behavior/oneplot.pdf", width=6, height=3)
-    plot(oneplot)
+    plot(numentr$m ~ numentr$TrainSessionComboNum)
+
+![](../figures/01_behavior/unnamed-chunk-1-2.png)
+
+    numenr <- PathNum  %>% 
+      #filter(TrainSessionComboNum != "1", TrainSessionComboNum != "9") %>% 
+      filter(measure == "Number of Entrances") %>% 
+      droplevels()  %>% 
+      ggplot(aes(x=, TrainSessionComboNum, y=m, color=APA2, shape=Genotype)) + 
+        geom_errorbar(aes(ymin=m-se, ymax=m+se), width=.1) +
+        geom_point(size = 2) +
+       geom_line(aes(colour=APA2, linetype=Genotype)) +
+       scale_y_continuous(name= "Number of Entrances",
+                          limits = c(0,25)) +
+        scale_x_continuous(name="Training Session", 
+                           breaks = c(1, 2, 3, 4, 5, 6, 7, 8, 9),
+                           labels = c( "Pre.", "T1", "T2", "T3",
+                                       "Retest", "C1", "C2", "C3", "Reten.")) +
+      theme_cowplot(font_size = 8, line_size = 0.25) +
+      background_grid(major = "y", minor="non") +
+      scale_color_manual(values = colorvalAPA00)  +
+      theme(legend.title=element_blank()) +
+      theme(legend.position="bottom") +
+      scale_shape_manual(values=c(16, 1)) 
+    numenr
+
+    ## Warning: Removed 9 rows containing missing values (geom_errorbar).
+
+    ## Warning: Removed 7 rows containing missing values (geom_point).
+
+    ## Warning: Removed 7 rows containing missing values (geom_path).
+
+![](../figures/01_behavior/unnamed-chunk-1-3.png)
+
+    pdf(file="../figures/01_behavior/legend.pdf", width=5, height=2)
+    plot(numenr)
+
+    ## Warning: Removed 9 rows containing missing values (geom_errorbar).
+
+    ## Warning: Removed 7 rows containing missing values (geom_point).
+
+    ## Warning: Removed 7 rows containing missing values (geom_path).
+
     dev.off()
 
     ## quartz_off_screen 
     ##                 2
 
-    twoplot <- ggplot(numentr, aes(x=, TrainSessionComboNum, y=m, color=APA2, shape=Genotype)) + 
+    numenrwt <- PathNum  %>% 
+      #filter(TrainSessionComboNum != "1", TrainSessionComboNum != "9") %>% 
+      filter(measure == "Number of Entrances") %>% 
+      filter(Genotype == "WT") %>% 
+      droplevels()  %>% 
+      ggplot(aes(x=, TrainSessionComboNum, y=m, color=APA2, shape=Genotype)) + 
         geom_errorbar(aes(ymin=m-se, ymax=m+se), width=.1) +
         geom_point(size = 2) +
        geom_line(aes(colour=APA2, linetype=Genotype)) +
-       scale_y_continuous(name= "Number of Entrances") +
+       scale_y_continuous(name= "Number of Entrances",
+                          limits = c(0,35)) +
         scale_x_continuous(name="Training Session", 
                            breaks = c(1, 2, 3, 4, 5, 6, 7, 8, 9),
                            labels = c( "Pre.", "T1", "T2", "T3",
-                                       "Retest", "T4/C1", "T5/C2", "T6/C3", "Reten.")) +
+                                       "Retest", "C1", "C2" ,"C3", 
+                                       "Reten.")) +
       theme_cowplot(font_size = 8, line_size = 0.25) +
-      background_grid(major = "y", minor = "y") +
+      background_grid(major = "y", minor="non") +
       scale_color_manual(values = colorvalAPA00)  +
       theme(legend.title=element_blank()) +
-      #theme(legend.position="none") +
-      scale_shape_manual(values=c(16, 1)) +
-      facet_wrap(~conflict, nrow = 2) 
-    twoplot
+      theme(legend.position="none") +
+      scale_shape_manual(values=c(16, 1)) 
+    numenrwt
 
-![](../figures/01_behavior/unnamed-chunk-1-2.png)
+![](../figures/01_behavior/unnamed-chunk-1-4.png)
 
-    pdf(file="../figures/01_behavior/twoplot.pdf", width=4.5, height=4)
-    plot(twoplot)
+    pdf(file="../figures/01_behavior/numenrwt.pdf", width=2.25, height=2)
+    plot(numenrwt)
+    dev.off()
+
+    ## quartz_off_screen 
+    ##                 2
+
+    numenrfmr1 <- PathNum  %>% 
+      filter(TrainSessionComboNum != "1", TrainSessionComboNum != "9") %>% 
+      filter(measure == "Number of Entrances") %>% 
+      filter(Genotype != "WT") %>% 
+      ggplot(aes(x=, TrainSessionComboNum, y=m, color=APA2, shape=Genotype)) + 
+        geom_errorbar(aes(ymin=m-se, ymax=m+se), width=.1) +
+        geom_point(size = 2) +
+       geom_line(linetype = 2, aes(colour=APA2)) +
+       scale_y_continuous(name= "Number of Entrances",
+                          limits = c(0,35)) +
+        scale_x_continuous(name="Training Session", 
+                           breaks = c(1, 2, 3, 4, 5, 6, 7, 8, 9),
+                           labels = c( "Pre.", "T1", "T2", "T3",
+                                       "Retest", "C1", "C2","C3", 
+                                      "Reten.")) +
+      theme_cowplot(font_size = 8, line_size = 0.25) +
+      background_grid(major = "y", minor = "none") +
+      scale_color_manual(values = colorvalAPA00)  +
+      theme(legend.title=element_blank()) +
+      theme(legend.position="none") +
+      scale_shape_manual(values=c(1)) 
+    numenrfmr1
+
+![](../figures/01_behavior/unnamed-chunk-1-5.png)
+
+    pdf(file="../figures/01_behavior/numenrfmr1.pdf", width=2.25, height=2)
+    plot(numenrfmr1)
+    dev.off()
+
+    ## quartz_off_screen 
+    ##                 2
+
+    pathfmr1 <- PathNum  %>% 
+      #filter(TrainSessionComboNum != "1", TrainSessionComboNum != "9") %>% 
+      filter(measure == "Path to the 1st Entrance") %>% 
+      filter(Genotype != "WT") %>% 
+      ggplot(aes(x=, TrainSessionComboNum, y=m, color=APA2, shape=Genotype)) + 
+        geom_errorbar(aes(ymin=m-se, ymax=m+se), width=.1) +
+        geom_point(size = 2) +
+       geom_line(linetype = 2, aes(colour=APA2)) +
+       scale_y_continuous(name= "Path to the 1st Entrance",
+                          limits = c(0,17.5)) +
+        scale_x_continuous(name="Training Session", 
+                           breaks = c(1, 2, 3, 4, 5, 6, 7, 8, 9),
+                           labels = c( "Pre.", "T1", "T2", "T3",
+                                       "Retest", "C1", "C2", "C3", 
+                                        "Reten.")) +
+      theme_cowplot(font_size = 8, line_size = 0.25) +
+      background_grid(major = "y", minor = "none") +
+      scale_color_manual(values = colorvalAPA00)  +
+      theme(legend.title=element_blank()) +
+      theme(legend.position="none") +
+      scale_shape_manual(values=c(1)) 
+    pathfmr1
+
+![](../figures/01_behavior/unnamed-chunk-1-6.png)
+
+    pdf(file="../figures/01_behavior/pathfmr1.pdf", width=2.25, height=2)
+    plot(pathfmr1)
+    dev.off()
+
+    ## quartz_off_screen 
+    ##                 2
+
+    pathwt <- PathNum  %>% 
+      #filter(TrainSessionComboNum != "1", TrainSessionComboNum != "9") %>% 
+      filter(measure == "Path to the 1st Entrance") %>% 
+      filter(Genotype == "WT") %>% 
+      ggplot(aes(x=, TrainSessionComboNum, y=m, color=APA2, shape=Genotype)) + 
+        geom_errorbar(aes(ymin=m-se, ymax=m+se), width=.1) +
+        geom_point(size = 2) +
+       geom_line(linetype = 1, aes(colour=APA2)) +
+       scale_y_continuous(name= "Path to the 1st Entrance",
+                          limits = c(0,17.5)) +
+        scale_x_continuous(name="Training Session", 
+                           breaks = c(1, 2, 3, 4, 5, 6, 7, 8, 9),
+                           labels = c( "Pre.", "T1", "T2", "T3",
+                                       "Retest", "C1", "C2","C3", 
+                                       "Reten.")) +
+      theme_cowplot(font_size = 8, line_size = 0.25) +
+      background_grid(major = "y", minor = "none") +
+      scale_color_manual(values = colorvalAPA00)  +
+      theme(legend.title=element_blank()) +
+      theme(legend.position="none") +
+      scale_shape_manual(values=c(16)) 
+    pathwt
+
+    ## Warning: Removed 1 rows containing missing values (geom_errorbar).
+
+![](../figures/01_behavior/unnamed-chunk-1-7.png)
+
+    pdf(file="../figures/01_behavior/pathwt.pdf", width=2.25, height=2)
+    plot(pathwt)
+
+    ## Warning: Removed 1 rows containing missing values (geom_errorbar).
+
     dev.off()
 
     ## quartz_off_screen 
@@ -138,17 +323,18 @@ Anovas Consistent only - No significant effect of genotype
 
     consistent <- behavior %>%
       filter(conflict == "consistent")  %>%
+      filter(TrainSessionCombo != "Hab", TrainSessionCombo != "Retention") %>%
       droplevels()
 
     m1 = aov(NumEntrances ~  Genotype + APA2 + TrainSessionCombo + Genotype * APA2  , data=consistent)
     summary(m1)
 
     ##                    Df Sum Sq Mean Sq F value Pr(>F)    
-    ## Genotype            1     92    92.4   3.551  0.061 .  
-    ## APA2                1   3029  3028.8 116.354 <2e-16 ***
-    ## TrainSessionCombo   8   8626  1078.2  41.420 <2e-16 ***
-    ## Genotype:APA2       1      1     0.7   0.025  0.874    
-    ## Residuals         197   5128    26.0                   
+    ## Genotype            1     20    19.7   0.881  0.350    
+    ## APA2                1   2487  2486.6 111.191 <2e-16 ***
+    ## TrainSessionCombo   6    147    24.6   1.099  0.366    
+    ## Genotype:APA2       1      1     1.2   0.056  0.813    
+    ## Residuals         148   3310    22.4                   
     ## ---
     ## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
 
@@ -160,70 +346,53 @@ Anovas Consistent only - No significant effect of genotype
     ## Fit: aov(formula = NumEntrances ~ Genotype + APA2 + TrainSessionCombo + Genotype * APA2, data = consistent)
     ## 
     ## $Genotype
-    ##               diff         lwr      upr    p adj
-    ## FMR1KO-WT 1.330766 -0.06196487 2.723498 0.060992
+    ##               diff        lwr      upr     p adj
+    ## FMR1KO-WT 0.707529 -0.7823606 2.197419 0.3495501
     ## 
     ## $APA2
-    ##                                 diff       lwr       upr p adj
-    ## consistent-yoked-consistent -7.89679 -9.343586 -6.449994     0
+    ##                                  diff       lwr       upr p adj
+    ## consistent-yoked-consistent -8.245694 -9.793838 -6.697549     0
     ## 
     ## $TrainSessionCombo
-    ##                         diff        lwr         upr     p adj
-    ## Retention-Hab    -15.7732787 -20.276739 -11.2698182 0.0000000
-    ## Retest-Hab       -20.1476636 -25.040487 -15.2548404 0.0000000
-    ## T1-Hab           -18.8953392 -23.667721 -14.1229572 0.0000000
-    ## T2-Hab           -19.9292724 -24.598914 -15.2596303 0.0000000
-    ## T3-Hab           -20.6680665 -25.440449 -15.8956844 0.0000000
-    ## T4_C1-Hab        -20.9292724 -25.598914 -16.2596303 0.0000000
-    ## T5_C2-Hab        -20.0404540 -24.759512 -15.3213963 0.0000000
-    ## T6_C3-Hab        -22.2578453 -26.976903 -17.5387876 0.0000000
-    ## Retest-Retention  -4.3743849  -9.059614   0.3108440 0.0882442
-    ## T1-Retention      -3.1220605  -7.681368   1.4372466 0.4441016
-    ## T2-Retention      -4.1559937  -8.607646   0.2956587 0.0882946
-    ## T3-Retention      -4.8947878  -9.454095  -0.3354806 0.0250875
-    ## T4_C1-Retention   -5.1559937  -9.607646  -0.7043413 0.0105595
-    ## T5_C2-Retention   -4.2671753  -8.770636   0.2362852 0.0787022
-    ## T6_C3-Retention   -6.4845666 -10.988027  -1.9811061 0.0003646
-    ## T1-Retest          1.2523243  -3.691949   6.1965981 0.9969211
-    ## T2-Retest          0.2183912  -4.626789   5.0635713 1.0000000
-    ## T3-Retest         -0.5204029  -5.464677   4.4238709 0.9999958
-    ## T4_C1-Retest      -0.7816088  -5.626789   4.0635713 0.9998866
-    ## T5_C2-Retest       0.1072096  -4.785614   5.0000327 1.0000000
-    ## T6_C3-Retest      -2.1101817  -7.003005   2.7826414 0.9137005
-    ## T2-T1             -1.0339332  -5.757458   3.6895912 0.9989093
-    ## T3-T1             -1.7727273  -6.597844   3.0523899 0.9651187
-    ## T4_C1-T1          -2.0339332  -6.757458   2.6895912 0.9144254
-    ## T5_C2-T1          -1.1451148  -5.917497   3.6272673 0.9978955
-    ## T6_C3-T1          -3.3625061  -8.134888   1.4098760 0.4033509
-    ## T3-T2             -0.7387941  -5.462318   3.9847303 0.9999103
-    ## T4_C1-T2          -1.0000000  -5.619698   3.6196980 0.9989938
-    ## T5_C2-T2          -0.1111816  -4.780824   4.5584605 1.0000000
-    ## T6_C3-T2          -2.3285729  -6.998215   2.3410692 0.8229393
-    ## T4_C1-T3          -0.2612059  -4.984730   4.4623185 1.0000000
-    ## T5_C2-T3           0.6276125  -4.144770   5.3999946 0.9999762
-    ## T6_C3-T3          -1.5897788  -6.362161   3.1826033 0.9808767
-    ## T5_C2-T4_C1        0.8888184  -3.780824   5.5584605 0.9996081
-    ## T6_C3-T4_C1       -1.3285729  -5.998215   3.3410692 0.9931656
-    ## T6_C3-T5_C2       -2.2173913  -6.936449   2.5016664 0.8663585
+    ##                    diff       lwr       upr     p adj
+    ## T1-Retest     1.2966355 -3.070907 5.6641781 0.9739576
+    ## T2-Retest     0.2708037 -4.009204 4.5508115 0.9999960
+    ## T3-Retest    -0.4760917 -4.843634 3.8914508 0.9999009
+    ## T4_C1-Retest -0.7291963 -5.009204 3.5508115 0.9986945
+    ## T5_C2-Retest  0.1407086 -4.181385 4.4628020 0.9999999
+    ## T6_C3-Retest -2.0766827 -6.398776 2.2454107 0.7812349
+    ## T2-T1        -1.0258318 -5.198375 3.1467109 0.9901731
+    ## T3-T1        -1.7727273 -6.035012 2.4895578 0.8759233
+    ## T4_C1-T1     -2.0258318 -6.198375 2.1467109 0.7727588
+    ## T5_C2-T1     -1.1559269 -5.371628 3.0597744 0.9826109
+    ## T6_C3-T1     -3.3733182 -7.589020 0.8423831 0.2093731
+    ## T3-T2        -0.7468955 -4.919438 3.4256473 0.9982747
+    ## T4_C1-T2     -1.0000000 -5.080827 3.0808273 0.9903426
+    ## T5_C2-T2     -0.1300951 -4.255041 3.9948505 0.9999999
+    ## T6_C3-T2     -2.3474864 -6.472432 1.7774592 0.6163476
+    ## T4_C1-T3     -0.2531045 -4.425647 3.9194382 0.9999969
+    ## T5_C2-T3      0.6168004 -3.598901 4.8325017 0.9994524
+    ## T6_C3-T3     -1.6005909 -5.816292 2.6151104 0.9162674
+    ## T5_C2-T4_C1   0.8699049 -3.255041 4.9948505 0.9957084
+    ## T6_C3-T4_C1  -1.3474864 -5.472432 2.7774592 0.9583254
+    ## T6_C3-T5_C2  -2.2173913 -6.385988 1.9512058 0.6888572
     ## 
     ## $`Genotype:APA2`
-    ##                                                   diff        lwr
-    ## FMR1KO:yoked-consistent-WT:yoked-consistent  0.6852697  -2.351775
-    ## WT:consistent-WT:yoked-consistent           -8.0474479 -10.745933
-    ## FMR1KO:consistent-WT:yoked-consistent       -7.1289323  -9.907336
-    ## WT:consistent-FMR1KO:yoked-consistent       -8.7327176 -11.339702
-    ## FMR1KO:consistent-FMR1KO:yoked-consistent   -7.8142020 -10.503825
-    ## FMR1KO:consistent-WT:consistent              0.9185156  -1.381974
+    ##                                                    diff        lwr
+    ## FMR1KO:yoked-consistent-WT:yoked-consistent -0.01295411  -3.268641
+    ## WT:consistent-WT:yoked-consistent           -8.45631460 -11.300447
+    ## FMR1KO:consistent-WT:yoked-consistent       -8.09878611 -11.056522
+    ## WT:consistent-FMR1KO:yoked-consistent       -8.44336049 -11.254612
+    ## FMR1KO:consistent-FMR1KO:yoked-consistent   -8.08583200 -11.011963
+    ## FMR1KO:consistent-WT:consistent              0.35752849  -2.102520
     ##                                                   upr     p adj
-    ## FMR1KO:yoked-consistent-WT:yoked-consistent  3.722314 0.9366202
-    ## WT:consistent-WT:yoked-consistent           -5.348963 0.0000000
-    ## FMR1KO:consistent-WT:yoked-consistent       -4.350529 0.0000000
-    ## WT:consistent-FMR1KO:yoked-consistent       -6.125733 0.0000000
-    ## FMR1KO:consistent-FMR1KO:yoked-consistent   -5.124579 0.0000000
-    ## FMR1KO:consistent-WT:consistent              3.219005 0.7293828
+    ## FMR1KO:yoked-consistent-WT:yoked-consistent  3.242733 0.9999996
+    ## WT:consistent-WT:yoked-consistent           -5.612182 0.0000000
+    ## FMR1KO:consistent-WT:yoked-consistent       -5.141050 0.0000000
+    ## WT:consistent-FMR1KO:yoked-consistent       -5.632109 0.0000000
+    ## FMR1KO:consistent-FMR1KO:yoked-consistent   -5.159701 0.0000000
+    ## FMR1KO:consistent-WT:consistent              2.817577 0.9815839
 
-    hab <- consistent %>%
-      filter(TrainSession == "Hab") 
     T1 <- consistent %>%
       filter(TrainSession == "T1") 
     T2 <- consistent %>%
@@ -238,16 +407,7 @@ Anovas Consistent only - No significant effect of genotype
       filter(TrainSession %in% c("T5", "C2")) 
     T6 <- consistent %>%
       filter(TrainSession %in% c("T6", "C3")) 
-    Retention <- consistent %>%
-      filter(TrainSession == "Retention") 
 
-    summary(aov(NumEntrances ~ Genotype * APA2, data=hab)) 
-
-    ##               Df Sum Sq Mean Sq F value Pr(>F)
-    ## Genotype       1   35.9   35.87   1.852  0.190
-    ## APA2           1    0.0    0.00   0.000  1.000
-    ## Genotype:APA2  1    6.9    6.91   0.357  0.557
-    ## Residuals     19  368.1   19.37
 
     summary(aov(NumEntrances ~ Genotype * APA2, data=T1)) 
 
@@ -317,90 +477,24 @@ Anovas Consistent only - No significant effect of genotype
     ## ---
     ## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
 
-    summary(aov(NumEntrances ~ Genotype * APA2, data=Retention)) 
-
-    ##               Df Sum Sq Mean Sq F value   Pr(>F)    
-    ## Genotype       1   43.6    43.6   1.139    0.296    
-    ## APA2           1 1101.0  1101.0  28.788 1.65e-05 ***
-    ## Genotype:APA2  1    0.0     0.0   0.000    0.990    
-    ## Residuals     24  917.9    38.2                     
-    ## ---
-    ## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
-
 Anovas Conflict only
 --------------------
 
     conflict <- behavior %>%
       filter(conflict == "conflict") %>%
+      filter(TrainSessionCombo != "Hab", TrainSessionCombo != "Retention", TrainSessionCombo != "T1", TrainSessionCombo != "T2",TrainSessionCombo != "T3") %>%
       droplevels()
 
-    m1 = lm(NumEntrances ~  Genotype + TrainSessionCombo + Genotype*TrainSessionCombo, data=conflict)
-    summary(m1)
-
-    ## 
-    ## Call:
-    ## lm(formula = NumEntrances ~ Genotype + TrainSessionCombo + Genotype * 
-    ##     TrainSessionCombo, data = conflict)
-    ## 
-    ## Residuals:
-    ##      Min       1Q   Median       3Q      Max 
-    ## -14.3333  -4.1667  -0.7667   4.2083  15.4167 
-    ## 
-    ## Coefficients:
-    ##                                           Estimate Std. Error t value
-    ## (Intercept)                                 29.333      1.824  16.083
-    ## GenotypeFMR1KO                              -5.083      2.884  -1.763
-    ## TrainSessionComboRetention                 -16.750      2.579  -6.494
-    ## TrainSessionComboRetest                    -23.417      2.579  -9.078
-    ## TrainSessionComboT1                        -19.750      2.579  -7.657
-    ## TrainSessionComboT2                        -20.833      2.579  -8.077
-    ## TrainSessionComboT3                        -22.250      2.579  -8.626
-    ## TrainSessionComboT4_C1                     -14.500      2.579  -5.622
-    ## TrainSessionComboT5_C2                     -21.424      2.637  -8.123
-    ## TrainSessionComboT6_C3                     -23.083      2.579  -8.949
-    ## GenotypeFMR1KO:TrainSessionComboRetention    5.200      3.954   1.315
-    ## GenotypeFMR1KO:TrainSessionComboRetest      12.500      4.277   2.922
-    ## GenotypeFMR1KO:TrainSessionComboT1           7.875      4.078   1.931
-    ## GenotypeFMR1KO:TrainSessionComboT2           5.958      4.078   1.461
-    ## GenotypeFMR1KO:TrainSessionComboT3          10.500      4.078   2.575
-    ## GenotypeFMR1KO:TrainSessionComboT4_C1        5.000      4.078   1.226
-    ## GenotypeFMR1KO:TrainSessionComboT5_C2        8.549      4.115   2.077
-    ## GenotypeFMR1KO:TrainSessionComboT6_C3        8.976      4.165   2.155
-    ##                                           Pr(>|t|)    
-    ## (Intercept)                                < 2e-16 ***
-    ## GenotypeFMR1KO                             0.07986 .  
-    ## TrainSessionComboRetention                1.01e-09 ***
-    ## TrainSessionComboRetest                   3.92e-16 ***
-    ## TrainSessionComboT1                       1.70e-12 ***
-    ## TrainSessionComboT2                       1.52e-13 ***
-    ## TrainSessionComboT3                       5.95e-15 ***
-    ## TrainSessionComboT4_C1                    8.23e-08 ***
-    ## TrainSessionComboT5_C2                    1.16e-13 ***
-    ## TrainSessionComboT6_C3                    8.56e-16 ***
-    ## GenotypeFMR1KO:TrainSessionComboRetention  0.19036    
-    ## GenotypeFMR1KO:TrainSessionComboRetest     0.00398 ** 
-    ## GenotypeFMR1KO:TrainSessionComboT1         0.05526 .  
-    ## GenotypeFMR1KO:TrainSessionComboT2         0.14599    
-    ## GenotypeFMR1KO:TrainSessionComboT3         0.01094 *  
-    ## GenotypeFMR1KO:TrainSessionComboT4_C1      0.22201    
-    ## GenotypeFMR1KO:TrainSessionComboT5_C2      0.03936 *  
-    ## GenotypeFMR1KO:TrainSessionComboT6_C3      0.03264 *  
-    ## ---
-    ## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
-    ## 
-    ## Residual standard error: 6.318 on 160 degrees of freedom
-    ## Multiple R-squared:  0.5079, Adjusted R-squared:  0.4557 
-    ## F-statistic: 9.715 on 17 and 160 DF,  p-value: < 2.2e-16
 
     m1 = aov(NumEntrances ~  Genotype + APA2 + TrainSessionCombo + Genotype * APA2  , data=conflict)
     summary(m1)
 
-    ##                    Df Sum Sq Mean Sq F value   Pr(>F)    
-    ## Genotype            1    186   185.8   6.269   0.0132 *  
-    ## APA2                1   2017  2016.8  68.069 4.64e-14 ***
-    ## TrainSessionCombo   8   5856   732.0  24.706  < 2e-16 ***
-    ## Genotype:APA2       1      3     3.0   0.101   0.7509    
-    ## Residuals         166   4918    29.6                     
+    ##                   Df Sum Sq Mean Sq F value   Pr(>F)    
+    ## Genotype           1  241.4   241.4   8.197 0.005553 ** 
+    ## APA2               1 1215.8  1215.8  41.277 1.44e-08 ***
+    ## TrainSessionCombo  3  561.5   187.2   6.354 0.000724 ***
+    ## Genotype:APA2      1    0.3     0.3   0.009 0.924551    
+    ## Residuals         69 2032.4    29.5                     
     ## ---
     ## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
 
@@ -412,76 +506,38 @@ Anovas Conflict only
     ## Fit: aov(formula = NumEntrances ~ Genotype + APA2 + TrainSessionCombo + Genotype * APA2, data = conflict)
     ## 
     ## $Genotype
-    ##               diff       lwr      upr     p adj
-    ## FMR1KO-WT 2.086218 0.4411924 3.731244 0.0132497
+    ##               diff      lwr      upr     p adj
+    ## FMR1KO-WT 3.669112 1.112462 6.225763 0.0055531
     ## 
     ## $APA2
     ##                              diff       lwr       upr p adj
-    ## conflict-yoked-conflict -6.852357 -8.549568 -5.155146     0
+    ## conflict-yoked-conflict -8.226801 -10.87021 -5.583393     0
     ## 
     ## $TrainSessionCombo
-    ##                         diff         lwr         upr     p adj
-    ## Retention-Hab    -14.7774433 -20.0634126  -9.4914740 0.0000000
-    ## Retest-Hab       -18.7720138 -24.3306324 -13.2133952 0.0000000
-    ## T1-Hab           -16.6000000 -22.0103621 -11.1896379 0.0000000
-    ## T2-Hab           -18.4500000 -23.8603621 -13.0396379 0.0000000
-    ## T3-Hab           -18.0500000 -23.4603621 -12.6396379 0.0000000
-    ## T4_C1-Hab        -12.5000000 -17.9103621  -7.0896379 0.0000000
-    ## T5_C2-Hab        -17.6857445 -23.1668332 -12.2046557 0.0000000
-    ## T6_C3-Hab        -19.3567280 -24.8378167 -13.8756392 0.0000000
-    ## Retest-Retention  -3.9945705  -9.4321890   1.4430479 0.3428037
-    ## T1-Retention      -1.8225567  -7.1085260   3.4634126 0.9758551
-    ## T2-Retention      -3.6725567  -8.9585260   1.6134126 0.4211013
-    ## T3-Retention      -3.2725567  -8.5585260   2.0134126 0.5830461
-    ## T4_C1-Retention    2.2774433  -3.0085260   7.5634126 0.9129406
-    ## T5_C2-Retention   -2.9083012  -8.2666394   2.4500369 0.7420989
-    ## T6_C3-Retention   -4.5792847  -9.9376229   0.7790534 0.1608819
-    ## T1-Retest          2.1720138  -3.3866048   7.7306324 0.9491669
-    ## T2-Retest          0.3220138  -5.2366048   5.8806324 1.0000000
-    ## T3-Retest          0.7220138  -4.8366048   6.2806324 0.9999778
-    ## T4_C1-Retest       6.2720138   0.7133952  11.8306324 0.0145773
-    ## T5_C2-Retest       1.0862693  -4.5412130   6.7137516 0.9995545
-    ## T6_C3-Retest      -0.5847142  -6.2121965   5.0427681 0.9999961
-    ## T2-T1             -1.8500000  -7.2603621   3.5603621 0.9770655
-    ## T3-T1             -1.4500000  -6.8603621   3.9603621 0.9953486
-    ## T4_C1-T1           4.1000000  -1.3103621   9.5103621 0.3008923
-    ## T5_C2-T1          -1.0857445  -6.5668332   4.3953443 0.9994609
-    ## T6_C3-T1          -2.7567280  -8.2378167   2.7243608 0.8139034
-    ## T3-T2              0.4000000  -5.0103621   5.8103621 0.9999997
-    ## T4_C1-T2           5.9500000   0.5396379  11.3603621 0.0194743
-    ## T5_C2-T2           0.7642555  -4.7168332   6.2453443 0.9999617
-    ## T6_C3-T2          -0.9067280  -6.3878167   4.5743608 0.9998594
-    ## T4_C1-T3           5.5500000   0.1396379  10.9603621 0.0395831
-    ## T5_C2-T3           0.3642555  -5.1168332   5.8453443 0.9999999
-    ## T6_C3-T3          -1.3067280  -6.7878167   4.1743608 0.9979430
-    ## T5_C2-T4_C1       -5.1857445 -10.6668332   0.2953443 0.0794519
-    ## T6_C3-T4_C1       -6.8567280 -12.3378167  -1.3756392 0.0038496
-    ## T6_C3-T5_C2       -1.6709835  -7.2218979   3.8799309 0.9898452
+    ##                    diff        lwr        upr     p adj
+    ## T4_C1-Retest  6.1657496   1.523444 10.8080555 0.0045010
+    ## T5_C2-Retest  1.0044258  -3.695392  5.7042435 0.9427536
+    ## T6_C3-Retest -0.6019908  -5.301809  4.0978269 0.9866794
+    ## T5_C2-T4_C1  -5.1613238  -9.738880 -0.5837673 0.0209327
+    ## T6_C3-T4_C1  -6.7677404 -11.345297 -2.1901840 0.0012684
+    ## T6_C3-T5_C2  -1.6064166  -6.242288  3.0294550 0.7983553
     ## 
     ## $`Genotype:APA2`
     ##                                               diff        lwr       upr
-    ## FMR1KO:yoked-conflict-WT:yoked-conflict -0.1029878  -3.760456  3.554480
-    ## WT:conflict-WT:yoked-conflict           -7.6091256 -10.793316 -4.424935
-    ## FMR1KO:conflict-WT:yoked-conflict       -7.1457403 -10.781492 -3.509989
-    ## WT:conflict-FMR1KO:yoked-conflict       -7.5061377 -10.363654 -4.648621
-    ## FMR1KO:conflict-FMR1KO:yoked-conflict   -7.0427525 -10.396113 -3.689392
-    ## FMR1KO:conflict-WT:conflict              0.4633853  -2.366283  3.293053
+    ## FMR1KO:yoked-conflict-WT:yoked-conflict   1.313049  -4.444038  7.070137
+    ## WT:conflict-WT:yoked-conflict            -8.930015 -13.852615 -4.007415
+    ## FMR1KO:conflict-WT:yoked-conflict        -7.355918 -13.027940 -1.683896
+    ## WT:conflict-FMR1KO:yoked-conflict       -10.243064 -14.743587 -5.742542
+    ## FMR1KO:conflict-FMR1KO:yoked-conflict    -8.668967 -13.978821 -3.359114
+    ## FMR1KO:conflict-WT:conflict               1.574097  -2.817085  5.965279
     ##                                             p adj
-    ## FMR1KO:yoked-conflict-WT:yoked-conflict 0.9998595
-    ## WT:conflict-WT:yoked-conflict           0.0000000
-    ## FMR1KO:conflict-WT:yoked-conflict       0.0000054
-    ## WT:conflict-FMR1KO:yoked-conflict       0.0000000
-    ## FMR1KO:conflict-FMR1KO:yoked-conflict   0.0000011
-    ## FMR1KO:conflict-WT:conflict             0.9741355
+    ## FMR1KO:yoked-conflict-WT:yoked-conflict 0.9315705
+    ## WT:conflict-WT:yoked-conflict           0.0000565
+    ## FMR1KO:conflict-WT:yoked-conflict       0.0057906
+    ## WT:conflict-FMR1KO:yoked-conflict       0.0000005
+    ## FMR1KO:conflict-FMR1KO:yoked-conflict   0.0003173
+    ## FMR1KO:conflict-WT:conflict             0.7814030
 
-    hab <- conflict %>%
-      filter(TrainSession == "Hab") 
-    T1 <- conflict %>%
-      filter(TrainSession == "T1") 
-    T2 <- conflict %>%
-      filter(TrainSession == "T2") 
-    T3 <- conflict %>%
-      filter(TrainSession == "T3") 
     Retest <- conflict %>%
       filter(TrainSession == "Retest") 
     T4 <- conflict %>%
@@ -492,46 +548,6 @@ Anovas Conflict only
       filter(TrainSession %in% c("T6", "C3")) 
     Retention <- conflict %>%
       filter(TrainSession == "Retention") 
-
-    summary(aov(NumEntrances ~ Genotype * APA2, data=hab)) # . genotype
-
-    ##               Df Sum Sq Mean Sq F value Pr(>F)  
-    ## Genotype       1  124.0  124.03   3.685 0.0729 .
-    ## APA2           1   33.9   33.88   1.007 0.3306  
-    ## Genotype:APA2  1    1.7    1.73   0.051 0.8236  
-    ## Residuals     16  538.6   33.66                 
-    ## ---
-    ## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
-
-    summary(aov(NumEntrances ~ Genotype * APA2, data=T1)) 
-
-    ##               Df Sum Sq Mean Sq F value Pr(>F)  
-    ## Genotype       1  37.41   37.41   2.664 0.1221  
-    ## APA2           1 111.31  111.31   7.928 0.0124 *
-    ## Genotype:APA2  1   2.84    2.84   0.203 0.6587  
-    ## Residuals     16 224.64   14.04                 
-    ## ---
-    ## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
-
-    summary(aov(NumEntrances ~ Genotype * APA2, data=T2)) 
-
-    ##               Df Sum Sq Mean Sq F value  Pr(>F)   
-    ## Genotype       1   3.68    3.68   0.211 0.65214   
-    ## APA2           1 272.00  272.00  15.619 0.00114 **
-    ## Genotype:APA2  1   0.24    0.24   0.014 0.90875   
-    ## Residuals     16 278.64   17.41                   
-    ## ---
-    ## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
-
-    summary(aov(NumEntrances ~ Genotype * APA2, data=T3))     # ** significant
-
-    ##               Df Sum Sq Mean Sq F value   Pr(>F)    
-    ## Genotype       1  140.8   140.8   9.023  0.00841 ** 
-    ## APA2           1  430.0   430.0  27.552 7.95e-05 ***
-    ## Genotype:APA2  1    1.2     1.2   0.076  0.78689    
-    ## Residuals     16  249.7    15.6                     
-    ## ---
-    ## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
 
     summary(aov(NumEntrances ~ Genotype * APA2, data=Retest)) # * significant
 
@@ -601,16 +617,6 @@ Anovas Conflict only
     ## APA2           1  506.8   506.8  49.828 3.88e-06 ***
     ## Genotype:APA2  1   23.8    23.8   2.339   0.1470    
     ## Residuals     15  152.6    10.2                     
-    ## ---
-    ## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
-
-    summary(aov(NumEntrances ~ Genotype * APA2, data=Retention)) 
-
-    ##               Df Sum Sq Mean Sq F value  Pr(>F)   
-    ## Genotype       1    0.1     0.1   0.002 0.96483   
-    ## APA2           1  480.0   480.0  12.922 0.00207 **
-    ## Genotype:APA2  1    0.3     0.3   0.009 0.92519   
-    ## Residuals     18  668.7    37.1                   
     ## ---
     ## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
 
@@ -2886,4 +2892,308 @@ retention genotype
 
     # ** Speed2ndEntr
     # * RayleigAngle 
-    # . Min50.RngHiBin, RayleigLength, pTimeCCW, MaxTimeAvoid
+    # . Min50.RngHiBin, RayleigLength, pTimeCCW, MaxTimeAvoid  
+
+Create dataframe and stacked bar graphs for portion time spent
+==============================================================
+
+    behavior %>% 
+      filter(TrainSessionCombo == "Retention") %>%
+      select(APA2, Genotype)  %>%  summary()
+
+    ##                APA2      Genotype 
+    ##  yoked-consistent:11   WT    :24  
+    ##  consistent      :17   FMR1KO:26  
+    ##  yoked-conflict  : 8              
+    ##  conflict        :14
+
+    proptime <- behavior[,c(1,2,4,8,9,12,26:29)]
+    proptime <- melt(proptime, id.vars = c("ID", "Genotype", "TrainSession",
+                                           "APA2", "TrainSessionCombo","TrainSessionComboNum")) 
+
+    timespent1 <- proptime %>%
+      filter(APA2 %in% c("consistent","conflict")) %>%
+      ggplot(aes(x = TrainSessionComboNum, y = value,fill = variable)) + 
+        geom_bar(position = "fill",stat = "identity") +
+        scale_x_continuous(name="Training Session", 
+                           breaks = c(1, 2, 3, 4, 5, 6, 7, 8, 9),
+                           labels = c( "P", "T1", "T2", "T3",
+                                       "Rt", "C1", "C2","C3", 
+                                       "Rn")) +
+      facet_wrap(~APA2*Genotype, nrow=1) +
+      theme_cowplot(font_size = 8, line_size = 0.25) +  theme(legend.title=element_blank()) +
+        theme(legend.position="none") +
+      scale_y_continuous(name= "Proportion of Time Spent") +
+      scale_fill_manual(values = c("#de2d26", "#e5f5e0" ,"#a1d99b", "#31a354")) + 
+      geom_hline(yintercept=c(0.32,0.64, 0.96), color="black" , linetype="dashed") 
+    timespent1
+
+![](../figures/01_behavior/unnamed-chunk-6-1.png)
+
+    timespent2 <- proptime %>%
+      filter(APA2 %in% c("yoked-consistent","yoked-conflict")) %>%
+      ggplot(aes(x = TrainSessionComboNum, y = value,fill = variable)) + 
+        geom_bar(position = "fill",stat = "identity") +
+        scale_x_continuous(name="Training Session", 
+                           breaks = c(1, 2, 3, 4, 5, 6, 7, 8, 9),
+                           labels = c( "P", "T1", "T2", "T3",
+                                       "Rt", "C1", "C2","C3", 
+                                       "Rn")) +
+      facet_wrap(~APA2*Genotype, nrow=1) +
+      theme_cowplot(font_size = 8, line_size = 0.25) +
+      theme(legend.title=element_blank()) +
+      theme(legend.position="none") +
+      scale_y_continuous(name= "Proportion of Time Spent") +
+      scale_fill_manual(values = c("#de2d26", "#e5f5e0" ,"#a1d99b", "#31a354")) + 
+      geom_hline(yintercept=c(0.25,0.50, 0.75), color="black" , linetype="dashed") 
+    timespent2
+
+![](../figures/01_behavior/unnamed-chunk-6-2.png)
+
+    pdf(file="../figures/01_behavior/timespent1.pdf", width=6, height=2.25)
+    plot(timespent1)
+    dev.off()
+
+    ## quartz_off_screen 
+    ##                 2
+
+    pdf(file="../figures/01_behavior/timespent2.pdf", width=6, height=2.25)
+    plot(timespent2)
+    dev.off()
+
+    ## quartz_off_screen 
+    ##                 2
+
+Now - exampine space use interaction APA2 \* Genotype
+=====================================================
+
+    timeccw <- behavior %>%
+      filter(APA2 %in% c("consistent","conflict")) %>%
+        filter(TrainSessionComboNum %in% c("6", "7", "8")) %>% 
+      ggplot(aes(x = as.numeric(TrainSessionComboNum), y = pTimeCW, fill=APA2)) +
+      geom_boxplot() +
+      facet_wrap(~Genotype) +
+      scale_fill_manual(values = c("#ca0020", "#f4a582")) +  
+     scale_x_continuous(name="C1-C3 Average", 
+                           breaks = c(1, 2, 3, 4, 5, 6, 7, 8, 9),
+                           labels = NULL) +
+      geom_hline(yintercept=c(0.32), color="black" , linetype="dashed") + 
+      theme_cowplot(font_size = 8, line_size = 0.25) +
+      theme(legend.position="none")
+    timeccw
+
+![](../figures/01_behavior/unnamed-chunk-7-1.png)
+
+    timecw <- behavior %>%
+      filter(APA2 %in% c("consistent","conflict")) %>%
+        filter(TrainSessionComboNum %in% c("6", "7", "8")) %>% 
+      ggplot(aes(x = as.numeric(TrainSessionComboNum), y = pTimeCCW, fill=APA2)) +
+      geom_boxplot() +
+      facet_wrap(~Genotype) +
+      scale_fill_manual(values = c("#ca0020", "#f4a582")) +  
+     scale_x_continuous(name="C1-C3 Average", 
+                           breaks = c(1, 2, 3, 4, 5, 6, 7, 8, 9),
+                           labels = NULL) +
+      geom_hline(yintercept=c(0.32), color="black" , linetype="dashed") + 
+      theme_cowplot(font_size = 8, line_size = 0.25) +
+     theme(legend.position="none")
+    timecw
+
+![](../figures/01_behavior/unnamed-chunk-7-2.png)
+
+    timet <- behavior %>%
+      filter(APA2 %in% c("consistent","conflict")) %>%
+        filter(TrainSessionComboNum %in% c("6", "7", "8")) %>% 
+      ggplot(aes(x = as.numeric(TrainSessionComboNum), y = pTimeTarget, fill=APA2)) +
+      geom_boxplot() +
+      facet_wrap(~Genotype) +
+      scale_fill_manual(values = c("#ca0020", "#f4a582")) +  
+     scale_x_continuous(name="C1-C3 Average", 
+                           breaks = c(1, 2, 3, 4, 5, 6, 7, 8, 9),
+                           labels = NULL) +
+      geom_hline(yintercept=c(0.04), color="black" , linetype="dashed") + 
+      theme_cowplot(font_size = 8, line_size = 0.25) +
+     theme(legend.position="none")
+    timet
+
+![](../figures/01_behavior/unnamed-chunk-7-3.png)
+
+    timeopp <- behavior %>%
+      filter(APA2 %in% c("consistent","conflict")) %>%
+        filter(TrainSessionComboNum %in% c("6", "7", "8")) %>% 
+      ggplot(aes(x = as.numeric(TrainSessionComboNum), y = pTimeOPP, fill=APA2)) +
+      geom_boxplot() +
+      facet_wrap(~Genotype) +
+      scale_fill_manual(values = c("#ca0020", "#f4a582")) +  
+     scale_x_continuous(name="C1-C3 Average", 
+                           breaks = c(1, 2, 3, 4, 5, 6, 7, 8, 9),
+                           labels = NULL) +
+      geom_hline(yintercept=c(0.32), color="black" , linetype="dashed") + 
+      theme_cowplot(font_size = 8, line_size = 0.25) +
+     theme(legend.position="none")
+    timeopp
+
+![](../figures/01_behavior/unnamed-chunk-7-4.png)
+
+    pdf(file="../figures/01_behavior/timecw.pdf", width=1.5, height=2)
+    plot(timecw)
+    dev.off()
+
+    ## quartz_off_screen 
+    ##                 2
+
+    pdf(file="../figures/01_behavior/timeccw.pdf", width=1.5, height=2)
+    plot(timeccw)
+    dev.off()
+
+    ## quartz_off_screen 
+    ##                 2
+
+    pdf(file="../figures/01_behavior/timet.pdf", width=1.5, height=2)
+    plot(timet)
+    dev.off()
+
+    ## quartz_off_screen 
+    ##                 2
+
+    pdf(file="../figures/01_behavior/timeopp.pdf", width=1.5, height=2)
+    plot(timeopp)
+    dev.off()
+
+    ## quartz_off_screen 
+    ##                 2
+
+Just Conflict 1-3
+=================
+
+    conflict1 <- PathNum  %>% 
+      filter(TrainSessionComboNum %in% c("6", "7", "8")) %>% 
+      filter(measure == "Path to the 1st Entrance") %>% 
+      droplevels()  %>%  
+      ggplot(aes(x=, TrainSessionComboNum, y=m, color=APA2, shape=Genotype)) + 
+        geom_errorbar(aes(ymin=m-se, ymax=m+se), width=.1) +
+        geom_point(size = 2) +
+       geom_line(aes(colour=APA2, linetype=Genotype)) +
+       scale_y_continuous(name= "Path to the 1st Entrance",
+                          limits = c(0,10)) +    scale_x_continuous(name="Training Session", 
+                           breaks = c(1, 2, 3, 4, 5, 6, 7, 8, 9),
+                           labels = c( "Pre.", "T1", "T2", "T3",
+                                       "Retest", "C1", "C2", "C3", "Reten.")) +
+      theme_cowplot(font_size = 8, line_size = 0.25) +
+      background_grid(major = "y", minor="non") +
+      scale_color_manual(values = colorvalAPA00)  +
+      theme(legend.title=element_blank()) +
+      theme(legend.position="none") +
+      scale_shape_manual(values=c(16, 1)) +
+      facet_wrap(~Genotype)
+    conflict1
+
+    ## Warning: Removed 2 rows containing missing values (geom_errorbar).
+
+![](../figures/01_behavior/unnamed-chunk-8-1.png)
+
+    conflict2 <- PathNum  %>% 
+      filter(TrainSessionComboNum %in% c("6", "7", "8")) %>% 
+      filter(measure == "Number of Entrances") %>% 
+      droplevels()  %>%  
+      ggplot(aes(x=, TrainSessionComboNum, y=m, color=APA2, shape=Genotype)) + 
+        geom_errorbar(aes(ymin=m-se, ymax=m+se), width=.1) +
+        geom_point(size = 2) +
+       geom_line(aes(colour=APA2, linetype=Genotype)) +
+       scale_y_continuous(name= "Number of Entrances",
+                          limits = c(0,25)) +    scale_x_continuous(name="Training Session", 
+                           breaks = c(1, 2, 3, 4, 5, 6, 7, 8, 9),
+                           labels = c( "Pre.", "T1", "T2", "T3",
+                                       "Retest", "C1", "C2", "C3", "Reten.")) +
+      theme_cowplot(font_size = 8, line_size = 0.25) +
+      background_grid(major = "y", minor="non") +
+      scale_color_manual(values = colorvalAPA00)  +
+      theme(legend.title=element_blank()) +
+      theme(legend.position="none") +
+      scale_shape_manual(values=c(16, 1)) +
+      facet_wrap(~Genotype)
+    conflict2
+
+![](../figures/01_behavior/unnamed-chunk-8-2.png)
+
+    pdf(file="../figures/01_behavior/conflict1.pdf", width=2.25, height=2)
+    plot(conflict1)
+
+    ## Warning: Removed 2 rows containing missing values (geom_errorbar).
+
+    dev.off()
+
+    ## quartz_off_screen 
+    ##                 2
+
+    pdf(file="../figures/01_behavior/conflict2.pdf", width=2.25, height=2)
+    plot(conflict2)
+    dev.off()
+
+    ## quartz_off_screen 
+    ##                 2
+
+Just Training 1-3
+=================
+
+    training1 <- PathNum  %>% 
+      filter(TrainSessionComboNum %in% c("2", "3", "4")) %>% 
+      filter(measure == "Path to the 1st Entrance") %>% 
+      droplevels()  %>%  
+      ggplot(aes(x=, TrainSessionComboNum, y=m, color=APA2, shape=Genotype)) + 
+        geom_errorbar(aes(ymin=m-se, ymax=m+se), width=.1) +
+        geom_point(size = 2) +
+       geom_line(aes(colour=APA2, linetype=Genotype)) +
+       scale_y_continuous(name= "Path to the 1st Entrance",
+                          limits = c(0,10)) +    scale_x_continuous(name="Training Session", 
+                           breaks = c(1, 2, 3, 4, 5, 6, 7, 8, 9),
+                           labels = c( "Pre.", "T1", "T2", "T3",
+                                       "Retest", "C1", "C2", "C3", "Reten.")) +
+      theme_cowplot(font_size = 8, line_size = 0.25) +
+      background_grid(major = "y", minor="non") +
+      scale_color_manual(values = colorvalAPA00)  +
+      theme(legend.title=element_blank()) +
+      theme(legend.position="none") +
+      scale_shape_manual(values=c(16, 1)) +
+      facet_wrap(~Genotype)
+    training1
+
+![](../figures/01_behavior/unnamed-chunk-9-1.png)
+
+    training2 <- PathNum  %>% 
+      filter(TrainSessionComboNum %in% c("2", "3", "4")) %>% 
+      filter(measure == "Number of Entrances") %>% 
+      droplevels()  %>%  
+      ggplot(aes(x=, TrainSessionComboNum, y=m, color=APA2, shape=Genotype)) + 
+        geom_errorbar(aes(ymin=m-se, ymax=m+se), width=.1) +
+        geom_point(size = 2) +
+       geom_line(aes(colour=APA2, linetype=Genotype)) +
+       scale_y_continuous(name= "Number of Entrances",
+                          limits = c(0,25)) +    scale_x_continuous(name="Training Session", 
+                           breaks = c(1, 2, 3, 4, 5, 6, 7, 8, 9),
+                           labels = c( "Pre.", "T1", "T2", "T3",
+                                       "Retest", "C1", "C2", "C3", "Reten.")) +
+      theme_cowplot(font_size = 8, line_size = 0.25) +
+      background_grid(major = "y", minor="non") +
+      scale_color_manual(values = colorvalAPA00)  +
+      theme(legend.title=element_blank()) +
+      theme(legend.position="none") +
+      scale_shape_manual(values=c(16, 1)) +
+      facet_wrap(~Genotype)
+    training2
+
+![](../figures/01_behavior/unnamed-chunk-9-2.png)
+
+    pdf(file="../figures/01_behavior/training1.pdf", width=2.25, height=2)
+    plot(training1)
+    dev.off()
+
+    ## quartz_off_screen 
+    ##                 2
+
+    pdf(file="../figures/01_behavior/training2.pdf", width=2.25, height=2)
+    plot(training2)
+    dev.off()
+
+    ## quartz_off_screen 
+    ##                 2

@@ -5,6 +5,8 @@ date: "Last updated November 22, 2017"
 output: md_document
 ---
 
+# Setup - load libraries and favorite colors
+
 ```{r setup, message=F}
 ## load libraries 
 library(tidyr) ## for respahing data
@@ -24,6 +26,7 @@ knitr::opts_chunk$set(fig.path = '../figures/01_behavior/')
 
 ```
 
+# Behavior data wrangling and sample sizes
 
 ```{r behaivordata, message=F}
 ## read intermediate data (raw data from video tracker program analyzed in matlab)
@@ -62,63 +65,173 @@ behavior %>%
   select(APA2, Genotype)  %>%  summary()
 ```
 
+# Creating dataframes and plotting mean with standard error
+
 ```{r}
-# num entrances
+# behaviors
 numentr <- dplyr::summarise(group_by(behavior, Genotype, APA2, TrainSessionComboNum, conflict), m = mean(NumEntrances), se = sd(NumEntrances)/sqrt(length(NumEntrances)), len = length(NumEntrances))
 
-ptime <- dplyr::summarise(group_by(behavior, Genotype, APA2, TrainSessionComboNum, conflict), m = mean(pTimeTarget), se = sd(pTimeTarget)/sqrt(length(pTimeTarget)), len = length(pTimeTarget))
+pathentr <- dplyr::summarise(group_by(behavior, Genotype, APA2, TrainSessionComboNum, conflict), m = mean(Path1stEntr), se = sd(Path1stEntr)/sqrt(length(Path1stEntr)), len = length(Path1stEntr))
+
 
 levels(numentr$APA2) <- c("yoked-consistent","consistent", "yoked-conflict","conflict")
-numentr$conflict = factor(numentr$conflict, levels = c("consistent","conflict"))
-levels(numentr$conflict) <- c("Initial learning","Cognitive discrimination")
+levels(pathentr$APA2) <- c("yoked-consistent","consistent", "yoked-conflict","conflict")
 
-oneplot <- ggplot(numentr, aes(x=, TrainSessionComboNum, y=m, color=APA2, shape=Genotype)) + 
+numentr$conflict = factor(numentr$conflict, levels = c("consistent","conflict"))
+pathentr$conflict = factor(numentr$conflict, levels = c("consistent","conflict"))
+numentr$measure <- "Number of Entrances"
+pathentr$measure <- "Path to the 1st Entrance"
+
+
+PathNum <- rbind(pathentr,numentr)
+PathNum$measure <- as.factor(PathNum$measure)
+write.csv(PathNum, "../data/01_behaviordatasummary.csv")
+
+summary(pathentr)
+summary(numentr)
+boxplot(numentr$m ~ numentr$TrainSessionComboNum)
+plot(numentr$m ~ numentr$TrainSessionComboNum)
+
+
+numenr <- PathNum  %>% 
+  #filter(TrainSessionComboNum != "1", TrainSessionComboNum != "9") %>% 
+  filter(measure == "Number of Entrances") %>% 
+  droplevels()  %>% 
+  ggplot(aes(x=, TrainSessionComboNum, y=m, color=APA2, shape=Genotype)) + 
     geom_errorbar(aes(ymin=m-se, ymax=m+se), width=.1) +
     geom_point(size = 2) +
    geom_line(aes(colour=APA2, linetype=Genotype)) +
-   scale_y_continuous(name= "Number of Entrances") +
+   scale_y_continuous(name= "Number of Entrances",
+                      limits = c(0,25)) +
     scale_x_continuous(name="Training Session", 
                        breaks = c(1, 2, 3, 4, 5, 6, 7, 8, 9),
                        labels = c( "Pre.", "T1", "T2", "T3",
-                                   "Retest", "T4/C1", "T5/C2", 
-                                   "T6/C3", "Reten.")) +
+                                   "Retest", "C1", "C2", "C3", "Reten.")) +
   theme_cowplot(font_size = 8, line_size = 0.25) +
-  #background_grid(major = "y", minor = "y") +
+  background_grid(major = "y", minor="non") +
   scale_color_manual(values = colorvalAPA00)  +
   theme(legend.title=element_blank()) +
-  #theme(legend.position="none") +
+  theme(legend.position="bottom") +
   scale_shape_manual(values=c(16, 1)) 
-oneplot
+numenr
+
+pdf(file="../figures/01_behavior/legend.pdf", width=5, height=2)
+plot(numenr)
+dev.off()
+
+numenrwt <- PathNum  %>% 
+  #filter(TrainSessionComboNum != "1", TrainSessionComboNum != "9") %>% 
+  filter(measure == "Number of Entrances") %>% 
+  filter(Genotype == "WT") %>% 
+  droplevels()  %>% 
+  ggplot(aes(x=, TrainSessionComboNum, y=m, color=APA2, shape=Genotype)) + 
+    geom_errorbar(aes(ymin=m-se, ymax=m+se), width=.1) +
+    geom_point(size = 2) +
+   geom_line(aes(colour=APA2, linetype=Genotype)) +
+   scale_y_continuous(name= "Number of Entrances",
+                      limits = c(0,35)) +
+    scale_x_continuous(name="Training Session", 
+                       breaks = c(1, 2, 3, 4, 5, 6, 7, 8, 9),
+                       labels = c( "Pre.", "T1", "T2", "T3",
+                                   "Retest", "C1", "C2" ,"C3", 
+                                   "Reten.")) +
+  theme_cowplot(font_size = 8, line_size = 0.25) +
+  background_grid(major = "y", minor="non") +
+  scale_color_manual(values = colorvalAPA00)  +
+  theme(legend.title=element_blank()) +
+  theme(legend.position="none") +
+  scale_shape_manual(values=c(16, 1)) 
+numenrwt
+
+pdf(file="../figures/01_behavior/numenrwt.pdf", width=2.25, height=2)
+plot(numenrwt)
+dev.off()
+
+numenrfmr1 <- PathNum  %>% 
+  filter(TrainSessionComboNum != "1", TrainSessionComboNum != "9") %>% 
+  filter(measure == "Number of Entrances") %>% 
+  filter(Genotype != "WT") %>% 
+  ggplot(aes(x=, TrainSessionComboNum, y=m, color=APA2, shape=Genotype)) + 
+    geom_errorbar(aes(ymin=m-se, ymax=m+se), width=.1) +
+    geom_point(size = 2) +
+   geom_line(linetype = 2, aes(colour=APA2)) +
+   scale_y_continuous(name= "Number of Entrances",
+                      limits = c(0,35)) +
+    scale_x_continuous(name="Training Session", 
+                       breaks = c(1, 2, 3, 4, 5, 6, 7, 8, 9),
+                       labels = c( "Pre.", "T1", "T2", "T3",
+                                   "Retest", "C1", "C2","C3", 
+                                  "Reten.")) +
+  theme_cowplot(font_size = 8, line_size = 0.25) +
+  background_grid(major = "y", minor = "none") +
+  scale_color_manual(values = colorvalAPA00)  +
+  theme(legend.title=element_blank()) +
+  theme(legend.position="none") +
+  scale_shape_manual(values=c(1)) 
+numenrfmr1
 
 
-pdf(file="../figures/01_behavior/oneplot.pdf", width=6, height=3)
-plot(oneplot)
+pdf(file="../figures/01_behavior/numenrfmr1.pdf", width=2.25, height=2)
+plot(numenrfmr1)
 dev.off()
 
 
-twoplot <- ggplot(numentr, aes(x=, TrainSessionComboNum, y=m, color=APA2, shape=Genotype)) + 
+pathfmr1 <- PathNum  %>% 
+  #filter(TrainSessionComboNum != "1", TrainSessionComboNum != "9") %>% 
+  filter(measure == "Path to the 1st Entrance") %>% 
+  filter(Genotype != "WT") %>% 
+  ggplot(aes(x=, TrainSessionComboNum, y=m, color=APA2, shape=Genotype)) + 
     geom_errorbar(aes(ymin=m-se, ymax=m+se), width=.1) +
     geom_point(size = 2) +
-   geom_line(aes(colour=APA2, linetype=Genotype)) +
-   scale_y_continuous(name= "Number of Entrances") +
+   geom_line(linetype = 2, aes(colour=APA2)) +
+   scale_y_continuous(name= "Path to the 1st Entrance",
+                      limits = c(0,17.5)) +
     scale_x_continuous(name="Training Session", 
                        breaks = c(1, 2, 3, 4, 5, 6, 7, 8, 9),
                        labels = c( "Pre.", "T1", "T2", "T3",
-                                   "Retest", "T4/C1", "T5/C2", "T6/C3", "Reten.")) +
+                                   "Retest", "C1", "C2", "C3", 
+                                    "Reten.")) +
   theme_cowplot(font_size = 8, line_size = 0.25) +
-  background_grid(major = "y", minor = "y") +
+  background_grid(major = "y", minor = "none") +
   scale_color_manual(values = colorvalAPA00)  +
   theme(legend.title=element_blank()) +
-  #theme(legend.position="none") +
-  scale_shape_manual(values=c(16, 1)) +
-  facet_wrap(~conflict, nrow = 2) 
-twoplot
+  theme(legend.position="none") +
+  scale_shape_manual(values=c(1)) 
+pathfmr1
 
-pdf(file="../figures/01_behavior/twoplot.pdf", width=4.5, height=4)
-plot(twoplot)
+pdf(file="../figures/01_behavior/pathfmr1.pdf", width=2.25, height=2)
+plot(pathfmr1)
+dev.off()
+
+pathwt <- PathNum  %>% 
+  #filter(TrainSessionComboNum != "1", TrainSessionComboNum != "9") %>% 
+  filter(measure == "Path to the 1st Entrance") %>% 
+  filter(Genotype == "WT") %>% 
+  ggplot(aes(x=, TrainSessionComboNum, y=m, color=APA2, shape=Genotype)) + 
+    geom_errorbar(aes(ymin=m-se, ymax=m+se), width=.1) +
+    geom_point(size = 2) +
+   geom_line(linetype = 1, aes(colour=APA2)) +
+   scale_y_continuous(name= "Path to the 1st Entrance",
+                      limits = c(0,17.5)) +
+    scale_x_continuous(name="Training Session", 
+                       breaks = c(1, 2, 3, 4, 5, 6, 7, 8, 9),
+                       labels = c( "Pre.", "T1", "T2", "T3",
+                                   "Retest", "C1", "C2","C3", 
+                                   "Reten.")) +
+  theme_cowplot(font_size = 8, line_size = 0.25) +
+  background_grid(major = "y", minor = "none") +
+  scale_color_manual(values = colorvalAPA00)  +
+  theme(legend.title=element_blank()) +
+  theme(legend.position="none") +
+  scale_shape_manual(values=c(16)) 
+pathwt
+
+pdf(file="../figures/01_behavior/pathwt.pdf", width=2.25, height=2)
+plot(pathwt)
 dev.off()
 
 ```
+
 
 
 ## Anovas Consistent only - No significant effect of genotype
@@ -132,8 +245,6 @@ m1 = aov(NumEntrances ~  Genotype + APA2 + TrainSessionCombo + Genotype * APA2  
 summary(m1)
 TukeyHSD(m1)
 
-hab <- consistent %>%
-  filter(TrainSession == "Hab") 
 T1 <- consistent %>%
   filter(TrainSession == "T1") 
 T2 <- consistent %>%
@@ -148,10 +259,8 @@ T5 <- consistent %>%
   filter(TrainSession %in% c("T5", "C2")) 
 T6 <- consistent %>%
   filter(TrainSession %in% c("T6", "C3")) 
-Retention <- consistent %>%
-  filter(TrainSession == "Retention") 
 
-summary(aov(NumEntrances ~ Genotype * APA2, data=hab)) 
+
 summary(aov(NumEntrances ~ Genotype * APA2, data=T1)) 
 summary(aov(NumEntrances ~ Genotype * APA2, data=T2)) 
 summary(aov(NumEntrances ~ Genotype * APA2, data=T3))
@@ -159,7 +268,6 @@ summary(aov(NumEntrances ~ Genotype * APA2, data=Retest))
 summary(aov(NumEntrances ~ Genotype * APA2, data=T4)) 
 summary(aov(NumEntrances ~ Genotype * APA2, data=T5)) 
 summary(aov(NumEntrances ~ Genotype * APA2, data=T6)) 
-summary(aov(NumEntrances ~ Genotype * APA2, data=Retention)) 
 ```
 
 
@@ -175,15 +283,6 @@ m1 = aov(NumEntrances ~  Genotype + APA2 + TrainSessionCombo + Genotype * APA2  
 summary(m1)
 TukeyHSD(m1)
 
-
-hab <- conflict %>%
-  filter(TrainSession == "Hab") 
-T1 <- conflict %>%
-  filter(TrainSession == "T1") 
-T2 <- conflict %>%
-  filter(TrainSession == "T2") 
-T3 <- conflict %>%
-  filter(TrainSession == "T3") 
 Retest <- conflict %>%
   filter(TrainSession == "Retest") 
 T4 <- conflict %>%
@@ -195,16 +294,11 @@ T6 <- conflict %>%
 Retention <- conflict %>%
   filter(TrainSession == "Retention") 
 
-summary(aov(NumEntrances ~ Genotype * APA2, data=hab)) # . genotype
-summary(aov(NumEntrances ~ Genotype * APA2, data=T1)) 
-summary(aov(NumEntrances ~ Genotype * APA2, data=T2)) 
-summary(aov(NumEntrances ~ Genotype * APA2, data=T3))     # ** significant
 summary(aov(NumEntrances ~ Genotype * APA2, data=Retest)) # * significant
 summary(aov(NumEntrances ~ Genotype * APA2, data=T4)) 
 TukeyHSD(aov(NumEntrances ~ Genotype * APA2, data=T4))
 summary(aov(NumEntrances ~ Genotype * APA2, data=T5)) 
 summary(aov(NumEntrances ~ Genotype * APA2, data=T6))     # * significant
-summary(aov(NumEntrances ~ Genotype * APA2, data=Retention)) 
 ```
 
 ## Mann-Whitney Conflict-trained  only
@@ -456,5 +550,415 @@ for(y in names(slim3)){
 # * RayleigAngle 
 # . Min50.RngHiBin, RayleigLength, pTimeCCW, MaxTimeAvoid  
 
+```
+
+# Create dataframe and stacked bar graphs for portion time spent
+
+```{r}
+behavior %>% 
+  filter(TrainSessionCombo == "Retention") %>%
+  select(APA2, Genotype)  %>%  summary()
+proptime <- behavior[,c(1,2,4,8,9,12,26:29)]
+proptime <- melt(proptime, id.vars = c("ID", "Genotype", "TrainSession",
+                                       "APA2", "TrainSessionCombo","TrainSessionComboNum")) 
+
+timespent1 <- proptime %>%
+  filter(APA2 %in% c("consistent","conflict")) %>%
+  filter(TrainSessionComboNum != 1) %>%
+  ggplot(aes(x = TrainSessionComboNum, y = value,fill = variable)) + 
+    geom_bar(position = "fill",stat = "identity") +
+    scale_x_continuous(name="Training Session", 
+                       breaks = c(1, 2, 3, 4, 5, 6, 7, 8, 9),
+                       labels = c( "P", "T1", "T2", "T3",
+                                   "Rt", "C1", "C2","C3", 
+                                   "Rn")) +
+  facet_wrap(~APA2*Genotype, nrow=1) +
+  theme_cowplot(font_size = 8, line_size = 0.25) +  theme(legend.title=element_blank()) +
+    theme(legend.position="none") +
+  scale_y_continuous(name= "Proportion of Time Spent",
+                     breaks = c(0.32,0.64, 0.96)) +
+  scale_fill_manual(values = c("#de2d26", "#e5f5e0" ,"#a1d99b", "#31a354")) + 
+  geom_hline(yintercept=c(0.32,0.64, 0.96), color="black" , linetype="dashed") 
+timespent1
+
+timespent2 <- proptime %>%
+  filter(APA2 %in% c("yoked-consistent","yoked-conflict")) %>%
+    filter(TrainSessionComboNum != 1) %>%
+  ggplot(aes(x = TrainSessionComboNum, y = value,fill = variable)) + 
+    geom_bar(position = "fill",stat = "identity") +
+    scale_x_continuous(name="Training Session", 
+                       breaks = c(1, 2, 3, 4, 5, 6, 7, 8, 9),
+                       labels = c( "P", "T1", "T2", "T3",
+                                   "Rt", "C1", "C2","C3", 
+                                   "Rn")) +
+  facet_wrap(~APA2*Genotype, nrow=1) +
+  theme_cowplot(font_size = 8, line_size = 0.25) +
+  theme(legend.title=element_blank()) +
+  theme(legend.position="none") +
+  scale_y_continuous(name= "Proportion of Time Spent") +
+  scale_fill_manual(values = c("#de2d26", "#e5f5e0" ,"#a1d99b", "#31a354")) + 
+  geom_hline(yintercept=c(0.25,0.50, 0.75), color="black" , linetype="dashed")
+timespent2
+
+pdf(file="../figures/01_behavior/timespent1.pdf", width=6, height=2.25)
+plot(timespent1)
+dev.off()
+
+pdf(file="../figures/01_behavior/timespent2.pdf", width=6, height=2.25)
+plot(timespent2)
+dev.off()
+
+
+timespent3 <- proptime %>%
+  #filter(APA2 %in% c("yoked-consistent","yoked-conflict")) %>%
+  filter(TrainSessionComboNum %in% c("1")) %>%
+  ggplot(aes(x = APA2, y = value,fill = variable)) + 
+    geom_bar(position = "fill",stat = "identity") +
+    scale_x_discrete(name="Pre-training Proportion of Time Spent",
+                     labels = c("yoked", "consistent", "yoked", "conflict")) +
+  facet_wrap(~Genotype, nrow=1) +
+  theme_cowplot(font_size = 8, line_size = 0.25) +
+  theme(legend.title=element_blank()) +
+  theme(legend.position="none") +
+  scale_y_continuous(name= "Proportion of Time Spent") +
+  scale_fill_manual(values = c("#de2d26", "#e5f5e0" ,"#a1d99b", "#31a354")) + 
+  geom_hline(yintercept=c(0.25,0.50, 0.75), color="black" , linetype="dashed") +
+  theme(strip.text.x = element_text(size = 8)) +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+timespent3
+
+
+pdf(file="../figures/01_behavior/timespent3.pdf", width=3, height=2.25)
+plot(timespent3)
+dev.off()
+
+timespent4 <- proptime %>%
+  filter(APA2 %in% c("yoked-consistent","yoked-conflict")) %>%
+  filter(TrainSessionComboNum %in% c("9")) %>%
+  ggplot(aes(x = APA2, y = value,fill = variable)) + 
+    geom_bar(position = "fill",stat = "identity") +
+    scale_x_discrete(name="Retention Proportion of Time Spent") +
+  facet_wrap(~Genotype, nrow=1) +
+  theme_cowplot(font_size = 8, line_size = 0.25) +
+  theme(legend.title=element_blank()) +
+  theme(legend.position="none") +
+  scale_y_continuous(name= "Proportion of Time Spent") +
+  scale_fill_manual(values = c("#de2d26", "#e5f5e0" ,"#a1d99b", "#31a354")) + 
+    geom_hline(yintercept=c(0.25,0.50, 0.75), color="black" , linetype="dashed") +
+  theme(strip.text.x = element_text(size = 8)) +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+timespent4
+
+timespent3 <- proptime %>%
+  filter(APA2 %in% c("consistent","conflict")) %>%
+  filter(TrainSessionComboNum %in% c("9")) %>%
+  ggplot(aes(x = APA2, y = value,fill = variable)) + 
+    geom_bar(position = "fill",stat = "identity") +
+    scale_x_discrete(name="RETENTION Proportion of Time Spent") +
+  facet_wrap(~Genotype, nrow=1) +
+  theme_cowplot(font_size = 8, line_size = 0.25) +
+  theme(legend.title=element_blank()) +
+  theme(legend.position="none") +
+  scale_y_continuous(name= "Proportion of Time Spent",
+                     breaks = c(0.30,0.60, 0.90)) +
+  scale_fill_manual(values = c("#de2d26", "#e5f5e0" ,"#a1d99b", "#31a354")) + 
+  geom_hline(yintercept=c(0.30,0.60, 0.90), color="black" , linetype="dashed") +
+  theme(strip.text.x = element_text(size = 8)) +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+timespent3
+
+
+
+
+
+aovYokedTrainAPApTimeT <- proptime %>%
+  filter(TrainSessionComboNum %in% c("1")) %>%
+  filter(variable == "pTimeTarget")
+summary(aov(data = aovYokedTrainAPApTimeT, value ~  APA2 * Genotype))
+
+aovTrainAPApTimeT <- proptime %>%
+  filter(APA2 %in% c("consistent","conflict")) %>%
+  filter(TrainSessionComboNum %in% c("1")) %>%
+  filter(variable == "pTimeTarget")
+
+summary(lm(data = aovTrainAPApTimeT, value ~  APA2 * Genotype))
+summary(aov(data = aovTrainAPApTimeT, value ~  APA2 * Genotype))
 
 ```
+
+# Now - exampine space use interaction APA2 * Genotype in trained and yoked separated
+
+```{r}
+
+timeccw <- behavior %>%
+  filter(APA2 %in% c("consistent","conflict")) %>%
+    filter(TrainSessionComboNum %in% c("6", "7", "8")) %>% 
+  ggplot(aes(x = as.numeric(TrainSessionComboNum), y = pTimeCCW, fill=APA2)) +
+  geom_boxplot(outlier.size=0.8) +
+  facet_wrap(~Genotype) +
+  scale_fill_manual(values = c("#ca0020", "#f4a582")) +  
+ scale_x_continuous(name="C1-C3 Average", 
+                       breaks = c(1, 2, 3, 4, 5, 6, 7, 8, 9),
+                       labels = NULL) +
+  geom_hline(yintercept=c(0.32), color="black" , linetype="dashed") + 
+    scale_y_continuous(name = "Counter Clockwise",
+      breaks = c(0,0.32, 0.64),
+                     limits= c(0,0.8)) +
+  theme_cowplot(font_size = 8, line_size = 0.25) +
+  theme(legend.position="none")
+timeccw
+
+timecw <- behavior %>%
+  filter(APA2 %in% c("consistent","conflict")) %>%
+    filter(TrainSessionComboNum %in% c("6", "7", "8")) %>% 
+  ggplot(aes(x = as.numeric(TrainSessionComboNum), y = pTimeCW, fill=APA2)) +
+  geom_boxplot(outlier.size=0.8) +
+  facet_wrap(~Genotype) +
+  scale_fill_manual(values = c("#ca0020", "#f4a582")) +  
+ scale_x_continuous(name="C1-C3 Average", 
+                       breaks = c(1, 2, 3, 4, 5, 6, 7, 8, 9),
+                       labels = NULL) +
+  geom_hline(yintercept=c(0.32), color="black" , linetype="dashed") + 
+    scale_y_continuous(name = "Clockwise",
+                       breaks = c(0,0.32, 0.64),
+                     limits= c(0,0.8)) +
+  theme_cowplot(font_size = 8, line_size = 0.25) +
+ theme(legend.position="none")
+timecw
+
+timet <- behavior %>%
+  filter(APA2 %in% c("consistent","conflict")) %>%
+    filter(TrainSessionComboNum %in% c("6", "7", "8")) %>% 
+  ggplot(aes(x = as.numeric(TrainSessionComboNum), y = pTimeTarget, fill=APA2)) +
+  geom_boxplot(outlier.size=0.8) +
+  facet_wrap(~Genotype) +
+  scale_fill_manual(values = c("#ca0020", "#f4a582")) +  
+ scale_x_continuous(name="C1-C3 Average", 
+                       breaks = c(1, 2, 3, 4, 5, 6, 7, 8, 9),
+                       labels = NULL) +
+    scale_y_continuous(name = "Shock zone",
+                       breaks = c(0,0.04, 0.08, 0.12),
+                         limits= c(0,0.14)) +
+  #geom_hline(yintercept=c(0.04), color="black" , linetype="dashed") + 
+  theme_cowplot(font_size = 8, line_size = 0.25) +
+ theme(legend.position="none")
+timet
+
+timeopp <- behavior %>%
+  filter(APA2 %in% c("consistent","conflict")) %>%
+    filter(TrainSessionComboNum %in% c("6", "7", "8")) %>% 
+  ggplot(aes(x = as.numeric(TrainSessionComboNum), y = pTimeOPP, fill=APA2)) +
+  geom_boxplot(outlier.size=0.8) +
+  facet_wrap(~Genotype) +
+  scale_fill_manual(values = c("#ca0020", "#f4a582")) + 
+    scale_y_continuous(name = "Opposite the shock zone",
+                       breaks = c(0,0.32, 0.64),
+                     limits= c(0,0.8)) +
+ scale_x_continuous(name="C1-C3 Average", 
+                       breaks = c(1, 2, 3, 4, 5, 6, 7, 8, 9),
+                       labels = NULL) +
+  geom_hline(yintercept=c(0.32), color="black" , linetype="dashed") + 
+  theme_cowplot(font_size = 8, line_size = 0.25) +
+ theme(legend.position="none")
+timeopp
+
+pdf(file="../figures/01_behavior/timecw.pdf", width=1.5, height=2)
+plot(timecw)
+dev.off()
+pdf(file="../figures/01_behavior/timeccw.pdf", width=1.5, height=2)
+plot(timeccw)
+dev.off()
+
+pdf(file="../figures/01_behavior/timet.pdf", width=1.5, height=2)
+plot(timet)
+dev.off()
+pdf(file="../figures/01_behavior/timeopp.pdf", width=1.5, height=2)
+plot(timeopp)
+dev.off()
+
+
+
+
+timeccw <- behavior %>%
+  filter(APA2 %in% c("consistent","conflict")) %>%
+    filter(TrainSessionComboNum %in% c("2", "3", "4")) %>% 
+  ggplot(aes(x = as.numeric(TrainSessionComboNum), y = pTimeCCW, fill=APA2)) +
+  geom_boxplot(outlier.size=0.8) +
+  facet_wrap(~Genotype) +
+  scale_fill_manual(values = c("#ca0020", "#f4a582")) +  
+ scale_x_continuous(name="T1-T3 Average", 
+                       breaks = c(1, 2, 3, 4, 5, 6, 7, 8, 9),
+                       labels = NULL) +
+  geom_hline(yintercept=c(0.32), color="black" , linetype="dashed") + 
+    scale_y_continuous(name = "Counter Clockwise",
+      breaks = c(0,0.32, 0.64),
+                     limits= c(0,0.8)) +
+  theme_cowplot(font_size = 8, line_size = 0.25) +
+  theme(legend.position="none")
+timeccw
+
+timecw <- behavior %>%
+  filter(APA2 %in% c("consistent","conflict")) %>%
+    filter(TrainSessionComboNum %in% c("2", "3", "4")) %>% 
+  ggplot(aes(x = as.numeric(TrainSessionComboNum), y = pTimeCW, fill=APA2)) +
+  geom_boxplot(outlier.size=0.8) +
+  facet_wrap(~Genotype) +
+  scale_fill_manual(values = c("#ca0020", "#f4a582")) +  
+ scale_x_continuous(name="T1-T3 Average", 
+                       breaks = c(1, 2, 3, 4, 5, 6, 7, 8, 9),
+                       labels = NULL) +
+  geom_hline(yintercept=c(0.32), color="black" , linetype="dashed") + 
+    scale_y_continuous(name = "Counter Clockwise",
+      breaks = c(0,0.32, 0.64),
+                     limits= c(0,0.8)) +
+  theme_cowplot(font_size = 8, line_size = 0.25) +
+  theme(legend.position="none")
+timecw
+
+timeopp <- behavior %>%
+  filter(APA2 %in% c("consistent","conflict")) %>%
+    filter(TrainSessionComboNum %in% c("2", "3", "4")) %>% 
+  ggplot(aes(x = as.numeric(TrainSessionComboNum), y = pTimeOPP, fill=APA2)) +
+  geom_boxplot(outlier.size=0.8) +
+  facet_wrap(~Genotype) +
+  scale_fill_manual(values = c("#ca0020", "#f4a582")) + 
+    scale_y_continuous(name = "Opposite the shock zone",
+                       breaks = c(0,0.32, 0.64),
+                     limits= c(0,0.8)) +
+ scale_x_continuous(name="T1-T3 Average", 
+                       breaks = c(1, 2, 3, 4, 5, 6, 7, 8, 9),
+                       labels = NULL) +
+  geom_hline(yintercept=c(0.32), color="black" , linetype="dashed") + 
+  theme_cowplot(font_size = 8, line_size = 0.25) +
+ theme(legend.position="none")
+timeopp
+
+timet <- behavior %>%
+  filter(APA2 %in% c("consistent","conflict")) %>%
+    filter(TrainSessionComboNum %in% c("2", "3", "4")) %>% 
+  ggplot(aes(x = as.numeric(TrainSessionComboNum), y = pTimeTarget, fill=APA2)) +
+  geom_boxplot(outlier.size=0.8) +
+  facet_wrap(~Genotype) +
+  scale_fill_manual(values = c("#ca0020", "#f4a582")) +  
+ scale_x_continuous(name="T1-T3 Average", 
+                       breaks = c(1, 2, 3, 4, 5, 6, 7, 8, 9),
+                       labels = NULL) +
+    scale_y_continuous(name = "Shock zone",
+                       breaks = c(0,0.04, 0.08, 0.12),
+                         limits= c(0,0.14)) +
+  geom_hline(yintercept=c(0.04), color="black" , linetype="dashed") + 
+  theme_cowplot(font_size = 8, line_size = 0.25) +
+ theme(legend.position="none")
+timet
+```
+
+
+# Just Conflict 1-3
+
+```{r}
+conflict1 <- PathNum  %>% 
+  filter(TrainSessionComboNum %in% c( "5", "6", "7", "8")) %>% 
+  filter(measure == "Path to the 1st Entrance") %>% 
+  droplevels()  %>%  
+  ggplot(aes(x=, TrainSessionComboNum, y=m, color=APA2, shape=Genotype)) + 
+    geom_errorbar(aes(ymin=m-se, ymax=m+se), width=.1) +
+    geom_point(size = 2) +
+   geom_line(aes(colour=APA2, linetype=Genotype)) +
+   scale_y_continuous(name= "Path to the 1st Entrance",
+                      limits = c(0,10)) +    scale_x_continuous(name="Training Session", 
+                       breaks = c(1, 2, 3, 4, 5, 6, 7, 8, 9),
+                       labels = c( "Pre.", "T1", "T2", "T3",
+                                   "R", "C1", "C2", "C3", "Reten.")) +
+  theme_cowplot(font_size = 8, line_size = 0.25) +
+  background_grid(major = "y", minor="non") +
+  scale_color_manual(values = colorvalAPA00)  +
+  theme(legend.title=element_blank()) +
+  theme(legend.position="none") +
+  scale_shape_manual(values=c(16, 1)) +
+  facet_wrap(~Genotype)
+conflict1
+
+conflict2 <- PathNum  %>% 
+  filter(TrainSessionComboNum %in% c( "5","6", "7", "8")) %>% 
+  filter(measure == "Number of Entrances") %>% 
+  droplevels()  %>%  
+  ggplot(aes(x=, TrainSessionComboNum, y=m, color=APA2, shape=Genotype)) + 
+    geom_errorbar(aes(ymin=m-se, ymax=m+se), width=.1) +
+    geom_point(size = 2) +
+   geom_line(aes(colour=APA2, linetype=Genotype)) +
+   scale_y_continuous(name= "Number of Entrances",
+                      limits = c(0,25)) +    scale_x_continuous(name="Training Session", 
+                       breaks = c(1, 2, 3, 4, 5, 6, 7, 8, 9),
+                       labels = c( "Pre.", "T1", "T2", "T3",
+                                   "R", "C1", "C2", "C3", "Reten.")) +
+  theme_cowplot(font_size = 8, line_size = 0.25) +
+  background_grid(major = "y", minor="non") +
+  scale_color_manual(values = colorvalAPA00)  +
+  theme(legend.title=element_blank()) +
+  theme(legend.position="none") +
+  scale_shape_manual(values=c(16, 1)) +
+  facet_wrap(~Genotype)
+conflict2
+
+pdf(file="../figures/01_behavior/conflict1.pdf", width=2.5, height=2)
+plot(conflict1)
+dev.off()
+pdf(file="../figures/01_behavior/conflict2.pdf", width=2.5, height=2)
+plot(conflict2)
+dev.off()
+
+```
+
+# Just Training 1-3
+
+```{r}
+training1 <- PathNum  %>% 
+  filter(TrainSessionComboNum %in% c("2", "3", "4")) %>% 
+  filter(measure == "Path to the 1st Entrance") %>% 
+  droplevels()  %>%  
+  ggplot(aes(x=, TrainSessionComboNum, y=m, color=APA2, shape=Genotype)) + 
+    geom_errorbar(aes(ymin=m-se, ymax=m+se), width=.1) +
+    geom_point(size = 2) +
+   geom_line(aes(colour=APA2, linetype=Genotype)) +
+   scale_y_continuous(name= "Path to the 1st Entrance",
+                      limits = c(0,10)) +    scale_x_continuous(name="Training Session", 
+                       breaks = c(1, 2, 3, 4, 5, 6, 7, 8, 9),
+                       labels = c( "Pre.", "T1", "T2", "T3",
+                                   "Retest", "C1", "C2", "C3", "Reten.")) +
+  theme_cowplot(font_size = 8, line_size = 0.25) +
+  background_grid(major = "y", minor="non") +
+  scale_color_manual(values = colorvalAPA00)  +
+  theme(legend.title=element_blank()) +
+  theme(legend.position="none") +
+  scale_shape_manual(values=c(16, 1)) +
+  facet_wrap(~Genotype)
+training1
+
+training2 <- PathNum  %>% 
+  filter(TrainSessionComboNum %in% c("2", "3", "4")) %>% 
+  filter(measure == "Number of Entrances") %>% 
+  droplevels()  %>%  
+  ggplot(aes(x=, TrainSessionComboNum, y=m, color=APA2, shape=Genotype)) + 
+    geom_errorbar(aes(ymin=m-se, ymax=m+se), width=.1) +
+    geom_point(size = 2) +
+   geom_line(aes(colour=APA2, linetype=Genotype)) +
+   scale_y_continuous(name= "Number of Entrances",
+                      limits = c(0,25)) +    scale_x_continuous(name="Training Session", 
+                       breaks = c(1, 2, 3, 4, 5, 6, 7, 8, 9),
+                       labels = c( "Pre.", "T1", "T2", "T3",
+                                   "Retest", "C1", "C2", "C3", "Reten.")) +
+  theme_cowplot(font_size = 8, line_size = 0.25) +
+  background_grid(major = "y", minor="non") +
+  scale_color_manual(values = colorvalAPA00)  +
+  theme(legend.title=element_blank()) +
+  theme(legend.position="none") +
+  scale_shape_manual(values=c(16, 1)) +
+  facet_wrap(~Genotype)
+training2
+
+pdf(file="../figures/01_behavior/training1.pdf", width=2, height=2)
+plot(training1)
+dev.off()
+pdf(file="../figures/01_behavior/training2.pdf", width=2, height=2)
+plot(training2)
+dev.off()

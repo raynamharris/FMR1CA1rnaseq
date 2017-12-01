@@ -279,36 +279,25 @@ data <- data %>%
 top_labelled <- top_n(data, n = 5, wt = pvalue)
 
 # Color corresponds to fold change directionality
-colored <- ggplot(data, aes(x = lfc, y = pvalue)) + 
-  geom_point(aes(color = factor(color), shape = factor(color)), size = 3, alpha = 0.5, na.rm = T) + # add gene points
-  theme_bw(base_size = 8) + # clean up theme
-  theme(legend.position = "none") + # remove legend 
-  scale_color_manual(values = c("FRM1_KO" = "#41b6c4",
-                                "WT" = "#e7298a", 
-                                "none" = "grey")) + theme(panel.grid.minor=element_blank(),
-           panel.grid.major=element_blank()) + 
-  scale_x_continuous(name="Log Fold Change") +
-  scale_y_continuous(name="-log10 (adjusted p-value)") +
-  geom_hline(yintercept = 1.3,  size = 0.25, linetype = 2 ) + 
-  scale_shape_manual(values = c(16,16,16))  
-colored
 
-colored <- ggplot(data, aes(x = lfc, y = pvalue)) + 
-  geom_point(aes(color = factor(color), shape = factor(color)), size = 1, alpha = 0.5, na.rm = T) + # add gene points
-  theme_bw(base_size = 8) + # clean up theme
-  theme(legend.position = "none") + # remove legend 
+volcano <- ggplot(data, aes(x = lfc, y = pvalue)) + 
+  geom_point(aes(color = factor(color)), size = 1, alpha = 0.5, na.rm = T) + # add gene points
+  theme_cowplot(font_size = 8, line_size = 0.25) +
+  geom_hline(yintercept = 1,  size = 0.25, linetype = 2) + 
   scale_color_manual(values = c("FRM1_KO" = "#41b6c4",
                                 "WT" = "#e7298a", 
-                                "none" = "grey")) + theme(panel.grid.minor=element_blank(),
-           panel.grid.major=element_blank()) + 
-  scale_x_continuous(name="Log Fold Change") +
-  scale_y_continuous(name="-log10 (adjusted p-value)") +
-  geom_hline(yintercept = 1.3,  size = 0.25, linetype = 2 ) + 
-  scale_shape_manual(values = c(16,16,16))  
-colored
+                                "none" = "grey")) + 
+  #scale_y_continuous(limits=c(0, 8)) +
+  scale_x_continuous(name="Log fold change")+
+  ylab(paste0("log10 p-value")) +       
+  theme(panel.grid.minor=element_blank(),
+        legend.position = "none", # remove legend 
+        panel.grid.major=element_blank())
+volcano
+
 
 pdf(file="../figures/05_Ceolin/volcano.pdf", width=1.5, height=1.75)
-plot(colored)
+plot(volcano)
 dev.off()
 ```
 

@@ -1,5 +1,7 @@
 # FMR1rnaseqCA1
 
+The GitHub Repository for "FMR1-KO knockdown alters gene expression of some autism disorder risk genes"
+
 ## Data organization
 
 1. UNIXworkflow - runs on The Texas Advanced Computing Center's (TACC) cluster 'Stampede'

@@ -2,15 +2,11 @@
 
 ## Data organization
 
-1. UNIXworkflow 
-1. data
-1. scripts
-
-- UNIXworkflow - runs on The Texas Advanced Computing Center's (TACC) cluster 'Stampede'
-- data
+1. UNIXworkflow - runs on The Texas Advanced Computing Center's (TACC) cluster 'Stampede'
+2. data
 	- the files with the 01 and 02 prefix are semi-raw files for starting analysis
 	- all other files are results files or meta data
-- scripts
+3. scripts
 	- 00_cpfiles.sh	- a bash script for copying files into and out of this repo
 	- 01_behavior.Rmd - knittable analysis script for wrangling, analyzing, and visualizing avoidance behavior 
 	- 01_behavior.md - output of above script

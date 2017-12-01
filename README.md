@@ -78,4 +78,6 @@ A) Graphical representation of the samples for the Ceolin et al. 201732 study ex
 ![](./figures/fig1-05.png)
 ![](./figures/fig1-06.png)
 ![](./figures/fig1-07.png)
+![](./figures/fig1-09.png)
+
 

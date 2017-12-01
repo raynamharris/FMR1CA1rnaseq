@@ -71,3 +71,11 @@ Using a weight gene-expression analyses15, I identify hundreds of genes whose ex
 A) Graphical representation of the samples for the Ceolin et al. 201732 study examining CA1 expression in WT and FMR1-KO mice. B)  Volcano plot showing enrichment of 88 genes that are up-regulated in FMR1-KO mice and the 146 genes that are up-regulated in WT mice. C) Hierarchical clustering showing the names and expression patterns of those same significant genes. D) GO analysis showing a very similar pattern of depletion of calcium channel activity as was shown in Fig. 2.4C). In contrast, Ceolin detected enrichment of ribosomal processes in response to FMR1-KO in CA1 pyramidal neurons.A) Graphical representation of the samples for the Ceolin et al. 201732 study examining CA1 expression in WT and FMR1-KO mice. B)  Volcano plot showing enrichment of 88 genes that are up-regulated in FMR1-KO mice and the 146 genes that are up-regulated in WT mice. C) Hierarchical clustering showing the names and expression patterns of those same significant genes. D) GO analysis showing a very similar pattern of depletion of calcium channel activity as was shown in Fig. 2.4C). In contrast, Ceolin detected enrichment of ribosomal processes in response to FMR1-KO in CA1 pyramidal neurons.
 
 
+![](./figures/fig1-01.png)
+![](./figures/fig1-02.png)
+![](./figures/fig1-03.png)
+![](./figures/fig1-04.png)
+![](./figures/fig1-05.png)
+![](./figures/fig1-06.png)
+![](./figures/fig1-07.png)
+![](./figures/fig1-08.png)

@@ -23,10 +23,11 @@ library(ez) # for non-parametric ANOVA
 source("figureoptions.R")
 
 knitr::opts_chunk$set(fig.path = '../figures/01_behavior/')
-
 ```
 
 # Behavior data wrangling and sample sizes
+
+![](../figures/fig1-01.png)
 
 ```{r behaivordata, message=F}
 ## read intermediate data (raw data from video tracker program analyzed in matlab)
@@ -53,10 +54,6 @@ behavior <- subset(behavior, !is.na(behavior$NumEntrances)) # remove nas
 
 # sample sizes
 behavior %>% 
-  filter(TrainSessionCombo == "Retention") %>%
-  select(APA2)  %>%  summary()
-
-behavior %>% 
   filter(TrainSessionCombo == "Retention", Genotype == "WT") %>%
   select(APA2, Genotype)  %>%  summary()
 
@@ -65,14 +62,15 @@ behavior %>%
   select(APA2, Genotype)  %>%  summary()
 ```
 
-# Creating dataframes and plotting mean with standard error
+# General overview of number of entrances to the shock zone and path to the first entrance. No statistics on these full data sets because its makes more sense to subset the data into training and non-training sessions first.
+
+![](../figures/fig1-02.png)
 
 ```{r}
 # behaviors
 numentr <- dplyr::summarise(group_by(behavior, Genotype, APA2, TrainSessionComboNum, conflict), m = mean(NumEntrances), se = sd(NumEntrances)/sqrt(length(NumEntrances)), len = length(NumEntrances))
 
 pathentr <- dplyr::summarise(group_by(behavior, Genotype, APA2, TrainSessionComboNum, conflict), m = mean(Path1stEntr), se = sd(Path1stEntr)/sqrt(length(Path1stEntr)), len = length(Path1stEntr))
-
 
 levels(numentr$APA2) <- c("yoked-consistent","consistent", "yoked-conflict","conflict")
 levels(pathentr$APA2) <- c("yoked-consistent","consistent", "yoked-conflict","conflict")
@@ -82,42 +80,34 @@ pathentr$conflict = factor(numentr$conflict, levels = c("consistent","conflict")
 numentr$measure <- "Number of Entrances"
 pathentr$measure <- "Path to the 1st Entrance"
 
-
 PathNum <- rbind(pathentr,numentr)
 PathNum$measure <- as.factor(PathNum$measure)
 write.csv(PathNum, "../data/01_behaviordatasummary.csv")
 
-summary(pathentr)
-summary(numentr)
-boxplot(numentr$m ~ numentr$TrainSessionComboNum)
-plot(numentr$m ~ numentr$TrainSessionComboNum)
+
+PathNumStats <- behavior  %>% 
+  filter(Genotype == "WT", TrainSessionComboNum == "6") 
+summary(aov(NumEntrances ~  APA2, data=PathNumStats))
+TukeyHSD(aov(NumEntrances ~  APA2, data=PathNumStats))
+summary(aov(Path1stEntr ~  APA2, data=PathNumStats))
+TukeyHSD(aov(Path1stEntr ~  APA2, data=PathNumStats))
+
+PathNumStats <- behavior  %>% 
+  filter(Genotype == "WT", TrainSessionComboNum == "8") 
+summary(aov(NumEntrances ~  APA2, data=PathNumStats))
+TukeyHSD(aov(NumEntrances ~  APA2, data=PathNumStats))
+summary(aov(Path1stEntr ~  APA2, data=PathNumStats))
+TukeyHSD(aov(Path1stEntr ~  APA2, data=PathNumStats))
+
+PathNumStats <- behavior  %>% 
+  filter(Genotype == "WT", TrainSessionComboNum == "4") 
+summary(aov(NumEntrances ~  APA2, data=PathNumStats))
+TukeyHSD(aov(NumEntrances ~  APA2, data=PathNumStats))
+summary(aov(Path1stEntr ~  APA2, data=PathNumStats))
+TukeyHSD(aov(Path1stEntr ~  APA2, data=PathNumStats))
 
 
-numenr <- PathNum  %>% 
-  #filter(TrainSessionComboNum != "1", TrainSessionComboNum != "9") %>% 
-  filter(measure == "Number of Entrances") %>% 
-  droplevels()  %>% 
-  ggplot(aes(x=, TrainSessionComboNum, y=m, color=APA2, shape=Genotype)) + 
-    geom_errorbar(aes(ymin=m-se, ymax=m+se), width=.1) +
-    geom_point(size = 2) +
-   geom_line(aes(colour=APA2, linetype=Genotype)) +
-   scale_y_continuous(name= "Number of Entrances",
-                      limits = c(0,25)) +
-    scale_x_continuous(name="Training Session", 
-                       breaks = c(1, 2, 3, 4, 5, 6, 7, 8, 9),
-                       labels = c( "Pre.", "T1", "T2", "T3",
-                                   "Retest", "C1", "C2", "C3", "Reten.")) +
-  theme_cowplot(font_size = 8, line_size = 0.25) +
-  background_grid(major = "y", minor="non") +
-  scale_color_manual(values = colorvalAPA00)  +
-  theme(legend.title=element_blank()) +
-  theme(legend.position="bottom") +
-  scale_shape_manual(values=c(16, 1)) 
-numenr
 
-pdf(file="../figures/01_behavior/legend.pdf", width=5, height=2)
-plot(numenr)
-dev.off()
 
 numenrwt <- PathNum  %>% 
   #filter(TrainSessionComboNum != "1", TrainSessionComboNum != "9") %>% 
@@ -233,331 +223,29 @@ dev.off()
 ```
 
 
+# Proption time spent before training
+During the pre-training trial, all groups spend an equal amount of time in all quadrants of the arena. 
 
-## Anovas Consistent only - No significant effect of genotype
-```{r anovaconsistent}
-consistent <- behavior %>%
-  filter(conflict == "consistent")  %>%
-  filter(TrainSessionCombo != "Hab", TrainSessionCombo != "Retention") %>%
-  droplevels()
-
-m1 = aov(NumEntrances ~  Genotype + APA2 + TrainSessionCombo + Genotype * APA2  , data=consistent)
-summary(m1)
-TukeyHSD(m1)
-
-T1 <- consistent %>%
-  filter(TrainSession == "T1") 
-T2 <- consistent %>%
-  filter(TrainSession == "T2") 
-T3 <- consistent %>%
-  filter(TrainSession == "T3") 
-Retest <- consistent %>%
-  filter(TrainSession == "Retest") 
-T4 <- consistent %>%
-  filter(TrainSession %in% c("T4", "C1")) 
-T5 <- consistent %>%
-  filter(TrainSession %in% c("T5", "C2")) 
-T6 <- consistent %>%
-  filter(TrainSession %in% c("T6", "C3")) 
-
-
-summary(aov(NumEntrances ~ Genotype * APA2, data=T1)) 
-summary(aov(NumEntrances ~ Genotype * APA2, data=T2)) 
-summary(aov(NumEntrances ~ Genotype * APA2, data=T3))
-summary(aov(NumEntrances ~ Genotype * APA2, data=Retest)) 
-summary(aov(NumEntrances ~ Genotype * APA2, data=T4)) 
-summary(aov(NumEntrances ~ Genotype * APA2, data=T5)) 
-summary(aov(NumEntrances ~ Genotype * APA2, data=T6)) 
-```
-
-
-## Anovas Conflict  only
-```{r anovaconflict}
-conflict <- behavior %>%
-  filter(conflict == "conflict") %>%
-  filter(TrainSessionCombo != "Hab", TrainSessionCombo != "Retention", TrainSessionCombo != "T1", TrainSessionCombo != "T2",TrainSessionCombo != "T3") %>%
-  droplevels()
-
-
-m1 = aov(NumEntrances ~  Genotype + APA2 + TrainSessionCombo + Genotype * APA2  , data=conflict)
-summary(m1)
-TukeyHSD(m1)
-
-Retest <- conflict %>%
-  filter(TrainSession == "Retest") 
-T4 <- conflict %>%
-  filter(TrainSession %in% c("T4", "C1")) 
-T5 <- conflict %>%
-  filter(TrainSession %in% c("T5", "C2")) 
-T6 <- conflict %>%
-  filter(TrainSession %in% c("T6", "C3")) 
-Retention <- conflict %>%
-  filter(TrainSession == "Retention") 
-
-summary(aov(NumEntrances ~ Genotype * APA2, data=Retest)) # * significant
-summary(aov(NumEntrances ~ Genotype * APA2, data=T4)) 
-TukeyHSD(aov(NumEntrances ~ Genotype * APA2, data=T4))
-summary(aov(NumEntrances ~ Genotype * APA2, data=T5)) 
-summary(aov(NumEntrances ~ Genotype * APA2, data=T6))     # * significant
-```
-
-## Mann-Whitney Conflict-trained  only
-```{r anovaconflicttrained}
-conflict <- behavior %>%
-  filter(APA2 == "conflict") %>%
-  droplevels()
-
-m1 = aov(NumEntrances ~  Genotype + TrainSessionCombo + Genotype*TrainSessionCombo, data=conflict)
-summary(m1)
-TukeyHSD(m1)
-
-hab <- conflict %>%
-  filter(TrainSession == "Hab") 
-T1 <- conflict %>%
-  filter(TrainSession == "T1") 
-T2 <- conflict %>%
-  filter(TrainSession == "T2") 
-T3 <- conflict %>%
-  filter(TrainSession == "T3") 
-Retest <- conflict %>%
-  filter(TrainSession == "Retest") 
-T4 <- conflict %>%
-  filter(TrainSession %in% c("T4", "C1")) 
-T5 <- conflict %>%
-  filter(TrainSession %in% c("T5", "C2")) 
-T6 <- conflict %>%
-  filter(TrainSession %in% c("T6", "C3")) 
-Retention <- conflict %>%
-  filter(TrainSession == "Retention") 
-
-wilcox.test(NumEntrances ~ Genotype,  data=hab) 
-wilcox.test(NumEntrances ~ Genotype, data=T1)
-wilcox.test(NumEntrances ~ Genotype, data=T2) 
-wilcox.test(NumEntrances ~ Genotype, data=T3)    
-wilcox.test(NumEntrances ~ Genotype, data=Retest) 
-wilcox.test(NumEntrances ~ Genotype, data=T4) 
-wilcox.test(NumEntrances ~ Genotype, data=T5) 
-wilcox.test(NumEntrances ~ Genotype, data=T6)     # . p = 0.099
-wilcox.test(NumEntrances ~ Genotype, data=Retention)
-```
-
-## Mann-Whitney conflict-yoked  only
-```{r anovacconflictyoked}
-yoked <- behavior %>%
-  filter(APA2 == "yoked-conflict")  %>%
-  droplevels()
-
-m1 = aov(NumEntrances ~  Genotype + TrainSessionCombo + Genotype*TrainSessionCombo, data=yoked)
-summary(m1)
-
-hab <- yoked %>%
-  filter(TrainSession == "Hab") 
-T1 <- yoked %>%
-  filter(TrainSession == "T1") 
-T2 <- yoked %>%
-  filter(TrainSession == "T2") 
-T3 <- yoked %>%
-  filter(TrainSession == "T3") 
-Retest <- yoked %>%
-  filter(TrainSession == "Retest") 
-T4 <- yoked %>%
-  filter(TrainSession %in% c("T4", "C1")) 
-T5 <- yoked %>%
-  filter(TrainSession %in% c("T5", "C2")) 
-T6 <- yoked %>%
-  filter(TrainSession %in% c("T6", "C3")) 
-Retention <- yoked %>%
-  filter(TrainSession == "Retention") 
-
-wilcox.test(NumEntrances ~ Genotype, data=hab) 
-wilcox.test(NumEntrances ~ Genotype, data=T1)
-wilcox.test(NumEntrances ~ Genotype, data=T2) 
-wilcox.test(NumEntrances ~ Genotype, data=T3)    
-wilcox.test(NumEntrances ~ Genotype, data=Retest) 
-wilcox.test(NumEntrances ~ Genotype, data=T4) 
-wilcox.test(NumEntrances ~ Genotype, data=T5) 
-wilcox.test(NumEntrances ~ Genotype, data=T6)     
-wilcox.test(NumEntrances ~ Genotype, data=Retention)
-```
-
-
-## Mann-Whitney consistent-trained  only
-```{r anovaconsistentrained}
-consistent <- behavior %>%
-  filter(APA2 == "consistent") %>%
-  droplevels()
-
-m1 = aov(NumEntrances ~  Genotype + TrainSessionCombo + Genotype*TrainSessionCombo, data=consistent)
-summary(m1)
-
-
-hab <- consistent %>%
-  filter(TrainSession == "Hab") 
-T1 <- consistent %>%
-  filter(TrainSession == "T1") 
-T2 <- consistent %>%
-  filter(TrainSession == "T2") 
-T3 <- consistent %>%
-  filter(TrainSession == "T3") 
-Retest <- consistent %>%
-  filter(TrainSession == "Retest") 
-T4 <- consistent %>%
-  filter(TrainSession %in% c("T4", "C1")) 
-T5 <- consistent %>%
-  filter(TrainSession %in% c("T5", "C2")) 
-T6 <- consistent %>%
-  filter(TrainSession %in% c("T6", "C3")) 
-Retention <- consistent %>%
-  filter(TrainSession == "Retention") 
-
-wilcox.test(NumEntrances ~ Genotype,  data=hab) 
-wilcox.test(NumEntrances ~ Genotype, data=T1)
-wilcox.test(NumEntrances ~ Genotype, data=T2) 
-wilcox.test(NumEntrances ~ Genotype, data=T3)    
-wilcox.test(NumEntrances ~ Genotype, data=Retest) 
-wilcox.test(NumEntrances ~ Genotype, data=T4) 
-wilcox.test(NumEntrances ~ Genotype, data=T5) 
-wilcox.test(NumEntrances ~ Genotype, data=T6)     
-wilcox.test(NumEntrances ~ Genotype, data=Retention)
-```
-
-## Mann-Whitney consistent-yoked  only
-```{r anovaconsistenyoked}
-yoked <- behavior %>%
-  filter(APA2 == "yoked-consistent") %>%
-  droplevels()
-
-m1 = aov(NumEntrances ~  Genotype + TrainSessionCombo + Genotype*TrainSessionCombo, data=yoked)
-summary(m1)
-
-
-hab <- yoked %>%
-  filter(TrainSession == "Hab") 
-T1 <- yoked %>%
-  filter(TrainSession == "T1") 
-T2 <- yoked %>%
-  filter(TrainSession == "T2") 
-T3 <- yoked %>%
-  filter(TrainSession == "T3") 
-Retest <- yoked %>%
-  filter(TrainSession == "Retest") 
-T4 <- yoked %>%
-  filter(TrainSession %in% c("T4", "C1")) 
-T5 <- yoked %>%
-  filter(TrainSession %in% c("T5", "C2")) 
-T6 <- yoked %>%
-  filter(TrainSession %in% c("T6", "C3")) 
-Retention <- yoked %>%
-  filter(TrainSession == "Retention") 
-
-wilcox.test(NumEntrances ~ Genotype, data=hab) 
-wilcox.test(NumEntrances ~ Genotype, data=T1)
-wilcox.test(NumEntrances ~ Genotype, data=T2) 
-wilcox.test(NumEntrances ~ Genotype, data=T3)    
-wilcox.test(NumEntrances ~ Genotype, data=Retest) 
-wilcox.test(NumEntrances ~ Genotype, data=T4) 
-wilcox.test(NumEntrances ~ Genotype, data=T5) 
-wilcox.test(NumEntrances ~ Genotype, data=T6)     
-wilcox.test(NumEntrances ~ Genotype, data=Retention)
-```
-
-
-
-## anova habituation
+![](../figures/fig1-04.png)
 
 ```{r}
-slim1 <- behavior[,c(2,4,8,13:52)]
-slim2 <- slim1 %>% filter(TrainSession == "Hab") 
-Genotype <- slim2[,1]
-APA <- slim2[,3]
-slim3 <- slim2[,c(4:43)]
-
-for(y in names(slim3)){
-  ymod<- summary(aov(slim3[[y]] ~ Genotype * APA))
-  cat(paste('\nDependent var:', y, '\n'))
-  print(ymod)
-}
-```
-
-## anova conflict
-
-```{r}
-slim1 <- behavior[,c(2,9,8,13:52)]
-slim2 <- slim1 %>% filter(TrainSessionCombo == "T4_C1", APA2 == "conflict") 
-Genotype <- slim2[,1]
-APA <- slim2[,3]
-slim3 <- slim2[,c(4:43)]
-
-for(y in names(slim3)){
-  ymod<- summary(aov(slim3[[y]] ~ Genotype ))
-  cat(paste('\nDependent var:', y, '\n'))
-  print(ymod)
-}
-# * AnnularSd, AnnularMaxBin 
-# . PolarMinBin 
-
-slim1 <- behavior[,c(2,9,8,13:52)]
-slim2 <- slim1 %>% filter(TrainSessionCombo == "T3", APA2 == "conflict") 
-Genotype <- slim2[,1]
-APA <- slim2[,3]
-slim3 <- slim2[,c(4:43)]
-
-for(y in names(slim3)){
-  ymod<- summary(aov(slim3[[y]] ~ Genotype ))
-  cat(paste('\nDependent var:', y, '\n'))
-  print(ymod)
-}
-# . AnnularSd, AnnularMinVal, MaxTimeAvoid 
-
+PathNumStats <- behavior  %>% 
+  filter(TrainSessionComboNum == "1") 
+summary(aov(pTimeTarget ~  APA2 * Genotype, data=PathNumStats))
+summary(aov(pTimeOPP ~  APA2 * Genotype, data=PathNumStats))
+summary(aov(pTimeCW ~  APA2 * Genotype, data=PathNumStats))
+summary(aov(pTimeCCW ~  APA2 * Genotype, data=PathNumStats))
 
 ```
 
-## habituation genotype
+# Where do mice spend their time? 
+Again this first graph is a big overview that shows that consistent trained aniamls avoid the shock zone and the clockwise area while conflict avoid the shock zone and counter clockwise. This is re-illustrated in the subsequent graph focusing just on the conlict training sessions. Yoked mice show no place preference or avoidance.
+
+![](../figures/fig1-06.png)
+
 
 ```{r}
-slim1 <- behavior[,c(2,9,8,13:52)]
-slim2 <- slim1 %>% filter(TrainSessionCombo == "Hab") 
-Genotype <- slim2[,1]
-APA <- slim2[,3]
-slim3 <- slim2[,c(4:43)]
 
-for(y in names(slim3)){
-  ymod<- summary(aov(slim3[[y]] ~ Genotype ))
-  cat(paste('\nDependent var:', y, '\n'))
-  print(ymod)
-}
-
-# . Speed1, AnnularMinBin 
-
-
-```
-
-## retention genotype
-
-```{r}
-slim1 <- behavior[,c(2,9,8,13:52)]
-slim2 <- slim1 %>% filter(TrainSessionCombo == "Retention") 
-Genotype <- slim2[,1]
-APA <- slim2[,3]
-slim3 <- slim2[,c(4:43)]
-
-for(y in names(slim3)){
-  ymod<- summary(aov(slim3[[y]] ~ Genotype * APA ))
-  cat(paste('\nDependent var:', y, '\n'))
-  print(ymod)
-}
-# ** Speed2ndEntr
-# * RayleigAngle 
-# . Min50.RngHiBin, RayleigLength, pTimeCCW, MaxTimeAvoid  
-
-```
-
-# Create dataframe and stacked bar graphs for portion time spent
-
-```{r}
-behavior %>% 
-  filter(TrainSessionCombo == "Retention") %>%
-  select(APA2, Genotype)  %>%  summary()
 proptime <- behavior[,c(1,2,4,8,9,12,26:29)]
 proptime <- melt(proptime, id.vars = c("ID", "Genotype", "TrainSession",
                                        "APA2", "TrainSessionCombo","TrainSessionComboNum")) 
@@ -676,26 +364,13 @@ plot(timespent5)
 dev.off()
 
 
-aovYokedTrainAPApTimeT <- proptime %>%
-  filter(TrainSessionComboNum %in% c("1")) %>%
-  filter(variable == "pTimeTarget")
-summary(aov(data = aovYokedTrainAPApTimeT, value ~  APA2 * Genotype))
-
-aovTrainAPApTimeT <- proptime %>%
-  filter(APA2 %in% c("consistent","conflict")) %>%
-  filter(TrainSessionComboNum %in% c("1")) %>%
-  filter(variable == "pTimeTarget")
-
-summary(lm(data = aovTrainAPApTimeT, value ~  APA2 * Genotype))
-summary(aov(data = aovTrainAPApTimeT, value ~  APA2 * Genotype))
-
 ```
 
 # Now - exampine space use interaction APA2 * Genotype in trained and yoked separated
 
 ![](../figures/fig1-05.png)
 
-```{r}
+```{r proportiontimespenttrained}
 
 trainedtimespent <- behavior %>%
   filter(APA2 %in% c("consistent","conflict")) %>%
@@ -825,9 +500,6 @@ pdf(file="../figures/01_behavior/timeopp.pdf", width=1.5, height=2)
 plot(timeopp)
 dev.off()
 
-
-
-
 timeccw <- behavior %>%
   filter(APA2 %in% c("consistent","conflict")) %>%
     filter(TrainSessionComboNum %in% c("2", "3", "4")) %>% 
@@ -902,112 +574,20 @@ timet
 ```
 
 
-# Just Conflict 1-3
+
+
+# For Loops for Stats on Everything!! Not used for manuscript
 
 ```{r}
-conflict1 <- PathNum  %>% 
-  filter(TrainSessionComboNum %in% c( "5", "6", "7", "8")) %>% 
-  filter(measure == "Path to the 1st Entrance") %>% 
-  droplevels()  %>%  
-  ggplot(aes(x=, TrainSessionComboNum, y=m, color=APA2, shape=Genotype)) + 
-    geom_errorbar(aes(ymin=m-se, ymax=m+se), width=.1) +
-    geom_point(size = 2) +
-   geom_line(aes(colour=APA2, linetype=Genotype)) +
-   scale_y_continuous(name= "Path to the 1st Entrance",
-                      limits = c(0,10)) +    scale_x_continuous(name="Training Session", 
-                       breaks = c(1, 2, 3, 4, 5, 6, 7, 8, 9),
-                       labels = c( "Pre.", "T1", "T2", "T3",
-                                   "R", "C1", "C2", "C3", "Reten.")) +
-  theme_cowplot(font_size = 8, line_size = 0.25) +
-  background_grid(major = "y", minor="non") +
-  scale_color_manual(values = colorvalAPA00)  +
-  theme(legend.title=element_blank()) +
-  theme(legend.position="none") +
-  scale_shape_manual(values=c(16, 1)) +
-  facet_wrap(~Genotype)
-conflict1
+slim1 <- behavior[,c(2,4,8,13:52)]
+slim2 <- slim1 %>% filter(TrainSession == "Hab") 
+Genotype <- slim2[,1]
+APA <- slim2[,3]
+slim3 <- slim2[,c(4:43)]
 
-conflict2 <- PathNum  %>% 
-  filter(TrainSessionComboNum %in% c( "5","6", "7", "8")) %>% 
-  filter(measure == "Number of Entrances") %>% 
-  droplevels()  %>%  
-  ggplot(aes(x=, TrainSessionComboNum, y=m, color=APA2, shape=Genotype)) + 
-    geom_errorbar(aes(ymin=m-se, ymax=m+se), width=.1) +
-    geom_point(size = 2) +
-   geom_line(aes(colour=APA2, linetype=Genotype)) +
-   scale_y_continuous(name= "Number of Entrances",
-                      limits = c(0,25)) +    scale_x_continuous(name="Training Session", 
-                       breaks = c(1, 2, 3, 4, 5, 6, 7, 8, 9),
-                       labels = c( "Pre.", "T1", "T2", "T3",
-                                   "R", "C1", "C2", "C3", "Reten.")) +
-  theme_cowplot(font_size = 8, line_size = 0.25) +
-  background_grid(major = "y", minor="non") +
-  scale_color_manual(values = colorvalAPA00)  +
-  theme(legend.title=element_blank()) +
-  theme(legend.position="none") +
-  scale_shape_manual(values=c(16, 1)) +
-  facet_wrap(~Genotype)
-conflict2
-
-pdf(file="../figures/01_behavior/conflict1.pdf", width=2.5, height=2)
-plot(conflict1)
-dev.off()
-pdf(file="../figures/01_behavior/conflict2.pdf", width=2.5, height=2)
-plot(conflict2)
-dev.off()
-
+for(y in names(slim3)){
+  ymod<- summary(aov(slim3[[y]] ~ Genotype * APA))
+  cat(paste('\nDependent var:', y, '\n'))
+  print(ymod)
+}
 ```
-
-# Just Training 1-3
-
-```{r}
-training1 <- PathNum  %>% 
-  filter(TrainSessionComboNum %in% c("2", "3", "4")) %>% 
-  filter(measure == "Path to the 1st Entrance") %>% 
-  droplevels()  %>%  
-  ggplot(aes(x=, TrainSessionComboNum, y=m, color=APA2, shape=Genotype)) + 
-    geom_errorbar(aes(ymin=m-se, ymax=m+se), width=.1) +
-    geom_point(size = 2) +
-   geom_line(aes(colour=APA2, linetype=Genotype)) +
-   scale_y_continuous(name= "Path to the 1st Entrance",
-                      limits = c(0,10)) +    scale_x_continuous(name="Training Session", 
-                       breaks = c(1, 2, 3, 4, 5, 6, 7, 8, 9),
-                       labels = c( "Pre.", "T1", "T2", "T3",
-                                   "Retest", "C1", "C2", "C3", "Reten.")) +
-  theme_cowplot(font_size = 8, line_size = 0.25) +
-  background_grid(major = "y", minor="non") +
-  scale_color_manual(values = colorvalAPA00)  +
-  theme(legend.title=element_blank()) +
-  theme(legend.position="none") +
-  scale_shape_manual(values=c(16, 1)) +
-  facet_wrap(~Genotype)
-training1
-
-training2 <- PathNum  %>% 
-  filter(TrainSessionComboNum %in% c("2", "3", "4")) %>% 
-  filter(measure == "Number of Entrances") %>% 
-  droplevels()  %>%  
-  ggplot(aes(x=, TrainSessionComboNum, y=m, color=APA2, shape=Genotype)) + 
-    geom_errorbar(aes(ymin=m-se, ymax=m+se), width=.1) +
-    geom_point(size = 2) +
-   geom_line(aes(colour=APA2, linetype=Genotype)) +
-   scale_y_continuous(name= "Number of Entrances",
-                      limits = c(0,25)) +    scale_x_continuous(name="Training Session", 
-                       breaks = c(1, 2, 3, 4, 5, 6, 7, 8, 9),
-                       labels = c( "Pre.", "T1", "T2", "T3",
-                                   "Retest", "C1", "C2", "C3", "Reten.")) +
-  theme_cowplot(font_size = 8, line_size = 0.25) +
-  background_grid(major = "y", minor="non") +
-  scale_color_manual(values = colorvalAPA00)  +
-  theme(legend.title=element_blank()) +
-  theme(legend.position="none") +
-  scale_shape_manual(values=c(16, 1)) +
-  facet_wrap(~Genotype)
-training2
-
-pdf(file="../figures/01_behavior/training1.pdf", width=2, height=2)
-plot(training1)
-dev.off()
-pdf(file="../figures/01_behavior/training2.pdf", width=2, height=2)
-plot(training2)
-dev.off()

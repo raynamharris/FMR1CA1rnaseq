@@ -29,7 +29,7 @@ knitr::opts_chunk$set(fig.path = '../figures/01_behavior/')
 
 ![](../figures/fig1-01.png)
 
-```{r behaivordata, message=F}
+```{r behaivordata, message=F, warning = F}
 ## read intermediate data (raw data from video tracker program analyzed in matlab)
 behavior <- read.csv("../data/fmr1.csv", header = T)
 
@@ -66,7 +66,7 @@ behavior %>%
 
 ![](../figures/fig1-02.png)
 
-```{r}
+```{r, warning = F}
 # behaviors
 numentr <- dplyr::summarise(group_by(behavior, Genotype, APA2, TrainSessionComboNum, conflict), m = mean(NumEntrances), se = sd(NumEntrances)/sqrt(length(NumEntrances)), len = length(NumEntrances))
 
@@ -228,7 +228,7 @@ During the pre-training trial, all groups spend an equal amount of time in all q
 
 ![](../figures/fig1-04.png)
 
-```{r}
+```{r, warning = F}
 PathNumStats <- behavior  %>% 
   filter(TrainSessionComboNum == "1") 
 summary(aov(pTimeTarget ~  APA2 * Genotype, data=PathNumStats))
@@ -368,14 +368,14 @@ dev.off()
 
 # Now - exampine space use interaction APA2 * Genotype in trained and yoked separated
 
-![](../figures/fig1-05.png)
+![](../figures/fig1-08.png)
 
-```{r proportiontimespenttrained}
+
+```{r proportiontimespenttrained, warning = F}
 
 trainedtimespent <- behavior %>%
   filter(APA2 %in% c("consistent","conflict")) %>%
     filter(TrainSessionComboNum %in% c("6", "7", "8"))
-head(trainedtimespent)
 
 summary(aov(data =  trainedtimespent, pTimeTarget ~ Genotype * APA2 ))
 #Genotype       1 0.00065 0.0006531   1.179  0.281
@@ -574,11 +574,9 @@ timet
 ```
 
 
-
-
 # For Loops for Stats on Everything!! Not used for manuscript
 
-```{r}
+```{r , warning = F}
 slim1 <- behavior[,c(2,4,8,13:52)]
 slim2 <- slim1 %>% filter(TrainSession == "Hab") 
 Genotype <- slim2[,1]

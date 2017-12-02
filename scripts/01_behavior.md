@@ -364,15 +364,10 @@ General overview of number of entrances to the shock zone and path to the first 
       scale_shape_manual(values=c(16)) 
     pathwt
 
-    ## Warning: Removed 1 rows containing missing values (geom_errorbar).
-
 ![](../figures/01_behavior/unnamed-chunk-1-4.png)
 
     pdf(file="../figures/01_behavior/pathwt.pdf", width=2.25, height=2)
     plot(pathwt)
-
-    ## Warning: Removed 1 rows containing missing values (geom_errorbar).
-
     dev.off()
 
     ## quartz_off_screen 
@@ -574,83 +569,11 @@ training sessions. Yoked mice show no place preference or avoidance.
 Now - exampine space use interaction APA2 \* Genotype in trained and yoked separated
 ====================================================================================
 
-![](../figures/fig1-05.png)
+![](../figures/fig1-08.png)
 
     trainedtimespent <- behavior %>%
       filter(APA2 %in% c("consistent","conflict")) %>%
         filter(TrainSessionComboNum %in% c("6", "7", "8"))
-    head(trainedtimespent)
-
-    ##        ID Genotype Day TrainSession PairedPartner   conflict        APA
-    ## 1 16-122A   FMR1KO   2           T4       16-122B consistent consistent
-    ## 2 16-122A   FMR1KO   2           T5       16-122B consistent consistent
-    ## 3 16-122A   FMR1KO   2           T6       16-122B consistent consistent
-    ## 4 16-123A   FMR1KO   2           T4       16-123B consistent consistent
-    ## 5 16-123A   FMR1KO   2           T5       16-123B consistent consistent
-    ## 6 16-124A   FMR1KO   2           T4       16-357A consistent consistent
-    ##         APA2 TrainSessionCombo         pair1         pair2
-    ## 1 consistent             T4_C1 16-122A_T4_C1 16-122B_T4_C1
-    ## 2 consistent             T5_C2 16-122A_T5_C2 16-122B_T5_C2
-    ## 3 consistent             T6_C3 16-122A_T6_C3 16-122B_T6_C3
-    ## 4 consistent             T4_C1 16-123A_T4_C1 16-123B_T4_C1
-    ## 5 consistent             T5_C2 16-123A_T5_C2 16-123B_T5_C2
-    ## 6 consistent             T4_C1 16-124A_T4_C1 16-357A_T4_C1
-    ##   TrainSessionComboNum SdevSpeedArena Linearity.Arena. NumEntrances
-    ## 1                    6           1.96           0.2697            5
-    ## 2                    7           2.00           0.2821            3
-    ## 3                    8           1.93           0.2718            3
-    ## 4                    6           2.39           0.2379            6
-    ## 5                    7           2.40           0.2798            5
-    ## 6                    6           2.41           0.2648            4
-    ##   Time1stEntr Path1stEntr Speed1stEntr.cm.s. Dist1stEntr.m. NumShock
-    ## 1       31.47        0.43               1.22           0.40        5
-    ## 2       37.30        0.71               1.53           0.23        3
-    ## 3      188.60        3.41               1.48           0.24        4
-    ## 4      126.23        2.58               1.18           0.42        6
-    ## 5       55.13        1.00               1.97           0.35        5
-    ## 6       40.10        0.81               1.53           0.27        4
-    ##   MaxTimeAvoid Time2ndEntr Path2ndEntr Speed2ndEntr TimeTarget pTimeTarget
-    ## 1          233       52.67        0.93         1.71      5.667      0.0151
-    ## 2          325       52.67        1.07         1.59      3.034      0.0078
-    ## 3          304      245.83        4.59         1.59      5.067      0.0126
-    ## 4          210      185.63        3.84         1.59      5.131      0.0130
-    ## 5          201      256.90        5.78         2.33      5.367      0.0137
-    ## 6          301      117.17        2.66         1.53      3.468      0.0092
-    ##   pTimeCCW pTimeOPP pTimeCW RayleigLength RayleigAngle PolarAvgVal
-    ## 1   0.5290   0.3922  0.0638          0.57       129.63      220.68
-    ## 2   0.4303   0.5199  0.0420          0.70       142.12      228.36
-    ## 3   0.7609   0.2030  0.0235          0.76       110.32      202.47
-    ## 4   0.3719   0.2944  0.3206          0.32       173.63      219.49
-    ## 5   0.1975   0.4119  0.3769          0.41       202.53      217.89
-    ## 6   0.8264   0.1635  0.0009          0.83       110.11      200.23
-    ##   PolarSdVal PolarMinVal PolarMinBin Min50.RngLoBin Min50.RngHiBin
-    ## 1      58.84       0e+00         350            140             70
-    ## 2      50.61       0e+00           0            160            110
-    ## 3      43.93       0e+00          10            120             80
-    ## 4      87.53       1e-04           0            240            130
-    ## 5      98.01       2e-04           0            250            150
-    ## 6      35.21       0e+00           0            130            100
-    ##   PolarMaxVal PolarMaxBin Max50.RngLoBin Max50.RngHiBin AnnularMinVal
-    ## 1      0.0731         120             70            170        0.0019
-    ## 2      0.0870         130             90            170        0.0105
-    ## 3      0.1044         100             70            140        0.0013
-    ## 4      0.0561         230            150            300        0.0028
-    ## 5      0.0535         230            130            260        0.0052
-    ## 6      0.1234         110             90            150        0.0002
-    ##   AnnularMinBin AnnularMaxVal AnnularMaxBin AnnularAvg AnnularSd
-    ## 1          16.9        0.3043          13.1      12.74     17.01
-    ## 2           3.1        0.3448          14.5      13.78     15.22
-    ## 3          16.9        0.3035          15.8      13.57     17.57
-    ## 4           7.5        0.5497          15.8      15.03      9.80
-    ## 5           3.1        0.4032          15.8      14.55     12.99
-    ## 6           7.5        0.7482          15.8      15.47      4.61
-    ##   AnnularSkewnes AnnularKurtosis     Speed1     Speed2 Time1stEntrLog
-    ## 1           1.24            5.19 0.01366381 0.01765711       3.449035
-    ## 2           2.44           13.07 0.01903485 0.02031517       3.618993
-    ## 3           1.86            7.94 0.01808059 0.01867144       5.239628
-    ## 4           3.62           24.17 0.02043888 0.02068631       4.838106
-    ## 5           2.04            8.62 0.01813894 0.02249903       4.009694
-    ## 6           4.74           68.30 0.02019950 0.02270206       3.691376
 
     summary(aov(data =  trainedtimespent, pTimeTarget ~ Genotype * APA2 ))
 
@@ -799,8 +722,6 @@ Now - exampine space use interaction APA2 \* Genotype in trained and yoked separ
       theme(legend.position="none")
     timeccw
 
-    ## Warning: Removed 1 rows containing non-finite values (stat_boxplot).
-
 ![](../figures/01_behavior/proportiontimespenttrained-1.png)
 
     timecw <- behavior %>%
@@ -861,8 +782,6 @@ Now - exampine space use interaction APA2 \* Genotype in trained and yoked separ
      theme(legend.position="none")
     timeopp
 
-    ## Warning: Removed 3 rows containing non-finite values (stat_boxplot).
-
 ![](../figures/01_behavior/proportiontimespenttrained-4.png)
 
     pdf(file="../figures/01_behavior/timecw.pdf", width=1.5, height=2)
@@ -874,9 +793,6 @@ Now - exampine space use interaction APA2 \* Genotype in trained and yoked separ
 
     pdf(file="../figures/01_behavior/timeccw.pdf", width=1.5, height=2)
     plot(timeccw)
-
-    ## Warning: Removed 1 rows containing non-finite values (stat_boxplot).
-
     dev.off()
 
     ## quartz_off_screen 
@@ -891,9 +807,6 @@ Now - exampine space use interaction APA2 \* Genotype in trained and yoked separ
 
     pdf(file="../figures/01_behavior/timeopp.pdf", width=1.5, height=2)
     plot(timeopp)
-
-    ## Warning: Removed 3 rows containing non-finite values (stat_boxplot).
-
     dev.off()
 
     ## quartz_off_screen 
@@ -916,8 +829,6 @@ Now - exampine space use interaction APA2 \* Genotype in trained and yoked separ
       theme_cowplot(font_size = 8, line_size = 0.25) +
       theme(legend.position="none")
     timeccw
-
-    ## Warning: Removed 1 rows containing non-finite values (stat_boxplot).
 
 ![](../figures/01_behavior/proportiontimespenttrained-5.png)
 
@@ -978,8 +889,6 @@ Now - exampine space use interaction APA2 \* Genotype in trained and yoked separ
       theme_cowplot(font_size = 8, line_size = 0.25) +
      theme(legend.position="none")
     timet
-
-    ## Warning: Removed 3 rows containing non-finite values (stat_boxplot).
 
 ![](../figures/01_behavior/proportiontimespenttrained-8.png)
 

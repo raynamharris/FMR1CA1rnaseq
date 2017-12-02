@@ -2913,6 +2913,7 @@ Create dataframe and stacked bar graphs for portion time spent
 
     timespent1 <- proptime %>%
       filter(APA2 %in% c("consistent","conflict")) %>%
+      filter(TrainSessionComboNum != 1) %>%
       ggplot(aes(x = TrainSessionComboNum, y = value,fill = variable)) + 
         geom_bar(position = "fill",stat = "identity") +
         scale_x_continuous(name="Training Session", 
@@ -2923,7 +2924,8 @@ Create dataframe and stacked bar graphs for portion time spent
       facet_wrap(~APA2*Genotype, nrow=1) +
       theme_cowplot(font_size = 8, line_size = 0.25) +  theme(legend.title=element_blank()) +
         theme(legend.position="none") +
-      scale_y_continuous(name= "Proportion of Time Spent") +
+      scale_y_continuous(name= "Proportion of Time Spent",
+                         breaks = c(0.32,0.64, 0.96)) +
       scale_fill_manual(values = c("#de2d26", "#e5f5e0" ,"#a1d99b", "#31a354")) + 
       geom_hline(yintercept=c(0.32,0.64, 0.96), color="black" , linetype="dashed") 
     timespent1
@@ -2932,6 +2934,7 @@ Create dataframe and stacked bar graphs for portion time spent
 
     timespent2 <- proptime %>%
       filter(APA2 %in% c("yoked-consistent","yoked-conflict")) %>%
+        filter(TrainSessionComboNum != 1) %>%
       ggplot(aes(x = TrainSessionComboNum, y = value,fill = variable)) + 
         geom_bar(position = "fill",stat = "identity") +
         scale_x_continuous(name="Training Session", 
@@ -2945,7 +2948,7 @@ Create dataframe and stacked bar graphs for portion time spent
       theme(legend.position="none") +
       scale_y_continuous(name= "Proportion of Time Spent") +
       scale_fill_manual(values = c("#de2d26", "#e5f5e0" ,"#a1d99b", "#31a354")) + 
-      geom_hline(yintercept=c(0.25,0.50, 0.75), color="black" , linetype="dashed") 
+      geom_hline(yintercept=c(0.25,0.50, 0.75), color="black" , linetype="dashed")
     timespent2
 
 ![](../figures/01_behavior/unnamed-chunk-6-2.png)
@@ -2964,37 +2967,379 @@ Create dataframe and stacked bar graphs for portion time spent
     ## quartz_off_screen 
     ##                 2
 
-Now - exampine space use interaction APA2 \* Genotype
-=====================================================
+    timespent3 <- proptime %>%
+      #filter(APA2 %in% c("yoked-consistent","yoked-conflict")) %>%
+      filter(TrainSessionComboNum %in% c("1")) %>%
+      ggplot(aes(x = APA2, y = value,fill = variable)) + 
+        geom_bar(position = "fill",stat = "identity") +
+        scale_x_discrete(name="Pre-training Proportion of Time Spent",
+                         labels = c("yoked", "consistent", "yoked", "conflict")) +
+      facet_wrap(~Genotype, nrow=1) +
+      theme_cowplot(font_size = 8, line_size = 0.25) +
+      theme(legend.title=element_blank()) +
+      theme(legend.position="none") +
+      scale_y_continuous(name= "Proportion of Time Spent") +
+      scale_fill_manual(values = c("#de2d26", "#e5f5e0" ,"#a1d99b", "#31a354")) + 
+      geom_hline(yintercept=c(0.25,0.50, 0.75), color="black" , linetype="dashed") +
+      theme(strip.text.x = element_text(size = 8)) +
+      theme(axis.text.x = element_text(angle = 45, hjust = 1))
+    timespent3
+
+![](../figures/01_behavior/unnamed-chunk-6-3.png)
+
+    pdf(file="../figures/01_behavior/timespent3.pdf", width=3, height=2.25)
+    plot(timespent3)
+    dev.off()
+
+    ## quartz_off_screen 
+    ##                 2
+
+    timespent4 <- proptime %>%
+      filter(APA2 %in% c("yoked-consistent","yoked-conflict")) %>%
+      filter(TrainSessionComboNum %in% c("9")) %>%
+      ggplot(aes(x = APA2, y = value,fill = variable)) + 
+        geom_bar(position = "fill",stat = "identity") +
+        scale_x_discrete(name="Retention Proportion of Time Spent") +
+      facet_wrap(~Genotype, nrow=1) +
+      theme_cowplot(font_size = 8, line_size = 0.25) +
+      theme(legend.title=element_blank()) +
+      theme(legend.position="none") +
+      scale_y_continuous(name= "Proportion of Time Spent") +
+      scale_fill_manual(values = c("#de2d26", "#e5f5e0" ,"#a1d99b", "#31a354")) + 
+        geom_hline(yintercept=c(0.25,0.50, 0.75), color="black" , linetype="dashed") +
+      theme(strip.text.x = element_text(size = 8)) +
+      theme(axis.text.x = element_text(angle = 45, hjust = 1))
+    timespent4
+
+![](../figures/01_behavior/unnamed-chunk-6-4.png)
+
+    timespent5 <- proptime %>%
+      filter(APA2 %in% c("consistent","conflict")) %>%
+      filter(TrainSessionComboNum %in% c("9")) %>%
+      ggplot(aes(x = APA2, y = value,fill = variable)) + 
+        geom_bar(position = "fill",stat = "identity") +
+        scale_x_discrete(name="Retention Proportion of Time Spent") +
+      facet_wrap(~Genotype, nrow=1) +
+      theme_cowplot(font_size = 8, line_size = 0.25) +
+      theme(legend.title=element_blank()) +
+      theme(legend.position="none") +
+      scale_y_continuous(name= "Proportion of Time Spent",
+                         breaks = c(0.30,0.60, 0.90)) +
+      scale_fill_manual(values = c("#de2d26", "#e5f5e0" ,"#a1d99b", "#31a354")) + 
+      geom_hline(yintercept=c(0.30,0.60, 0.90), color="black" , linetype="dashed") +
+      theme(strip.text.x = element_text(size = 8)) +
+      theme(axis.text.x = element_text(angle = 45, hjust = 1))
+    timespent5
+
+![](../figures/01_behavior/unnamed-chunk-6-5.png)
+
+    pdf(file="../figures/01_behavior/timespent4.pdf", width=1.75, height=2.25)
+    plot(timespent4)
+    dev.off()
+
+    ## quartz_off_screen 
+    ##                 2
+
+    pdf(file="../figures/01_behavior/timespent5.pdf", width=1.75, height=2.25)
+    plot(timespent5)
+    dev.off()
+
+    ## quartz_off_screen 
+    ##                 2
+
+    aovYokedTrainAPApTimeT <- proptime %>%
+      filter(TrainSessionComboNum %in% c("1")) %>%
+      filter(variable == "pTimeTarget")
+    summary(aov(data = aovYokedTrainAPApTimeT, value ~  APA2 * Genotype))
+
+    ##               Df  Sum Sq   Mean Sq F value Pr(>F)
+    ## APA2           3 0.00315 0.0010494   0.472  0.704
+    ## Genotype       1 0.00091 0.0009060   0.408  0.527
+    ## APA2:Genotype  3 0.00088 0.0002938   0.132  0.940
+    ## Residuals     35 0.07780 0.0022229
+
+    aovTrainAPApTimeT <- proptime %>%
+      filter(APA2 %in% c("consistent","conflict")) %>%
+      filter(TrainSessionComboNum %in% c("1")) %>%
+      filter(variable == "pTimeTarget")
+
+    summary(lm(data = aovTrainAPApTimeT, value ~  APA2 * Genotype))
+
+    ## 
+    ## Call:
+    ## lm(formula = value ~ APA2 * Genotype, data = aovTrainAPApTimeT)
+    ## 
+    ## Residuals:
+    ##      Min       1Q   Median       3Q      Max 
+    ## -0.05512 -0.03207 -0.00223  0.02975  0.11872 
+    ## 
+    ## Coefficients:
+    ##                              Estimate Std. Error t value Pr(>|t|)    
+    ## (Intercept)                  0.236937   0.015085  15.706 3.97e-14 ***
+    ## APA2conflict                 0.014985   0.020733   0.723    0.477    
+    ## GenotypeFMR1KO               0.018920   0.022083   0.857    0.400    
+    ## APA2conflict:GenotypeFMR1KO -0.007367   0.033839  -0.218    0.829    
+    ## ---
+    ## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+    ## 
+    ## Residual standard error: 0.04267 on 24 degrees of freedom
+    ## Multiple R-squared:  0.0513, Adjusted R-squared:  -0.06729 
+    ## F-statistic: 0.4326 on 3 and 24 DF,  p-value: 0.7316
+
+    summary(aov(data = aovTrainAPApTimeT, value ~  APA2 * Genotype))
+
+    ##               Df  Sum Sq   Mean Sq F value Pr(>F)
+    ## APA2           1 0.00066 0.0006567   0.361  0.554
+    ## Genotype       1 0.00162 0.0016197   0.890  0.355
+    ## APA2:Genotype  1 0.00009 0.0000863   0.047  0.829
+    ## Residuals     24 0.04369 0.0018206
+
+Now - exampine space use interaction APA2 \* Genotype in trained and yoked separated
+====================================================================================
+
+![](../figures/fig1-05.png)
+
+    trainedtimespent <- behavior %>%
+      filter(APA2 %in% c("consistent","conflict")) %>%
+        filter(TrainSessionComboNum %in% c("6", "7", "8"))
+    head(trainedtimespent)
+
+    ##        ID Genotype Day TrainSession PairedPartner   conflict        APA
+    ## 1 16-122A   FMR1KO   2           T4       16-122B consistent consistent
+    ## 2 16-122A   FMR1KO   2           T5       16-122B consistent consistent
+    ## 3 16-122A   FMR1KO   2           T6       16-122B consistent consistent
+    ## 4 16-123A   FMR1KO   2           T4       16-123B consistent consistent
+    ## 5 16-123A   FMR1KO   2           T5       16-123B consistent consistent
+    ## 6 16-124A   FMR1KO   2           T4       16-357A consistent consistent
+    ##         APA2 TrainSessionCombo         pair1         pair2
+    ## 1 consistent             T4_C1 16-122A_T4_C1 16-122B_T4_C1
+    ## 2 consistent             T5_C2 16-122A_T5_C2 16-122B_T5_C2
+    ## 3 consistent             T6_C3 16-122A_T6_C3 16-122B_T6_C3
+    ## 4 consistent             T4_C1 16-123A_T4_C1 16-123B_T4_C1
+    ## 5 consistent             T5_C2 16-123A_T5_C2 16-123B_T5_C2
+    ## 6 consistent             T4_C1 16-124A_T4_C1 16-357A_T4_C1
+    ##   TrainSessionComboNum SdevSpeedArena Linearity.Arena. NumEntrances
+    ## 1                    6           1.96           0.2697            5
+    ## 2                    7           2.00           0.2821            3
+    ## 3                    8           1.93           0.2718            3
+    ## 4                    6           2.39           0.2379            6
+    ## 5                    7           2.40           0.2798            5
+    ## 6                    6           2.41           0.2648            4
+    ##   Time1stEntr Path1stEntr Speed1stEntr.cm.s. Dist1stEntr.m. NumShock
+    ## 1       31.47        0.43               1.22           0.40        5
+    ## 2       37.30        0.71               1.53           0.23        3
+    ## 3      188.60        3.41               1.48           0.24        4
+    ## 4      126.23        2.58               1.18           0.42        6
+    ## 5       55.13        1.00               1.97           0.35        5
+    ## 6       40.10        0.81               1.53           0.27        4
+    ##   MaxTimeAvoid Time2ndEntr Path2ndEntr Speed2ndEntr TimeTarget pTimeTarget
+    ## 1          233       52.67        0.93         1.71      5.667      0.0151
+    ## 2          325       52.67        1.07         1.59      3.034      0.0078
+    ## 3          304      245.83        4.59         1.59      5.067      0.0126
+    ## 4          210      185.63        3.84         1.59      5.131      0.0130
+    ## 5          201      256.90        5.78         2.33      5.367      0.0137
+    ## 6          301      117.17        2.66         1.53      3.468      0.0092
+    ##   pTimeCCW pTimeOPP pTimeCW RayleigLength RayleigAngle PolarAvgVal
+    ## 1   0.5290   0.3922  0.0638          0.57       129.63      220.68
+    ## 2   0.4303   0.5199  0.0420          0.70       142.12      228.36
+    ## 3   0.7609   0.2030  0.0235          0.76       110.32      202.47
+    ## 4   0.3719   0.2944  0.3206          0.32       173.63      219.49
+    ## 5   0.1975   0.4119  0.3769          0.41       202.53      217.89
+    ## 6   0.8264   0.1635  0.0009          0.83       110.11      200.23
+    ##   PolarSdVal PolarMinVal PolarMinBin Min50.RngLoBin Min50.RngHiBin
+    ## 1      58.84       0e+00         350            140             70
+    ## 2      50.61       0e+00           0            160            110
+    ## 3      43.93       0e+00          10            120             80
+    ## 4      87.53       1e-04           0            240            130
+    ## 5      98.01       2e-04           0            250            150
+    ## 6      35.21       0e+00           0            130            100
+    ##   PolarMaxVal PolarMaxBin Max50.RngLoBin Max50.RngHiBin AnnularMinVal
+    ## 1      0.0731         120             70            170        0.0019
+    ## 2      0.0870         130             90            170        0.0105
+    ## 3      0.1044         100             70            140        0.0013
+    ## 4      0.0561         230            150            300        0.0028
+    ## 5      0.0535         230            130            260        0.0052
+    ## 6      0.1234         110             90            150        0.0002
+    ##   AnnularMinBin AnnularMaxVal AnnularMaxBin AnnularAvg AnnularSd
+    ## 1          16.9        0.3043          13.1      12.74     17.01
+    ## 2           3.1        0.3448          14.5      13.78     15.22
+    ## 3          16.9        0.3035          15.8      13.57     17.57
+    ## 4           7.5        0.5497          15.8      15.03      9.80
+    ## 5           3.1        0.4032          15.8      14.55     12.99
+    ## 6           7.5        0.7482          15.8      15.47      4.61
+    ##   AnnularSkewnes AnnularKurtosis     Speed1     Speed2 Time1stEntrLog
+    ## 1           1.24            5.19 0.01366381 0.01765711       3.449035
+    ## 2           2.44           13.07 0.01903485 0.02031517       3.618993
+    ## 3           1.86            7.94 0.01808059 0.01867144       5.239628
+    ## 4           3.62           24.17 0.02043888 0.02068631       4.838106
+    ## 5           2.04            8.62 0.01813894 0.02249903       4.009694
+    ## 6           4.74           68.30 0.02019950 0.02270206       3.691376
+
+    summary(aov(data =  trainedtimespent, pTimeTarget ~ Genotype * APA2 ))
+
+    ##               Df  Sum Sq   Mean Sq F value Pr(>F)
+    ## Genotype       1 0.00065 0.0006531   1.179  0.281
+    ## APA2           1 0.00035 0.0003529   0.637  0.427
+    ## Genotype:APA2  1 0.00033 0.0003310   0.597  0.442
+    ## Residuals     78 0.04322 0.0005541
+
+    #Genotype       1 0.00065 0.0006531   1.179  0.281
+    #APA2           1 0.00035 0.0003529   0.637  0.427
+    #Genotype:APA2  1 0.00033 0.0003310   0.597  0.442
+
+    summary(aov(data =  trainedtimespent, pTimeCW ~ Genotype * APA2 ))
+
+    ##               Df Sum Sq Mean Sq F value   Pr(>F)    
+    ## Genotype       1 0.0000  0.0000   0.001    0.982    
+    ## APA2           1 0.8791  0.8791  38.375 2.56e-08 ***
+    ## Genotype:APA2  1 0.0006  0.0006   0.027    0.871    
+    ## Residuals     78 1.7869  0.0229                     
+    ## ---
+    ## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+
+    #Genotype       1 0.0000  0.0000   0.001    0.982    
+    #APA2           1 0.8791  0.8791  38.375 2.56e-08 ***
+    #Genotype:APA2  1 0.0006  0.0006   0.027    0.871 
+    TukeyHSD(aov(data =  trainedtimespent, pTimeCW ~ Genotype * APA2 ))
+
+    ##   Tukey multiple comparisons of means
+    ##     95% family-wise confidence level
+    ## 
+    ## Fit: aov(formula = pTimeCW ~ Genotype * APA2, data = trainedtimespent)
+    ## 
+    ## $Genotype
+    ##                    diff         lwr        upr    p adj
+    ## FMR1KO-WT -0.0007857052 -0.06941043 0.06783902 0.981873
+    ## 
+    ## $APA2
+    ##                         diff       lwr       upr p adj
+    ## conflict-consistent 0.205344 0.1387124 0.2719755     0
+    ## 
+    ## $`Genotype:APA2`
+    ##                                         diff         lwr       upr
+    ## FMR1KO:consistent-WT:consistent   0.02397566 -0.09804438 0.1459957
+    ## WT:conflict-WT:consistent         0.20514213  0.09366727 0.3166170
+    ## FMR1KO:conflict-WT:consistent     0.24057083  0.10008441 0.3810573
+    ## WT:conflict-FMR1KO:consistent     0.18116647  0.06217945 0.3001535
+    ## FMR1KO:conflict-FMR1KO:consistent 0.21659518  0.07007657 0.3631138
+    ## FMR1KO:conflict-WT:conflict       0.03542870 -0.10243157 0.1732890
+    ##                                       p adj
+    ## FMR1KO:consistent-WT:consistent   0.9550673
+    ## WT:conflict-WT:consistent         0.0000389
+    ## FMR1KO:conflict-WT:consistent     0.0001379
+    ## WT:conflict-FMR1KO:consistent     0.0008182
+    ## FMR1KO:conflict-FMR1KO:consistent 0.0012165
+    ## FMR1KO:conflict-WT:conflict       0.9063729
+
+    #FMR1KO:consistent-WT:consistent   0.02397566 -0.09804438 0.1459957 0.9550673
+    #WT:conflict-WT:consistent         0.20514213  0.09366727 0.3166170 0.0000389
+    #FMR1KO:conflict-WT:consistent     0.24057083  0.10008441 0.3810573 0.0001379
+    #WT:conflict-FMR1KO:consistent     0.18116647  0.06217945 0.3001535 0.0008182
+    #FMR1KO:conflict-FMR1KO:consistent 0.21659518  0.07007657 0.3631138 0.0012165
+    #FMR1KO:conflict-WT:conflict       0.03542870 -0.10243157 0.1732890 0.9063729
+
+    summary(aov(data =  trainedtimespent, pTimeOPP ~ Genotype * APA2 ))
+
+    ##               Df Sum Sq Mean Sq F value Pr(>F)
+    ## Genotype       1 0.0617 0.06168   2.146  0.147
+    ## APA2           1 0.0309 0.03088   1.074  0.303
+    ## Genotype:APA2  1 0.0634 0.06339   2.206  0.142
+    ## Residuals     78 2.2417 0.02874
+
+    #Genotype       1 0.0617 0.06168   2.146  0.147
+    #APA2           1 0.0309 0.03088   1.074  0.303
+    #Genotype:APA2  1 0.0634 0.06339   2.206  0.142
+
+    summary(aov(data =  trainedtimespent, pTimeCCW ~ Genotype * APA2 ))
+
+    ##               Df Sum Sq Mean Sq F value   Pr(>F)    
+    ## Genotype       1 0.0512  0.0512   1.963    0.165    
+    ## APA2           1 0.6094  0.6094  23.366 6.58e-06 ***
+    ## Genotype:APA2  1 0.0668  0.0668   2.560    0.114    
+    ## Residuals     78 2.0342  0.0261                     
+    ## ---
+    ## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+
+    #Genotype       1 0.0512  0.0512   1.963    0.165    
+    #APA2           1 0.6094  0.6094  23.366 6.58e-06 ***
+    #Genotype:APA2  1 0.0668  0.0668   2.560    0.114 
+
+
+    TukeyHSD(aov(data =  trainedtimespent, pTimeCCW ~ Genotype * APA2 ))
+
+    ##   Tukey multiple comparisons of means
+    ##     95% family-wise confidence level
+    ## 
+    ## Fit: aov(formula = pTimeCCW ~ Genotype * APA2, data = trainedtimespent)
+    ## 
+    ## $Genotype
+    ##                 diff         lwr       upr     p adj
+    ## FMR1KO-WT 0.05152245 -0.02169689 0.1247418 0.1652085
+    ## 
+    ## $APA2
+    ##                           diff        lwr         upr   p adj
+    ## conflict-consistent -0.1709606 -0.2420533 -0.09986782 7.9e-06
+    ## 
+    ## $`Genotype:APA2`
+    ##                                          diff         lwr         upr
+    ## FMR1KO:consistent-WT:consistent    0.07931096 -0.05087865  0.20950058
+    ## WT:conflict-WT:consistent         -0.13039352 -0.24933193 -0.01145511
+    ## FMR1KO:conflict-WT:consistent     -0.17080833 -0.32070071 -0.02091596
+    ## WT:conflict-FMR1KO:consistent     -0.20970448 -0.33665801 -0.08275096
+    ## FMR1KO:conflict-FMR1KO:consistent -0.25011930 -0.40644773 -0.09379087
+    ## FMR1KO:conflict-WT:conflict       -0.04041481 -0.18750522  0.10667559
+    ##                                       p adj
+    ## FMR1KO:consistent-WT:consistent   0.3850072
+    ## WT:conflict-WT:consistent         0.0259978
+    ## FMR1KO:conflict-WT:consistent     0.0190587
+    ## WT:conflict-FMR1KO:consistent     0.0002467
+    ## FMR1KO:conflict-FMR1KO:consistent 0.0004019
+    ## FMR1KO:conflict-WT:conflict       0.8883106
+
+    #FMR1KO:consistent-WT:consistent    0.07931096 -0.05087865  0.20950058 0.3850072
+    #WT:conflict-WT:consistent         -0.13039352 -0.24933193 -0.01145511 0.0259978
+    #FMR1KO:conflict-WT:consistent     -0.17080833 -0.32070071 -0.02091596 0.0190587
+    #WT:conflict-FMR1KO:consistent     -0.20970448 -0.33665801 -0.08275096 0.0002467
+    #FMR1KO:conflict-FMR1KO:consistent -0.25011930 -0.40644773 -0.09379087 0.0004019
+    #FMR1KO:conflict-WT:conflict       -0.04041481 -0.18750522  0.10667559 0.8883106
+
 
     timeccw <- behavior %>%
       filter(APA2 %in% c("consistent","conflict")) %>%
         filter(TrainSessionComboNum %in% c("6", "7", "8")) %>% 
-      ggplot(aes(x = as.numeric(TrainSessionComboNum), y = pTimeCW, fill=APA2)) +
-      geom_boxplot() +
+      ggplot(aes(x = as.numeric(TrainSessionComboNum), y = pTimeCCW, fill=APA2)) +
+      geom_boxplot(outlier.size=0.8) +
       facet_wrap(~Genotype) +
       scale_fill_manual(values = c("#ca0020", "#f4a582")) +  
      scale_x_continuous(name="C1-C3 Average", 
                            breaks = c(1, 2, 3, 4, 5, 6, 7, 8, 9),
                            labels = NULL) +
       geom_hline(yintercept=c(0.32), color="black" , linetype="dashed") + 
+        scale_y_continuous(name = "Counter Clockwise",
+          breaks = c(0,0.32, 0.64),
+                         limits= c(0,0.8)) +
       theme_cowplot(font_size = 8, line_size = 0.25) +
       theme(legend.position="none")
     timeccw
+
+    ## Warning: Removed 1 rows containing non-finite values (stat_boxplot).
 
 ![](../figures/01_behavior/unnamed-chunk-7-1.png)
 
     timecw <- behavior %>%
       filter(APA2 %in% c("consistent","conflict")) %>%
         filter(TrainSessionComboNum %in% c("6", "7", "8")) %>% 
-      ggplot(aes(x = as.numeric(TrainSessionComboNum), y = pTimeCCW, fill=APA2)) +
-      geom_boxplot() +
+      ggplot(aes(x = as.numeric(TrainSessionComboNum), y = pTimeCW, fill=APA2)) +
+      geom_boxplot(outlier.size=0.8) +
       facet_wrap(~Genotype) +
       scale_fill_manual(values = c("#ca0020", "#f4a582")) +  
      scale_x_continuous(name="C1-C3 Average", 
                            breaks = c(1, 2, 3, 4, 5, 6, 7, 8, 9),
                            labels = NULL) +
       geom_hline(yintercept=c(0.32), color="black" , linetype="dashed") + 
+        scale_y_continuous(name = "Clockwise",
+                           breaks = c(0,0.32, 0.64),
+                         limits= c(0,0.8)) +
       theme_cowplot(font_size = 8, line_size = 0.25) +
      theme(legend.position="none")
     timecw
@@ -3005,13 +3350,16 @@ Now - exampine space use interaction APA2 \* Genotype
       filter(APA2 %in% c("consistent","conflict")) %>%
         filter(TrainSessionComboNum %in% c("6", "7", "8")) %>% 
       ggplot(aes(x = as.numeric(TrainSessionComboNum), y = pTimeTarget, fill=APA2)) +
-      geom_boxplot() +
+      geom_boxplot(outlier.size=0.8) +
       facet_wrap(~Genotype) +
       scale_fill_manual(values = c("#ca0020", "#f4a582")) +  
      scale_x_continuous(name="C1-C3 Average", 
                            breaks = c(1, 2, 3, 4, 5, 6, 7, 8, 9),
                            labels = NULL) +
-      geom_hline(yintercept=c(0.04), color="black" , linetype="dashed") + 
+        scale_y_continuous(name = "Shock zone",
+                           breaks = c(0,0.04, 0.08, 0.12),
+                             limits= c(0,0.14)) +
+      #geom_hline(yintercept=c(0.04), color="black" , linetype="dashed") + 
       theme_cowplot(font_size = 8, line_size = 0.25) +
      theme(legend.position="none")
     timet
@@ -3022,9 +3370,12 @@ Now - exampine space use interaction APA2 \* Genotype
       filter(APA2 %in% c("consistent","conflict")) %>%
         filter(TrainSessionComboNum %in% c("6", "7", "8")) %>% 
       ggplot(aes(x = as.numeric(TrainSessionComboNum), y = pTimeOPP, fill=APA2)) +
-      geom_boxplot() +
+      geom_boxplot(outlier.size=0.8) +
       facet_wrap(~Genotype) +
-      scale_fill_manual(values = c("#ca0020", "#f4a582")) +  
+      scale_fill_manual(values = c("#ca0020", "#f4a582")) + 
+        scale_y_continuous(name = "Opposite the shock zone",
+                           breaks = c(0,0.32, 0.64),
+                         limits= c(0,0.8)) +
      scale_x_continuous(name="C1-C3 Average", 
                            breaks = c(1, 2, 3, 4, 5, 6, 7, 8, 9),
                            labels = NULL) +
@@ -3032,6 +3383,8 @@ Now - exampine space use interaction APA2 \* Genotype
       theme_cowplot(font_size = 8, line_size = 0.25) +
      theme(legend.position="none")
     timeopp
+
+    ## Warning: Removed 3 rows containing non-finite values (stat_boxplot).
 
 ![](../figures/01_behavior/unnamed-chunk-7-4.png)
 
@@ -3044,6 +3397,9 @@ Now - exampine space use interaction APA2 \* Genotype
 
     pdf(file="../figures/01_behavior/timeccw.pdf", width=1.5, height=2)
     plot(timeccw)
+
+    ## Warning: Removed 1 rows containing non-finite values (stat_boxplot).
+
     dev.off()
 
     ## quartz_off_screen 
@@ -3058,16 +3414,103 @@ Now - exampine space use interaction APA2 \* Genotype
 
     pdf(file="../figures/01_behavior/timeopp.pdf", width=1.5, height=2)
     plot(timeopp)
+
+    ## Warning: Removed 3 rows containing non-finite values (stat_boxplot).
+
     dev.off()
 
     ## quartz_off_screen 
     ##                 2
 
+    timeccw <- behavior %>%
+      filter(APA2 %in% c("consistent","conflict")) %>%
+        filter(TrainSessionComboNum %in% c("2", "3", "4")) %>% 
+      ggplot(aes(x = as.numeric(TrainSessionComboNum), y = pTimeCCW, fill=APA2)) +
+      geom_boxplot(outlier.size=0.8) +
+      facet_wrap(~Genotype) +
+      scale_fill_manual(values = c("#ca0020", "#f4a582")) +  
+     scale_x_continuous(name="T1-T3 Average", 
+                           breaks = c(1, 2, 3, 4, 5, 6, 7, 8, 9),
+                           labels = NULL) +
+      geom_hline(yintercept=c(0.32), color="black" , linetype="dashed") + 
+        scale_y_continuous(name = "Counter Clockwise",
+          breaks = c(0,0.32, 0.64),
+                         limits= c(0,0.8)) +
+      theme_cowplot(font_size = 8, line_size = 0.25) +
+      theme(legend.position="none")
+    timeccw
+
+    ## Warning: Removed 1 rows containing non-finite values (stat_boxplot).
+
+![](../figures/01_behavior/unnamed-chunk-7-5.png)
+
+    timecw <- behavior %>%
+      filter(APA2 %in% c("consistent","conflict")) %>%
+        filter(TrainSessionComboNum %in% c("2", "3", "4")) %>% 
+      ggplot(aes(x = as.numeric(TrainSessionComboNum), y = pTimeCW, fill=APA2)) +
+      geom_boxplot(outlier.size=0.8) +
+      facet_wrap(~Genotype) +
+      scale_fill_manual(values = c("#ca0020", "#f4a582")) +  
+     scale_x_continuous(name="T1-T3 Average", 
+                           breaks = c(1, 2, 3, 4, 5, 6, 7, 8, 9),
+                           labels = NULL) +
+      geom_hline(yintercept=c(0.32), color="black" , linetype="dashed") + 
+        scale_y_continuous(name = "Counter Clockwise",
+          breaks = c(0,0.32, 0.64),
+                         limits= c(0,0.8)) +
+      theme_cowplot(font_size = 8, line_size = 0.25) +
+      theme(legend.position="none")
+    timecw
+
+![](../figures/01_behavior/unnamed-chunk-7-6.png)
+
+    timeopp <- behavior %>%
+      filter(APA2 %in% c("consistent","conflict")) %>%
+        filter(TrainSessionComboNum %in% c("2", "3", "4")) %>% 
+      ggplot(aes(x = as.numeric(TrainSessionComboNum), y = pTimeOPP, fill=APA2)) +
+      geom_boxplot(outlier.size=0.8) +
+      facet_wrap(~Genotype) +
+      scale_fill_manual(values = c("#ca0020", "#f4a582")) + 
+        scale_y_continuous(name = "Opposite the shock zone",
+                           breaks = c(0,0.32, 0.64),
+                         limits= c(0,0.8)) +
+     scale_x_continuous(name="T1-T3 Average", 
+                           breaks = c(1, 2, 3, 4, 5, 6, 7, 8, 9),
+                           labels = NULL) +
+      geom_hline(yintercept=c(0.32), color="black" , linetype="dashed") + 
+      theme_cowplot(font_size = 8, line_size = 0.25) +
+     theme(legend.position="none")
+    timeopp
+
+![](../figures/01_behavior/unnamed-chunk-7-7.png)
+
+    timet <- behavior %>%
+      filter(APA2 %in% c("consistent","conflict")) %>%
+        filter(TrainSessionComboNum %in% c("2", "3", "4")) %>% 
+      ggplot(aes(x = as.numeric(TrainSessionComboNum), y = pTimeTarget, fill=APA2)) +
+      geom_boxplot(outlier.size=0.8) +
+      facet_wrap(~Genotype) +
+      scale_fill_manual(values = c("#ca0020", "#f4a582")) +  
+     scale_x_continuous(name="T1-T3 Average", 
+                           breaks = c(1, 2, 3, 4, 5, 6, 7, 8, 9),
+                           labels = NULL) +
+        scale_y_continuous(name = "Shock zone",
+                           breaks = c(0,0.04, 0.08, 0.12),
+                             limits= c(0,0.14)) +
+      geom_hline(yintercept=c(0.04), color="black" , linetype="dashed") + 
+      theme_cowplot(font_size = 8, line_size = 0.25) +
+     theme(legend.position="none")
+    timet
+
+    ## Warning: Removed 3 rows containing non-finite values (stat_boxplot).
+
+![](../figures/01_behavior/unnamed-chunk-7-8.png)
+
 Just Conflict 1-3
 =================
 
     conflict1 <- PathNum  %>% 
-      filter(TrainSessionComboNum %in% c("6", "7", "8")) %>% 
+      filter(TrainSessionComboNum %in% c( "5", "6", "7", "8")) %>% 
       filter(measure == "Path to the 1st Entrance") %>% 
       droplevels()  %>%  
       ggplot(aes(x=, TrainSessionComboNum, y=m, color=APA2, shape=Genotype)) + 
@@ -3078,7 +3521,7 @@ Just Conflict 1-3
                           limits = c(0,10)) +    scale_x_continuous(name="Training Session", 
                            breaks = c(1, 2, 3, 4, 5, 6, 7, 8, 9),
                            labels = c( "Pre.", "T1", "T2", "T3",
-                                       "Retest", "C1", "C2", "C3", "Reten.")) +
+                                       "R", "C1", "C2", "C3", "Reten.")) +
       theme_cowplot(font_size = 8, line_size = 0.25) +
       background_grid(major = "y", minor="non") +
       scale_color_manual(values = colorvalAPA00)  +
@@ -3088,12 +3531,16 @@ Just Conflict 1-3
       facet_wrap(~Genotype)
     conflict1
 
-    ## Warning: Removed 2 rows containing missing values (geom_errorbar).
+    ## Warning: Removed 3 rows containing missing values (geom_errorbar).
+
+    ## Warning: Removed 1 rows containing missing values (geom_point).
+
+    ## Warning: Removed 1 rows containing missing values (geom_path).
 
 ![](../figures/01_behavior/unnamed-chunk-8-1.png)
 
     conflict2 <- PathNum  %>% 
-      filter(TrainSessionComboNum %in% c("6", "7", "8")) %>% 
+      filter(TrainSessionComboNum %in% c( "5","6", "7", "8")) %>% 
       filter(measure == "Number of Entrances") %>% 
       droplevels()  %>%  
       ggplot(aes(x=, TrainSessionComboNum, y=m, color=APA2, shape=Genotype)) + 
@@ -3104,7 +3551,7 @@ Just Conflict 1-3
                           limits = c(0,25)) +    scale_x_continuous(name="Training Session", 
                            breaks = c(1, 2, 3, 4, 5, 6, 7, 8, 9),
                            labels = c( "Pre.", "T1", "T2", "T3",
-                                       "Retest", "C1", "C2", "C3", "Reten.")) +
+                                       "R", "C1", "C2", "C3", "Reten.")) +
       theme_cowplot(font_size = 8, line_size = 0.25) +
       background_grid(major = "y", minor="non") +
       scale_color_manual(values = colorvalAPA00)  +
@@ -3116,17 +3563,21 @@ Just Conflict 1-3
 
 ![](../figures/01_behavior/unnamed-chunk-8-2.png)
 
-    pdf(file="../figures/01_behavior/conflict1.pdf", width=2.25, height=2)
+    pdf(file="../figures/01_behavior/conflict1.pdf", width=2.5, height=2)
     plot(conflict1)
 
-    ## Warning: Removed 2 rows containing missing values (geom_errorbar).
+    ## Warning: Removed 3 rows containing missing values (geom_errorbar).
+
+    ## Warning: Removed 1 rows containing missing values (geom_point).
+
+    ## Warning: Removed 1 rows containing missing values (geom_path).
 
     dev.off()
 
     ## quartz_off_screen 
     ##                 2
 
-    pdf(file="../figures/01_behavior/conflict2.pdf", width=2.25, height=2)
+    pdf(file="../figures/01_behavior/conflict2.pdf", width=2.5, height=2)
     plot(conflict2)
     dev.off()
 
@@ -3184,14 +3635,14 @@ Just Training 1-3
 
 ![](../figures/01_behavior/unnamed-chunk-9-2.png)
 
-    pdf(file="../figures/01_behavior/training1.pdf", width=2.25, height=2)
+    pdf(file="../figures/01_behavior/training1.pdf", width=2, height=2)
     plot(training1)
     dev.off()
 
     ## quartz_off_screen 
     ##                 2
 
-    pdf(file="../figures/01_behavior/training2.pdf", width=2.25, height=2)
+    pdf(file="../figures/01_behavior/training2.pdf", width=2, height=2)
     plot(training2)
     dev.off()
 

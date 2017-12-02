@@ -69,11 +69,9 @@ This is how I am currently conceptualizing the results.
 WT and FMR1-KO show evidence of differential gene expression in the CA1
 A)  The sample size for RNA-sequencing is 8 WT and 8 FMR1-KO tissues from the CA1 subfield from only the consistent-yoke group. B) Hierarchical clustering of differentially expressed genes shows that only 13 genes are upregulated in response to FMR1KO while 16, including Fmr1, were downregulated in the CA1 subfield of yoked-consistent mice. C) A volcano plot shows that expression Ccnd2 and Fmr1 are highly upregulated in WT compared to FMR1-KO mice. Genes with negative log fold change value are more highly expressed in WT (dark grey filled circles) while genes with a positive log fold change value are more highly expressed in the Fmr1 mice (open circles). Genes that are not significantly expressed are shown in light grey.
 
-![](./figures/fig1-09.png)
-Downregulation of ion transport in the the the CA1 subfield 
+Down-regulation of ion transport in the the the CA1 subfield 
 Down-regulation of ion channel binding, receptor binding, calcium binding, metal ion membrane transport, calcium ion transmembrane transporter, delayed rectifier potassium channel, channel, cation channel, channel regulator, calmodulin binding, PDZ domain binding, structural molecular, and structural constituent of ribosome. On the plot, different fonts are used to indicate significance (bold: p < 0.01, regular: p < 0.05) and color indicates enrichment with either up (red) or down (blue) regulated genes. The fraction next to GO category name indicates the fraction of "good" genes that exceed the p-value cutoff. The tree on the plot is hierarchical clustering of GO categories based on shared genes. Categories with no branch length between them are subsets of each other.
 
-## ALSO ADD WGCNA
 
 ### Show that synaptic strength not diminished despite reduced calcium activity 
 

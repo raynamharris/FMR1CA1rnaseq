@@ -59,15 +59,12 @@ behavior %>%
 ```
 
 
-
-
-
 # Where do mice spend their time? 
 During the pre-training trial, all groups spend an equal amount of time in all quadrants of the arena. 
 
 ![](../figures/fig1-04.png)
 
-```{r, echo = F, warning = F}
+```{r, warning = F}
 PathNumStats <- behavior  %>% 
   filter(TrainSessionComboNum == "1") 
 summary(aov(pTimeTarget ~  APA2 * Genotype, data=PathNumStats))
@@ -75,9 +72,6 @@ summary(aov(pTimeOPP ~  APA2 * Genotype, data=PathNumStats))
 summary(aov(pTimeTarget ~  APA2 * Genotype, data=PathNumStats))
 summary(aov(pTimeCCW ~  APA2 * Genotype, data=PathNumStats))
 
-proptime <- behavior[,c(1,2,4,8,9,12,26:29)]
-proptime <- melt(proptime, id.vars = c("ID", "Genotype", "TrainSession",
-                                       "APA2", "TrainSessionCombo","TrainSessionComboNum")) 
 ```
 
 
@@ -89,6 +83,9 @@ This next graph is a big overview that shows that consistent trained aniamls avo
 # Time spent figure
 
 ```{r timespent, echo=F, warning=F}
+proptime <- behavior[,c(1,2,4,8,9,12,26:29)]
+proptime <- melt(proptime, id.vars = c("ID", "Genotype", "TrainSession",
+                                       "APA2", "TrainSessionCombo","TrainSessionComboNum")) 
 
 timespent1 <- proptime %>%
   filter(APA2 %in% c("consistent","conflict")) %>%

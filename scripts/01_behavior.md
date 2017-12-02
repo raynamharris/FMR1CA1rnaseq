@@ -26,11 +26,17 @@ in all quadrants of the arena.
 
 ![](../figures/fig1-04.png)
 
+    PathNumStats <- behavior  %>% 
+      filter(TrainSessionComboNum == "1") 
+    summary(aov(pTimeTarget ~  APA2 * Genotype, data=PathNumStats))
+
     ##               Df  Sum Sq   Mean Sq F value Pr(>F)
     ## APA2           3 0.00315 0.0010494   0.472  0.704
     ## Genotype       1 0.00091 0.0009060   0.408  0.527
     ## APA2:Genotype  3 0.00088 0.0002938   0.132  0.940
     ## Residuals     35 0.07780 0.0022229
+
+    summary(aov(pTimeOPP ~  APA2 * Genotype, data=PathNumStats))
 
     ##               Df  Sum Sq   Mean Sq F value Pr(>F)
     ## APA2           3 0.00528 0.0017596   1.077  0.371
@@ -38,11 +44,15 @@ in all quadrants of the arena.
     ## APA2:Genotype  3 0.00643 0.0021428   1.312  0.286
     ## Residuals     35 0.05717 0.0016334
 
+    summary(aov(pTimeTarget ~  APA2 * Genotype, data=PathNumStats))
+
     ##               Df  Sum Sq   Mean Sq F value Pr(>F)
     ## APA2           3 0.00315 0.0010494   0.472  0.704
     ## Genotype       1 0.00091 0.0009060   0.408  0.527
     ## APA2:Genotype  3 0.00088 0.0002938   0.132  0.940
     ## Residuals     35 0.07780 0.0022229
+
+    summary(aov(pTimeCCW ~  APA2 * Genotype, data=PathNumStats))
 
     ##               Df  Sum Sq   Mean Sq F value Pr(>F)
     ## APA2           3 0.00906 0.0030208   0.965  0.420

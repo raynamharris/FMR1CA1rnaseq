@@ -286,11 +286,11 @@ and allows us to visualize patterns of expression with gene names.
              annotation_col=df, 
              annotation_colors = ann_colors,
              treeheight_row = 0, treeheight_col = 50,
-             fontsize = 4, 
+             #fontsize = 4, 
              #width=4.5, height=3,
              border_color = "grey60" ,
              color = viridis(40),
-             cellwidth = 10, 
+             #cellwidth = 10, 
              clustering_distance_cols="correlation" ,
              breaks=myBreaks,
              clustering_method="average"

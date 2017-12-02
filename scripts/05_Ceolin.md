@@ -29,6 +29,10 @@ evidence for a deletion of calcium receptor related functions. THis
 suggests a role for dys-regulation of calcium signallying in the
 hippocampus of Fragile X Syndrom patients.
 
+Here is the analysis, including the heatmap as well as a PCA plot and
+maybe some statistics. The GO analysis is in the subdirectory
+06\_GO\_MWU.
+
 The first thing I notice is that they have waay more reads per sample
 and thus gene counts per sample than I do. They have a mean gene counts
 per sample around 400 million counts per gene. My data had 5 million
@@ -125,6 +129,9 @@ Heatmap
 =======
 
 ![](../figures/05_Ceolin/HeatmapPadj-1.png)
+
+Create list of p-values for all genes
+-------------------------------------
 
 Differentially expressed genes
 ==============================

@@ -5,10 +5,11 @@ date: December 2, 2017
 output: word_document
 ---
 
-# No significant pre-training group differences by genoetype or treatment
+# No significant pre-training group differences in time spent
 First I examined the data to determine if the groups were different prior to experiencing shock. I found that all groups where equal in the proportion of time spent in all four quadrants of the arena (**Figure 2.2**). There was no significant effect of geneotype, training, or the interaction on pre-training proportion of time spent in the shock zone (F(3,35) = 0.132 p = 0.94), clockwise (F(3,35) = 0.660, p = 0.58), opposite (F(3,35) = 1.312, p = 0.29), or counter clockwise (F(3,35) = 0.816, p = 0.49). 
 
-![Figure 2: Pre-training proportion time spent is equal across all groups](../figures/fig1-04.png)
+![Figure 2: Proportion of time spent during the Pre-training sessions is not different across groups](../figures/fig1-04.png)
+
 
 
 ##### This graph shows that all groups of mice spend 25% of their time equally across four quadrants of the arena during the pre-training session. Pink: future shock zone, dark green: clockwise, green: opposite the shock zone, light green: counter clockwise.
@@ -16,8 +17,6 @@ First I examined the data to determine if the groups were different prior to exp
 # Effect of genotype on space use is smaller than the effects on avoidance
 
 Next I asked if the groups differences in their avoidance of the shock zone? 
-
-
 
  
 ![](../figures/fig1-06.png) 

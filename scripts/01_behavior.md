@@ -71,20 +71,14 @@ mice show no place preference or avoidance.
 Time spent figure
 =================
 
-![](../figures/01_behavior/timespent-1.png)![](../figures/01_behavior/timespent-2.png)
-
     ## quartz_off_screen 
     ##                 2
 
     ## quartz_off_screen 
     ##                 2
 
-![](../figures/01_behavior/timespent-3.png)
-
     ## quartz_off_screen 
     ##                 2
-
-![](../figures/01_behavior/timespent-4.png)
 
     ## quartz_off_screen 
     ##                 2
@@ -199,8 +193,6 @@ Proportion time spent trained only
     ## FMR1KO:conflict-FMR1KO:consistent 0.0004019
     ## FMR1KO:conflict-WT:conflict       0.8883106
 
-![](../figures/01_behavior/proportiontimespenttrained-1.png)![](../figures/01_behavior/proportiontimespenttrained-2.png)![](../figures/01_behavior/proportiontimespenttrained-3.png)![](../figures/01_behavior/proportiontimespenttrained-4.png)![](../figures/01_behavior/proportiontimespenttrained-5.png)
-
     ## quartz_off_screen 
     ##                 2
 
@@ -218,22 +210,14 @@ General overview of number of entrances to the shock zone and path to the first 
 
 ![](../figures/fig1-02.png)
 
-![](../figures/01_behavior/unnamed-chunk-2-1.png)
+    ## quartz_off_screen 
+    ##                 2
 
     ## quartz_off_screen 
     ##                 2
 
-![](../figures/01_behavior/unnamed-chunk-2-2.png)
-
     ## quartz_off_screen 
     ##                 2
-
-![](../figures/01_behavior/unnamed-chunk-2-3.png)
-
-    ## quartz_off_screen 
-    ##                 2
-
-![](../figures/01_behavior/unnamed-chunk-2-4.png)
 
     ## quartz_off_screen 
     ##                 2

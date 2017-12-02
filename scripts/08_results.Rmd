@@ -5,15 +5,21 @@ date: December 2, 2017
 output: word_document
 ---
 
+# No significant pre-training group differences by genoetype or treatment
+First I examined the data to determine if the groups were different prior to experiencing shock. I found that all groups where equal in the proportion of time spent in all four quadrants of the arena (**Figure 2.2**). There was no significant effect of geneotype, training, or the interaction on pre-training proportion of time spent in the shock zone (F(3,35) = 0.132 p = 0.94), clockwise (F(3,35) = 0.660, p = 0.58), opposite (F(3,35) = 1.312, p = 0.29), or counter clockwise (F(3,35) = 0.816, p = 0.49). 
+
+![Figure 2: Pre-training proportion time spent is equal across all groups](../figures/fig1-04.png)
+
+
+##### This graph shows that all groups of mice spend 25% of their time equally across four quadrants of the arena during the pre-training session. Pink: future shock zone, dark green: clockwise, green: opposite the shock zone, light green: counter clockwise.
+ 
+# Effect of genotype on space use is smaller than the effects on avoidance
+
+Next I asked if the groups differences in their avoidance of the shock zone? 
 
 
 
-
-This figure shows no differences in space use before the onset of the active place avoidance task.
-
-![](../figures/fig1-04.png)
-
-
+ 
 ![](../figures/fig1-06.png) 
 
 
@@ -23,6 +29,14 @@ This figure shows no differences in space use before the onset of the active pla
 
 
 ![](../figures/fig1-02.png)
+
+On day 1, differences in time/path to the 1st entrance between WT yoked and WT trained are minimal. The FMR1 data are all over the place with yoked groups showing highly variable time/path to the first entrance, while conflict and consistent show minor increases in path/time to the entrance. 
+
+PRESUMABLY THEY ARE LESS ACTIVE (bad luck) - tells us we should use measures that are less sensitive to amount of movement since that might differ in KO (i.e. path to first enter better than time to first enter; entrances/path moved better than entrances)
+
+q2) Do the groups differ in avoidance during training to the initial shock zone? On day 1, differences in time/path to the 1st entrance between WT yoked and WT trained are minimal. The FMR1 data are all over the place with yoked groups showing highly variable time/path to the first entrance, while conflict and consistent show minor increases in path/time to the entrance. 
+
+The groups look pretty similar across T1-T3 providing no evidence of acquiring place memory. Because entrances decrease in trained compared to yoked, together these data suggest the mice don’t rely on place memory from before the trial, instead they get shocked first (by chance) and then adopt a strategy to reduce entrances that does not seem a place strategy by T3
 
 
 Top) Consistently trained mice (red) from both WT (solid lines, filled circles) and FMR1-KO (dashes lines, open circles) make fewer entrances into the shock zone than yoked-mice (grey). Bottom) Conflict trained mice (pink) from both WT (solid lines, filled circles) and FMR1-KO (dashes lines, open circles) learn to avoid the initial and the conflicting shock zones. Data are reported as mean +/- SEM. A Mann-Whitney statistical test shows that there are no significant differences due to genotype for any treatment at any time point (as evidenced by all overlapping standard error bars). Inserts) The pie-shaped shaded regions of the inserts highlight the region used to count the number of entrances. Sample sizes for each treatment group and genotype are shown on the bottom right.

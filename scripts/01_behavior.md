@@ -97,11 +97,19 @@ Now - exampine space use interaction APA2 \* Genotype in trained and yoked separ
 Proportion time spent trained only
 ==================================
 
+    trainedtimespent <- behavior %>%
+      filter(APA2 %in% c("consistent","conflict")) %>%
+        filter(TrainSessionComboNum %in% c("6", "7", "8"))
+
+    summary(aov(data =  trainedtimespent, pTimeTarget ~ Genotype * APA2 ))
+
     ##               Df  Sum Sq   Mean Sq F value Pr(>F)
     ## Genotype       1 0.00065 0.0006531   1.179  0.281
     ## APA2           1 0.00035 0.0003529   0.637  0.427
     ## Genotype:APA2  1 0.00033 0.0003310   0.597  0.442
     ## Residuals     78 0.04322 0.0005541
+
+    summary(aov(data =  trainedtimespent, pTimeCW ~ Genotype * APA2 ))
 
     ##               Df Sum Sq Mean Sq F value   Pr(>F)    
     ## Genotype       1 0.0000  0.0000   0.001    0.982    
@@ -110,6 +118,8 @@ Proportion time spent trained only
     ## Residuals     78 1.7869  0.0229                     
     ## ---
     ## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+
+    TukeyHSD(aov(data =  trainedtimespent, pTimeCW ~ Genotype * APA2 ))
 
     ##   Tukey multiple comparisons of means
     ##     95% family-wise confidence level
@@ -140,11 +150,15 @@ Proportion time spent trained only
     ## FMR1KO:conflict-FMR1KO:consistent 0.0012165
     ## FMR1KO:conflict-WT:conflict       0.9063729
 
+    summary(aov(data =  trainedtimespent, pTimeOPP ~ Genotype * APA2 ))
+
     ##               Df Sum Sq Mean Sq F value Pr(>F)
     ## Genotype       1 0.0617 0.06168   2.146  0.147
     ## APA2           1 0.0309 0.03088   1.074  0.303
     ## Genotype:APA2  1 0.0634 0.06339   2.206  0.142
     ## Residuals     78 2.2417 0.02874
+
+    summary(aov(data =  trainedtimespent, pTimeCCW ~ Genotype * APA2 ))
 
     ##               Df Sum Sq Mean Sq F value   Pr(>F)    
     ## Genotype       1 0.0512  0.0512   1.963    0.165    
@@ -153,6 +167,8 @@ Proportion time spent trained only
     ## Residuals     78 2.0342  0.0261                     
     ## ---
     ## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+
+    TukeyHSD(aov(data =  trainedtimespent, pTimeCCW ~ Genotype * APA2 ))
 
     ##   Tukey multiple comparisons of means
     ##     95% family-wise confidence level
@@ -222,11 +238,18 @@ General overview of number of entrances to the shock zone and path to the first 
     ## quartz_off_screen 
     ##                 2
 
+    # stats
+    PathNumStats <- behavior  %>% 
+      filter(TrainSessionComboNum == "1") 
+    summary(aov(NumEntrances ~  APA2 * Genotype, data=PathNumStats))
+
     ##               Df Sum Sq Mean Sq F value Pr(>F)
     ## APA2           3  133.4   44.48   1.717  0.181
     ## Genotype       1    2.7    2.74   0.106  0.747
     ## APA2:Genotype  3  127.6   42.55   1.643  0.197
     ## Residuals     35  906.6   25.90
+
+    summary(aov(Path1stEntr ~  APA2 * Genotype, data=PathNumStats))
 
     ##               Df Sum Sq Mean Sq F value Pr(>F)
     ## APA2           3  0.943 0.31429   1.583  0.211

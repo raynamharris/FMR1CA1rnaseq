@@ -71,7 +71,6 @@ summary(aov(pTimeTarget ~  APA2 * Genotype, data=PathNumStats))
 summary(aov(pTimeOPP ~  APA2 * Genotype, data=PathNumStats))
 summary(aov(pTimeTarget ~  APA2 * Genotype, data=PathNumStats))
 summary(aov(pTimeCCW ~  APA2 * Genotype, data=PathNumStats))
-
 ```
 
 
@@ -179,10 +178,7 @@ pdf(file="../figures/01_behavior/timespent4.pdf", width=2.5, height=2.25)
 plot(timespent4)
 dev.off()
 
-
-
 ```
-
 
 
 # Now - exampine space use interaction APA2 * Genotype in trained and yoked separated
@@ -192,49 +188,20 @@ dev.off()
 
 # Proportion time spent trained only
 
-```{r proportiontimespenttrained, echo = F, warning = F}
-
+```{r statstime, warning = F}
 trainedtimespent <- behavior %>%
   filter(APA2 %in% c("consistent","conflict")) %>%
     filter(TrainSessionComboNum %in% c("6", "7", "8"))
 
 summary(aov(data =  trainedtimespent, pTimeTarget ~ Genotype * APA2 ))
-#Genotype       1 0.00065 0.0006531   1.179  0.281
-#APA2           1 0.00035 0.0003529   0.637  0.427
-#Genotype:APA2  1 0.00033 0.0003310   0.597  0.442
-
 summary(aov(data =  trainedtimespent, pTimeCW ~ Genotype * APA2 ))
-#Genotype       1 0.0000  0.0000   0.001    0.982    
-#APA2           1 0.8791  0.8791  38.375 2.56e-08 ***
-#Genotype:APA2  1 0.0006  0.0006   0.027    0.871 
-
 TukeyHSD(aov(data =  trainedtimespent, pTimeCW ~ Genotype * APA2 ))
-#FMR1KO:consistent-WT:consistent   0.02397566 -0.09804438 0.1459957 0.9550673
-#WT:conflict-WT:consistent         0.20514213  0.09366727 0.3166170 0.0000389
-#FMR1KO:conflict-WT:consistent     0.24057083  0.10008441 0.3810573 0.0001379
-#WT:conflict-FMR1KO:consistent     0.18116647  0.06217945 0.3001535 0.0008182
-#FMR1KO:conflict-FMR1KO:consistent 0.21659518  0.07007657 0.3631138 0.0012165
-#FMR1KO:conflict-WT:conflict       0.03542870 -0.10243157 0.1732890 0.9063729
-
 summary(aov(data =  trainedtimespent, pTimeOPP ~ Genotype * APA2 ))
-#Genotype       1 0.0617 0.06168   2.146  0.147
-#APA2           1 0.0309 0.03088   1.074  0.303
-#Genotype:APA2  1 0.0634 0.06339   2.206  0.142
-
 summary(aov(data =  trainedtimespent, pTimeCCW ~ Genotype * APA2 ))
-#Genotype       1 0.0512  0.0512   1.963    0.165    
-#APA2           1 0.6094  0.6094  23.366 6.58e-06 ***
-#Genotype:APA2  1 0.0668  0.0668   2.560    0.114 
-
-
 TukeyHSD(aov(data =  trainedtimespent, pTimeCCW ~ Genotype * APA2 ))
-#FMR1KO:consistent-WT:consistent    0.07931096 -0.05087865  0.20950058 0.3850072
-#WT:conflict-WT:consistent         -0.13039352 -0.24933193 -0.01145511 0.0259978
-#FMR1KO:conflict-WT:consistent     -0.17080833 -0.32070071 -0.02091596 0.0190587
-#WT:conflict-FMR1KO:consistent     -0.20970448 -0.33665801 -0.08275096 0.0002467
-#FMR1KO:conflict-FMR1KO:consistent -0.25011930 -0.40644773 -0.09379087 0.0004019
-#FMR1KO:conflict-WT:conflict       -0.04041481 -0.18750522  0.10667559 0.8883106
+```
 
+```{r proportiontimespenttrained, echo=F, warning=F}
 
 timeccw <- behavior %>%
   filter(APA2 %in% c("consistent","conflict")) %>%
@@ -473,7 +440,10 @@ pathwt
 pdf(file="../figures/01_behavior/pathwt.pdf", width=2.25, height=2)
 plot(pathwt)
 dev.off()
+```
 
+
+```{r stat3}
 # stats
 PathNumStats <- behavior  %>% 
   filter(TrainSessionComboNum == "1") 

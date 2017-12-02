@@ -216,8 +216,8 @@ GOpvals <- GOpvals[ , grepl( "padj|pval" , names( GOpvals ) ) ]
 GOpvals$gene<-rownames(GOpvals)
 
 GOpvals <- GOpvals %>%
-  select(gene, pvalLocationventraldorsal)
-GOpvals$logP <- log(GOpvals$pvalRegionCA1DG)
+  select(gene, pvalGenotypeFMR1WT)
+GOpvals$logP <- log(GOpvals$pvalGenotypeFMR1WT)
 GOpvals <- GOpvals %>%
   select(gene, logP)
 
@@ -421,28 +421,22 @@ myBreaks <- c(seq(min(DEGes), 0, length.out=ceiling(paletteLength/2) + 1),
 
 pheatmap(DEGes, show_colnames=F, show_rownames = F,
          annotation_col=df, annotation_colors = ann_colors,
-         treeheight_row = 25, treeheight_col = 25,
-         fontsize = 11, 
-         width=4.5, height=2.25,
+         treeheight_row = 10, treeheight_col = 10, cellwidth = 8, 
          border_color = "grey60" ,
-         color = viridis(30),
-         cellwidth = 8, 
-         clustering_method="average",
-         breaks=myBreaks,
+         color = viridis(30), breaks=myBreaks,
+         clustering_method="average", 
          clustering_distance_cols="correlation" 
          )
 
 # for adobe
 pheatmap(DEGes, show_colnames=F, show_rownames = F,
          annotation_col=df, annotation_colors = ann_colors,
-         treeheight_row = 25, treeheight_col = 25,
+         treeheight_row = 25, treeheight_col = 25, cellwidth = 8, 
          fontsize = 10, 
          width=4.5, height=2.25,
          border_color = "grey60" ,
          color = viridis(30),
-         cellwidth = 8, 
-         clustering_method="average",
-         breaks=myBreaks,
+         clustering_method="average", breaks=myBreaks,
          clustering_distance_cols="correlation",
          filename = "../figures/02_RNAseq/daynightheat.pdf"
          )

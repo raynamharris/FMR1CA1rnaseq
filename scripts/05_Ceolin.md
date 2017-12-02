@@ -221,7 +221,7 @@ signfificant.
         scale_shape_manual(values=c(16, 16)) 
     PCA12
 
-![](../figures/05_Ceolin/PCA,%20-1.png)
+![](../figures/05_Ceolin/PCA-1.png)
 
     aov1 <- aov(PC1 ~ genotype, data=pcadata)
     summary(aov1) 
@@ -267,10 +267,8 @@ and allows us to visualize patterns of expression with gene names.
     DEGes <- as.matrix(DEGes)
     DEGes <- DEGes - rowMeans(DEGes)
 
-
     # setting color options
-    ann_colors <- list(
-      genotype =  c('FMR1_KO' = (values=c("#41b6c4")), 
+    ann_colors <- list(genotype =  c('FMR1_KO' = (values=c("#41b6c4")), 
                 'WT' = (values=c("#e7298a"))))
 
     df <- as.data.frame(colData(dds)[,c( "genotype")])

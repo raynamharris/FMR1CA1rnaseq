@@ -154,7 +154,7 @@ dim(rld)
 
 Then I did my favorite principle component analysis. The  clustering of points shows clear separation of samples by PC1 and PC2 together. PC2 is signfificant.
 
-```{r PCA, , message=FALSE,comment=FALSE, warning=FALSE}
+```{r PCA, message=FALSE,comment=FALSE, warning=FALSE}
 
 # create the dataframe using my function pcadataframe
 pcadata <- pcadataframe(rld, intgroup=c("genotype"), returnData=TRUE)
@@ -203,10 +203,8 @@ DEGes <- DEGes %>% select(-one_of(drop.cols))
 DEGes <- as.matrix(DEGes)
 DEGes <- DEGes - rowMeans(DEGes)
 
-
 # setting color options
-ann_colors <- list(
-  genotype =  c('FMR1_KO' = (values=c("#41b6c4")), 
+ann_colors <- list(genotype =  c('FMR1_KO' = (values=c("#41b6c4")), 
             'WT' = (values=c("#e7298a"))))
 
 df <- as.data.frame(colData(dds)[,c( "genotype")])

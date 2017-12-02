@@ -1,13 +1,33 @@
 Ceolin et al. data reanalyzed
 -----------------------------
 
-From Ceolin L, Bouquier N, Vitre-Boubaker J, Rialle S et al. Cell
+From [Ceolin L, Bouquier N, Vitre-Boubaker J, Rialle S et al. Cell
 Type-Specific mRNA Dysregulation in Hippocampal CA1 Pyramidal Neurons of
 the Fragile X Syndrome Mouse Model. Front Mol Neurosci 2017;10:340.
-PMID: 29104533
+PMID:
+29104533](https://www.frontiersin.org/articles/10.3389/fnmol.2017.00340/full)
 
 This data was made available here [open source
 data](https://www.ncbi.nlm.nih.gov/geo/query/acc.cgi?acc=GSE94559).
+
+The parts of their paper that I reproduced are visuzalized in Figure 2
+and 3 of Ceolin et al 2017. Ceolin's fluoresence staining of the CA1
+provided the inspriation for the color palette. I reproduced the heatmap
+and part of the GO anlsysis but not that of FMRP binding.
+
+![](../figures/fig3-02.png)
+
+My reanalysis produeces very similar results.
+![](../figures/fig3-01.png)
+
+We found rougly the same scale of gene expression changes, but my list
+contained fewer genes. Most of the genes were identified by both
+analytical methods indicating a robust reponse. Our GO anlaysese
+highlighted different patterns. Ceolin highlights the molecular function
+enriched pathways in FMR1-KO mice, but my analysis provided stronger
+evidence for a deletion of calcium receptor related functions. THis
+suggests a role for dys-regulation of calcium signallying in the
+hippocampus of Fragile X Syndrom patients.
 
 The first thing I notice is that they have waay more reads per sample
 and thus gene counts per sample than I do. They have a mean gene counts
@@ -170,40 +190,26 @@ out of 19361 with nonzero total read count adjusted p-value &lt; 0.1 LFC
     top_labelled <- top_n(data, n = 5, wt = pvalue)
 
     # Color corresponds to fold change directionality
-    colored <- ggplot(data, aes(x = lfc, y = pvalue)) + 
-      geom_point(aes(color = factor(color), shape = factor(color)), size = 3, alpha = 0.5, na.rm = T) + # add gene points
-      theme_bw(base_size = 8) + # clean up theme
-      theme(legend.position = "none") + # remove legend 
+
+    volcano <- ggplot(data, aes(x = lfc, y = pvalue)) + 
+      geom_point(aes(color = factor(color)), size = 1, alpha = 0.5, na.rm = T) + # add gene points
+      theme_cowplot(font_size = 8, line_size = 0.25) +
+      geom_hline(yintercept = 1,  size = 0.25, linetype = 2) + 
       scale_color_manual(values = c("FRM1_KO" = "#41b6c4",
                                     "WT" = "#e7298a", 
-                                    "none" = "grey")) + theme(panel.grid.minor=element_blank(),
-               panel.grid.major=element_blank()) + 
-      scale_x_continuous(name="Log Fold Change") +
-      scale_y_continuous(name="-log10 (adjusted p-value)") +
-      geom_hline(yintercept = 1.3,  size = 0.25, linetype = 2 ) + 
-      scale_shape_manual(values = c(16,16,16))  
-    colored
+                                    "none" = "grey")) + 
+      #scale_y_continuous(limits=c(0, 8)) +
+      scale_x_continuous(name="Log fold change")+
+      ylab(paste0("log10 p-value")) +       
+      theme(panel.grid.minor=element_blank(),
+            legend.position = "none", # remove legend 
+            panel.grid.major=element_blank())
+    volcano
 
 ![](../figures/05_Ceolin/volcanos-1.png)
 
-    colored <- ggplot(data, aes(x = lfc, y = pvalue)) + 
-      geom_point(aes(color = factor(color), shape = factor(color)), size = 1, alpha = 0.5, na.rm = T) + # add gene points
-      theme_bw(base_size = 8) + # clean up theme
-      theme(legend.position = "none") + # remove legend 
-      scale_color_manual(values = c("FRM1_KO" = "#41b6c4",
-                                    "WT" = "#e7298a", 
-                                    "none" = "grey")) + theme(panel.grid.minor=element_blank(),
-               panel.grid.major=element_blank()) + 
-      scale_x_continuous(name="Log Fold Change") +
-      scale_y_continuous(name="-log10 (adjusted p-value)") +
-      geom_hline(yintercept = 1.3,  size = 0.25, linetype = 2 ) + 
-      scale_shape_manual(values = c(16,16,16))  
-    colored
-
-![](../figures/05_Ceolin/volcanos-2.png)
-
     pdf(file="../figures/05_Ceolin/volcano.pdf", width=1.5, height=1.75)
-    plot(colored)
+    plot(volcano)
     dev.off()
 
     ## quartz_off_screen 

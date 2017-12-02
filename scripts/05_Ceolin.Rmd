@@ -10,9 +10,20 @@ output:
 
 ## Ceolin et al. data reanalyzed
 
-From Ceolin L, Bouquier N, Vitre-Boubaker J, Rialle S et al. Cell Type-Specific mRNA Dysregulation in Hippocampal CA1 Pyramidal Neurons of the Fragile X Syndrome Mouse Model. Front Mol Neurosci 2017;10:340. PMID: 29104533
+From [Ceolin L, Bouquier N, Vitre-Boubaker J, Rialle S et al. Cell Type-Specific mRNA Dysregulation in Hippocampal CA1 Pyramidal Neurons of the Fragile X Syndrome Mouse Model. Front Mol Neurosci 2017;10:340. PMID: 29104533](https://www.frontiersin.org/articles/10.3389/fnmol.2017.00340/full)
 
 This data was made available here [open source data](https://www.ncbi.nlm.nih.gov/geo/query/acc.cgi?acc=GSE94559).
+
+The parts of their paper that I reproduced are visuzalized in Figure 2 and 3 of Ceolin et al 2017. Ceolin's fluoresence staining of the CA1 provided the inspriation for the color palette. I reproduced the heatmap and part of the GO anlsysis but not that of FMRP binding. 
+
+![](../figures/fig3-02.png)
+
+My reanalysis produeces very similar results. 
+![](../figures/fig3-01.png)
+
+We found rougly the same scale of gene expression changes, but my list contained fewer genes. Most of the genes were identified by both analytical methods indicating a robust reponse. Our GO anlaysese highlighted different patterns. Ceolin highlights the molecular function enriched pathways in FMR1-KO mice, but my analysis provided stronger evidence for a deletion of calcium receptor related functions. THis suggests a role for dys-regulation of calcium signallying in the hippocampus of Fragile X Syndrom patients.  
+
+Here is the analysis, including the heatmap as well as a PCA plot and maybe some statistics. The GO analysis is in the subdirectory 06_GO_MWU.
 
 
 ```{r setup, echo=FALSE, message=FALSE, results='hide',comment=FALSE, warning=FALSE}

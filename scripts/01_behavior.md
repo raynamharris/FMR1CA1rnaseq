@@ -68,9 +68,6 @@ mice show no place preference or avoidance.
 
 ![](../figures/fig1-06.png)
 
-Time spent figure
-=================
-
     ## quartz_off_screen 
     ##                 2
 
@@ -83,13 +80,10 @@ Time spent figure
     ## quartz_off_screen 
     ##                 2
 
-Now - exampine space use interaction APA2 \* Genotype in trained and yoked separated
-====================================================================================
+Consistent mice avoid the shock zone and the clockwise region.
+==============================================================
 
 ![](../figures/fig1-08.png)
-
-Proportion time spent trained only
-==================================
 
     trainedtimespent <- behavior %>%
       filter(APA2 %in% c("consistent","conflict")) %>%
@@ -205,8 +199,8 @@ Proportion time spent trained only
     ## quartz_off_screen 
     ##                 2
 
-General overview of number of entrances to the shock zone and path to the first entrance. No statistics on these full data sets because its makes more sense to subset the data into training and non-training sessions first.
-==============================================================================================================================================================================================================================
+Number of entrances and path to first entrance
+==============================================
 
 ![](../figures/fig1-02.png)
 

@@ -79,9 +79,8 @@ This next graph is a big overview that shows that consistent trained aniamls avo
 
 ![](../figures/fig1-06.png)
 
-# Time spent figure
 
-```{r timespent, echo=F, warning=F}
+```{r timespent, echo=F, warning=F, results=F}
 proptime <- behavior[,c(1,2,4,8,9,12,26:29)]
 proptime <- melt(proptime, id.vars = c("ID", "Genotype", "TrainSession",
                                        "APA2", "TrainSessionCombo","TrainSessionComboNum")) 
@@ -181,12 +180,10 @@ dev.off()
 ```
 
 
-# Now - exampine space use interaction APA2 * Genotype in trained and yoked separated
+# Consistent mice avoid the shock zone and the clockwise region.
 
 ![](../figures/fig1-08.png)
 
-
-# Proportion time spent trained only
 
 ```{r}
 trainedtimespent <- behavior %>%
@@ -306,11 +303,11 @@ dev.off()
 ```
 
 
-# General overview of number of entrances to the shock zone and path to the first entrance. No statistics on these full data sets because its makes more sense to subset the data into training and non-training sessions first.
+# Number of entrances and path to first entrance
 
 ![](../figures/fig1-02.png)
 
-```{r, echo =F, warning = F}
+```{r, echo =F, warning = F, results = F}
 # behaviors
 numentr <- dplyr::summarise(group_by(behavior, Genotype, APA2, TrainSessionComboNum, conflict), m = mean(NumEntrances), se = sd(NumEntrances)/sqrt(length(NumEntrances)), len = length(NumEntrances))
 

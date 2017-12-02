@@ -18,15 +18,16 @@ The parts of their paper that I reproduced are visuzalized in Figure 2 and 3 of 
 
 ![](../figures/fig3-02.png)
 
-My reanalysis produeces very similar results. 
+I found roughly the same scale of gene expression changes, which is how I stumbled upon the paper in the first place (by googling Serpina3a and Fmr1), However, my list does have fewer significant genes. Most of the genes were identified by both analytical methods indicating a robust reponse. Our GO anlaysese highlighted different patterns. Ceolin highlights the molecular function enriched pathways in FMR1-KO mice, but my analysis provided stronger evidence for a deletion of calcium receptor related functions. THis suggests a role for dys-regulation of calcium signallying in the hippocampus of Fragile X Syndrom patients.  
+ 
+
 ![](../figures/fig3-01.png)
 
-We found rougly the same scale of gene expression changes, but my list contained fewer genes. Most of the genes were identified by both analytical methods indicating a robust reponse. Our GO anlaysese highlighted different patterns. Ceolin highlights the molecular function enriched pathways in FMR1-KO mice, but my analysis provided stronger evidence for a deletion of calcium receptor related functions. THis suggests a role for dys-regulation of calcium signallying in the hippocampus of Fragile X Syndrom patients.  
 
 Here is the analysis, including the heatmap as well as a PCA plot and maybe some statistics. The GO analysis is in the subdirectory 06_GO_MWU.
 
 
-```{r setup, echo=FALSE, message=FALSE, results='hide',comment=FALSE, warning=FALSE}
+```{r setup, message=FALSE,comment=FALSE, warning=FALSE}
 #source("http://www.bioconductor.org/biocLite.R")
 #biocLite("DESeq2")
 library(DESeq2)
@@ -50,7 +51,7 @@ source("functions_RNAseq.R")
 knitr::opts_chunk$set(fig.path = '../figures/05_Ceolin/')
 ```
 
-```{r ImportData, echo=FALSE, message=FALSE, results='hide',comment=FALSE, warning=FALSE}
+```{r ImportData, message=FALSE,comment=FALSE, warning=FALSE}
 # contains a file with the gene name and transcript id
 geneids <- read.table("../data/geneids.tsv", header=T)
 
@@ -98,7 +99,7 @@ countData[is.na(countData)] <- 0
 
 The first thing I notice is that they have waay more reads per sample and thus gene counts per sample than I do. They have a mean gene counts per sample around 400 million counts per gene. My data had 5 million counts per gene. 
 
-```{r edgeR, echo=FALSE, message=FALSE, results='hide',comment=FALSE, warning=FALSE }
+```{r edgeR, message=FALSE,comment=FALSE, warning=FALSE }
 counts <- countData
 dim( counts )
 colSums( counts ) / 1e06  # in millions of reads
@@ -131,7 +132,7 @@ rld <- rlog(dds, blind=FALSE)
 
 There are 12 samples (6 WT and 6 FMR1-KO) and 37,167 genes were included in the analysis, but most were discarded during the normalizaiton and analysis iwth DESeq such that the expression of only 19,361 genes were analysed.
 
-```{r viewcoldata, echo=FALSE,message=FALSE, warning=FALSE}
+```{r viewcoldata, message=FALSE,comment=FALSE, warning=FALSE}
 colData$genotype <- as.factor(colData$genotype)
 colData %>% select(genotype)  %>%  summary()
 
@@ -142,7 +143,7 @@ dim(rld)
 
 # Principle component analysis
 
-```{r PCA, echo=FALSE, message=FALSE, results='hide',comment=FALSE, warning=FALSE}
+```{r PCA, , message=FALSE,comment=FALSE, warning=FALSE}
 
 # create the dataframe using my function pcadataframe
 pcadata <- pcadataframe(rld, intgroup=c("genotype"), returnData=TRUE)
@@ -165,7 +166,7 @@ Nice clusering of points. PC1 and PC2 together separate samples by genotype. PC2
 
 # ANOVA PCA
 
-```{r, echo=TRUE, message=FALSE, comment=FALSE, warning=FALSE}
+```{r, message=FALSE, comment=FALSE, warning=FALSE}
 aov1 <- aov(PC1 ~ genotype, data=pcadata)
 summary(aov1) 
 
@@ -181,7 +182,7 @@ summary(aov3)
 
 # Heatmap
 
-```{r HeatmapPadj, echo=FALSE, message=FALSE, results='hide',comment=FALSE, warning=FALSE}
+```{r HeatmapPadj, message=FALSE,comment=FALSE, warning=FALSE}
 contrast1 <- resvals(contrastvector = c('genotype', 'FMR1_KO', 'WT'), mypval = 0.1)
 
 ## Any padj <0.1
@@ -246,7 +247,7 @@ pheatmap(DEGes, show_colnames=F, show_rownames = T,
 
 ## Create list of p-values for all genes 
 
-```{r GOsetup, echo=FALSE, message=FALSE, comment=FALSE, warning=FALSE }
+```{r GOsetup, message=FALSE,comment=FALSE, warning=FALSE}
 #create a new DF with the gene counts
 GOpvals <- assay(rld)
 GOpvals <- cbind(GOpvals, contrast1)
@@ -274,7 +275,7 @@ LFC < 0 (down)   : 146, 0.75%
 
 ### Serpina3n was in my list, right? and Ccnd1?
 
-```{r volcanos}
+```{r volcanos, message=FALSE,comment=FALSE, warning=FALSE}
 res <- results(dds, contrast =c("genotype", "FMR1_KO", "WT"), independentFiltering = T, alpha = 0.1)
 summary(res)
 resOrdered <- res[order(res$padj),]

@@ -285,14 +285,10 @@ and allows us to visualize patterns of expression with gene names.
     pheatmap(DEGes, show_colnames=T, show_rownames = T,
              annotation_col=df, 
              annotation_colors = ann_colors,
-             treeheight_row = 0, treeheight_col = 50,
-             #fontsize = 4, 
-             #width=4.5, height=3,
+             treeheight_row = 0, treeheight_col = 10,
              border_color = "grey60" ,
-             color = viridis(40),
-             #cellwidth = 10, 
+             color = viridis(40), breaks=myBreaks,
              clustering_distance_cols="correlation" ,
-             breaks=myBreaks,
              clustering_method="average"
              )
 
@@ -302,13 +298,10 @@ and allows us to visualize patterns of expression with gene names.
     pheatmap(DEGes, show_colnames=F, show_rownames = T,
              annotation_col=df, annotation_colors = ann_colors,
              treeheight_row = 0, treeheight_col = 10,
-             fontsize = 4, 
-             width=2, height=3.4,
+             fontsize = 4, width=2, height=3.4, cellwidth = 5, 
              border_color = "grey60" ,
-             color = viridis(40),
-             cellwidth = 5, 
+             color = viridis(40), breaks=myBreaks,
              clustering_distance_cols="correlation" ,
-             breaks=myBreaks,
              clustering_method="average",
              filename = "../figures/05_Ceolin/HeatmapPadj-1.pdf"
              )

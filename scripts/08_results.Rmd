@@ -1,0 +1,66 @@
+---
+title: "Chapter 2 Results"
+author: Rayna M. Harris
+date: December 2, 2017
+output: word_document
+---
+
+
+
+
+
+This figure shows no differences in space use before the onset of the active place avoidance task.
+
+![](../figures/fig1-04.png)
+
+
+![](../figures/fig1-06.png) 
+
+
+![](../figures/fig1-08.png)
+
+
+
+
+![](../figures/fig1-02.png)
+
+
+Top) Consistently trained mice (red) from both WT (solid lines, filled circles) and FMR1-KO (dashes lines, open circles) make fewer entrances into the shock zone than yoked-mice (grey). Bottom) Conflict trained mice (pink) from both WT (solid lines, filled circles) and FMR1-KO (dashes lines, open circles) learn to avoid the initial and the conflicting shock zones. Data are reported as mean +/- SEM. A Mann-Whitney statistical test shows that there are no significant differences due to genotype for any treatment at any time point (as evidenced by all overlapping standard error bars). Inserts) The pie-shaped shaded regions of the inserts highlight the region used to count the number of entrances. Sample sizes for each treatment group and genotype are shown on the bottom right.
+
+
+
+This is how I am currently conceptualizing the results.
+
+![](../figures/fig1-05.png)
+
+### Identify transcriptional response to constitutive gene knockdown of fragile x mental retardation protein (FMRP)
+
+### Show that synaptic strength not diminished despite reduced calcium activity 
+
+![](../figures/fig1-09.png)
+
+
+
+
+![](../figures/fig1-03.png)
+
+WT and FMR1-KO show evidence of differential gene expression in the CA1
+A)  The sample size for RNA-sequencing is 8 WT and 8 FMR1-KO tissues from the CA1 subfield from only the consistent-yoke group. B) Hierarchical clustering of differentially expressed genes shows that only 13 genes are upregulated in response to FMR1KO while 16, including Fmr1, were downregulated in the CA1 subfield of yoked-consistent mice. C) A volcano plot shows that expression Ccnd2 and Fmr1 are highly upregulated in WT compared to FMR1-KO mice. Genes with negative log fold change value are more highly expressed in WT (dark grey filled circles) while genes with a positive log fold change value are more highly expressed in the Fmr1 mice (open circles). Genes that are not significantly expressed are shown in light grey.
+
+Down-regulation of ion transport in the the the CA1 subfield 
+Down-regulation of ion channel binding, receptor binding, calcium binding, metal ion membrane transport, calcium ion transmembrane transporter, delayed rectifier potassium channel, channel, cation channel, channel regulator, calmodulin binding, PDZ domain binding, structural molecular, and structural constituent of ribosome. On the plot, different fonts are used to indicate significance (bold: p < 0.01, regular: p < 0.05) and color indicates enrichment with either up (red) or down (blue) regulated genes. The fraction next to GO category name indicates the fraction of "good" genes that exceed the p-value cutoff. The tree on the plot is hierarchical clustering of GO categories based on shared genes. Categories with no branch length between them are subsets of each other.
+
+
+
+CA3-CA1 synaptic strength is not altered by genotype or place avoidance training.
+I did not observe reduction in synaptic strength at the CA3-CA1 synapse (as measured by maximum fEPSP slope) with avoidance learning or with FMR1-KO. The interaction between Genotype and Training Group was not significant, and Genotype alone was not significant. Violin plots are colored by treatment group and shaded according to genotype.  
+
+### Reproduction of and comparision to the Ceolin et al. 201732 study
+
+![](../figures/fig3-01.png)
+
+A) Graphical representation of the samples for the Ceolin et al. 201732 study examining CA1 expression in WT and FMR1-KO mice. B)  Volcano plot showing enrichment of 88 genes that are up-regulated in FMR1-KO mice and the 146 genes that are up-regulated in WT mice. C) Hierarchical clustering showing the names and expression patterns of those same significant genes. D) GO analysis showing a very similar pattern of depletion of calcium channel activity as was shown in Fig. 2.4C). In contrast, Ceolin detected enrichment of ribosomal processes in response to FMR1-KO in CA1 pyramidal neurons.A) Graphical representation of the samples for the Ceolin et al. 201732 study examining CA1 expression in WT and FMR1-KO mice. B)  Volcano plot showing enrichment of 88 genes that are up-regulated in FMR1-KO mice and the 146 genes that are up-regulated in WT mice. C) Hierarchical clustering showing the names and expression patterns of those same significant genes. D) GO analysis showing a very similar pattern of depletion of calcium channel activity as was shown in Fig. 2.4C). In contrast, Ceolin detected enrichment of ribosomal processes in response to FMR1-KO in CA1 pyramidal neurons.
+
+
+
+

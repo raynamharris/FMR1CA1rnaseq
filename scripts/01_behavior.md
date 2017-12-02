@@ -415,6 +415,19 @@ in all quadrants of the arena.
     ## APA2:Genotype  3 0.00766 0.0025548   0.816  0.494
     ## Residuals     35 0.10959 0.0031311
 
+    proptime <- behavior[,c(1,2,4,8,9,12,26:29)]
+    proptime <- melt(proptime, id.vars = c("ID", "Genotype", "TrainSession",
+                                           "APA2", "TrainSessionCombo","TrainSessionComboNum")) 
+    PathNumStats2 <- proptime  %>% 
+      filter(TrainSessionComboNum == 1) 
+    summary(aov(value ~  APA2 * Genotype , data=PathNumStats2))
+
+    ##                Df Sum Sq  Mean Sq F value Pr(>F)
+    ## APA2            3 0.0000 0.000000       0  1.000
+    ## Genotype        1 0.0000 0.000000       0  0.999
+    ## APA2:Genotype   3 0.0000 0.000000       0  1.000
+    ## Residuals     164 0.4773 0.002911
+
 Where do mice spend their time?
 ===============================
 
@@ -425,10 +438,6 @@ re-illustrated in the subsequent graph focusing just on the conlict
 training sessions. Yoked mice show no place preference or avoidance.
 
 ![](../figures/fig1-06.png)
-
-    proptime <- behavior[,c(1,2,4,8,9,12,26:29)]
-    proptime <- melt(proptime, id.vars = c("ID", "Genotype", "TrainSession",
-                                           "APA2", "TrainSessionCombo","TrainSessionComboNum")) 
 
     timespent1 <- proptime %>%
       filter(APA2 %in% c("consistent","conflict")) %>%
@@ -445,7 +454,7 @@ training sessions. Yoked mice show no place preference or avoidance.
         theme(legend.position="none") +
       scale_y_continuous(name= "Proportion of Time Spent",
                          breaks = c(0.32,0.64, 0.96)) +
-      scale_fill_manual(values = c("#de2d26", "#e5f5e0" ,"#a1d99b", "#31a354")) + 
+      scale_fill_manual(values = c("#d01c8b", "#e5f5e0" ,"#a1d99b", "#31a354")) + 
       geom_hline(yintercept=c(0.32,0.64, 0.96), color="black" , linetype="dashed") 
     timespent1
 
@@ -466,7 +475,7 @@ training sessions. Yoked mice show no place preference or avoidance.
       theme(legend.title=element_blank()) +
       theme(legend.position="none") +
       scale_y_continuous(name= "Proportion of Time Spent") +
-      scale_fill_manual(values = c("#de2d26", "#e5f5e0" ,"#a1d99b", "#31a354")) + 
+      scale_fill_manual(values = c("#d01c8b", "#e5f5e0" ,"#a1d99b", "#31a354")) + 
       geom_hline(yintercept=c(0.25,0.50, 0.75), color="black" , linetype="dashed")
     timespent2
 
@@ -498,7 +507,7 @@ training sessions. Yoked mice show no place preference or avoidance.
       theme(legend.title=element_blank()) +
       theme(legend.position="none") +
       scale_y_continuous(name= "Proportion of Time Spent") +
-      scale_fill_manual(values = c("#de2d26", "#e5f5e0" ,"#a1d99b", "#31a354")) + 
+      scale_fill_manual(values = c("#d01c8b", "#e5f5e0" ,"#a1d99b", "#31a354")) + 
       geom_hline(yintercept=c(0.25,0.50, 0.75), color="black" , linetype="dashed") +
       theme(strip.text.x = element_text(size = 8)) +
       theme(axis.text.x = element_text(angle = 45, hjust = 1))
@@ -524,7 +533,7 @@ training sessions. Yoked mice show no place preference or avoidance.
       theme(legend.title=element_blank()) +
       theme(legend.position="none") +
       scale_y_continuous(name= "Proportion of Time Spent") +
-      scale_fill_manual(values = c("#de2d26", "#e5f5e0" ,"#a1d99b", "#31a354")) + 
+      scale_fill_manual(values = c("#d01c8b", "#e5f5e0" ,"#a1d99b", "#31a354")) + 
         geom_hline(yintercept=c(0.25,0.50, 0.75), color="black" , linetype="dashed") +
       theme(strip.text.x = element_text(size = 8)) +
       theme(axis.text.x = element_text(angle = 45, hjust = 1))
@@ -544,7 +553,7 @@ training sessions. Yoked mice show no place preference or avoidance.
       theme(legend.position="none") +
       scale_y_continuous(name= "Proportion of Time Spent",
                          breaks = c(0.30,0.60, 0.90)) +
-      scale_fill_manual(values = c("#de2d26", "#e5f5e0" ,"#a1d99b", "#31a354")) + 
+      scale_fill_manual(values = c("#d01c8b", "#e5f5e0" ,"#a1d99b", "#31a354")) + 
       geom_hline(yintercept=c(0.30,0.60, 0.90), color="black" , linetype="dashed") +
       theme(strip.text.x = element_text(size = 8)) +
       theme(axis.text.x = element_text(angle = 45, hjust = 1))
@@ -711,11 +720,11 @@ Now - exampine space use interaction APA2 \* Genotype in trained and yoked separ
       geom_boxplot(outlier.size=0.8) +
       facet_wrap(~Genotype) +
       scale_fill_manual(values = c("#ca0020", "#f4a582")) +  
-     scale_x_continuous(name="C1-C3 Average", 
+     scale_x_continuous(name="Counter clockwise", 
                            breaks = c(1, 2, 3, 4, 5, 6, 7, 8, 9),
                            labels = NULL) +
       geom_hline(yintercept=c(0.32), color="black" , linetype="dashed") + 
-        scale_y_continuous(name = "Counter Clockwise",
+        scale_y_continuous(name = " ",
           breaks = c(0,0.32, 0.64),
                          limits= c(0,0.8)) +
       theme_cowplot(font_size = 8, line_size = 0.25) +
@@ -731,11 +740,11 @@ Now - exampine space use interaction APA2 \* Genotype in trained and yoked separ
       geom_boxplot(outlier.size=0.8) +
       facet_wrap(~Genotype) +
       scale_fill_manual(values = c("#ca0020", "#f4a582")) +  
-     scale_x_continuous(name="C1-C3 Average", 
+     scale_x_continuous(name="Clockwise", 
                            breaks = c(1, 2, 3, 4, 5, 6, 7, 8, 9),
                            labels = NULL) +
       geom_hline(yintercept=c(0.32), color="black" , linetype="dashed") + 
-        scale_y_continuous(name = "Clockwise",
+        scale_y_continuous(name = NULL,
                            breaks = c(0,0.32, 0.64),
                          limits= c(0,0.8)) +
       theme_cowplot(font_size = 8, line_size = 0.25) +
@@ -751,10 +760,10 @@ Now - exampine space use interaction APA2 \* Genotype in trained and yoked separ
       geom_boxplot(outlier.size=0.8) +
       facet_wrap(~Genotype) +
       scale_fill_manual(values = c("#ca0020", "#f4a582")) +  
-     scale_x_continuous(name="C1-C3 Average", 
+     scale_x_continuous(name="Shock Zone", 
                            breaks = c(1, 2, 3, 4, 5, 6, 7, 8, 9),
                            labels = NULL) +
-        scale_y_continuous(name = "Shock zone",
+        scale_y_continuous(name = "Propotion of Time Spent",
                            breaks = c(0,0.04, 0.08, 0.12),
                              limits= c(0,0.14)) +
       #geom_hline(yintercept=c(0.04), color="black" , linetype="dashed") + 
@@ -771,10 +780,10 @@ Now - exampine space use interaction APA2 \* Genotype in trained and yoked separ
       geom_boxplot(outlier.size=0.8) +
       facet_wrap(~Genotype) +
       scale_fill_manual(values = c("#ca0020", "#f4a582")) + 
-        scale_y_continuous(name = "Opposite the shock zone",
+        scale_y_continuous(name = " ",
                            breaks = c(0,0.32, 0.64),
                          limits= c(0,0.8)) +
-     scale_x_continuous(name="C1-C3 Average", 
+     scale_x_continuous(name="Opposite", 
                            breaks = c(1, 2, 3, 4, 5, 6, 7, 8, 9),
                            labels = NULL) +
       geom_hline(yintercept=c(0.32), color="black" , linetype="dashed") + 
@@ -811,86 +820,6 @@ Now - exampine space use interaction APA2 \* Genotype in trained and yoked separ
 
     ## quartz_off_screen 
     ##                 2
-
-    timeccw <- behavior %>%
-      filter(APA2 %in% c("consistent","conflict")) %>%
-        filter(TrainSessionComboNum %in% c("2", "3", "4")) %>% 
-      ggplot(aes(x = as.numeric(TrainSessionComboNum), y = pTimeCCW, fill=APA2)) +
-      geom_boxplot(outlier.size=0.8) +
-      facet_wrap(~Genotype) +
-      scale_fill_manual(values = c("#ca0020", "#f4a582")) +  
-     scale_x_continuous(name="T1-T3 Average", 
-                           breaks = c(1, 2, 3, 4, 5, 6, 7, 8, 9),
-                           labels = NULL) +
-      geom_hline(yintercept=c(0.32), color="black" , linetype="dashed") + 
-        scale_y_continuous(name = "Counter Clockwise",
-          breaks = c(0,0.32, 0.64),
-                         limits= c(0,0.8)) +
-      theme_cowplot(font_size = 8, line_size = 0.25) +
-      theme(legend.position="none")
-    timeccw
-
-![](../figures/01_behavior/proportiontimespenttrained-5.png)
-
-    timecw <- behavior %>%
-      filter(APA2 %in% c("consistent","conflict")) %>%
-        filter(TrainSessionComboNum %in% c("2", "3", "4")) %>% 
-      ggplot(aes(x = as.numeric(TrainSessionComboNum), y = pTimeCW, fill=APA2)) +
-      geom_boxplot(outlier.size=0.8) +
-      facet_wrap(~Genotype) +
-      scale_fill_manual(values = c("#ca0020", "#f4a582")) +  
-     scale_x_continuous(name="T1-T3 Average", 
-                           breaks = c(1, 2, 3, 4, 5, 6, 7, 8, 9),
-                           labels = NULL) +
-      geom_hline(yintercept=c(0.32), color="black" , linetype="dashed") + 
-        scale_y_continuous(name = "Counter Clockwise",
-          breaks = c(0,0.32, 0.64),
-                         limits= c(0,0.8)) +
-      theme_cowplot(font_size = 8, line_size = 0.25) +
-      theme(legend.position="none")
-    timecw
-
-![](../figures/01_behavior/proportiontimespenttrained-6.png)
-
-    timeopp <- behavior %>%
-      filter(APA2 %in% c("consistent","conflict")) %>%
-        filter(TrainSessionComboNum %in% c("2", "3", "4")) %>% 
-      ggplot(aes(x = as.numeric(TrainSessionComboNum), y = pTimeOPP, fill=APA2)) +
-      geom_boxplot(outlier.size=0.8) +
-      facet_wrap(~Genotype) +
-      scale_fill_manual(values = c("#ca0020", "#f4a582")) + 
-        scale_y_continuous(name = "Opposite the shock zone",
-                           breaks = c(0,0.32, 0.64),
-                         limits= c(0,0.8)) +
-     scale_x_continuous(name="T1-T3 Average", 
-                           breaks = c(1, 2, 3, 4, 5, 6, 7, 8, 9),
-                           labels = NULL) +
-      geom_hline(yintercept=c(0.32), color="black" , linetype="dashed") + 
-      theme_cowplot(font_size = 8, line_size = 0.25) +
-     theme(legend.position="none")
-    timeopp
-
-![](../figures/01_behavior/proportiontimespenttrained-7.png)
-
-    timet <- behavior %>%
-      filter(APA2 %in% c("consistent","conflict")) %>%
-        filter(TrainSessionComboNum %in% c("2", "3", "4")) %>% 
-      ggplot(aes(x = as.numeric(TrainSessionComboNum), y = pTimeTarget, fill=APA2)) +
-      geom_boxplot(outlier.size=0.8) +
-      facet_wrap(~Genotype) +
-      scale_fill_manual(values = c("#ca0020", "#f4a582")) +  
-     scale_x_continuous(name="T1-T3 Average", 
-                           breaks = c(1, 2, 3, 4, 5, 6, 7, 8, 9),
-                           labels = NULL) +
-        scale_y_continuous(name = "Shock zone",
-                           breaks = c(0,0.04, 0.08, 0.12),
-                             limits= c(0,0.14)) +
-      geom_hline(yintercept=c(0.04), color="black" , linetype="dashed") + 
-      theme_cowplot(font_size = 8, line_size = 0.25) +
-     theme(legend.position="none")
-    timet
-
-![](../figures/01_behavior/proportiontimespenttrained-8.png)
 
 For Loops for Stats on Everything!! Not used for manuscript
 ===========================================================

@@ -950,7 +950,7 @@
 "Allc",0
 "Alms1",0
 "Alox12",0
-"Alox12b",1
+"Alox12b",0
 "Alox12e",0
 "Alox5",0
 "Alox5ap",0
@@ -1256,7 +1256,7 @@
 "Arhgap31",0
 "Arhgap32",0
 "Arhgap33",0
-"Arhgap35",1
+"Arhgap35",0
 "Arhgap36",0
 "Arhgap39",0
 "Arhgap4",0
@@ -1282,7 +1282,7 @@
 "Arhgef2",0
 "Arhgef25",0
 "Arhgef26",0
-"Arhgef28",1
+"Arhgef28",0
 "Arhgef3",0
 "Arhgef33",0
 "Arhgef37",0
@@ -1485,7 +1485,7 @@
 "Atl2",0
 "Atl3",0
 "Atm",0
-"Atmin",1
+"Atmin",0
 "Atn1",0
 "Atoh7",0
 "Atoh8",0
@@ -1503,7 +1503,7 @@
 "Atp13a4",0
 "Atp13a5",0
 "Atp1a1",0
-"Atp1a2",1
+"Atp1a2",0
 "Atp1a3",0
 "Atp1a4",0
 "Atp1b1",0
@@ -2075,7 +2075,7 @@
 "Cacna1d",0
 "Cacna1e",0
 "Cacna1f",0
-"Cacna1g",1
+"Cacna1g",0
 "Cacna1h",0
 "Cacna1i",0
 "Cacna1s",0
@@ -2927,7 +2927,7 @@
 "Ciao1",0
 "Ciapin1",0
 "Ciart",0
-"Cib1",1
+"Cib1",0
 "Cib2",0
 "Cic",0
 "Cidea",0
@@ -3167,7 +3167,7 @@
 "Col17a1",0
 "Col18a1",0
 "Col19a1",0
-"Col1a1",1
+"Col1a1",0
 "Col1a2",0
 "Col20a1",0
 "Col22a1",0
@@ -3435,7 +3435,7 @@
 "Cspp1",0
 "Csrnp1",0
 "Csrnp2",0
-"Csrnp3",1
+"Csrnp3",0
 "Csrp1",0
 "Csrp2",0
 "Csrp2bp",0
@@ -3611,7 +3611,7 @@
 "Cyp4b1",0
 "Cyp4f13",0
 "Cyp4f14",0
-"Cyp4f15",1
+"Cyp4f15",0
 "Cyp4f16",0
 "Cyp4f17",0
 "Cyp4f18",0
@@ -4061,7 +4061,7 @@
 "Dnase1l1",0
 "Dnase1l2",0
 "Dnase1l3",0
-"Dnase2a",1
+"Dnase2a",0
 "Dnd1",0
 "Dner",0
 "Dnhd1",0
@@ -4079,7 +4079,7 @@
 "Dnttip1",0
 "Dnttip2",0
 "Doc2a",0
-"Doc2b",1
+"Doc2b",0
 "Doc2g",0
 "Dock1",0
 "Dock10",0
@@ -4134,7 +4134,7 @@
 "Dppa2",0
 "Dpt",0
 "Dpy19l1",0
-"Dpy19l3",1
+"Dpy19l3",0
 "Dpy19l4",0
 "Dpy30",0
 "Dpyd",0
@@ -4658,7 +4658,7 @@
 "Erp44",0
 "Errfi1",0
 "Erv3",0
-"Esam",1
+"Esam",0
 "Esco1",0
 "Esd",0
 "Esf1",0
@@ -4771,7 +4771,7 @@
 "Fabp5",0
 "Fabp7",0
 "Fadd",0
-"Fads1",1
+"Fads1",0
 "Fads2",0
 "Fads3",0
 "Fads6",0
@@ -5024,7 +5024,7 @@
 "Farsa",0
 "Farsb",0
 "Fas",0
-"Fasn",1
+"Fasn",0
 "Fastk",0
 "Fastkd1",0
 "Fastkd2",0
@@ -5169,7 +5169,7 @@
 "Fgd6",0
 "Fgf1",0
 "Fgf10",0
-"Fgf11",1
+"Fgf11",0
 "Fgf12",0
 "Fgf13",0
 "Fgf14",0
@@ -7019,7 +7019,7 @@
 "Hmgb3",0
 "Hmgb4",0
 "Hmgcl",0
-"Hmgcll1",1
+"Hmgcll1",0
 "Hmgcr",0
 "Hmgcs1",0
 "Hmgcs2",0
@@ -7622,7 +7622,7 @@
 "Itgb8",0
 "Itgbl1",0
 "Itih2",0
-"Itih3",1
+"Itih3",0
 "Itih5",0
 "Itk",0
 "Itm2a",0
@@ -7952,7 +7952,7 @@
 "Klhl10",0
 "Klhl11",0
 "Klhl12",0
-"Klhl13",1
+"Klhl13",0
 "Klhl14",0
 "Klhl15",0
 "Klhl17",0
@@ -8461,7 +8461,7 @@
 "Lsm8",0
 "Lsmem1",0
 "Lsp1",0
-"Lsr",1
+"Lsr",0
 "Lss",0
 "Lst1",0
 "Lta4h",0
@@ -8472,7 +8472,7 @@
 "Ltbp3",0
 "Ltbp4",0
 "Ltbr",0
-"Ltc4s",1
+"Ltc4s",0
 "Ltf",0
 "Ltk",0
 "Ltn1",0
@@ -8692,7 +8692,7 @@
 "Marveld2",0
 "Marveld3",0
 "Mas1",0
-"Masp1",1
+"Masp1",0
 "Masp2",0
 "Mast1",0
 "Mast2",0
@@ -9731,7 +9731,7 @@
 "Neurod2",0
 "Neurod6",0
 "Neurog1",0
-"Neurog2",1
+"Neurog2",0
 "Neurog3",0
 "Nexn",0
 "Nf1",0
@@ -9938,7 +9938,7 @@
 "Npbwr1",0
 "Npc1",0
 "Npc1l1",0
-"Npc2",1
+"Npc2",0
 "Npcd",0
 "Npdc1",0
 "Npepl1",0
@@ -10021,7 +10021,7 @@
 "Nrp2",0
 "Nrros",0
 "Nrsn1",0
-"Nrsn2",1
+"Nrsn2",0
 "Nrtn",0
 "Nrxn1",0
 "Nrxn2",0
@@ -11024,7 +11024,7 @@
 "Pir",0
 "Pira2",0
 "Pirb",0
-"Pirt",1
+"Pirt",0
 "Pisd",0
 "Pithd1",0
 "Pitpna",0
@@ -11216,7 +11216,7 @@
 "Pms1",0
 "Pms2",0
 "Pmvk",0
-"Pnck",1
+"Pnck",0
 "Pnisr",0
 "Pnkd",0
 "Pnkp",0
@@ -13004,7 +13004,7 @@
 "Sema3b",0
 "Sema3c",0
 "Sema3d",0
-"Sema3e",1
+"Sema3e",0
 "Sema3f",0
 "Sema3g",0
 "Sema4a",0
@@ -13128,7 +13128,7 @@
 "Sfrp1",0
 "Sfrp2",0
 "Sfrp4",0
-"Sfrp5",1
+"Sfrp5",0
 "Sfswap",0
 "Sft2d1",0
 "Sft2d2",0
@@ -13601,7 +13601,7 @@
 "Slc6a8",0
 "Slc6a9",0
 "Slc7a1",1
-"Slc7a10",1
+"Slc7a10",0
 "Slc7a11",0
 "Slc7a13",0
 "Slc7a14",0
@@ -13614,7 +13614,7 @@
 "Slc7a6os",0
 "Slc7a7",0
 "Slc7a8",0
-"Slc8a1",1
+"Slc8a1",0
 "Slc8a2",0
 "Slc8a3",0
 "Slc8b1",0
@@ -14457,7 +14457,7 @@
 "Tal2",0
 "Taldo1",0
 "Tamm41",0
-"Tanc1",1
+"Tanc1",0
 "Tanc2",0
 "Tango2",0
 "Tango6",0
@@ -14961,7 +14961,7 @@
 "Tmem173",0
 "Tmem174",0
 "Tmem175",0
-"Tmem176a",1
+"Tmem176a",0
 "Tmem176b",0
 "Tmem177",0
 "Tmem178",0
@@ -15775,7 +15775,7 @@
 "Ubxn10",0
 "Ubxn11",0
 "Ubxn2a",0
-"Ubxn2b",1
+"Ubxn2b",0
 "Ubxn4",0
 "Ubxn6",0
 "Ubxn7",0
@@ -16978,9 +16978,3 @@
 "Zyx",0
 "Zzef1",0
 "Zzz3",0
-"Cml3",1
-"2310002F09Rik",1
-"Dpy19l2",1
-"Csrn3",1
-"Steap",1
-"Cml",1

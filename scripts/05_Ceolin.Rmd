@@ -348,7 +348,7 @@ prettyvenn <- venn.diagram(scaled=T,
 #dev.off()
 grid.draw(prettyvenn)
 
-venn12 <- union(venn1,venn2)
+venn12 <- intersect(venn1,venn2)
 write(venn12, "./06_GO_MWU/CeolinHarrisOverlap.csv")
 ```
 

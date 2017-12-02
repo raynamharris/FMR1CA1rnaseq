@@ -441,9 +441,9 @@ Create list of p-values for all genes
 Venn Diagram of both study's DEGS
 ---------------------------------
 
-    contrast1 <- resvals(contrastvector = c("genotype", "FMR1_KO", "WT"), mypval = 0.05)
+    contrast1 <- resvals(contrastvector = c("genotype", "FMR1_KO", "WT"), mypval = 0.01)
 
-    ## [1] 127
+    ## [1] 45
 
     #create a new DF with the gene counts
     rldpvals <- assay(rld)
@@ -477,10 +477,14 @@ Venn Diagram of both study's DEGS
 
 ![](../figures/05_Ceolin/venn-1.png)
 
-New heatmap
-===========
+    venn12 <- intersect(venn1,venn2)
+    write(venn12, "./06_GO_MWU/CeolinHarrisOverlap.csv")
 
-Selct gees based on overlap with other study
+Over reproducible differentially expressed genes
+================================================
+
+I took their list of differentially expressed genes at p &lt; 0.05 and
+my list at 0.01 and identified the overlap. Then I made a heatmap.
 
     DEGes <- assay(rld)
     DEGes <- cbind(DEGes, contrast1)

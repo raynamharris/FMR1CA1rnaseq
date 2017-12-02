@@ -203,8 +203,9 @@ dev.off()
 
 ```
 
+# GO setup
 
-```{r GOsetup, echo=FALSE, message=FALSE, comment=FALSE, warning=FALSE }
+```{r GOsetup, message=FALSE, comment=FALSE, warning=FALSE }
 #calculate significance of all two way comparisions
 contrast1 <- resvals(contrastvector = c("Genotype", "FMR1", "WT"), mypval = 0.1) # 11
 
@@ -224,6 +225,7 @@ GOpvals <- GOpvals %>%
 write.csv(GOpvals, "./06_GO_MWU/GenotypeFMR1KOWT_GOpvals.csv", row.names = F)
 ```
 
+# Heatmap
 
 ```{r heatmap, message=F, warning=F}
 DEGes <- assay(rld)
@@ -300,6 +302,45 @@ pheatmap(DEGes, show_colnames=F, show_rownames = T,
          filename = "../figures/02_RNAseq/pheatmap_minimal.pdf"
          )
 ```
+
+
+## Venn Diagram of both study's DEGS
+
+```{r venn}
+contrast1 <- resvals(contrastvector = c("Genotype", "FMR1", "WT"), mypval = 0.1) # 11
+
+#create a new DF with the gene counts
+rldpvals <- assay(rld)
+rldpvals <- cbind(rldpvals, contrast1)
+rldpvals <- as.data.frame(rldpvals)
+rldpvals <- rldpvals[ , grepl( "padj|pval" , names( rldpvals ) ) ]
+names(rldpvals)
+
+# venn with padj values
+venn1 <- row.names(rldpvals[rldpvals[2] <0.1 & !is.na(rldpvals[2]),])
+venn2 <- read.csv("../data/GSE94559_Ceolin_DEGS.csv", header = F)
+venn2 <- as.matrix(venn2)
+
+
+candidates <- list("Harris" = venn1, "Ceolin" = venn2)
+
+prettyvenn <- venn.diagram(scaled=T,
+  x = candidates, filename=NULL, 
+  col = "black",
+  fill = c( "white", "white"),
+  alpha = 0.5,
+  cex = 1, fontfamily = "sans", #fontface = "bold",
+  cat.default.pos = "text",
+  #cat.dist = c(0.1, 0.1, 0.1), cat.pos = 1,
+  cat.cex = 1, 
+  cat.fontfamily = "sans")
+#dev.off()
+grid.draw(prettyvenn)
+
+venn12 <- intersect(venn1,venn2)
+venn12
+```
+
 
 ## Daytime 2
 

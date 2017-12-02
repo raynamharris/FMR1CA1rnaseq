@@ -649,12 +649,12 @@ timespent4 <- proptime %>%
   theme(axis.text.x = element_text(angle = 45, hjust = 1))
 timespent4
 
-timespent3 <- proptime %>%
+timespent5 <- proptime %>%
   filter(APA2 %in% c("consistent","conflict")) %>%
   filter(TrainSessionComboNum %in% c("9")) %>%
   ggplot(aes(x = APA2, y = value,fill = variable)) + 
     geom_bar(position = "fill",stat = "identity") +
-    scale_x_discrete(name="RETENTION Proportion of Time Spent") +
+    scale_x_discrete(name="Retention Proportion of Time Spent") +
   facet_wrap(~Genotype, nrow=1) +
   theme_cowplot(font_size = 8, line_size = 0.25) +
   theme(legend.title=element_blank()) +
@@ -665,10 +665,15 @@ timespent3 <- proptime %>%
   geom_hline(yintercept=c(0.30,0.60, 0.90), color="black" , linetype="dashed") +
   theme(strip.text.x = element_text(size = 8)) +
   theme(axis.text.x = element_text(angle = 45, hjust = 1))
-timespent3
+timespent5
 
+pdf(file="../figures/01_behavior/timespent4.pdf", width=1.75, height=2.25)
+plot(timespent4)
+dev.off()
 
-
+pdf(file="../figures/01_behavior/timespent5.pdf", width=1.75, height=2.25)
+plot(timespent5)
+dev.off()
 
 
 aovYokedTrainAPApTimeT <- proptime %>%

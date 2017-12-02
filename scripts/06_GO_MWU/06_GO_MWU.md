@@ -84,7 +84,7 @@ From FMR1-KO data
         level3=0.01, 
         txtsize=1.4,    
         treeHeight=0.5, 
-      colors=c("#e7298a","#41b6c4","#e7298a","#41b6c4") 
+      colors=c("#41b6c4","#e7298a", "#41b6c4","#e7298a") 
     )
 
     ## Warning in plot.formula(c(1:top) ~ c(1:top), type = "n", axes = F, xlab =
@@ -105,7 +105,7 @@ From FMR1-KO data
         level3=0.0000000000001, 
         txtsize=1.4,    
         treeHeight=0.5, 
-      colors=c("#e7298a","#41b6c4","#e7298a","#41b6c4") 
+      colors=c("#41b6c4","#e7298a", "#41b6c4","#e7298a") 
     )
 
     ## Warning in plot.formula(c(1:top) ~ c(1:top), type = "n", axes = F, xlab =

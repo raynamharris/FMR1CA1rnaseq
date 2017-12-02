@@ -18,10 +18,13 @@ The parts of their paper that I reproduced are visuzalized in Figure 2 and 3 of 
 
 ![](../figures/fig3-02.png)
 
+
 I found roughly the same scale of gene expression changes, which is how I stumbled upon the paper in the first place (by googling Serpina3a and Fmr1), However, my list does have fewer significant genes. Most of the genes were identified by both analytical methods indicating a robust reponse. Our GO anlaysese highlighted different patterns. Ceolin highlights the molecular function enriched pathways in FMR1-KO mice, but my analysis provided stronger evidence for a deletion of calcium receptor related functions. THis suggests a role for dys-regulation of calcium signallying in the hippocampus of Fragile X Syndrom patients.  
  
 
 ![](../figures/fig3-01.png)
+
+
 
 
 Here is the analysis, including the heatmap as well as a PCA plot and maybe some statistics. The GO analysis is in the subdirectory 06_GO_MWU.
@@ -50,6 +53,7 @@ source("functions_RNAseq.R")
 # set output file for figures 
 knitr::opts_chunk$set(fig.path = '../figures/05_Ceolin/')
 ```
+
 
 ```{r ImportData, message=FALSE,comment=FALSE, warning=FALSE}
 # contains a file with the gene name and transcript id
@@ -116,7 +120,7 @@ ggplot(rowsum, aes(x=millioncounts)) +
   scale_y_continuous(name = "Number of Samples")
 ```
 
-# Differential gene experssion with DESeq2 modeling genotype
+Then I conducted differential gene experssion with DESeq2 modeling the effect genotype.
 
 ```{r DifferentialGeneExpressionAnalysis, comment=FALSE, warning=FALSE}
 dds <- DESeqDataSetFromMatrix(countData = countData,
@@ -132,6 +136,13 @@ rld <- rlog(dds, blind=FALSE)
 
 There are 12 samples (6 WT and 6 FMR1-KO) and 37,167 genes were included in the analysis, but most were discarded during the normalizaiton and analysis iwth DESeq such that the expression of only 19,361 genes were analysed.
 
+Differentially expressed genes
+
+out of 19361 with nonzero total read count
+adjusted p-value < 0.1
+LFC > 0 (up)     : 88, 0.45% 
+LFC < 0 (down)   : 146, 0.75%
+
 ```{r viewcoldata, message=FALSE,comment=FALSE, warning=FALSE}
 colData$genotype <- as.factor(colData$genotype)
 colData %>% select(genotype)  %>%  summary()
@@ -141,7 +152,7 @@ dim(countData)
 dim(rld)
 ```
 
-# Principle component analysis
+Then I did my favorite principle component analysis. The  clustering of points shows clear separation of samples by PC1 and PC2 together. PC2 is signfificant.
 
 ```{r PCA, , message=FALSE,comment=FALSE, warning=FALSE}
 
@@ -160,13 +171,7 @@ PCA12 <- ggplot(pcadata, aes(PC1, PC2, shape = genotype, color = genotype)) +
     #theme(legend.position="none") +
     scale_shape_manual(values=c(16, 16)) 
 PCA12
-```
 
-Nice clusering of points. PC1 and PC2 together separate samples by genotype. PC2 is signfificant
-
-# ANOVA PCA
-
-```{r, message=FALSE, comment=FALSE, warning=FALSE}
 aov1 <- aov(PC1 ~ genotype, data=pcadata)
 summary(aov1) 
 
@@ -179,8 +184,7 @@ summary(aov3)
 
 ```
 
-
-# Heatmap
+The heatmap shows a similar pattern as the volcano plot and PCA analysis and allows us to visualize patterns of expression with gene names.
 
 ```{r HeatmapPadj, message=FALSE,comment=FALSE, warning=FALSE}
 contrast1 <- resvals(contrastvector = c('genotype', 'FMR1_KO', 'WT'), mypval = 0.1)
@@ -266,12 +270,7 @@ write.csv(GOpvals, "./06_GO_MWU/05_Ceolin_GOpvals.csv", row.names = F)
 ```
 
 
-# Differentially expressed genes
 
-out of 19361 with nonzero total read count
-adjusted p-value < 0.1
-LFC > 0 (up)     : 88, 0.45% 
-LFC < 0 (down)   : 146, 0.75%
 
 ### Serpina3n was in my list, right? and Ccnd1?
 

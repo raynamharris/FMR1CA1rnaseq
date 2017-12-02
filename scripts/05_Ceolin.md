@@ -138,8 +138,8 @@ counts per gene.
 
 ![](../figures/05_Ceolin/edgeR-1.png)
 
-Differential gene experssion with DESeq2 modeling genotype
-==========================================================
+Then I conducted differential gene experssion with DESeq2 modeling the
+effect genotype.
 
     dds <- DESeqDataSetFromMatrix(countData = countData,
                                   colData = colData,
@@ -181,6 +181,11 @@ in the analysis, but most were discarded during the normalizaiton and
 analysis iwth DESeq such that the expression of only 19,361 genes were
 analysed.
 
+Differentially expressed genes
+
+out of 19361 with nonzero total read count adjusted p-value &lt; 0.1 LFC
+&gt; 0 (up) : 88, 0.45% LFC &lt; 0 (down) : 146, 0.75%
+
     colData$genotype <- as.factor(colData$genotype)
     colData %>% select(genotype)  %>%  summary()
 
@@ -196,8 +201,9 @@ analysed.
 
     FALSE [1] 19361    12
 
-Principle component analysis
-============================
+Then I did my favorite principle component analysis. The clustering of
+points shows clear separation of samples by PC1 and PC2 together. PC2 is
+signfificant.
 
     # create the dataframe using my function pcadataframe
     pcadata <- pcadataframe(rld, intgroup=c("genotype"), returnData=TRUE)
@@ -216,12 +222,6 @@ Principle component analysis
     PCA12
 
 ![](../figures/05_Ceolin/PCA,%20-1.png)
-
-Nice clusering of points. PC1 and PC2 together separate samples by
-genotype. PC2 is signfificant
-
-ANOVA PCA
-=========
 
     aov1 <- aov(PC1 ~ genotype, data=pcadata)
     summary(aov1) 
@@ -246,8 +246,8 @@ ANOVA PCA
     FALSE genotype     1   0.82   0.819     0.2  0.664
     FALSE Residuals   10  41.00   4.100
 
-Heatmap
-=======
+The heatmap shows a similar pattern as the volcano plot and PCA analysis
+and allows us to visualize patterns of expression with gene names.
 
     contrast1 <- resvals(contrastvector = c('genotype', 'FMR1_KO', 'WT'), mypval = 0.1)
 
@@ -331,12 +331,6 @@ Create list of p-values for all genes
       select(gene, logP)
 
     write.csv(GOpvals, "./06_GO_MWU/05_Ceolin_GOpvals.csv", row.names = F)
-
-Differentially expressed genes
-==============================
-
-out of 19361 with nonzero total read count adjusted p-value &lt; 0.1 LFC
-&gt; 0 (up) : 88, 0.45% LFC &lt; 0 (down) : 146, 0.75%
 
 ### Serpina3n was in my list, right? and Ccnd1?
 

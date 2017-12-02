@@ -132,16 +132,19 @@ dds
 
 ## for variance stablized gene expression and log transformed data
 rld <- rlog(dds, blind=FALSE)
+
+res <- results(dds, contrast =c("genotype", "FMR1_KO", "WT"), independentFiltering = T, alpha = 0.1)
+summary(res)
 ```
 
 There are 12 samples (6 WT and 6 FMR1-KO) and 37,167 genes were included in the analysis, but most were discarded during the normalizaiton and analysis iwth DESeq such that the expression of only 19,361 genes were analysed.
 
-Differentially expressed genes
+**Differentially expressed genes**
 
-out of 19361 with nonzero total read count
-adjusted p-value < 0.1
-LFC > 0 (up)     : 88, 0.45% 
-LFC < 0 (down)   : 146, 0.75%
+- out of 19361 with nonzero total read count
+- adjusted p-value < 0.1
+- LFC > 0 (up)     : 88, 0.45% 
+- LFC < 0 (down)   : 146, 0.75%
 
 ```{r viewcoldata, message=FALSE,comment=FALSE, warning=FALSE}
 colData$genotype <- as.factor(colData$genotype)
@@ -266,6 +269,12 @@ write.csv(GOpvals, "./06_GO_MWU/05_Ceolin_GOpvals.csv", row.names = F)
 ### Serpina3n was in my list, right? and Ccnd1?
 
 ```{r volcanos, message=FALSE,comment=FALSE, warning=FALSE}
+
+# Use log(p=0.05)
+-log10(0.05)
+-log10(0.1)
+
+
 res <- results(dds, contrast =c("genotype", "FMR1_KO", "WT"), independentFiltering = T, alpha = 0.1)
 summary(res)
 resOrdered <- res[order(res$padj),]
@@ -280,12 +289,15 @@ data <- data %>%
                                     no = "none")))
 top_labelled <- top_n(data, n = 5, wt = pvalue)
 
+topGene <- rownames(res)[which.min(res$padj)]
+plotCounts(dds, gene = topGene, intgroup=c("genotype"))
+
 # Color corresponds to fold change directionality
 
 volcano <- ggplot(data, aes(x = lfc, y = pvalue)) + 
   geom_point(aes(color = factor(color)), size = 1, alpha = 0.5, na.rm = T) + # add gene points
   theme_cowplot(font_size = 8, line_size = 0.25) +
-  geom_hline(yintercept = 1,  size = 0.25, linetype = 2) + 
+  geom_hline(yintercept = 1.3,  size = 0.25, linetype = 2) + 
   scale_color_manual(values = c("FRM1_KO" = "#41b6c4",
                                 "WT" = "#e7298a", 
                                 "none" = "grey")) + 
@@ -303,3 +315,97 @@ plot(volcano)
 dev.off()
 ```
 
+## Venn Diagram of both study's DEGS
+
+```{r venn}
+contrast1 <- resvals(contrastvector = c("genotype", "FMR1_KO", "WT"), mypval = 0.01)
+
+#create a new DF with the gene counts
+rldpvals <- assay(rld)
+rldpvals <- cbind(rldpvals, contrast1)
+rldpvals <- as.data.frame(rldpvals)
+rldpvals <- rldpvals[ , grepl( "padj|pval" , names( rldpvals ) ) ]
+names(rldpvals)
+
+# venn with padj values
+venn1 <- row.names(rldpvals[rldpvals[2] <0.01 & !is.na(rldpvals[2]),])
+venn2 <- read.csv("../data/GSE94559_Ceolin_DEGS.csv", header = F)
+venn2 <- as.matrix(venn2)
+
+
+candidates <- list("Harris" = venn1, "Ceolin" = venn2)
+
+prettyvenn <- venn.diagram(scaled=T,
+  x = candidates, filename=NULL, 
+  col = "black",
+  fill = c( "white", "white"),
+  alpha = 0.5,
+  cex = 1, fontfamily = "sans", #fontface = "bold",
+  cat.default.pos = "text",
+  #cat.dist = c(0.1, 0.1, 0.1), cat.pos = 1,
+  cat.cex = 1, 
+  cat.fontfamily = "sans")
+#dev.off()
+grid.draw(prettyvenn)
+
+venn12 <- union(venn1,venn2)
+write(venn12, "./06_GO_MWU/CeolinHarrisOverlap.csv")
+```
+
+# Over reproducible differentially expressed genes 
+I took their list of differentially expressed genes at p < 0.05 and my list at 0.01 and identified the overlap. Then I made a heatmap.
+
+```{r heatmapoverlap}
+DEGes <- assay(rld)
+DEGes <- cbind(DEGes, contrast1)
+DEGes <- as.data.frame(DEGes) # convert matrix to dataframe
+DEGes$rownames <- rownames(DEGes)  # add the rownames to the dataframe
+head(DEGes)
+
+Coelin <- read.csv("../data/GSE94559_Ceolin_DEGS.csv", header = F)
+colnames(Coelin)<- c("rownames")
+DEGes <- inner_join(DEGes, Coelin)
+DEGes <- DEGes %>% filter(rownames != "Col1a1")
+
+DEGes <- DEGes %>% filter(padjgenotypeFMR1_KOWT < 0.01)
+
+rownames(DEGes) <- DEGes$rownames
+drop.cols <-colnames(DEGes[,grep("padj|pval|rownames", colnames(DEGes))])
+DEGes <- DEGes %>% select(-one_of(drop.cols))
+DEGes <- as.matrix(DEGes)
+DEGes <- DEGes - rowMeans(DEGes)
+head(DEGes)
+
+# setting color options
+ann_colors <- list(genotype =  c('FMR1_KO' = (values=c("#41b6c4")), 
+            'WT' = (values=c("#e7298a"))))
+
+df <- as.data.frame(colData(dds)[,c( "genotype")])
+rownames(df) <- names(countData)
+colnames(df) <- "genotype"
+
+paletteLength <- 40
+myBreaks <- c(seq(min(DEGes), 0, length.out=ceiling(paletteLength/2) + 1), 
+              seq(max(DEGes)/paletteLength, max(DEGes), length.out=floor(paletteLength/2)))
+
+
+pheatmap(DEGes, show_colnames=T, show_rownames = T,
+         annotation_col=df, 
+         annotation_colors = ann_colors,
+         treeheight_row = 0, treeheight_col = 10,
+         border_color = "grey60" ,
+         color = viridis(40), breaks=myBreaks,
+         clustering_distance_cols="correlation" ,
+         clustering_method="average"
+         )
+
+pheatmap(DEGes, show_colnames=F, show_rownames = T,
+         annotation_col=df, annotation_colors = ann_colors,
+         treeheight_row = 0, treeheight_col = 0,
+         fontsize = 5, width=2, height=3.4, cellwidth = 5, 
+         border_color = "grey60" ,
+         color = viridis(40), breaks=myBreaks,
+         clustering_distance_cols="correlation" ,
+         clustering_method="average",
+         filename = "../figures/05_Ceolin/HeatmapOverlap.pdf"
+         )

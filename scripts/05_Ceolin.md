@@ -176,15 +176,33 @@ effect genotype.
     ## for variance stablized gene expression and log transformed data
     rld <- rlog(dds, blind=FALSE)
 
+    res <- results(dds, contrast =c("genotype", "FMR1_KO", "WT"), independentFiltering = T, alpha = 0.1)
+    summary(res)
+
+    FALSE 
+    FALSE out of 19361 with nonzero total read count
+    FALSE adjusted p-value < 0.1
+    FALSE LFC > 0 (up)     : 88, 0.45% 
+    FALSE LFC < 0 (down)   : 146, 0.75% 
+    FALSE outliers [1]     : 928, 4.8% 
+    FALSE low counts [2]   : 4330, 22% 
+    FALSE (mean count < 668)
+    FALSE [1] see 'cooksCutoff' argument of ?results
+    FALSE [2] see 'independentFiltering' argument of ?results
+
 There are 12 samples (6 WT and 6 FMR1-KO) and 37,167 genes were included
 in the analysis, but most were discarded during the normalizaiton and
 analysis iwth DESeq such that the expression of only 19,361 genes were
 analysed.
 
-Differentially expressed genes
+**Differentially expressed genes**
 
-out of 19361 with nonzero total read count adjusted p-value &lt; 0.1 LFC
-&gt; 0 (up) : 88, 0.45% LFC &lt; 0 (down) : 146, 0.75%
+-   out of 19361 with nonzero total read count
+-   adjusted p-value &lt; 0.1
+-   LFC &gt; 0 (up) : 88, 0.45%
+-   LFC &lt; 0 (down) : 146, 0.75%
+
+<!-- -->
 
     colData$genotype <- as.factor(colData$genotype)
     colData %>% select(genotype)  %>%  summary()
@@ -325,6 +343,15 @@ Create list of p-values for all genes
 
 ### Serpina3n was in my list, right? and Ccnd1?
 
+    # Use log(p=0.05)
+    -log10(0.05)
+
+    FALSE [1] 1.30103
+
+    -log10(0.1)
+
+    FALSE [1] 1
+
     res <- results(dds, contrast =c("genotype", "FMR1_KO", "WT"), independentFiltering = T, alpha = 0.1)
     summary(res)
 
@@ -380,12 +407,17 @@ Create list of p-values for all genes
                                         no = "none")))
     top_labelled <- top_n(data, n = 5, wt = pvalue)
 
+    topGene <- rownames(res)[which.min(res$padj)]
+    plotCounts(dds, gene = topGene, intgroup=c("genotype"))
+
+![](../figures/05_Ceolin/volcanos-1.png)
+
     # Color corresponds to fold change directionality
 
     volcano <- ggplot(data, aes(x = lfc, y = pvalue)) + 
       geom_point(aes(color = factor(color)), size = 1, alpha = 0.5, na.rm = T) + # add gene points
       theme_cowplot(font_size = 8, line_size = 0.25) +
-      geom_hline(yintercept = 1,  size = 0.25, linetype = 2) + 
+      geom_hline(yintercept = 1.3,  size = 0.25, linetype = 2) + 
       scale_color_manual(values = c("FRM1_KO" = "#41b6c4",
                                     "WT" = "#e7298a", 
                                     "none" = "grey")) + 
@@ -397,7 +429,7 @@ Create list of p-values for all genes
             panel.grid.major=element_blank())
     volcano
 
-![](../figures/05_Ceolin/volcanos-1.png)
+![](../figures/05_Ceolin/volcanos-2.png)
 
     pdf(file="../figures/05_Ceolin/volcano.pdf", width=1.5, height=1.75)
     plot(volcano)
@@ -405,3 +437,153 @@ Create list of p-values for all genes
 
     FALSE quartz_off_screen 
     FALSE                 2
+
+Venn Diagram of both study's DEGS
+---------------------------------
+
+    contrast1 <- resvals(contrastvector = c("genotype", "FMR1_KO", "WT"), mypval = 0.05)
+
+    ## [1] 127
+
+    #create a new DF with the gene counts
+    rldpvals <- assay(rld)
+    rldpvals <- cbind(rldpvals, contrast1)
+    rldpvals <- as.data.frame(rldpvals)
+    rldpvals <- rldpvals[ , grepl( "padj|pval" , names( rldpvals ) ) ]
+    names(rldpvals)
+
+    ## [1] "pvalgenotypeFMR1_KOWT" "padjgenotypeFMR1_KOWT"
+
+    # venn with padj values
+    venn1 <- row.names(rldpvals[rldpvals[2] <0.01 & !is.na(rldpvals[2]),])
+    venn2 <- read.csv("../data/GSE94559_Ceolin_DEGS.csv", header = F)
+    venn2 <- as.matrix(venn2)
+
+
+    candidates <- list("Harris" = venn1, "Ceolin" = venn2)
+
+    prettyvenn <- venn.diagram(scaled=T,
+      x = candidates, filename=NULL, 
+      col = "black",
+      fill = c( "white", "white"),
+      alpha = 0.5,
+      cex = 1, fontfamily = "sans", #fontface = "bold",
+      cat.default.pos = "text",
+      #cat.dist = c(0.1, 0.1, 0.1), cat.pos = 1,
+      cat.cex = 1, 
+      cat.fontfamily = "sans")
+    #dev.off()
+    grid.draw(prettyvenn)
+
+![](../figures/05_Ceolin/venn-1.png)
+
+New heatmap
+===========
+
+Selct gees based on overlap with other study
+
+    DEGes <- assay(rld)
+    DEGes <- cbind(DEGes, contrast1)
+    DEGes <- as.data.frame(DEGes) # convert matrix to dataframe
+    DEGes$rownames <- rownames(DEGes)  # add the rownames to the dataframe
+    head(DEGes)
+
+    ##                     KO1       KO2       KO3       KO4       KO5       KO6
+    ## 0610005C13Rik  3.611345  3.611346  3.611347  3.611346  3.611344  3.611346
+    ## 0610007P14Rik 15.600213 15.608739 15.561463 15.529979 15.600742 15.613098
+    ## 0610009B22Rik 14.753542 14.669214 14.593776 14.502330 14.593874 14.620354
+    ## 0610009L18Rik 10.138022 10.170858 10.134683 10.130807 10.183998 10.067714
+    ## 0610009O20Rik 15.040722 14.965714 15.171640 15.123312 14.924288 15.068769
+    ## 0610010B08Rik  3.895081  3.892674  3.894827  3.893908  3.894546  3.892744
+    ##                     WT1       WT2       WT3       WT4       WT5       WT6
+    ## 0610005C13Rik  3.631150  3.611347  3.611346  3.611348  3.611348  3.611348
+    ## 0610007P14Rik 15.669142 15.449074 15.564393 15.494937 15.499091 15.661841
+    ## 0610009B22Rik 14.755996 14.574368 14.694065 14.597266 14.584117 14.771452
+    ## 0610009L18Rik 10.207004 10.110643 10.214312 10.113629 10.140719 10.165465
+    ## 0610009O20Rik 15.012408 15.062111 14.909219 15.112654 14.987760 15.020742
+    ## 0610010B08Rik  3.895251  3.893922  3.893433  3.893360  3.893246  3.892588
+    ##               pvalgenotypeFMR1_KOWT padjgenotypeFMR1_KOWT      rownames
+    ## 0610005C13Rik                    NA                    NA 0610005C13Rik
+    ## 0610007P14Rik             0.5527989             0.9317704 0610007P14Rik
+    ## 0610009B22Rik             0.4314017             0.8982522 0610009B22Rik
+    ## 0610009L18Rik             0.4469901             0.9093052 0610009L18Rik
+    ## 0610009O20Rik             0.5048276             0.9257121 0610009O20Rik
+    ## 0610010B08Rik             0.7848132                    NA 0610010B08Rik
+
+    Coelin <- read.csv("../data/GSE94559_Ceolin_DEGS.csv", header = F)
+    colnames(Coelin)<- c("rownames")
+    DEGes <- inner_join(DEGes, Coelin)
+
+    ## Joining, by = "rownames"
+
+    ## Warning in inner_join_impl(x, y, by$x, by$y, suffix$x, suffix$y): joining
+    ## character vector and factor, coercing into character vector
+
+    DEGes <- DEGes %>% filter(rownames != "Col1a1")
+
+    DEGes <- DEGes %>% filter(padjgenotypeFMR1_KOWT < 0.01)
+
+    rownames(DEGes) <- DEGes$rownames
+    drop.cols <-colnames(DEGes[,grep("padj|pval|rownames", colnames(DEGes))])
+    DEGes <- DEGes %>% select(-one_of(drop.cols))
+    DEGes <- as.matrix(DEGes)
+    DEGes <- DEGes - rowMeans(DEGes)
+    head(DEGes)
+
+    ##                 KO1          KO2         KO3         KO4         KO5
+    ## Arhgef6  -0.2004604 -0.056993577 -0.02237768 -0.10420246 -0.23512035
+    ## Bcam      0.3991167  0.008573789  0.06473852  0.23344046  0.06244969
+    ## Bst2      0.3332190  0.008613677 -0.03036083  0.17159418  0.15969635
+    ## Ccnd1    -0.1716210 -0.027392769 -0.06597490 -0.25058705 -0.15683952
+    ## Cdc42bpa -0.0792575 -0.091549812 -0.06758961 -0.05032265 -0.12327327
+    ## Cdh3      0.2616079 -0.074718437  0.09414620  0.28390925  0.17376357
+    ##                  KO6         WT1        WT2         WT3          WT4
+    ## Arhgef6  -0.08489931  0.08121122  0.1513336  0.15679762  0.174831927
+    ## Bcam      0.06207792 -0.16154375 -0.1884787 -0.17002907 -0.008485504
+    ## Bst2      0.14706322 -0.07980882 -0.1762138 -0.16335101 -0.187867398
+    ## Ccnd1    -0.12238987  0.27960396  0.1165120  0.05532832  0.109603622
+    ## Cdc42bpa -0.04306319  0.05370122  0.1022245  0.11635424  0.080781457
+    ## Cdh3      0.15395102 -0.27636985 -0.2319666 -0.05323882  0.052547233
+    ##                  WT5         WT6
+    ## Arhgef6   0.10092002  0.03895937
+    ## Bcam     -0.09666804 -0.20519197
+    ## Bst2     -0.12835602 -0.05422853
+    ## Ccnd1     0.12148001  0.11227719
+    ## Cdc42bpa  0.12032494 -0.01833033
+    ## Cdh3     -0.23610781 -0.14752371
+
+    # setting color options
+    ann_colors <- list(genotype =  c('FMR1_KO' = (values=c("#41b6c4")), 
+                'WT' = (values=c("#e7298a"))))
+
+    df <- as.data.frame(colData(dds)[,c( "genotype")])
+    rownames(df) <- names(countData)
+    colnames(df) <- "genotype"
+
+    paletteLength <- 40
+    myBreaks <- c(seq(min(DEGes), 0, length.out=ceiling(paletteLength/2) + 1), 
+                  seq(max(DEGes)/paletteLength, max(DEGes), length.out=floor(paletteLength/2)))
+
+
+    pheatmap(DEGes, show_colnames=T, show_rownames = T,
+             annotation_col=df, 
+             annotation_colors = ann_colors,
+             treeheight_row = 0, treeheight_col = 10,
+             border_color = "grey60" ,
+             color = viridis(40), breaks=myBreaks,
+             clustering_distance_cols="correlation" ,
+             clustering_method="average"
+             )
+
+![](../figures/05_Ceolin/heatmapoverlap-1.png)
+
+    pheatmap(DEGes, show_colnames=F, show_rownames = T,
+             annotation_col=df, annotation_colors = ann_colors,
+             treeheight_row = 0, treeheight_col = 0,
+             fontsize = 5, width=2, height=3.4, cellwidth = 5, 
+             border_color = "grey60" ,
+             color = viridis(40), breaks=myBreaks,
+             clustering_distance_cols="correlation" ,
+             clustering_method="average",
+             filename = "../figures/05_Ceolin/HeatmapOverlap.pdf"
+             )

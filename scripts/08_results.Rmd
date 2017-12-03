@@ -1,33 +1,37 @@
 ---
-title: "Chapter 2 Results"
-author: Rayna M. Harris
-date: December 2, 2017
 output: word_document
 ---
 
-# No significant pre-training group differences in time spent
-First I examined the data to determine if the groups were different prior to experiencing shock. I found that all groups where equal in the proportion of time spent in all four quadrants of the arena (**Figure 2.2**). There was no significant effect of geneotype, training, or the interaction on pre-training proportion of time spent in the shock zone (F(3,35) = 0.132 p = 0.94), clockwise (F(3,35) = 0.660, p = 0.58), opposite (F(3,35) = 1.312, p = 0.29), or counter clockwise (F(3,35) = 0.816, p = 0.49). 
 
-![Figure 2: Proportion of time spent during the Pre-training sessions is not different across groups](../figures/fig1-04.png)
+# No significant pre-training group differences
+
+First I examined the data to determine if the groups were different prior to experiencing shock. I found that all groups where equal in the proportion of time spent in four quadrants of the arena (**Figure 2.2A**). There was no significant interaction effect of geneotype and training on pre-training proportion of time spent in the shock zone (mean = 0.24, F(3,35) = 0.132 p = 0.94), clockwise (mean =  0.26, F(3,35) = 0.660, p = 0.58), opposite (mean = 0.21, F(3,35) = 1.312, p = 0.29), or counter clockwise (mean =  0.28, F(3,35) = 0.816, p = 0.49). 
+
+There was also no significant effect of geneotype, training, or the interaction on pre-training number of entrances (**Figure 2.2B**) or path to the first entrance (**Figure 2.2C**), which are two measures that are used to identify the avoidance strategy. The was no significant mian effect or interaction between number of entrances (mean = 28.58, F(3,35) = 1.643,  p = 0.20) or path to the 1st entrance (mean = 0.42, F(3,35) = 0.165, p = 0.92) 
+
+![Figure 2.2: No group differences prior to behavioral manipulation.](../figures/fig1-04.png)
+
+##### A) This graph shows that all groups of mice spend ~ 25% of their time equally across four quadrants of the arena during the pre-training session (pink: future shock zone, dark green: clockwise, green: opposite the shock zone, light green: counter clockwise). B) Pre-training number of entrances into the shock zone and C) path to first entrance are not sinificantly different between treatment groups and genotypes (dark grey: yoked-consistent, red: consistently-trained, light grey: yoked-conflict, peach: conflict-trained).
+
+# The training group has larger effect than genotype on distribution of time spent
+
+After confirming equal variation amoung groups during pre-training, I asked if there were groups differences in the distribution of time spent during training, retest, conflict session (**Fig. 2.3**). Using a linear model I found that time spent in the shock zone is not significantly influenced by genotype (F= (1,286) = 1.49, p = 0.22) by is influenced by training (F= (2,286) = 128.58, p < 0). This linear model with training, genotype, and the interactino expalins 73% of the variation in time spent in the shock zone. Among only the yoked groups, there is no effect of genotype (F= (1,80) = 0.040, p =  0.84) or training (F= (1,80) = 3.438, p = 0.067) on time spent in the shock zone.
 
 
+![Figure 2.3. Proportion of time spent in in the arena with the shock on.](../figures/fig1-06.png)
 
-##### This graph shows that all groups of mice spend 25% of their time equally across four quadrants of the arena during the pre-training session. Pink: future shock zone, dark green: clockwise, green: opposite the shock zone, light green: counter clockwise.
- 
-# Effect of genotype on space use is smaller than the effects on avoidance
+##### The aveage proportion of time spent in each 60 degree guadrant of the arena was caluculated or each group for each session with the shock was on (T1,T2,T3: training sessions 1-3; R1: retest; C1, C2, C3: conflict training sessions; pink: future shock zone; dark green: clockwise; green: opposite the shock zone; light green: counter clockwis ). For trained mice, mice are expected to spend very little time in the shock zone (<0.4%) and to equally split their time between the three remaining quadrants (~32% each). For yoked mice, time spent is expected to be equally distributed across all four quatrants (~25% each).  
 
-Next I asked if the groups differences in their avoidance of the shock zone? 
+The differences between the conflict and consistnetly trained mice are appearent during the three conflict training sessions (**Fig 2.4**). Both consitent and conflict groups avoid the shock zone, spending less than 2% of thier time in the shock zone (mean = 0.019, F (1,78) = 1.2166, p = 0.27). Consiently trained groups spend significantly less time clockwise of the shock zone than conflict trained groups (F (1,78) = 23.3405, p <  0.001). Consistnetly trainined groups spend more time in the counter clockwise zone than conflict trained mice (F (1,78) = 8.2837, p = 0.005). FMR1-K0 mice spend less time opposite of the shock zone (F (1,78) = 4.7442, p = 0.032)
 
- 
-![](../figures/fig1-06.png) 
-
-
-![](../figures/fig1-08.png)
+![Figure 2.4](../figures/fig1-07.png)
 
 
 
 
 ![](../figures/fig1-02.png)
+
+
 
 On day 1, differences in time/path to the 1st entrance between WT yoked and WT trained are minimal. The FMR1 data are all over the place with yoked groups showing highly variable time/path to the first entrance, while conflict and consistent show minor increases in path/time to the entrance. 
 

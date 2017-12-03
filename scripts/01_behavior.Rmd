@@ -75,6 +75,8 @@ proptime <- melt(proptime, id.vars = c("ID", "Genotype", "TrainSession",
 
 
 ```{r, warning = F}
+## pretraining
+
 PathNumStats <- behavior  %>% 
   filter(TrainSessionComboNum == "1") 
 summary(aov(pTimeTarget ~  APA2 + Genotype, data=PathNumStats))
@@ -96,6 +98,47 @@ mean(PathNumStats$Path1stEntr)
 
 summary(aov(value ~  APA2 * Genotype + variable, data=proptime))
 
+## conflict
+PathNumStats <- behavior  %>% 
+  filter(TrainSessionComboNum == "6") 
+Anova(lm(data = PathNumStats, NumEntrances ~ Genotype * APA2 ), type = 3)
+summary(aov(NumEntrances ~  APA2 * Genotype, data=PathNumStats))
+TukeyHSD(aov(NumEntrances~  APA2 * Genotype, data=PathNumStats))
+mean(PathNumStats$NumEntrances)
+
+PathNumStats <- behavior  %>% 
+  filter(TrainSessionComboNum == "6",
+         APA2 %in% c("yoked-consistent", "yoked-conflict")) 
+mean(PathNumStats$NumEntrances)
+PathNumStats <- behavior  %>% 
+  filter(TrainSessionComboNum == "6",
+         APA2 %in% c("consistent", "conflict")) 
+mean(PathNumStats$NumEntrances)
+
+
+PathNumStats <- behavior  %>% 
+  filter(TrainSessionComboNum == "7") 
+Anova(lm(data = PathNumStats, Path1stEntr ~ Genotype * APA2 ), type = 3)
+summary(aov(Path1stEntr~  APA2 * Genotype, data=PathNumStats))
+TukeyHSD(aov(Path1stEntr~  APA2 * Genotype, data=PathNumStats))
+mean(PathNumStats$Path1stEntr)
+
+PathNumStats <- behavior  %>% 
+  filter(TrainSessionComboNum == "7",
+         Genotype == "WT")
+Anova(lm(data = PathNumStats, Path1stEntr ~  APA2 ), type = 3)
+summary(aov(Path1stEntr~  APA2, data=PathNumStats))
+TukeyHSD(aov(Path1stEntr~  APA2, data=PathNumStats))
+
+PathNumStats <- behavior  %>% 
+  filter(TrainSessionComboNum == "7",
+         Genotype != "WT")
+Anova(lm(data = PathNumStats, Path1stEntr ~  APA2 ), type = 3)
+summary(aov(Path1stEntr~  APA2, data=PathNumStats))
+TukeyHSD(aov(Path1stEntr~  APA2, data=PathNumStats))
+
+
+
 ```
 
  
@@ -113,7 +156,7 @@ num1 <- behavior %>%
     background_grid(major = "y", minor = "none") +
    scale_y_continuous(name = "Pre-training number of entrances",
                      limits = c(0,35)) +
-  geom_hline(yintercept=c(28.58), color="black" ) + 
+  geom_hline(yintercept=c(28.58), color="black", linetype = "dashed" ) + 
   theme_cowplot(font_size = 8, line_size = 0.25) + 
   theme(legend.position="none") +
     background_grid(major = "y", minor = "none") 
@@ -128,7 +171,7 @@ path1 <- behavior %>%
                        breaks = c(1, 2, 3, 4, 5, 6, 7, 8, 9),
                        labels = NULL) +
    scale_y_continuous(name = "Pre-training path to 1st entrance") +
-    geom_hline(yintercept=c(0.42), color="black" ) + 
+    geom_hline(yintercept=c(0.42), color="black" , linetype = "dashed") + 
   theme_cowplot(font_size = 8, line_size = 0.25) + 
   theme(legend.position="none") +
     background_grid(major = "y", minor = "none") 
@@ -155,6 +198,46 @@ plot(path1)
 dev.off()
 pdf(file="../figures/01_behavior/legend2.pdf", width=4, height=2)
 plot(legend2)
+dev.off()
+
+conflict6 <- behavior %>%
+    filter(TrainSessionComboNum %in% c("6")) %>% 
+  ggplot(aes(x = as.numeric(TrainSessionComboNum), y = NumEntrances, fill=APA2)) +
+  geom_boxplot(outlier.size=0.8, lwd=0.5) +
+  facet_wrap(~Genotype) +
+  scale_fill_manual(values = colorvalAPA00) +  
+ scale_x_continuous(name=NULL, 
+                       breaks = c(6),
+                       labels = c("C1")) +
+   scale_y_continuous(name = "C1 number of entrances",
+                      limits = c(0,24)) +
+    #geom_hline(yintercept=c(16.6875), color="black", linetype = "dashed" ) + 
+    #  geom_hline(yintercept=c(8.75), color="red", linetype = "dashed" ) + 
+  theme_cowplot(font_size = 8, line_size = 0.25) + 
+  theme(legend.position="none") +
+    background_grid(major = "y", minor = "none") 
+
+
+conflict7 <- behavior %>%
+    filter(TrainSessionComboNum %in% c("7")) %>% 
+  ggplot(aes(x = as.numeric(TrainSessionComboNum), y = Path1stEntr, fill=APA2)) +
+  geom_boxplot(outlier.size=0.8, lwd=0.5) +
+  facet_wrap(~Genotype) +
+  scale_fill_manual(values = colorvalAPA00) +  
+ scale_x_continuous(name=NULL, 
+                       breaks = c(7),
+                       labels = c("C2")) +
+   scale_y_continuous(name = "C2 path to 1st entrance") +
+    geom_hline(yintercept=c(2.859524), color="black" , linetype = "dashed") + 
+  theme_cowplot(font_size = 8, line_size = 0.25) + 
+  theme(legend.position="none") +
+    background_grid(major = "y", minor = "none") 
+
+pdf(file="../figures/01_behavior/conflict6.pdf", width=1.75, height=1.9)
+plot(conflict6)
+dev.off()
+pdf(file="../figures/01_behavior/conflict7.pdf", width=1.75, height=1.9)
+plot(conflict7)
 dev.off()
 ```
 
@@ -188,6 +271,12 @@ Anova(lm(data = timespent, pTimeTarget ~ Genotype * APA2 ), type = 3)
 Anova(lm(data = timespent, pTimeCW ~ Genotype * APA2 ), type = 3)
 Anova(lm(data = timespent, pTimeCCW ~ Genotype * APA2 ), type = 3)
 Anova(lm(data = timespent, pTimeOPP ~ Genotype * APA2 ), type = 3)
+
+TukeyHSD(aov(data = timespent, pTimeTarget ~ Genotype * APA2 ))
+TukeyHSD(aov(data = timespent, pTimeCW ~ Genotype * APA2 ))
+TukeyHSD(aov(data = timespent, pTimeCCW ~ Genotype * APA2 ))
+TukeyHSD(aov(data = timespent, pTimeOPP ~ Genotype * APA2 ))
+
 
 mean(timespent$pTimeTarget)
 mean(timespent$pTimeOPP)
@@ -428,116 +517,6 @@ dev.off()
 ![Fig. 2.5.Summary of punishment and estimates of memory in WT and FMR1-KO mice](../figures/fig1-02.png)
 
 
-```{r}
-timespent <- behavior %>%
-    filter(TrainSessionComboNum %in% c("5")) 
-Anova(lm(data = timespent, Path1stEntr ~ Genotype * APA2 ), type = 3)
-Anova(lm(data = timespent, NumEntrances ~ Genotype * APA2 ), type = 3)
-
-
-timespent <- behavior %>%
-    filter(TrainSessionComboNum %in% c("2"))  %>%
-  filter(Genotype == "WT")
-Anova(lm(data = timespent, NumEntrances ~ APA2 ), type = 3)
-Anova(lm(data = timespent, Path1stEntr ~ APA2 ), type = 3)
-
-timespent <- behavior %>%
-    filter(TrainSessionComboNum %in% c("3"))  %>%
-  filter(Genotype == "WT")
-Anova(lm(data = timespent, NumEntrances ~ APA2 ), type = 3)
-Anova(lm(data = timespent, Path1stEntr ~ APA2 ), type = 3)
-
-
-timespent <- behavior %>%
-    filter(TrainSessionComboNum %in% c("4")) %>%
-  filter(Genotype == "WT")
-Anova(lm(data = timespent, NumEntrances ~ APA2 ), type = 3)
-Anova(lm(data = timespent, Path1stEntr ~ APA2 ), type = 3)
-
-
-timespent <- behavior %>%
-    filter(TrainSessionComboNum %in% c("5"))  %>%
-  filter(Genotype == "WT")
-Anova(lm(data = timespent, Path1stEntr ~ APA2 ), type = 3)
-Anova(lm(data = timespent, NumEntrances ~ APA2 ), type = 3)
-
-
-timespent <- behavior %>%
-    filter(TrainSessionComboNum %in% c("6"))  %>%
-  filter(Genotype == "WT")
-Anova(lm(data = timespent, Path1stEntr ~ APA2 ), type = 3)
-Anova(lm(data = timespent, NumEntrances ~ APA2 ), type = 3)
-
-timespent <- behavior %>%
-    filter(TrainSessionComboNum %in% c("7")) %>%
-  filter(Genotype == "WT")
-Anova(lm(data = timespent, Path1stEntr ~ APA2 ), type = 3)
-Anova(lm(data = timespent, NumEntrances ~ APA2 ), type = 3)
-
-timespent <- behavior %>%
-    filter(TrainSessionComboNum %in% c("8")) %>%
-  filter(Genotype == "WT")
-Anova(lm(data = timespent, Path1stEntr ~ APA2 ), type = 3)
-Anova(lm(data = timespent, NumEntrances ~ APA2 ), type = 3)
-
-timespent <- behavior %>%
-    filter(TrainSessionComboNum %in% c("9")) %>%
-  filter(Genotype == "WT")
-Anova(lm(data = timespent, Path1stEntr ~ APA2 ), type = 3)
-Anova(lm(data = timespent, NumEntrances ~ APA2 ), type = 3)
-
-
-timespent <- behavior %>%
-    filter(TrainSessionComboNum %in% c("2"))  %>%
-  filter(Genotype != "WT")
-Anova(lm(data = timespent, NumEntrances ~ APA2 ), type = 3)
-Anova(lm(data = timespent, Path1stEntr ~ APA2 ), type = 3)
-
-timespent <- behavior %>%
-    filter(TrainSessionComboNum %in% c("3"))  %>%
-  filter(Genotype != "WT")
-Anova(lm(data = timespent, NumEntrances ~ APA2 ), type = 3)
-Anova(lm(data = timespent, Path1stEntr ~ APA2 ), type = 3)
-
-
-timespent <- behavior %>%
-    filter(TrainSessionComboNum %in% c("4")) %>%
-  filter(Genotype != "WT")
-Anova(lm(data = timespent, NumEntrances ~ APA2 ), type = 3)
-Anova(lm(data = timespent, Path1stEntr ~ APA2 ), type = 3)
-
-
-timespent <- behavior %>%
-    filter(TrainSessionComboNum %in% c("5"))  %>%
-  filter(Genotype != "WT")
-Anova(lm(data = timespent, Path1stEntr ~ APA2 ), type = 3)
-Anova(lm(data = timespent, NumEntrances ~ APA2 ), type = 3)
-
-
-timespent <- behavior %>%
-    filter(TrainSessionComboNum %in% c("6"))  %>%
-  filter(Genotype != "WT")
-Anova(lm(data = timespent, Path1stEntr ~ APA2 ), type = 3)
-Anova(lm(data = timespent, NumEntrances ~ APA2 ), type = 3)
-
-timespent <- behavior %>%
-    filter(TrainSessionComboNum %in% c("7")) %>%
-  filter(Genotype != "WT")
-Anova(lm(data = timespent, Path1stEntr ~ APA2 ), type = 3)
-Anova(lm(data = timespent, NumEntrances ~ APA2 ), type = 3)
-
-timespent <- behavior %>%
-    filter(TrainSessionComboNum %in% c("8")) %>%
-  filter(Genotype != "WT")
-Anova(lm(data = timespent, Path1stEntr ~ APA2 ), type = 3)
-Anova(lm(data = timespent, NumEntrances ~ APA2 ), type = 3)
-
-timespent <- behavior %>%
-    filter(TrainSessionComboNum %in% c("9")) %>%
-  filter(Genotype != "WT")
-Anova(lm(data = timespent, Path1stEntr ~ APA2 ), type = 3)
-Anova(lm(data = timespent, NumEntrances ~ APA2 ), type = 3)
-```
 
 ```{r, echo =F, warning = F, results = F}
 # behaviors
@@ -615,7 +594,6 @@ dev.off()
 
 
 pathfmr1 <- PathNum  %>% 
-  #filter(TrainSessionComboNum != "1", TrainSessionComboNum != "9") %>% 
   filter(measure == "Path to the 1st Entrance") %>% 
   filter(Genotype != "WT") %>% 
   ggplot(aes(x=, TrainSessionComboNum, y=m, color=APA2, shape=Genotype)) + 
@@ -667,6 +645,59 @@ pathwt <- PathNum  %>%
 pdf(file="../figures/01_behavior/pathwt.pdf", width=2.25, height=2)
 plot(pathwt)
 dev.off()
+
+
+conflictnum <- PathNum  %>% 
+  filter(TrainSessionComboNum %in% c("6", "7", "8")) %>% 
+  filter(measure == "Number of Entrances") %>% 
+  #filter(Genotype == "WT") %>% 
+  ggplot(aes(x=, TrainSessionComboNum, y=m, color=APA2, shape=Genotype)) + 
+    geom_errorbar(aes(ymin=m-se, ymax=m+se), width=.1) +
+    geom_point(size = 2) +
+   geom_line(aes(linetype=Genotype, colour=APA2)) +
+   scale_y_continuous(name= "Conflict number of entrances") +
+    scale_x_continuous(name=NULL, 
+                       breaks = c(1, 2, 3, 4, 5, 6, 7, 8, 9),
+                       labels = c( "Pre.", "T1", "T2", "T3",
+                                   "Retest", "C1", "C2","C3", 
+                                   "Reten.")) +
+  theme_cowplot(font_size = 8, line_size = 0.25) +
+  background_grid(major = "y", minor = "none") +
+  scale_color_manual(values = colorvalAPA00)  +
+  theme(legend.title=element_blank()) +
+  theme(legend.position="none") +
+  scale_shape_manual(values=c(16,1)) 
+
+pdf(file="../figures/01_behavior/conflictnum.pdf", width=1.5, height=2)
+plot(conflictnum)
+dev.off()
+
+conflictpath <- PathNum  %>% 
+  filter(TrainSessionComboNum %in% c("6", "7", "8")) %>% 
+  filter(measure == "Path to the 1st Entrance") %>% 
+  #filter(Genotype == "WT") %>% 
+  ggplot(aes(x=, TrainSessionComboNum, y=m, color=APA2, shape=Genotype)) + 
+    geom_errorbar(aes(ymin=m-se, ymax=m+se), width=.1) +
+    geom_point(size = 2) +
+   geom_line(aes(linetype=Genotype, colour=APA2)) +
+   scale_y_continuous(name= "Conflict path to 1st entrance") +
+    scale_x_continuous(name=NULL, 
+                       breaks = c(1, 2, 3, 4, 5, 6, 7, 8, 9),
+                       labels = c( "Pre.", "T1", "T2", "T3",
+                                   "Retest", "C1", "C2","C3", 
+                                   "Reten.")) +
+  theme_cowplot(font_size = 8, line_size = 0.25) +
+  background_grid(major = "y", minor = "none") +
+  scale_color_manual(values = colorvalAPA00)  +
+  theme(legend.title=element_blank()) +
+  theme(legend.position="none") +
+  scale_shape_manual(values=c(16,1)) 
+
+pdf(file="../figures/01_behavior/conflictpath.pdf", width=1.5, height=2)
+plot(conflictpath)
+dev.off()
+
+
 ```
 
 
@@ -677,37 +708,47 @@ dev.off()
 ```{r retention}
 PathNumStats <- behavior  %>% 
   filter(TrainSessionComboNum == "9") 
-summary(aov(pTimeTarget ~  APA2 + Genotype, data=PathNumStats))
-summary(aov(pTimeOPP ~  APA2 + Genotype, data=PathNumStats))
-summary(aov(pTimeCW ~  APA2 + Genotype, data=PathNumStats))
-summary(aov(pTimeCCW ~  APA2 + Genotype, data=PathNumStats))
-
-Anova(lm(data = PathNumStats, pTimeTarget ~ Genotype * APA2 ), type = 3)
-
-mean(PathNumStats$pTimeTarget)
-mean(PathNumStats$pTimeOPP)
-mean(PathNumStats$pTimeCW)
-mean(PathNumStats$pTimeCCW)
 
 summary(aov(NumEntrances ~  APA2 * Genotype, data=PathNumStats))
-summary(aov(Path1stEntr~  APA2 * Genotype, data=PathNumStats))
-mean(PathNumStats$NumEntrances)
-mean(PathNumStats$Path1stEntr)
+summary(aov(Path1stEntr ~  APA2 * Genotype, data=PathNumStats))
 
-summary(aov(value ~  APA2 * Genotype + variable, data=proptime))
+Anova(lm(data = PathNumStats, Path1stEntr ~ APA2 * Genotype), type = 3)
+Anova(lm(data = PathNumStats, NumEntrances ~ APA2 * Genotype ), type = 3)
+Anova(lm(data = PathNumStats, pTimeTarget ~ APA2 * Genotype ), type = 3)
+
+TukeyHSD(aov(data = PathNumStats, NumEntrances ~ Genotype * APA2))
+TukeyHSD(aov(data = PathNumStats, Path1stEntr ~ Genotype * APA2))
+TukeyHSD(aov(data = PathNumStats, pTimeTarget ~  Genotype * APA2))
+
 
 PathNumStats <- behavior  %>% 
  filter(TrainSessionComboNum %in% c("9"))  %>% 
-  filter(APA2 %in% c("yoked-consisent", "yoked-conflict")) 
+  filter(APA2 %in% c("yoked-consistent", "yoked-conflict")) 
 mean(PathNumStats$NumEntrances)
 mean(PathNumStats$Path1stEntr)
+mean(PathNumStats$pTimeTarget)
 
 PathNumStats <- behavior  %>% 
    filter(TrainSessionComboNum %in% c("9"))  %>%
-  filter(APA2 %in% c("consisent", "conflict")) 
+  filter(APA2 %in% c("consistent", "conflict")) 
 mean(PathNumStats$NumEntrances)
 mean(PathNumStats$Path1stEntr)
+mean(PathNumStats$pTimeTarget)
 
+PathNumStats <- behavior  %>% 
+   filter(TrainSessionComboNum %in% c("9"))  
+mean(PathNumStats$Path1stEntr)
+
+```
+
+```{r conflict}
+PathNumStats <- behavior  %>% 
+  filter(TrainSessionComboNum  %in% c("7")) 
+TukeyHSD(aov(data = PathNumStats, Path1stEntr ~ Genotype * APA2))
+
+PathNumStats <- behavior  %>% 
+  filter(TrainSessionComboNum  %in% c("6")) 
+TukeyHSD(aov(data = PathNumStats, NumEntrances ~ Genotype * APA2))
 ```
 
 ```{r retention2}
@@ -723,9 +764,8 @@ num9 <- behavior %>%
     background_grid(major = "y", minor = "none") +
    scale_y_continuous(name = "Retention number of entrances",
                      limits = c(0,35)) +
-  geom_hline(yintercept=c(9.21), color="red" , linetype = "dashed") + 
-    geom_hline(yintercept=c(18.65), color="black", linetype = "dashed" ) + 
-
+  #geom_hline(yintercept=c(9.21), color="red" , linetype = "dashed") + 
+   # geom_hline(yintercept=c(18.65), color="black", linetype = "dashed" ) + 
   theme_cowplot(font_size = 8, line_size = 0.25) + 
   theme(legend.position="none") +
     background_grid(major = "y", minor = "none") 
@@ -734,19 +774,17 @@ path9 <- behavior %>%
     filter(TrainSessionComboNum %in% c("9")) %>% 
   ggplot(aes(x = as.numeric(TrainSessionComboNum), y = Path1stEntr, fill=APA2)) +
   geom_boxplot(outlier.size=0.8, lwd=0.5) +
-  facet_wrap(~Genotype) +
+  facet_wrap(~ Genotype ) +
   scale_fill_manual(values = colorvalAPA00) +  
  scale_x_continuous(name=NULL, 
                        breaks = c(1, 2, 3, 4, 5, 6, 7, 8, 9),
                        labels = NULL) +
    scale_y_continuous(name = "Retention path to 1st entrance") +
-  geom_hline(yintercept=c(0.41), color="black" , linetype = "dashed") + 
-    geom_hline(yintercept=c(3.44), color="red", linetype = "dashed" ) + 
-
- 
-  theme_cowplot(font_size = 8, line_size = 0.25) + 
-  theme(legend.position="none") +
+   geom_hline(yintercept=c(2.832), color="black" , linetype = "dashed") + 
+   theme_cowplot(font_size = 8, line_size = 0.25) + 
+   theme(legend.position="none") +
     background_grid(major = "y", minor = "none") 
+
 
 pdf(file="../figures/01_behavior/num9.pdf", width=1.75, height=1.9)
 plot(num9)

@@ -1,15 +1,21 @@
 ---
 output: word_document
 ---
+### Results
 
+The goal of this research was to identify transcriptional changes in FMR1-KO mice that might explain impaired memory discrimination. I used the active place avoidance task with conflict learning to observe initial avoidance learning and cognitive discrimination in WT and FMR1-KO mice. Given that FMRP is a translational modifier, little research has been done to investigate transcriptional changes upstream that might occur through regulatory feedback processes.
 
-# No significant pre-training group differences
+In the Active Place Avoidance Task, place learning and memory is evidenced by examine multiple aspects of behavior. I focused on proportion of time spent in different quadrants of the arena, number of entrances into the shock zone, and path to first entrance.  
 
-First I examined the data to determine if the groups were different prior to experiencing shock. I found that all groups where equal in the proportion of time spent in four quadrants of the arena (**Figure 2.2A**). There was no significant interaction effect of geneotype and training on pre-training proportion of time spent in the shock zone (mean = 0.24, F(3,35) = 0.132 p = 0.94), clockwise (mean =  0.26, F(3,35) = 0.660, p = 0.58), opposite (mean = 0.21, F(3,35) = 1.312, p = 0.29), or counter clockwise (mean =  0.28, F(3,35) = 0.816, p = 0.49). 
+#### No significant pre-training group differences
+
+First I examined the data to determine if the groups were different prior to experiencing shock. I found that all groups where equal in the proportion of time spent in four quadrants of the arena (**Figure 2.2A**). There was no significant geneotype or treatment group on pre-training proportion of time spent in the 
+shock zone (mean = 0.24; genotype: F(1,38) = 0.438, p = 0.512; group: F(3,38) = 0.438, p = 0.512), clockwise (mean =  0.26; genotype: F(1,38) = 0.153, p = 0.698; group: F(3,38) = 0.507, p = 0.680), opposite (mean = 0.21,; genotype: F(1,38) = 0.008, p = 0.929; group: F(3,38) = 1.051, p = 0.381), or counter clockwise (mean =  0.28, ; genotype: F(1,38) = 0.012, p = 0.913; group: F(3,38) = 0.979, p = 0.413). 
 
 There was also no significant effect of geneotype, training, or the interaction on pre-training number of entrances (**Figure 2.2B**) or path to the first entrance (**Figure 2.2C**), which are two measures that are used to identify the avoidance strategy. The was no significant mian effect or interaction between number of entrances (mean = 28.58, F(3,35) = 1.643,  p = 0.20) or path to the 1st entrance (mean = 0.42, F(3,35) = 0.165, p = 0.92) 
 
-![Figure 2.2: No group differences prior to behavioral manipulation.](../figures/fig1-04.png)
+
+![Fig. 2.2: No group differences prior to behavioral manipulation.](../figures/fig1-04.png)
 
 ##### A) This graph shows that all groups of mice spend ~ 25% of their time equally across four quadrants of the arena during the pre-training session (pink: future shock zone, dark green: clockwise, green: opposite the shock zone, light green: counter clockwise). B) Pre-training number of entrances into the shock zone and C) path to first entrance are not sinificantly different between treatment groups and genotypes (dark grey: yoked-consistent, red: consistently-trained, light grey: yoked-conflict, peach: conflict-trained).
 
@@ -17,23 +23,27 @@ There was also no significant effect of geneotype, training, or the interaction 
 
 After confirming equal variation amoung groups during pre-training, I asked if there were groups differences in the distribution of time spent during training, retest, conflict session (**Fig. 2.3**). Using a linear model I found that time spent in the shock zone is not significantly influenced by genotype (F= (1,286) = 1.49, p = 0.22) by is influenced by training (F= (2,286) = 128.58, p < 0). This linear model with training, genotype, and the interactino expalins 73% of the variation in time spent in the shock zone. Among only the yoked groups, there is no effect of genotype (F= (1,80) = 0.040, p =  0.84) or training (F= (1,80) = 3.438, p = 0.067) on time spent in the shock zone.
 
-
-![Figure 2.3. Proportion of time spent in in the arena with the shock on.](../figures/fig1-06.png)
+![Fig. 2.3. Proportion of time spent in in the arena with the shock on.](../figures/fig1-06.png)
 
 ##### The aveage proportion of time spent in each 60 degree guadrant of the arena was caluculated or each group for each session with the shock was on (T1,T2,T3: training sessions 1-3; R1: retest; C1, C2, C3: conflict training sessions; pink: future shock zone; dark green: clockwise; green: opposite the shock zone; light green: counter clockwis ). For trained mice, mice are expected to spend very little time in the shock zone (<0.4%) and to equally split their time between the three remaining quadrants (~32% each). For yoked mice, time spent is expected to be equally distributed across all four quatrants (~25% each).  
 
 The differences between the conflict and consistnetly trained mice are appearent during the three conflict training sessions (**Fig 2.4**). Both consitent and conflict groups avoid the shock zone, spending less than 2% of thier time in the shock zone (mean = 0.019, F (1,78) = 1.2166, p = 0.27). Consiently trained groups spend significantly less time clockwise of the shock zone than conflict trained groups (F (1,78) = 23.3405, p <  0.001). Consistnetly trainined groups spend more time in the counter clockwise zone than conflict trained mice (F (1,78) = 8.2837, p = 0.005). FMR1-K0 mice spend less time opposite of the shock zone (F (1,78) = 4.7442, p = 0.032)
 
-![Figure 2.4](../figures/fig1-07.png)
+![Fig. 2.4](../figures/fig1-07.png)
+
+# Initial learning not as strong as anticipated
+
+After establishing place avoidance behavior in the trained groups, I next investigated the entent to which punishment and memory contributed to place avoidance (**Fig. 2.5**). I unexpectly found that mice were not using memory (path to first entrance) but were relying on punishment (number of entrances into the shocked zone by the trained groups) to avoid the shock zone. This was unexpected given the results of Chapter 1 (**Fig. 2.5C,D**). There was no effect of genotype the number of entrances into the shock zone at any given timepoint (**Fig. 2.5A,B**). However, there was an effect of genotype on path to first entrance during the retest, but this appears to be driven by unexplained avoidance behavior driven by a yoked group (**Fig. 2.5D,E**). At this level of anlaysis, the results place learning was not robust in WT or FMR1-KO mice.
+
+![Fig. 2.5.Summary of punishment and estimates of memory in WT and FMR1-KO mice](../figures/fig1-02.png)
+
+A three-way ANOVA with Tukey Honest Significant Differences (TukeyHSD) post hoc tests was carried out on the number of entrances by Genotype * Treatment Group * Training Session and the Genotype * Treatment Group interaction looking only at training sessions T1-T6 while excluding the pre-training and retention sessions. As expected Treatment Group had a highly significant effect on number of entrances [F(1, 148)= 111.19, p < 0.001]. The interaction between the effects of Genotype and Training Group was not significant [F(1, 148)= 0.056, p = 0.813], and there was no significant difference between WT consistent and FMR1-KO consistent (p = 0.98) or between WT yoked-consistent and FMR1-KO yoked-consistent (p = 0.99). At this level of anlaysis, the results indicate that WT and FMR1-KO mice did not receive different levels of punishment during the task. Conflct and yoked conflict mice recieved more punishment on conflict session 1.
+
+Consistent mice avoid the former location of the shock zone for longer (Fig. 2.6A), they make fewer entrances (Fig. 2.6B), and they take a longer path to their first entrance (Fig. 2.6C) compared to the other groups. Conflict mice spend more time in the former schock zone, but they don't enter it more often than consistently trained mice on average. The WT and FMR1-KO mice do differnce in their path to 1st entrance, with FMR1-KO mice having increase path and WT having decreased path. This means that the FMR1-KO mice avoided punishment for longer.  
+
+![Fig. 2.6.Retention mice](../figures/fig1-09.png)
 
 
-
-
-![](../figures/fig1-02.png)
-
-
-
-On day 1, differences in time/path to the 1st entrance between WT yoked and WT trained are minimal. The FMR1 data are all over the place with yoked groups showing highly variable time/path to the first entrance, while conflict and consistent show minor increases in path/time to the entrance. 
 
 PRESUMABLY THEY ARE LESS ACTIVE (bad luck) - tells us we should use measures that are less sensitive to amount of movement since that might differ in KO (i.e. path to first enter better than time to first enter; entrances/path moved better than entrances)
 
@@ -41,10 +51,7 @@ q2) Do the groups differ in avoidance during training to the initial shock zone
 
 The groups look pretty similar across T1-T3 providing no evidence of acquiring place memory. Because entrances decrease in trained compared to yoked, together these data suggest the mice don’t rely on place memory from before the trial, instead they get shocked first (by chance) and then adopt a strategy to reduce entrances that does not seem a place strategy by T3
 
-
 Top) Consistently trained mice (red) from both WT (solid lines, filled circles) and FMR1-KO (dashes lines, open circles) make fewer entrances into the shock zone than yoked-mice (grey). Bottom) Conflict trained mice (pink) from both WT (solid lines, filled circles) and FMR1-KO (dashes lines, open circles) learn to avoid the initial and the conflicting shock zones. Data are reported as mean +/- SEM. A Mann-Whitney statistical test shows that there are no significant differences due to genotype for any treatment at any time point (as evidenced by all overlapping standard error bars). Inserts) The pie-shaped shaded regions of the inserts highlight the region used to count the number of entrances. Sample sizes for each treatment group and genotype are shown on the bottom right.
-
-
 
 This is how I am currently conceptualizing the results.
 
@@ -54,7 +61,7 @@ This is how I am currently conceptualizing the results.
 
 ### Show that synaptic strength not diminished despite reduced calcium activity 
 
-![](../figures/fig1-09.png)
+![](../figures/fig1-08.png)
 
 
 
@@ -72,12 +79,59 @@ Down-regulation of ion channel binding, receptor binding, calcium binding, metal
 CA3-CA1 synaptic strength is not altered by genotype or place avoidance training.
 I did not observe reduction in synaptic strength at the CA3-CA1 synapse (as measured by maximum fEPSP slope) with avoidance learning or with FMR1-KO. The interaction between Genotype and Training Group was not significant, and Genotype alone was not significant. Violin plots are colored by treatment group and shaded according to genotype.  
 
-### Reproduction of and comparision to the Ceolin et al. 201732 study
+### Reproduction of and comparision to the Ceolin et al. 2017 study.
 
 ![](../figures/fig3-01.png)
 
 A) Graphical representation of the samples for the Ceolin et al. 201732 study examining CA1 expression in WT and FMR1-KO mice. B)  Volcano plot showing enrichment of 88 genes that are up-regulated in FMR1-KO mice and the 146 genes that are up-regulated in WT mice. C) Hierarchical clustering showing the names and expression patterns of those same significant genes. D) GO analysis showing a very similar pattern of depletion of calcium channel activity as was shown in Fig. 2.4C). In contrast, Ceolin detected enrichment of ribosomal processes in response to FMR1-KO in CA1 pyramidal neurons.A) Graphical representation of the samples for the Ceolin et al. 201732 study examining CA1 expression in WT and FMR1-KO mice. B)  Volcano plot showing enrichment of 88 genes that are up-regulated in FMR1-KO mice and the 146 genes that are up-regulated in WT mice. C) Hierarchical clustering showing the names and expression patterns of those same significant genes. D) GO analysis showing a very similar pattern of depletion of calcium channel activity as was shown in Fig. 2.4C). In contrast, Ceolin detected enrichment of ribosomal processes in response to FMR1-KO in CA1 pyramidal neurons.
 
 
+Discussion
+On day 1, differences in time/path to the 1st entrance between WT yoked and WT trained are minimal. The FMR1 data are all over the place with yoked groups showing highly variable time/path to the first entrance, while conflict and consistent show minor increases in path/time to the entrance (Fig. 2.5). 
+
+Do the genotypes differ in 24-h recall of the shock zone? Yes. There was an effect of genotype on path to first entrance during the retest, but this appears to be driven by unexplained avoidance behavior driven by a yoked group (Fig. 2.5D,E).
 
 
+q4) Do the genotypes differ in extinction learning? Skip for now.
+
+OK. REQUIRES analysis of the retention session.
+
+
+
+q6) Are the trained groups different prior to experiencing shock?  Yes, with respect to the number of entrances, the FMR1-KO conflict and FMR1-KO consistent mice are different during pre-training.
+
+q7) Are the trained groups different in learning to avoid the initial shock zone? The average values aren't exactly the same, but the error bars overlap, so it looks to me like there are no major differences. 
+
+Agreed. This is good 9convenient). Training effect is the same when it is the same 9initial shock zone). allows us to interpret subsequent differences when shock location is changed as due to the change (rather than to a preexisting difference)
+
+q8) Are the trained groups differen when the shock is changes compared to when it is consistent? In the WT yes, in the FMR1-KO groups, there are no differences on T4 or T5, but T6 is sometimes different with the consistent show a higher increase in path/time to 1st entrance.
+
+There is a clear disruption in WT compared to consistent but not in KO.
+Here is the cognitive discrimination evidence in WT but not in KO (you actually have replicated prior work :-)
+
+
+
+q9) Did changing the shock zone make avoidance worse? Both consistent and conflict do worse on T4/C1 compared to the retest. So, it doesn't seem like it was the changing of the shock zone that made avoidance worse.
+
+"Both consistent and conflict do worse on T4/C1 compared to the retest.” is only true for KO suggesting they did not adopt a place strategy
+but WT consistent is not worse on T4 whereas conflict is worse on C1 compared to the retest.
+There is a clear disruption in WT compared to consistent but not in KO.
+Here is the cognitive discrimination evidence in WT but not in KO (you actually have replicated prior work :-)
+
+
+
+q10) Do the genotypes differ in cognitive discrimination? Maybe. Both WT and FMR1 KO conflict animals do worse. WT consistent animals do not perform worse but FMR1 consistent animals do worse.
+
+In light of all the data that is not the correct conclusion that KO perform worse on conflict, they perform worse on conflict but no worse than can be expected by chance estimated by the consistent KO mice. As a group KO animals do no worse than their yoked controls (error bars clearly overlap). They did not have a place response.
+
+
+
+q11) Do the genotypes differ in cognitive discrimination? save for later.
+
+CONCLUSION:
+Place learning was not robust, but it was established by the retest trial. While WT show clear cognitive flexibility, KO do not.  My ability to detect cognitive flexibilty may not have been properly assessed give the week learning on Day 1. 
+
+Animals that use a non-place strategy are, in essence, indifferent to shock zone change and therefore did not get challenged to demonstrate behavioral flexibility.
+KO animals by preferring to use non-place strategies are unlikely to depend on hippocampus for their adaptive behavior and instead demonstrate adaptive but fixed (inflexible) behavior that can be an effective general purpose solution to their cognitive challenges although it is not optimal. 
+
+THIS INTERPRETATION PREDICTS THAT ACROSS THE ENTIRE CONFLICT PROTOCOL THE KO AND WT GROUPS WILL RECEIVE SIMILAR AMOUNTS OF PUNISHMENT. THE KO PUNISHMENT IS CONSTANT aAND INTERMEDIATE ACROSS TRIALS WHEREAS THE WT IS LARGE AT THE START AND LOWER AT THE END.

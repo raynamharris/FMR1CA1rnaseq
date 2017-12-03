@@ -21,33 +21,8 @@ training.](../figures/fig1-01.png)
     ##  yoked-conflict  :5              
     ##  conflict        :5
 
-No significant pre-training group differences
-=============================================
-
-First I examined the data to determine if the groups were different
-prior to experiencing shock. I found that all groups where equal in the
-proportion of time spent in four quadrants of the arena (**Figure
-2.2A**). There was no significant geneotype or treatment group on
-pre-training proportion of time spent in the shock zone (mean = 0.24;
-genotype: F(1,38) = 0.438, p = 0.512; group: F(3,38) = 0.438, p =
-0.512), clockwise (mean = 0.26; genotype: F(1,38) = 0.153, p = 0.698;
-group: F(3,38) = 0.507, p = 0.680), opposite (mean = 0.21,; genotype:
-F(1,38) = 0.008, p = 0.929; group: F(3,38) = 1.051, p = 0.381), or
-counter clockwise (mean = 0.28, ; genotype: F(1,38) = 0.012, p = 0.913;
-group: F(3,38) = 0.979, p = 0.413).
-
-There was also no significant effect of geneotype, training, or the
-interaction on pre-training number of entrances (**Figure 2.2B**) or
-path to the first entrance (**Figure 2.2C**), which are two measures
-that are used to identify the avoidance strategy. The was no significant
-mian effect or interaction between number of entrances (mean = 28.58,
-F(3,35) = 1.643, p = 0.20) or path to the 1st entrance (mean = 0.42,
-F(3,35) = 0.165, p = 0.92)
-
 ![Figure 2: No group differences prior to behavioral
 manipulation.](../figures/fig1-04.png)
-
-##### A) This graph shows that all groups of mice spend ~ 25% of their time equally across four quadrants of the arena during the pre-training session (pink: future shock zone, dark green: clockwise, green: opposite the shock zone, light green: counter clockwise). B) Pre-training number of entrances into the shock zone and C) path to first entrance are not sinificantly different between treatment groups and genotypes (dark grey: yoked-consistent, red: consistently-trained, light grey: yoked-conflict, peach: conflict-trained).
 
     PathNumStats <- behavior  %>% 
       filter(TrainSessionComboNum == "1") 
@@ -155,34 +130,7 @@ manipulation.](../figures/fig1-04.png)
     ## quartz_off_screen 
     ##                 2
 
-The training group has larger effect than genotype on distribution of time spent
-================================================================================
-
-After confirming equal variation amoung groups during pre-training, I
-asked if there were groups differences in the distribution of time spent
-during training, retest, conflict session (**Fig. 2.3**). Using a linear
-model I found that time spent in the shock zone is not significantly
-influenced by genotype (F= (1,286) = 1.49, p = 0.22) by is influenced by
-training (F= (2,286) = 128.58, p &lt; 0). This linear model with
-training, genotype, and the interactino expalins 73% of the variation in
-time spent in the shock zone. Among only the yoked groups, there is no
-effect of genotype (F= (1,80) = 0.040, p = 0.84) or training (F= (1,80)
-= 3.438, p = 0.067) on time spent in the shock zone.
-
 ![](../figures/fig1-06.png)
-
-##### The aveage proportion of time spent in each 60 degree guadrant of the arena was caluculated or each group for each session with the shock was on (T1,T2,T3: training sessions 1-3; R1: retest; C1, C2, C3: conflict training sessions; pink: future shock zone; dark green: clockwise; green: opposite the shock zone; light green: counter clockwis ). For trained mice, mice are expected to spend very little time in the shock zone (&lt;0.4%) and to equally split their time between the three remaining quadrants (~32% each). For yoked mice, time spent is expected to be equally distributed across all four quatrants (~25% each).
-
-The differences between the conflict and consistnetly trained mice are
-appearent during the three conflict training sessions (**Fig 2.4**).
-Both consitent and conflict groups avoid the shock zone, spending less
-than 2% of thier time in the shock zone (mean = 0.019, F (1,78) =
-1.2166, p = 0.27). Consiently trained groups spend significantly less
-time clockwise of the shock zone than conflict trained groups (F (1,78)
-= 23.3405, p &lt; 0.001). Consistnetly trainined groups spend more time
-in the counter clockwise zone than conflict trained mice (F (1,78) =
-8.2837, p = 0.005). FMR1-K0 mice spend less time opposite of the shock
-zone (F (1,78) = 4.7442, p = 0.032).
 
 ![Figure 2.4](../figures/fig1-07.png)
 
@@ -431,14 +379,8 @@ zone (F (1,78) = 4.7442, p = 0.032).
     ## quartz_off_screen 
     ##                 2
 
-Initial learning not as strong as anticipated
-=============================================
-
-After establishing place avoidance behavior in the trained groups, I
-next investigated the entent to which punishment and memory contributed
-to place avoidance (**Fig. 2.5**).
-
-![Figure 2.5.](../figures/fig1-02.png)
+![Fig. 2.5.Summary of punishment and estimates of memory in WT and
+FMR1-KO mice](../figures/fig1-02.png)
 
     timespent <- behavior %>%
         filter(TrainSessionComboNum %in% c("5")) 
@@ -898,6 +840,188 @@ to place avoidance (**Fig. 2.5**).
 
     ## quartz_off_screen 
     ##                 2
+
+    ## quartz_off_screen 
+    ##                 2
+
+![Fig. 2.6.Retention mice](../figures/fig1-09.png)
+
+    PathNumStats <- behavior  %>% 
+      filter(TrainSessionComboNum == "9") 
+    summary(aov(pTimeTarget ~  APA2 + Genotype, data=PathNumStats))
+
+    ##             Df Sum Sq Mean Sq F value   Pr(>F)    
+    ## APA2         3 0.3168 0.10561  12.542 4.34e-06 ***
+    ## Genotype     1 0.0025 0.00253   0.301    0.586    
+    ## Residuals   45 0.3789 0.00842                     
+    ## ---
+    ## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+
+    summary(aov(pTimeOPP ~  APA2 + Genotype, data=PathNumStats))
+
+    ##             Df Sum Sq Mean Sq F value  Pr(>F)    
+    ## APA2         3 0.3152 0.10505   6.589 0.00087 ***
+    ## Genotype     1 0.0049 0.00489   0.307 0.58228    
+    ## Residuals   45 0.7174 0.01594                    
+    ## ---
+    ## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+
+    summary(aov(pTimeCW ~  APA2 + Genotype, data=PathNumStats))
+
+    ##             Df Sum Sq Mean Sq F value   Pr(>F)    
+    ## APA2         3 0.3136 0.10452   9.382 6.24e-05 ***
+    ## Genotype     1 0.0000 0.00005   0.004    0.948    
+    ## Residuals   45 0.5013 0.01114                     
+    ## ---
+    ## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+
+    summary(aov(pTimeCCW ~  APA2 + Genotype, data=PathNumStats))
+
+    ##             Df Sum Sq  Mean Sq F value Pr(>F)  
+    ## APA2         3 0.0646 0.021530   2.246 0.0959 .
+    ## Genotype     1 0.0162 0.016211   1.691 0.2001  
+    ## Residuals   45 0.4315 0.009588                 
+    ## ---
+    ## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+
+    Anova(lm(data = PathNumStats, pTimeTarget ~ Genotype * APA2 ), type = 3)
+
+    ## Anova Table (Type III tests)
+    ## 
+    ## Response: pTimeTarget
+    ##                Sum Sq Df F value    Pr(>F)    
+    ## (Intercept)   0.38057  1 42.5068 7.099e-08 ***
+    ## Genotype      0.00038  1  0.0430  0.836796    
+    ## APA2          0.14885  3  5.5420  0.002685 ** 
+    ## Genotype:APA2 0.00291  3  0.1083  0.954798    
+    ## Residuals     0.37603 42                      
+    ## ---
+    ## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+
+    mean(PathNumStats$pTimeTarget)
+
+    ## [1] 0.163058
+
+    mean(PathNumStats$pTimeOPP)
+
+    ## [1] 0.325012
+
+    mean(PathNumStats$pTimeCW)
+
+    ## [1] 0.274992
+
+    mean(PathNumStats$pTimeCCW)
+
+    ## [1] 0.236934
+
+    summary(aov(NumEntrances ~  APA2 * Genotype, data=PathNumStats))
+
+    ##               Df Sum Sq Mean Sq F value   Pr(>F)    
+    ## APA2           3 1622.5   540.8   14.32 1.44e-06 ***
+    ## Genotype       1    1.5     1.5    0.04    0.843    
+    ## APA2:Genotype  3   37.4    12.5    0.33    0.803    
+    ## Residuals     42 1586.5    37.8                     
+    ## ---
+    ## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+
+    summary(aov(Path1stEntr~  APA2 * Genotype, data=PathNumStats))
+
+    ##               Df Sum Sq Mean Sq F value  Pr(>F)   
+    ## APA2           3  166.3   55.43   6.002 0.00169 **
+    ## Genotype       1    0.2    0.23   0.025 0.87598   
+    ## APA2:Genotype  3    8.8    2.94   0.318 0.81215   
+    ## Residuals     42  387.8    9.23                   
+    ## ---
+    ## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+
+    mean(PathNumStats$NumEntrances)
+
+    ## [1] 13.6
+
+    mean(PathNumStats$Path1stEntr)
+
+    ## [1] 2.832
+
+    summary(aov(value ~  APA2 * Genotype + variable, data=proptime))
+
+    ##                 Df Sum Sq Mean Sq F value Pr(>F)    
+    ## APA2             3   0.00   0.000     0.0      1    
+    ## Genotype         1   0.00   0.000     0.0      1    
+    ## variable         3  13.62   4.541   224.5 <2e-16 ***
+    ## APA2:Genotype    3   0.00   0.000     0.0      1    
+    ## Residuals     1537  31.09   0.020                   
+    ## ---
+    ## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+
+    PathNumStats <- behavior  %>% 
+     filter(TrainSessionComboNum %in% c("9"))  %>% 
+      filter(APA2 %in% c("yoked-consisent", "yoked-conflict")) 
+    mean(PathNumStats$NumEntrances)
+
+    ## [1] 18.625
+
+    mean(PathNumStats$Path1stEntr)
+
+    ## [1] 0.40625
+
+    PathNumStats <- behavior  %>% 
+       filter(TrainSessionComboNum %in% c("9"))  %>%
+      filter(APA2 %in% c("consisent", "conflict")) 
+    mean(PathNumStats$NumEntrances)
+
+    ## [1] 9.214286
+
+    mean(PathNumStats$Path1stEntr)
+
+    ## [1] 3.442857
+
+    num9 <- behavior %>%
+        filter(TrainSessionComboNum %in% c("9")) %>% 
+      ggplot(aes(x = as.numeric(TrainSessionComboNum), y = NumEntrances, fill=APA2)) +
+      geom_boxplot(outlier.size=0.8, lwd=0.5) +
+      facet_wrap(~Genotype) +
+      scale_fill_manual(values = colorvalAPA00) +  
+     scale_x_continuous(name=NULL, 
+                           breaks = c(1, 2, 3, 4, 5, 6, 7, 8, 9),
+                           labels = NULL) +
+        background_grid(major = "y", minor = "none") +
+       scale_y_continuous(name = "Retention number of entrances",
+                         limits = c(0,35)) +
+      geom_hline(yintercept=c(9.21), color="red" , linetype = "dashed") + 
+        geom_hline(yintercept=c(18.65), color="black", linetype = "dashed" ) + 
+
+      theme_cowplot(font_size = 8, line_size = 0.25) + 
+      theme(legend.position="none") +
+        background_grid(major = "y", minor = "none") 
+
+    path9 <- behavior %>%
+        filter(TrainSessionComboNum %in% c("9")) %>% 
+      ggplot(aes(x = as.numeric(TrainSessionComboNum), y = Path1stEntr, fill=APA2)) +
+      geom_boxplot(outlier.size=0.8, lwd=0.5) +
+      facet_wrap(~Genotype) +
+      scale_fill_manual(values = colorvalAPA00) +  
+     scale_x_continuous(name=NULL, 
+                           breaks = c(1, 2, 3, 4, 5, 6, 7, 8, 9),
+                           labels = NULL) +
+       scale_y_continuous(name = "Retention path to 1st entrance") +
+      geom_hline(yintercept=c(0.41), color="black" , linetype = "dashed") + 
+        geom_hline(yintercept=c(3.44), color="red", linetype = "dashed" ) + 
+
+     
+      theme_cowplot(font_size = 8, line_size = 0.25) + 
+      theme(legend.position="none") +
+        background_grid(major = "y", minor = "none") 
+
+    pdf(file="../figures/01_behavior/num9.pdf", width=1.75, height=1.9)
+    plot(num9)
+    dev.off()
+
+    ## quartz_off_screen 
+    ##                 2
+
+    pdf(file="../figures/01_behavior/path9.pdf", width=1.75, height=1.9)
+    plot(path9)
+    dev.off()
 
     ## quartz_off_screen 
     ##                 2

@@ -591,3 +591,91 @@ my list at 0.01 and identified the overlap. Then I made a heatmap.
              clustering_method="average",
              filename = "../figures/05_Ceolin/HeatmapOverlap.pdf"
              )
+
+    res <- results(dds, contrast =c("genotype", "FMR1_KO", "WT"), independentFiltering = T, alpha = 0.1)
+    summary(res)
+
+    ## 
+    ## out of 19361 with nonzero total read count
+    ## adjusted p-value < 0.1
+    ## LFC > 0 (up)     : 88, 0.45% 
+    ## LFC < 0 (down)   : 146, 0.75% 
+    ## outliers [1]     : 928, 4.8% 
+    ## low counts [2]   : 4330, 22% 
+    ## (mean count < 668)
+    ## [1] see 'cooksCutoff' argument of ?results
+    ## [2] see 'independentFiltering' argument of ?results
+
+    resOrdered <- res[order(res$padj),]
+    head(resOrdered, 10)
+
+    ## log2 fold change (MAP): genotype FMR1_KO vs WT 
+    ## Wald test p-value: genotype FMR1_KO vs WT 
+    ## DataFrame with 10 rows and 6 columns
+    ##             baseMean log2FoldChange      lfcSE      stat       pvalue
+    ##            <numeric>      <numeric>  <numeric> <numeric>    <numeric>
+    ## Serpina3n  56883.323     -0.6544227 0.09087423 -7.201412 5.959231e-13
+    ## Efcab6     26253.646     -0.5619258 0.09385972 -5.986869 2.139187e-09
+    ## Klk8       22535.472     -0.5755172 0.09643234 -5.968093 2.400428e-09
+    ## Neurog2     1318.040     -0.6118730 0.10027296 -6.102074 1.047011e-09
+    ## Nol4       87295.855     -0.2607096 0.04373721 -5.960820 2.509749e-09
+    ## Inhbb      26270.049     -0.3209072 0.05716446 -5.613755 1.979828e-08
+    ## Ccnd1     178320.712     -0.3610653 0.06516270 -5.540981 3.007810e-08
+    ## Cml3        4536.018      0.5530818 0.09971910  5.546398 2.916154e-08
+    ## Arhgef6    22052.633     -0.3853633 0.07450660 -5.172203 2.313499e-07
+    ## Fam120c    74978.612     -0.2622172 0.05143142 -5.098386 3.425618e-07
+    ##                   padj
+    ##              <numeric>
+    ## Serpina3n 8.404304e-09
+    ## Efcab6    7.078997e-06
+    ## Klk8      7.078997e-06
+    ## Neurog2   7.078997e-06
+    ## Nol4      7.078997e-06
+    ## Inhbb     4.653586e-05
+    ## Ccnd1     5.302393e-05
+    ## Cml3      5.302393e-05
+    ## Arhgef6   3.625252e-04
+    ## Fam120c   4.831150e-04
+
+    data <- data.frame(gene = row.names(res), pvalue = -log10(res$padj), lfc = res$log2FoldChange)
+    data <- na.omit(data)
+    data <- data %>%
+      mutate(color = ifelse(data$lfc > 0 & data$pvalue > 1.3, 
+                            yes = "FRM1_KO", 
+                            no = ifelse(data$lfc < 0 & data$pvalue > 1.3, 
+                                        yes = "WT", 
+                                        no = "none")))
+    top_labelled <- top_n(data, n = 5, wt = pvalue)
+
+    topGene <- rownames(res)[which.min(res$padj)]
+    plotCounts(dds, gene = topGene, intgroup=c("genotype"))
+
+![](../figures/05_Ceolin/suzyvolcano-1.png)
+
+    # Color corresponds to fold change directionality
+
+    volcano <- ggplot(data, aes(x = lfc, y = pvalue)) + 
+      geom_point(aes(color = factor(color)), size = 1, alpha = 0.5, na.rm = T) + # add gene points
+      theme_cowplot(font_size = 8, line_size = 0.25) +
+      geom_hline(yintercept = 1.3,  size = 0.25, linetype = 2) + 
+      scale_color_manual(values = c("FRM1_KO" = "#41b6c4",
+                                    "WT" = "#e7298a", 
+                                    "none" = "grey")) + 
+      #scale_y_continuous(limits=c(0, 8)) +
+      scale_x_continuous(name="Log fold change")+
+      ylab(paste0("log10 p-value")) +       
+      theme(panel.grid.minor=element_blank(),
+            legend.position = "none", # remove legend 
+            panel.grid.major=element_blank())
+    volcano
+
+![](../figures/05_Ceolin/suzyvolcano-2.png)
+
+    # Male WT vs FMR1 colored for Rayna's data
+    plot (data$lfc, data$pvalue, pch = 19, 
+          cex =1, cex.axis = 1.8, cex.lab = 1.5, 
+          ylab = "Lods", xlab = "Log fold change X-lineage vs non-X-lineage (Male)", 
+          #xlim = c(-2,2), ylim = c(-7,9), 
+          main= "Male Analysis of Lineage")
+
+![](../figures/05_Ceolin/suzyvolcano-3.png)

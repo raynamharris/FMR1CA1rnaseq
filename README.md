@@ -35,5 +35,5 @@ The GitHub Repository for "FMR1-KO knockdown alters gene expression of some auti
 
 ## Scientific insights
 
-See 08_results.md
+See [08_results.md](./scripts/08_results.md) for a full write up of the results with figures. 
 

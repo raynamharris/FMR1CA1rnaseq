@@ -1,5 +1,5 @@
-Ceolin et al. data reanalyzed
------------------------------
+Reproduction of and comparison to the Ceolin et al. 2017 study.
+---------------------------------------------------------------
 
 From [Ceolin L, Bouquier N, Vitre-Boubaker J, Rialle S et al. Cell
 Type-Specific mRNA Dysregulation in Hippocampal CA1 Pyramidal Neurons of
@@ -13,21 +13,57 @@ data](https://www.ncbi.nlm.nih.gov/geo/query/acc.cgi?acc=GSE94559).
 The parts of their paper that I reproduced are visuzalized in Figure 2
 and 3 of Ceolin et al 2017. Ceolin's fluoresence staining of the CA1
 provided the inspriation for the color palette. I reproduced the heatmap
-and part of the GO anlsysis but not that of FMRP binding.
+and part of the GO anlsysis but not that of FMRP binding. Then, I
+compared this "reproduced analysis of the Ceolin data" to my primary
+results to identify genes that robustly change expression in CA1
+following *Fmr1* gene knock out.
 
 ![](../figures/fig3-02.png)
 
-I found roughly the same scale of gene expression changes, which is how
-I stumbled upon the paper in the first place (by googling Serpina3a and
-Fmr1), However, my list does have fewer significant genes. Most of the
-genes were identified by both analytical methods indicating a robust
-reponse. Our GO anlaysese highlighted different patterns. Ceolin
-highlights the molecular function enriched pathways in FMR1-KO mice, but
-my analysis provided stronger evidence for a deletion of calcium
-receptor related functions. THis suggests a role for dys-regulation of
-calcium signallying in the hippocampus of Fragile X Syndrom patients.
+I reproduced the data from the Ceolin et al. 2017 which used
+fluorescence labeling to selectively sequence pyramidal neurons in the
+CA1 subfield of the hippocampus from WT and FMR1-KO mice (Fig 2A). My
+reproduction of their data produced a very similar pattern of gene
+expression and list of differentially expressed genes with roughly equal
+up and downregulation of expression. Then, I asked how many of their
+differentially expressed genes are differentially expressed in my study.
+I found found that downregulation of expression of Cacna1g, Efcab6,
+Serpina3n, and Sstr3 was consistent in both the Coelin data and in my
+data (Fig 2B). Next, I check to see if the genes that I calculated to be
+significantly different als identified by Coelin and described as
+significantly different. I determined that 39 of top 45 most significant
+(p &lt; 0.01) genes in my analysis make up over half of the most
+significant (p &lt; 0.05) genes of from the Ceolin study (Fig 2C). Of my
+list of "replicated" 39 differentially expressed genes, two genes
+(Serpina3a and Efcab6) were also identified in my analysis of
+differential expression (Fig 2D). My GO analysis highlighted different
+but also overlapping patterns. The Ceolin study highlights the molecular
+function enriched pathways in FMR1-KO mice, but my analysis provided
+stronger evidence for a deletion of calcium receptor-related functions
+(Fig 2E). This suggests a role for dysregulation of calcium signaling in
+the hippocampus of Fragile X Syndrome patients and is consistent with my
+research findings.
 
-![](../figures/fig3-01.png)
+![](../figures/fig3-01.png) Reproducing the Ceolin study for direct
+comparison of results. A) Graphical representation of the samples for
+the Ceolin et al. 2017 study examining CA1 expression in WT and FMR1-KO
+mice. B) Reproduction: This volcano plot shows that my analysis of the
+Ceolin et al count data identified 88 genes that are up-regulated in
+FMR1-KO mice and the 146 genes that are up-regulated in WT mice a p &lt;
+0.05. Comparison: The gene expression and significance values from the
+Ceolin data are color-coded by the levels of significance from my
+results described in Fig 2.8. Four genes that are upregulated in WT in
+my study were also upregulated in my reproduction of the Ceolin data. C)
+Analysis showing that 39 of top 45 most significant (p &lt; 0.01) genes
+in my reproduction of the analysis, make up over half of the top most
+significant (p &lt; 0.05) genes of from the Ceolin study. D)
+Hierarchical clustering shows the names and expression patterns of those
+same significant genes. D) GO analysis showing a very similar pattern of
+depletion of calcium channel activity as was shown in Fig. 2.8). In
+contrast, Ceolin detected enrichment of ribosomal processes in response
+to FMR1-KO in CA1 pyramidal neurons. Legend) Teal: Enriched in FMR1-KO,
+pink: enriched in WT, grey: genes with insignificant expression, black:
+genes whos expression was not calculated in my original analysis
 
 Here is the analysis, including the heatmap as well as a PCA plot and
 maybe some statistics. The GO analysis is in the subdirectory
@@ -341,16 +377,8 @@ Create list of p-values for all genes
 
     write.csv(GOpvals, "./06_GO_MWU/05_Ceolin_GOpvals.csv", row.names = F)
 
-### Serpina3n was in my list, right? and Ccnd1?
-
-    # Use log(p=0.05)
-    -log10(0.05)
-
-    FALSE [1] 1.30103
-
-    -log10(0.1)
-
-    FALSE [1] 1
+Volcanos
+--------
 
     res <- results(dds, contrast =c("genotype", "FMR1_KO", "WT"), independentFiltering = T, alpha = 0.1)
     summary(res)
@@ -399,6 +427,8 @@ Create list of p-values for all genes
 
     data <- data.frame(gene = row.names(res), pvalue = -log10(res$padj), lfc = res$log2FoldChange)
     data <- na.omit(data)
+
+    data$wrap <- "Reproduction"
     data <- data %>%
       mutate(color = ifelse(data$lfc > 0 & data$pvalue > 1.3, 
                             yes = "FRM1_KO", 
@@ -426,12 +456,13 @@ Create list of p-values for all genes
       ylab(paste0("log10 p-value")) +       
       theme(panel.grid.minor=element_blank(),
             legend.position = "none", # remove legend 
-            panel.grid.major=element_blank())
+            panel.grid.major=element_blank()) +
+      facet_wrap(~wrap)
     volcano
 
 ![](../figures/05_Ceolin/volcanos-2.png)
 
-    pdf(file="../figures/05_Ceolin/volcano.pdf", width=1.5, height=1.75)
+    pdf(file="../figures/05_Ceolin/volcano.pdf", width=1.25, height=1.85)
     plot(volcano)
     dev.off()
 
@@ -592,6 +623,8 @@ my list at 0.01 and identified the overlap. Then I made a heatmap.
              filename = "../figures/05_Ceolin/HeatmapOverlap.pdf"
              )
 
+    pointcolor <- read.csv("../results/FMR1_CA1_rnaseq.csv")
+
     res <- results(dds, contrast =c("genotype", "FMR1_KO", "WT"), independentFiltering = T, alpha = 0.1)
     summary(res)
 
@@ -639,43 +672,90 @@ my list at 0.01 and identified the overlap. Then I made a heatmap.
 
     data <- data.frame(gene = row.names(res), pvalue = -log10(res$padj), lfc = res$log2FoldChange)
     data <- na.omit(data)
-    data <- data %>%
-      mutate(color = ifelse(data$lfc > 0 & data$pvalue > 1.3, 
-                            yes = "FRM1_KO", 
-                            no = ifelse(data$lfc < 0 & data$pvalue > 1.3, 
-                                        yes = "WT", 
-                                        no = "none")))
-    top_labelled <- top_n(data, n = 5, wt = pvalue)
 
-    topGene <- rownames(res)[which.min(res$padj)]
-    plotCounts(dds, gene = topGene, intgroup=c("genotype"))
+    tempdata <- left_join(data, pointcolor, by = "gene")
 
-![](../figures/05_Ceolin/suzyvolcano-1.png)
+    ## Warning in left_join_impl(x, y, by$x, by$y, suffix$x, suffix$y): joining
+    ## factors with different levels, coercing to character vector
+
+    tempdata$color <- as.character(tempdata$color)
+    tempdata$color[is.na(tempdata$color)] <- "absent"
+    tempdata$color <- as.factor(tempdata$color)
+    levels(tempdata$color) <- list(FMR1KO="FMR1", WT="WT", NS = "none",absent="absent")
+
+    tempdata$wrap <- "Comparison"
+
 
     # Color corresponds to fold change directionality
 
-    volcano <- ggplot(data, aes(x = lfc, y = pvalue)) + 
-      geom_point(aes(color = factor(color)), size = 1, alpha = 0.5, na.rm = T) + # add gene points
+    suzyvolcano <- ggplot(tempdata, aes(x = lfc.x, y = pvalue.x)) + 
+      geom_point(aes(color = color, shape = color, size = color), alpha = 0.5, na.rm = T) + # add gene points
       theme_cowplot(font_size = 8, line_size = 0.25) +
       geom_hline(yintercept = 1.3,  size = 0.25, linetype = 2) + 
-      scale_color_manual(values = c("FRM1_KO" = "#41b6c4",
+      scale_color_manual(values = c("FMR1KO" = "#41b6c4",
                                     "WT" = "#e7298a", 
-                                    "none" = "grey")) + 
+                                    "NS" = "grey",
+                                    "absent" = "black")) + 
       #scale_y_continuous(limits=c(0, 8)) +
       scale_x_continuous(name="Log fold change")+
-      ylab(paste0("log10 p-value")) +       
+      scale_shape_manual(values=c(16, 16, 16, 16)) +
+      scale_size_manual(values=c(2,2, 0.5, 0.5)) +
+     scale_y_continuous(name=NULL,
+                        labels = NULL)+      
       theme(panel.grid.minor=element_blank(),
             legend.position = "none", # remove legend 
+            panel.grid.major=element_blank()) +
+      facet_wrap(~wrap)
+    suzyvolcano
+
+![](../figures/05_Ceolin/suzyvolcano-1.png)
+
+    pdf(file="../figures/05_Ceolin/suzyvolcano.pdf", width=1, height=1.85)
+    plot(suzyvolcano)
+    dev.off()
+
+    ## quartz_off_screen 
+    ##                 2
+
+    legendvolcano <- ggplot(tempdata, aes(x = lfc.x, y = pvalue.x)) + 
+      geom_point(aes(color = color, shape = color, size = color), alpha = 0.5, na.rm = T) + # add gene points
+      theme_cowplot(font_size = 9, line_size = 0.25) +
+      geom_hline(yintercept = 1.3,  size = 0.25, linetype = 2) + 
+      scale_color_manual(values = c("FMR1KO" = "#41b6c4",
+                                    "WT" = "#e7298a", 
+                                    "NS" = "grey",
+                                    "absent" = "black")) + 
+      #scale_y_continuous(limits=c(0, 8)) +
+      scale_x_continuous(name="Log fold change")+
+      scale_shape_manual(values=c(16, 16, 16, 16)) +
+      scale_size_manual(values=c(2,2, 0.5, 0.5)) +
+     scale_y_continuous(name=NULL,
+                        labels = NULL)+      
+      theme(panel.grid.minor=element_blank(),
+            #legend.position = "none", # remove legend 
             panel.grid.major=element_blank())
-    volcano
+    legendvolcano
 
 ![](../figures/05_Ceolin/suzyvolcano-2.png)
 
-    # Male WT vs FMR1 colored for Rayna's data
-    plot (data$lfc, data$pvalue, pch = 19, 
-          cex =1, cex.axis = 1.8, cex.lab = 1.5, 
-          ylab = "Lods", xlab = "Log fold change X-lineage vs non-X-lineage (Male)", 
-          #xlim = c(-2,2), ylim = c(-7,9), 
-          main= "Male Analysis of Lineage")
+    pdf(file="../figures/05_Ceolin/legendvolcano.pdf", width=1, height=1.75)
+    plot(legendvolcano)
+    dev.off()
 
-![](../figures/05_Ceolin/suzyvolcano-3.png)
+    ## quartz_off_screen 
+    ##                 2
+
+    # list top deges
+    mytopgenes <- tempdata %>%
+      filter(color %in% c("WT", "FMR1"), pvalue.x > 1.3)
+    head(mytopgenes)
+
+    ##        gene pvalue.x      lfc.x pvalue.y      lfc.y color       wrap
+    ## 1   Cacna1g 1.883471 -0.2933235 1.002905 -0.5563997    WT Comparison
+    ## 2    Efcab6 5.150028 -0.5619258 1.003320 -0.6767416    WT Comparison
+    ## 3 Serpina3n 8.075498 -0.6544227 1.002905 -0.4769215    WT Comparison
+    ## 4     Sstr3 1.339407 -0.2368854 1.003320 -0.6729482    WT Comparison
+
+    mytopgenes$gene
+
+    ## [1] "Cacna1g"   "Efcab6"    "Serpina3n" "Sstr3"

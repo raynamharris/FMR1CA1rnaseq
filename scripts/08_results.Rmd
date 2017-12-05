@@ -1,5 +1,5 @@
 ---
-output: word_document
+output: md_document
 ---
 ### Results
 

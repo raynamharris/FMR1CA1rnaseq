@@ -123,7 +123,7 @@ ggplot(rowsum, aes(x=millioncounts)) +
 
 Then I conducted differential gene experssion with DESeq2 modeling the effect genotype.
 
-```{r DifferentialGeneExpressionAnalysis, comment=FALSE, warning=FALSE}
+```{r DifferentialGeneExpressionAnalysis}
 dds <- DESeqDataSetFromMatrix(countData = countData,
                               colData = colData,
                               design = ~ genotype )
@@ -470,7 +470,7 @@ legendvolcano <- ggplot(tempdata, aes(x = lfc.x, y = pvalue.x)) +
   #scale_y_continuous(limits=c(0, 8)) +
   scale_x_continuous(name="Log fold change")+
   scale_shape_manual(values=c(16, 16, 16, 16)) +
-  scale_size_manual(values=c(2,2, 0.5, 0.5)) +
+  scale_size_manual(values=c(8,8, 1, 1)) +
  scale_y_continuous(name=NULL,
                     labels = NULL)+      
   theme(panel.grid.minor=element_blank(),

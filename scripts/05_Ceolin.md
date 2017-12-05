@@ -65,9 +65,7 @@ to FMR1-KO in CA1 pyramidal neurons. Legend) Teal: Enriched in FMR1-KO,
 pink: enriched in WT, grey: genes with insignificant expression, black:
 genes whos expression was not calculated in my original analysis
 
-Here is the analysis, including the heatmap as well as a PCA plot and
-maybe some statistics. The GO analysis is in the subdirectory
-06\_GO\_MWU.
+Here is the analysis,
 
     #source("http://www.bioconductor.org/biocLite.R")
     #biocLite("DESeq2")
@@ -181,33 +179,33 @@ effect genotype.
                                   colData = colData,
                                   design = ~ genotype )
 
-    FALSE converting counts to integer mode
+    ## converting counts to integer mode
 
     dds <- dds[ rowSums(counts(dds)) > 2, ] ## filter genes with 0 counts
     dds <- DESeq(dds) # Differential expression analysis
 
-    FALSE estimating size factors
+    ## estimating size factors
 
-    FALSE estimating dispersions
+    ## estimating dispersions
 
-    FALSE gene-wise dispersion estimates
+    ## gene-wise dispersion estimates
 
-    FALSE mean-dispersion relationship
+    ## mean-dispersion relationship
 
-    FALSE final dispersion estimates
+    ## final dispersion estimates
 
-    FALSE fitting model and testing
+    ## fitting model and testing
 
     dds
 
-    FALSE class: DESeqDataSet 
-    FALSE dim: 19361 12 
-    FALSE metadata(1): version
-    FALSE assays(3): counts mu cooks
-    FALSE rownames(19361): 0610005C13Rik 0610007P14Rik ... Zzef1 Zzz3
-    FALSE rowData names(27): baseMean baseVar ... deviance maxCooks
-    FALSE colnames(12): KO1 KO2 ... WT5 WT6
-    FALSE colData names(3): sample genotype sizeFactor
+    ## class: DESeqDataSet 
+    ## dim: 19361 12 
+    ## metadata(1): version
+    ## assays(3): counts mu cooks
+    ## rownames(19361): 0610005C13Rik 0610007P14Rik ... Zzef1 Zzz3
+    ## rowData names(27): baseMean baseVar ... deviance maxCooks
+    ## colnames(12): KO1 KO2 ... WT5 WT6
+    ## colData names(3): sample genotype sizeFactor
 
     ## for variance stablized gene expression and log transformed data
     rld <- rlog(dds, blind=FALSE)
@@ -215,16 +213,16 @@ effect genotype.
     res <- results(dds, contrast =c("genotype", "FMR1_KO", "WT"), independentFiltering = T, alpha = 0.1)
     summary(res)
 
-    FALSE 
-    FALSE out of 19361 with nonzero total read count
-    FALSE adjusted p-value < 0.1
-    FALSE LFC > 0 (up)     : 88, 0.45% 
-    FALSE LFC < 0 (down)   : 146, 0.75% 
-    FALSE outliers [1]     : 928, 4.8% 
-    FALSE low counts [2]   : 4330, 22% 
-    FALSE (mean count < 668)
-    FALSE [1] see 'cooksCutoff' argument of ?results
-    FALSE [2] see 'independentFiltering' argument of ?results
+    ## 
+    ## out of 19361 with nonzero total read count
+    ## adjusted p-value < 0.1
+    ## LFC > 0 (up)     : 88, 0.45% 
+    ## LFC < 0 (down)   : 146, 0.75% 
+    ## outliers [1]     : 928, 4.8% 
+    ## low counts [2]   : 4330, 22% 
+    ## (mean count < 668)
+    ## [1] see 'cooksCutoff' argument of ?results
+    ## [2] see 'independentFiltering' argument of ?results
 
 There are 12 samples (6 WT and 6 FMR1-KO) and 37,167 genes were included
 in the analysis, but most were discarded during the normalizaiton and
@@ -623,6 +621,8 @@ my list at 0.01 and identified the overlap. Then I made a heatmap.
              filename = "../figures/05_Ceolin/HeatmapOverlap.pdf"
              )
 
+Suzy-like volcano plot
+
     pointcolor <- read.csv("../results/FMR1_CA1_rnaseq.csv")
 
     res <- results(dds, contrast =c("genotype", "FMR1_KO", "WT"), independentFiltering = T, alpha = 0.1)
@@ -728,7 +728,7 @@ my list at 0.01 and identified the overlap. Then I made a heatmap.
       #scale_y_continuous(limits=c(0, 8)) +
       scale_x_continuous(name="Log fold change")+
       scale_shape_manual(values=c(16, 16, 16, 16)) +
-      scale_size_manual(values=c(2,2, 0.5, 0.5)) +
+      scale_size_manual(values=c(8,8, 1, 1)) +
      scale_y_continuous(name=NULL,
                         labels = NULL)+      
       theme(panel.grid.minor=element_blank(),

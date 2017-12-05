@@ -88,7 +88,7 @@ countData <- countbygene
 # meta data
 sample=c("KO1", "KO2", "KO3", "KO4","KO5", "KO6", 
            "WT1", "WT2","WT3", "WT4", "WT5", "WT6") 
-genotype=c("FMR1_KO", "FMR1_KO", "FMR1_KO", "FMR1_KO", "FMR1_KO", "FMR1_KO", 
+genotype=c("FMR1", "FMR1", "FMR1", "FMR1", "FMR1", "FMR1", 
            "WT", "WT","WT", "WT", "WT", "WT") 
 
 colData <- data.frame(sample,genotype)
@@ -134,7 +134,7 @@ dds
 ## for variance stablized gene expression and log transformed data
 rld <- rlog(dds, blind=FALSE)
 
-res <- results(dds, contrast =c("genotype", "FMR1_KO", "WT"), independentFiltering = T, alpha = 0.1)
+res <- results(dds, contrast =c("genotype", "FMR1", "WT"), independentFiltering = T, alpha = 0.1)
 summary(res)
 ```
 
@@ -176,22 +176,16 @@ PCA12 <- ggplot(pcadata, aes(PC1, PC2, shape = genotype, color = genotype)) +
     scale_shape_manual(values=c(16, 16)) 
 PCA12
 
-aov1 <- aov(PC1 ~ genotype, data=pcadata)
-summary(aov1) 
-
-
-aov2 <- aov(PC2 ~ genotype, data=pcadata)
-summary(aov2) 
-
-aov3 <- aov(PC3 ~ genotype, data=pcadata)
-summary(aov3) 
+summary(aov(PC1 ~ genotype, data=pcadata))
+summary(aov(PC2 ~ genotype, data=pcadata))
+summary(aov(PC3 ~ genotype, data=pcadata))
 
 ```
 
 The heatmap shows a similar pattern as the volcano plot and PCA analysis and allows us to visualize patterns of expression with gene names.
 
 ```{r HeatmapPadj, message=FALSE,comment=FALSE, warning=FALSE}
-contrast1 <- resvals(contrastvector = c('genotype', 'FMR1_KO', 'WT'), mypval = 0.1)
+contrast1 <- resvals(contrastvector = c('genotype', 'FMR1', 'WT'), mypval = 0.1)
 
 ## Any padj <0.1
 DEGes <- assay(rld)
@@ -199,7 +193,7 @@ DEGes <- cbind(DEGes, contrast1)
 DEGes <- as.data.frame(DEGes) # convert matrix to dataframe
 DEGes$rownames <- rownames(DEGes)  # add the rownames to the dataframe
 
-DEGes <- DEGes %>% filter(padjgenotypeFMR1_KOWT < 0.01)
+DEGes <- DEGes %>% filter(padjgenotypeFMR1WT < 0.01)
 
 rownames(DEGes) <- DEGes$rownames
 drop.cols <-colnames(DEGes[,grep("padj|pval|rownames", colnames(DEGes))])
@@ -208,7 +202,7 @@ DEGes <- as.matrix(DEGes)
 DEGes <- DEGes - rowMeans(DEGes)
 
 # setting color options
-ann_colors <- list(genotype =  c('FMR1_KO' = (values=c("#41b6c4")), 
+ann_colors <- list(genotype =  c('FMR1' = (values=c("#41b6c4")), 
             'WT' = (values=c("#e7298a"))))
 
 df <- as.data.frame(colData(dds)[,c( "genotype")])
@@ -256,8 +250,8 @@ GOpvals <- GOpvals[ , grepl( "padj|pval" , names( GOpvals ) ) ]
 GOpvals$gene<-rownames(GOpvals)
 
 GOpvals <- GOpvals %>%
-  select(gene, padjgenotypeFMR1_KOWT)
-GOpvals$logP <- log(GOpvals$padjgenotypeFMR1_KOWT)
+  select(gene, padjgenotypeFMR1WT)
+GOpvals$logP <- log(GOpvals$padjgenotypeFMR1WT)
 GOpvals <- GOpvals %>%
   select(gene, logP)
 
@@ -265,12 +259,10 @@ write.csv(GOpvals, "./06_GO_MWU/05_Ceolin_GOpvals.csv", row.names = F)
 ```
 
 
-
-
 ## Volcanos
 
 ```{r volcanos, message=FALSE,comment=FALSE, warning=FALSE}
-res <- results(dds, contrast =c("genotype", "FMR1_KO", "WT"), independentFiltering = T, alpha = 0.1)
+res <- results(dds, contrast =c("genotype", "FMR1", "WT"), independentFiltering = T, alpha = 0.1)
 summary(res)
 resOrdered <- res[order(res$padj),]
 head(resOrdered, 10)
@@ -279,9 +271,9 @@ data <- na.omit(data)
 
 data$wrap <- "Reproduction"
 data <- data %>%
-  mutate(color = ifelse(data$lfc > 0 & data$pvalue > 1.3, 
-                        yes = "FRM1_KO", 
-                        no = ifelse(data$lfc < 0 & data$pvalue > 1.3, 
+  mutate(color = ifelse(data$lfc > 0 & data$pvalue > 2, 
+                        yes = "FMR1", 
+                        no = ifelse(data$lfc < 0 & data$pvalue > 2, 
                                     yes = "WT", 
                                     no = "none")))
 top_labelled <- top_n(data, n = 5, wt = pvalue)
@@ -292,52 +284,131 @@ plotCounts(dds, gene = topGene, intgroup=c("genotype"))
 # Color corresponds to fold change directionality
 
 volcano <- ggplot(data, aes(x = lfc, y = pvalue)) + 
-  geom_point(aes(color = factor(color)), size = 1, alpha = 0.5, na.rm = T) + # add gene points
-  theme_cowplot(font_size = 8, line_size = 0.25) +
-  geom_hline(yintercept = 1.3,  size = 0.25, linetype = 2) + 
-  scale_color_manual(values = c("FRM1_KO" = "#41b6c4",
+  geom_point(aes(color = factor(color), shape = factor(color), size = factor(color)), alpha = 0.5, na.rm = T) + # add gene points
+  geom_hline(yintercept = 2,  size = 0.25, linetype = 2) + 
+  scale_color_manual(values = c("FMR1" = "#41b6c4",
                                 "WT" = "#e7298a", 
-                                "none" = "grey")) + 
+                                "none" = "grey"),
+                     name = NULL) + 
   #scale_y_continuous(limits=c(0, 8)) +
+    scale_size_manual(values=c(2, 0.5, 2)) +
+    scale_shape_manual(values=c(16, 16, 16)) +
   scale_x_continuous(name="Log fold change")+
-  ylab(paste0("log10 p-value")) +       
+  ylab(paste0("-log10(p-value)")) +       
+    theme_cowplot(font_size = 7, line_size = 0.25) +  theme(legend.position = "none") + 
+  facet_wrap(~wrap)
+volcano
+
+pdf(file="../figures/05_Ceolin/volcano.pdf", width=1.25, height=1.7)
+plot(volcano)
+dev.off()
+
+```
+
+
+Suzy-like volcano plot
+
+```{r suzyvolcano}
+pointcolor <- read.csv("../results/FMR1_CA1_rnaseq.csv")
+
+res <- results(dds, contrast =c("genotype", "FMR1", "WT"), independentFiltering = T, alpha = 0.1)
+summary(res)
+resOrdered <- res[order(res$padj),]
+head(resOrdered, 10)
+data <- data.frame(gene = row.names(res), pvalue = -log10(res$padj), lfc = res$log2FoldChange)
+data <- na.omit(data)
+
+tempdata <- left_join(data, pointcolor, by = "gene")
+tempdata$color <- as.character(tempdata$color)
+tempdata$color[is.na(tempdata$color)] <- "absent"
+tempdata$color <- as.factor(tempdata$color)
+levels(tempdata$color) <- list(FMR1KO="FMR1", WT="WT", NS = "none",absent="absent")
+
+tempdata$wrap <- "Comparison"
+
+levels(tempdata$color) 
+summary(tempdata$color)
+
+# Color corresponds to fold change directionality
+
+suzyvolcano <- ggplot(tempdata, aes(x = lfc.x, y = pvalue.x)) + 
+  geom_point(aes(color = color, shape = color, size = color), alpha = 0.5, na.rm = T) + # add gene points
+  theme_cowplot(font_size = 7, line_size = 0.25) +
+    #scale_y_continuous(limits=c(0, 8)) +
+  scale_x_continuous(name="Log fold change")+
+  scale_shape_manual(values=c(16, 16, 16, 16)) +
+  scale_size_manual(values=c(3,2, 0.5, 0.5)) +
+
+  geom_hline(yintercept = 2,  size = 0.25, linetype = 2) + 
+  scale_color_manual(values = c("NS" = "grey",
+                                "absent" = "black",
+                                "WT" = "#e7298a",
+                                "FMR1" = "#41b6c4")) + 
+ scale_y_continuous(name=NULL,
+                    labels = NULL)+      
   theme(panel.grid.minor=element_blank(),
         legend.position = "none", # remove legend 
         panel.grid.major=element_blank()) +
   facet_wrap(~wrap)
-volcano
+suzyvolcano
 
-
-pdf(file="../figures/05_Ceolin/volcano.pdf", width=1.25, height=1.85)
-plot(volcano)
+pdf(file="../figures/05_Ceolin/suzyvolcano.pdf", width=1, height=1.7)
+plot(suzyvolcano)
 dev.off()
+
+legendvolcano <- ggplot(tempdata, aes(x = lfc.x, y = pvalue.x)) + 
+  geom_point(aes(color = color, shape = color, size = color), alpha = 0.5, na.rm = T) + # add gene points
+  theme_cowplot(font_size = 7, line_size = 0.25) +
+  geom_hline(yintercept = 2,  size = 0.25, linetype = 2) + 
+  scale_color_manual(values = c("NS" = "grey",
+                                "absent" = "black",
+                                "FRM1" = "#41b6c4",
+                                "WT" = "#e7298a")) + 
+  #scale_y_continuous(limits=c(0, 8)) +
+  scale_x_continuous(name="Log fold change")+
+  scale_shape_manual(values=c(16, 16, 16, 16)) +
+  scale_size_manual(values=c(3,2, 2, 2)) +
+ scale_y_continuous(name=NULL,
+                    labels = NULL)+      
+  theme(legend.position = "top")
+legendvolcano
+
+pdf(file="../figures/05_Ceolin/legendvolcano.pdf", width=3, height=1.5)
+plot(legendvolcano)
+dev.off()
+
+# list top deges
+mytopgenes <- tempdata %>%
+  filter(color %in% c("WT", "FMR1"), pvalue.x > 2)
+head(mytopgenes)
+mytopgenes$gene
 
 ```
 
 ## Venn Diagram of both study's DEGS
 
 ```{r venn}
-contrast1 <- resvals(contrastvector = c("genotype", "FMR1_KO", "WT"), mypval = 0.01)
+contrast1 <- resvals(contrastvector = c("genotype", "FMR1", "WT"), mypval = 0.01)
 
 #create a new DF with the gene counts
 rldpvals <- assay(rld)
 rldpvals <- cbind(rldpvals, contrast1)
 rldpvals <- as.data.frame(rldpvals)
 rldpvals <- rldpvals[ , grepl( "padj|pval" , names( rldpvals ) ) ]
-names(rldpvals)
 
 # venn with padj values
 venn1 <- row.names(rldpvals[rldpvals[2] <0.01 & !is.na(rldpvals[2]),])
 venn2 <- read.csv("../data/GSE94559_Ceolin_DEGS.csv", header = F)
 venn2 <- as.matrix(venn2)
+venn3 <- read.csv("../results/FMR1_CA1_venn1.csv", skip = 1)
+venn3 <- as.matrix(venn3)
 
-
-candidates <- list("Harris" = venn1, "Ceolin" = venn2)
+candidates <- list("Published" = venn2, "Reproduced" = venn1, "Compared" = venn3)
 
 prettyvenn <- venn.diagram(scaled=T,
   x = candidates, filename=NULL, 
   col = "black",
-  fill = c( "white", "white"),
+  fill = c( "white", "white", "white"),
   alpha = 0.5,
   cex = 1, fontfamily = "sans", #fontface = "bold",
   cat.default.pos = "text",
@@ -349,6 +420,12 @@ grid.draw(prettyvenn)
 
 venn12 <- intersect(venn1,venn2)
 write(venn12, "./06_GO_MWU/CeolinHarrisOverlap.csv")
+
+2+1+25
+2+1+37+34
+6+37+2
+
+
 ```
 
 # Over reproducible differentially expressed genes 
@@ -366,7 +443,7 @@ colnames(Coelin)<- c("rownames")
 DEGes <- inner_join(DEGes, Coelin)
 DEGes <- DEGes %>% filter(rownames != "Col1a1")
 
-DEGes <- DEGes %>% filter(padjgenotypeFMR1_KOWT < 0.01)
+DEGes <- DEGes %>% filter(padjgenotypeFMR1WT < 0.01)
 
 rownames(DEGes) <- DEGes$rownames
 drop.cols <-colnames(DEGes[,grep("padj|pval|rownames", colnames(DEGes))])
@@ -376,7 +453,7 @@ DEGes <- DEGes - rowMeans(DEGes)
 head(DEGes)
 
 # setting color options
-ann_colors <- list(genotype =  c('FMR1_KO' = (values=c("#41b6c4")), 
+ann_colors <- list(genotype =  c('FMR1' = (values=c("#41b6c4")), 
             'WT' = (values=c("#e7298a"))))
 
 df <- as.data.frame(colData(dds)[,c( "genotype")])
@@ -408,84 +485,4 @@ pheatmap(DEGes, show_colnames=F, show_rownames = T,
          clustering_method="average",
          filename = "../figures/05_Ceolin/HeatmapOverlap.pdf"
          )
-
-
-```
-
-Suzy-like volcano plot
-
-```{r suzyvolcano}
-pointcolor <- read.csv("../results/FMR1_CA1_rnaseq.csv")
-
-res <- results(dds, contrast =c("genotype", "FMR1_KO", "WT"), independentFiltering = T, alpha = 0.1)
-summary(res)
-resOrdered <- res[order(res$padj),]
-head(resOrdered, 10)
-data <- data.frame(gene = row.names(res), pvalue = -log10(res$padj), lfc = res$log2FoldChange)
-data <- na.omit(data)
-
-tempdata <- left_join(data, pointcolor, by = "gene")
-tempdata$color <- as.character(tempdata$color)
-tempdata$color[is.na(tempdata$color)] <- "absent"
-tempdata$color <- as.factor(tempdata$color)
-levels(tempdata$color) <- list(FMR1KO="FMR1", WT="WT", NS = "none",absent="absent")
-
-tempdata$wrap <- "Comparison"
-
-
-# Color corresponds to fold change directionality
-
-suzyvolcano <- ggplot(tempdata, aes(x = lfc.x, y = pvalue.x)) + 
-  geom_point(aes(color = color, shape = color, size = color), alpha = 0.5, na.rm = T) + # add gene points
-  theme_cowplot(font_size = 8, line_size = 0.25) +
-  geom_hline(yintercept = 1.3,  size = 0.25, linetype = 2) + 
-  scale_color_manual(values = c("FMR1KO" = "#41b6c4",
-                                "WT" = "#e7298a", 
-                                "NS" = "grey",
-                                "absent" = "black")) + 
-  #scale_y_continuous(limits=c(0, 8)) +
-  scale_x_continuous(name="Log fold change")+
-  scale_shape_manual(values=c(16, 16, 16, 16)) +
-  scale_size_manual(values=c(2,2, 0.5, 0.5)) +
- scale_y_continuous(name=NULL,
-                    labels = NULL)+      
-  theme(panel.grid.minor=element_blank(),
-        legend.position = "none", # remove legend 
-        panel.grid.major=element_blank()) +
-  facet_wrap(~wrap)
-suzyvolcano
-
-pdf(file="../figures/05_Ceolin/suzyvolcano.pdf", width=1, height=1.85)
-plot(suzyvolcano)
-dev.off()
-
-legendvolcano <- ggplot(tempdata, aes(x = lfc.x, y = pvalue.x)) + 
-  geom_point(aes(color = color, shape = color, size = color), alpha = 0.5, na.rm = T) + # add gene points
-  theme_cowplot(font_size = 9, line_size = 0.25) +
-  geom_hline(yintercept = 1.3,  size = 0.25, linetype = 2) + 
-  scale_color_manual(values = c("FMR1KO" = "#41b6c4",
-                                "WT" = "#e7298a", 
-                                "NS" = "grey",
-                                "absent" = "black")) + 
-  #scale_y_continuous(limits=c(0, 8)) +
-  scale_x_continuous(name="Log fold change")+
-  scale_shape_manual(values=c(16, 16, 16, 16)) +
-  scale_size_manual(values=c(2,2, 2, 2)) +
- scale_y_continuous(name=NULL,
-                    labels = NULL)+      
-  theme(panel.grid.minor=element_blank(),
-        #legend.position = "none", # remove legend 
-        panel.grid.major=element_blank())
-legendvolcano
-
-pdf(file="../figures/05_Ceolin/legendvolcano.pdf", width=1, height=1.75)
-plot(legendvolcano)
-dev.off()
-
-# list top deges
-mytopgenes <- tempdata %>%
-  filter(color %in% c("WT", "FMR1"), pvalue.x > 1.3)
-head(mytopgenes)
-mytopgenes$gene
-
 ```

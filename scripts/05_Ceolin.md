@@ -728,7 +728,7 @@ Suzy-like volcano plot
       #scale_y_continuous(limits=c(0, 8)) +
       scale_x_continuous(name="Log fold change")+
       scale_shape_manual(values=c(16, 16, 16, 16)) +
-      scale_size_manual(values=c(8,8, 1, 1)) +
+      scale_size_manual(values=c(2,2, 2, 2)) +
      scale_y_continuous(name=NULL,
                         labels = NULL)+      
       theme(panel.grid.minor=element_blank(),

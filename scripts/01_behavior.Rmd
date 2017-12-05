@@ -422,9 +422,9 @@ timeccw <- behavior %>%
  scale_x_continuous(name="Counter clockwise", 
                        breaks = c(1, 2, 3, 4, 5, 6, 7, 8, 9),
                        labels = NULL) +
-  geom_hline(yintercept=c(0.32), color="black" , linetype="dashed") + 
+  geom_hline(yintercept=c(0.33), color="black" , linetype="dashed") + 
     scale_y_continuous(name = " ",
-      breaks = c(0,0.32, 0.64),
+      breaks = c(0,0.33, 0.66),
                      limits= c(0,0.8)) +
   theme_cowplot(font_size = 8, line_size = 0.25) +
   theme(legend.position="none")
@@ -439,9 +439,9 @@ timecw <- behavior %>%
  scale_x_continuous(name="Clockwise", 
                        breaks = c(1, 2, 3, 4, 5, 6, 7, 8, 9),
                        labels = NULL) +
-  geom_hline(yintercept=c(0.32), color="black" , linetype="dashed") + 
+  geom_hline(yintercept=c(0.33), color="black" , linetype="dashed") + 
     scale_y_continuous(name = NULL,
-                       breaks = c(0,0.32, 0.64),
+                       breaks = c(0,0.33, 0.66),
                      limits= c(0,0.8)) +
   theme_cowplot(font_size = 8, line_size = 0.25) +
  theme(legend.position="none")
@@ -472,12 +472,12 @@ timeopp <- behavior %>%
   facet_wrap(~Genotype) +
   scale_fill_manual(values = c("#ca0020", "#f4a582")) + 
     scale_y_continuous(name = " ",
-                       breaks = c(0,0.32, 0.64),
+                       breaks = c(0,0.33, 0.66),
                      limits= c(0,0.8)) +
  scale_x_continuous(name="Opposite", 
                        breaks = c(1, 2, 3, 4, 5, 6, 7, 8, 9),
                        labels = NULL) +
-  geom_hline(yintercept=c(0.32), color="black" , linetype="dashed") + 
+  geom_hline(yintercept=c(0.33), color="black" , linetype="dashed") + 
   theme_cowplot(font_size = 8, line_size = 0.25) +
   theme(legend.position="none")
 

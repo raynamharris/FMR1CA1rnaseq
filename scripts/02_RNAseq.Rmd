@@ -318,28 +318,6 @@ names(rldpvals)
 
 # venn with padj values
 venn1 <- row.names(rldpvals[rldpvals[2] <0.1 & !is.na(rldpvals[2]),])
-venn2 <- read.csv("../data/GSE94559_Ceolin_DEGS.csv", header = F)
-venn2 <- as.matrix(venn2)
-
-
-candidates <- list("Harris" = venn1, "Ceolin" = venn2)
-
-prettyvenn <- venn.diagram(scaled=T,
-  x = candidates, filename=NULL, 
-  col = "black",
-  fill = c( "white", "white"),
-  alpha = 0.5,
-  cex = 1, fontfamily = "sans", #fontface = "bold",
-  cat.default.pos = "text",
-  #cat.dist = c(0.1, 0.1, 0.1), cat.pos = 1,
-  cat.cex = 1, 
-  cat.fontfamily = "sans")
-#dev.off()
-grid.draw(prettyvenn)
-
-venn12 <- intersect(venn1,venn2)
-venn12
-
 
 ```
 
@@ -378,4 +356,5 @@ boxplot(multiqc03$FractionAligned,
 # write.csv(rlddf, file = "../data/02_rlddf.csv", row.names = T)
 # write.csv(colData, file = "../data/02_colData.csv", row.names = T)
 write.csv(data, file = "../results/FMR1_CA1_rnaseq.csv", row.names = F)
+write.csv(venn1, file = "../results/FMR1_CA1_venn1.csv", row.names = F)
 ```

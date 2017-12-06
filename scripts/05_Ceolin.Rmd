@@ -309,8 +309,6 @@ dev.off()
 Suzy-like volcano plot
 
 ```{r suzyvolcano}
-pointcolor <- read.csv("../results/FMR1_CA1_rnaseq.csv")
-
 res <- results(dds, contrast =c("genotype", "FMR1", "WT"), independentFiltering = T, alpha = 0.1)
 summary(res)
 resOrdered <- res[order(res$padj),]
@@ -318,6 +316,7 @@ head(resOrdered, 10)
 data <- data.frame(gene = row.names(res), pvalue = -log10(res$padj), lfc = res$log2FoldChange)
 data <- na.omit(data)
 
+pointcolor <- read.csv("../results/FMR1_CA1_rnaseq.csv")
 tempdata <- left_join(data, pointcolor, by = "gene")
 tempdata$color <- as.character(tempdata$color)
 tempdata$color[is.na(tempdata$color)] <- "absent"
@@ -337,13 +336,13 @@ suzyvolcano <- ggplot(tempdata, aes(x = lfc.x, y = pvalue.x)) +
     #scale_y_continuous(limits=c(0, 8)) +
   scale_x_continuous(name="Log fold change")+
   scale_shape_manual(values=c(16, 16, 16, 16)) +
-  scale_size_manual(values=c(3,2, 0.5, 0.5)) +
+  scale_size_manual(values=c(2,2, 0.5, 0.5)) +
 
   geom_hline(yintercept = 2,  size = 0.25, linetype = 2) + 
   scale_color_manual(values = c("NS" = "grey",
                                 "absent" = "black",
                                 "WT" = "#e7298a",
-                                "FMR1" = "#41b6c4")) + 
+                                "FMR1KO" = "#41b6c4")) + 
  scale_y_continuous(name=NULL,
                     labels = NULL)+      
   theme(panel.grid.minor=element_blank(),
@@ -362,12 +361,12 @@ legendvolcano <- ggplot(tempdata, aes(x = lfc.x, y = pvalue.x)) +
   geom_hline(yintercept = 2,  size = 0.25, linetype = 2) + 
   scale_color_manual(values = c("NS" = "grey",
                                 "absent" = "black",
-                                "FRM1" = "#41b6c4",
+                                "FMR1KO" = "#41b6c4",
                                 "WT" = "#e7298a")) + 
   #scale_y_continuous(limits=c(0, 8)) +
   scale_x_continuous(name="Log fold change")+
   scale_shape_manual(values=c(16, 16, 16, 16)) +
-  scale_size_manual(values=c(3,2, 2, 2)) +
+  scale_size_manual(values=c(2,2, 2, 2)) +
  scale_y_continuous(name=NULL,
                     labels = NULL)+      
   theme(legend.position = "top")

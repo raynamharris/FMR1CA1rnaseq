@@ -9,17 +9,10 @@ training.](../figures/fig1-01.png)
     ## [1] "yoked-consistent" "consistent"       "yoked-conflict"  
     ## [4] "conflict"
 
-    ##                APA2     Genotype 
-    ##  yoked-consistent:4   WT    :24  
-    ##  consistent      :8   FMR1KO: 0  
-    ##  yoked-conflict  :3              
-    ##  conflict        :9
-
-    ##                APA2     Genotype 
-    ##  yoked-consistent:7   WT    : 0  
-    ##  consistent      :9   FMR1KO:26  
-    ##  yoked-conflict  :5              
-    ##  conflict        :5
+    ## proptime
+    proptime <- behavior[,c(1,2,4,8,9,12,26:29)]
+    proptime <- melt(proptime, id.vars = c("ID", "Genotype", "TrainSession",
+                                           "APA2", "TrainSessionCombo","TrainSessionComboNum")) 
 
 ![Figure 2: No group differences prior to behavioral
 manipulation.](../figures/fig1-04.png)

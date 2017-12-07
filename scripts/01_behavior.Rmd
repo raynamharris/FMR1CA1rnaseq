@@ -5,7 +5,6 @@ date: "Last updated November 22, 2017"
 output: md_document
 ---
 
-
 ```{r setup, echo = F, message=F}
 ## load libraries 
 library(tidyr) ## for respahing data
@@ -31,7 +30,7 @@ knitr::opts_chunk$set(fig.path = '../figures/01_behavior/')
 ##### Mice were assigned to one of four groups: consistently-trained (red), yoked-consistent (dark grey), conflict-trained (peach), or yoked-conflict (light grey). Mice were placed on the rotating arena (1 rpm) for training sessions that lasted 10 min and was separated by 2-h intersession interval or overnight (~17 h). The physical conditions are identical for all mice during pre-training and retention. Sample sizes for each treatment group and genotype are shown on the bottom right.
 
 
-```{r samplesize, echo = F, message=F, warning = F}
+```{r loaddata, echo = F, message=F, warning = F}
 ## read intermediate data (raw data from video tracker program analyzed in matlab)
 behavior <- read.csv("../data/fmr1.csv", header = T)
 behavior$APA <- as.factor(behavior$APA)
@@ -42,30 +41,26 @@ behavior$APA2 <- factor(behavior$APA2, levels = c("controlconsistent", "consiste
 levels(behavior$APA2) <- c("yoked-consistent","consistent", "yoked-conflict","conflict")
 levels(behavior$APA2)
 
-#relevel genotype
-levels(behavior$Genotype) <- c("WT","FMR1KO")
-#levels(behavior$conflict) <- c("consistent","conflict")
+levels(behavior$Genotype) <- c("WT","FMR1KO") ## relevel genotype
 
-behavior$Time1stEntrLog <- log(behavior$Time1stEntr)  ## log transformation
+## relevel conflict
 behavior$conflict <- ifelse(grepl("conflict", behavior$APA2), "conflict", "consistent") # for splitting
 levels(behavior$conflict) <- c("consistent","conflict")
-behavior <- behavior[c(1,3,7,8,10,60,14:59)] # supset data
+
+behavior$Time1stEntrLog <- log(behavior$Time1stEntr)  ## log transformation
+
+behavior <- behavior[c(1,3,7,8,10,60,14:59)] # subset data
 behavior <- subset(behavior, !is.na(behavior$NumEntrances)) # remove nas
 
-# sample sizes
-behavior %>% 
-  filter(TrainSessionCombo == "Retention", Genotype == "WT") %>%
-  select(APA2, Genotype)  %>%  summary()
-behavior %>% 
-  filter(TrainSessionCombo == "Retention", Genotype == "FMR1KO") %>%
-  select(APA2, Genotype)  %>%  summary()
+write.csv(behavior, "../results/behaviordata.csv", row.names = F)
+```
 
 
+```{r proptimedataframe}
 ## proptime
 proptime <- behavior[,c(1,2,4,8,9,12,26:29)]
 proptime <- melt(proptime, id.vars = c("ID", "Genotype", "TrainSession",
                                        "APA2", "TrainSessionCombo","TrainSessionComboNum")) 
-
 ```
 
 

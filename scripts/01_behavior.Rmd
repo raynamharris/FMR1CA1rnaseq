@@ -76,6 +76,7 @@ PathNumStats <- behavior  %>%
   filter(TrainSessionComboNum == "6",
          APA2 %in% c("yoked-consistent", "yoked-conflict")) 
 mean(PathNumStats$NumEntrances)
+
 PathNumStats <- behavior  %>% 
   filter(TrainSessionComboNum == "6",
          APA2 %in% c("consistent", "conflict")) 
@@ -151,9 +152,6 @@ dev.off()
 
 
 
-
-
-![Figure 2.4](../figures/fig1-07.png)
 
 
 ```{r}

@@ -18,6 +18,8 @@ These are the packages required for making the figures and doing stats.
     library(ggplot2) # for plotting
     library(cowplot) # for "easier"" ggplot themes
 
+    knitr::opts_chunk$set(fig.path = '../figures/01_behavior/')
+
 This chuck of code is for loading and formatting the dataframes.
 
     behavior <- read.csv("../results/behaviordata.csv", header = T)
@@ -54,7 +56,7 @@ y-axis with `geom_hline`.
       geom_hline(yintercept=c(0.32,0.64, 0.96), color="black" , linetype="dashed") 
     timespent1
 
-![](Fig3_files/figure-markdown_strict/unnamed-chunk-1-1.png)
+![](../figures/01_behavior/unnamed-chunk-1-1.png)
 
     timespent2 <- proptime %>%
       filter(APA2 %in% c("yoked-consistent","yoked-conflict")) %>%
@@ -75,7 +77,7 @@ y-axis with `geom_hline`.
       geom_hline(yintercept=c(0.25,0.50, 0.75), color="black" , linetype="dashed")
     timespent2
 
-![](Fig3_files/figure-markdown_strict/unnamed-chunk-1-2.png)
+![](../figures/01_behavior/unnamed-chunk-1-2.png)
 
     pdf(file="../figures/01_behavior/timespent1.pdf", width=6, height=2.25)
     plot(timespent1)

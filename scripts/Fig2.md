@@ -16,6 +16,8 @@ These are the packages required for making the figures and doing stats.
     library(ggplot2) # for plotting
     library(cowplot) # for "easier"" ggplot themes
 
+    knitr::opts_chunk$set(fig.path = '../figures/01_behavior/')
+
 This chuck of code is for loading and formatting the dataframes.
 
     behavior <- read.csv("../results/behaviordata.csv", header = T)
@@ -75,7 +77,7 @@ time spent in the area
       theme(axis.text.x = element_text(angle = 45, hjust = 1))
     timespent3
 
-![](Fig2_files/figure-markdown_strict/unnamed-chunk-1-1.png)
+![](../figures/01_behavior/unnamed-chunk-1-1.png)
 
     pdf(file="../figures/01_behavior/timespent3.pdf", width=2, height=2.25)
     plot(timespent3)
@@ -176,7 +178,7 @@ to do this, but this is my solution.
 
     ## Warning: Removed 4 rows containing non-finite values (stat_boxplot).
 
-![](Fig2_files/figure-markdown_strict/numentr-1.png)
+![](../figures/01_behavior/numentr-1.png)
 
     path1 <- behavior %>%
         filter(TrainSessionComboNum %in% c("1")) %>% 
@@ -195,7 +197,7 @@ to do this, but this is my solution.
         background_grid(major = "y", minor = "none") 
     path1
 
-![](Fig2_files/figure-markdown_strict/numentr-2.png)
+![](../figures/01_behavior/numentr-2.png)
 
     legend2 <- behavior %>%
         filter(TrainSessionComboNum %in% c("1")) %>% 
@@ -212,7 +214,7 @@ to do this, but this is my solution.
       theme(legend.position = "bottom")
     legend2
 
-![](Fig2_files/figure-markdown_strict/numentr-3.png)
+![](../figures/01_behavior/numentr-3.png)
 
     pdf(file="../figures/01_behavior/num1.pdf", width=1.75, height=1.9)
     plot(num1)

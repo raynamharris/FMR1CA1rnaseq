@@ -1,0 +1,6 @@
+---
+title: "Figure 4"
+output: html_document
+---
+
+![Figure 2.4](../figures/fig1-07.png)

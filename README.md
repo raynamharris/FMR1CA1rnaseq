@@ -10,13 +10,11 @@ The GitHub Repository for "FMR1-KO knockdown alters gene expression of some auti
 	- all other files are results files or meta data
 3. scripts - part 1
 	- [00_cpfiles.sh](./scripts/00_cpfiles.sh)	- a bash script for copying files into and out of this repo
-	- [01_behavior.Rmd](./scripts/01_behavior.Rmd) - knittable analysis script for wrangling the avoidance behavior  data. The output is use for the `Fig*.Rmd` scripts that accompany each figure 
-	- [01_behavior.md](./scripts/01_behavior.md) - output of above script
-	- [02_RNAseq.Rmd](./scripts/02_RNAseq.Rmd)	- knittable analysis of differential gene expression of RNA-seq data with DESeq2, GO-WMU, and WGCNA
-	- [02_RNAseq.md](./scripts/02_RNAseq.md)	- output of above script
+	- [01_behavior.md](./scripts/01_behavior.md) - output of a knittable analysis script for wrangling the avoidance behavior  data. The output is use for the `Fig*.Rmd` scripts that accompany each figure 
+	- [02_RNAseq.md](./scripts/02_RNAseq.md)	- output of an knittable analysis of differential gene expression of RNA-seq data with DESeq2, GO-WMU, and WGCNA
 	- [03_wgcna.R](./scripts/03_wgcna.R)	- R script for weighted gene co-expression network analysis
-	- [04_ephys.Rmd](./scripts/04_ephys.Rmd)	- analysis of hippocampal electrophysiology to measure synaptic properties -- note: must be run from the R command line as knitting doesn't currently work well
-	- [05_Ceolin.Rmd](./scripts/05_Ceolin.Rmd) - a **replication** of a recently published paper and a **comparison** to my own data
+	- [04_ephys.Rmd](./scripts/04_ephys.Rmd) - analysis of hippocampal electrophysiology to measure synaptic properties -- note: must be run from the R command line as knitting doesn't currently work well
+	- [05_Ceolin.md](./scripts/05_Ceolin.Rmd) - a **replication** of a recently published paper and a **comparison** to my own data
 	- [06_GO_MWU](./scripts/06_GO_MWU)	- directory with data, code, and results for Gene Ontology analysis
 	- [figureoptions.R](./scripts/figureoptions.R) - my color pallet of choice for this experiment
 4. scripts - part 2

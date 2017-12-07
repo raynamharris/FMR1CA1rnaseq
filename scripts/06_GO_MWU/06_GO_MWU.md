@@ -51,7 +51,27 @@ From FMR1-KO data
     goDivision="MF" # either MF, or BP, or CC
 
     # Calculating stats
-    gomwuStats(input, goDatabase, goAnnotations, goDivision, perlPath="perl", largest=0.1, smallest=5,clusterCutHeight=0.25)  
+    #gomwuStats(input, goDatabase, goAnnotations, goDivision, perlPath="perl", largest=0.1, smallest=5,clusterCutHeight=0.25)  
+
+    # Data viz
+    gomwuPlot(input,goAnnotations,goDivision,
+        absValue=-log(0.05,10),  
+        level1=0.1, 
+        level2=0.05, 
+        level3=0.01, 
+        txtsize=1.4,    
+        treeHeight=0.5, 
+      colors=c("firebrick1","dodgerblue2","firebrick1","dodgerblue2") 
+    )
+
+    # input files
+    input="GenotypeFMR1KOWT_GOpvals.csv" 
+    goAnnotations="goAnnotations.tab" 
+    goDatabase="go.obo" 
+    goDivision="CC" # either MF, or BP, or CC
+
+    # Calculating stats
+    #gomwuStats(input, goDatabase, goAnnotations, goDivision, perlPath="perl", largest=0.1, smallest=5,clusterCutHeight=0.25)  
 
     # Data viz
     gomwuPlot(input,goAnnotations,goDivision,
@@ -61,7 +81,7 @@ From FMR1-KO data
         level3=0.01, 
         txtsize=1.4,    
         treeHeight=0.5, 
-      colors=c("dodgerblue2","firebrick1","skyblue","lightcoral") 
+      colors=c("firebrick1","dodgerblue2","firebrick1","dodgerblue2") 
     )
 
     # input files
@@ -71,32 +91,8 @@ From FMR1-KO data
     goDivision="MF" # either MF, or BP, or CC
 
     # Calculating stats
-    gomwuStats(input, goDatabase, goAnnotations, goDivision, perlPath="perl", largest=0.1, smallest=5,clusterCutHeight=0.25)  
+    #gomwuStats(input, goDatabase, goAnnotations, goDivision, perlPath="perl", largest=0.1, smallest=5,clusterCutHeight=0.25)  
 
-    ## Continuous measure of interest: will perform MWU test
-    ## 57  GO terms at 10% FDR
-
-    # Data viz
-    gomwuPlot(input,goAnnotations,goDivision,
-        absValue=-log(0.05,10),  
-        level1=0.05, 
-        level2=0.05, 
-        level3=0.01, 
-        txtsize=1.4,    
-        treeHeight=0.5, 
-      colors=c("#e7298a","#41b6c4","#e7298a","#41b6c4") 
-    )
-
-    ## Warning in plot.formula(c(1:top) ~ c(1:top), type = "n", axes = F, xlab =
-    ## "", : the formula 'c(1:top) ~ c(1:top)' is treated as 'c(1:top) ~ 1'
-
-    ## Warning in plot.formula(c(1:top) ~ c(1:top), type = "n", axes = F, xlab =
-    ## "", : the formula 'c(1:top) ~ c(1:top)' is treated as 'c(1:top) ~ 1'
-
-![](../../figures/06_GO_MMU/Ceolin_GOpvals-1.png)
-
-    ## GO terms dispayed:  39 
-    ## "Good genes" accounted for:  202 out of 435 ( 46% )
 
     gomwuPlot(input,goAnnotations,goDivision,
         absValue=-log(0.05,10),  
@@ -114,7 +110,39 @@ From FMR1-KO data
     ## Warning in plot.formula(c(1:top) ~ c(1:top), type = "n", axes = F, xlab =
     ## "", : the formula 'c(1:top) ~ c(1:top)' is treated as 'c(1:top) ~ 1'
 
-![](../../figures/06_GO_MMU/Ceolin_GOpvals-2.png)
+![](../../figures/06_GO_MMU/CeolinMF-1.png)
 
     ## GO terms dispayed:  22 
     ## "Good genes" accounted for:  110 out of 435 ( 25% )
+
+    # input files
+    input="05_Ceolin_GOpvals.csv" 
+    goAnnotations="goAnnotations.tab" 
+    goDatabase="go.obo" 
+    goDivision="CC" # either MF, or BP, or CC
+
+    # Calculating stats
+    #gomwuStats(input, goDatabase, goAnnotations, goDivision, perlPath="perl", largest=0.1, smallest=5,clusterCutHeight=0.25)  
+
+    # Data viz
+
+    gomwuPlot(input,goAnnotations,goDivision,
+        absValue=-log(0.05,10),  
+        level1=0.001, 
+        level2=0.001, 
+        level3=0.0000000000001, 
+        txtsize=1.4,    
+        treeHeight=0.5, 
+      colors=c("#e7298a","#41b6c4","#e7298a","#41b6c4") 
+    )
+
+    ## Warning in plot.formula(c(1:top) ~ c(1:top), type = "n", axes = F, xlab =
+    ## "", : the formula 'c(1:top) ~ c(1:top)' is treated as 'c(1:top) ~ 1'
+
+    ## Warning in plot.formula(c(1:top) ~ c(1:top), type = "n", axes = F, xlab =
+    ## "", : the formula 'c(1:top) ~ c(1:top)' is treated as 'c(1:top) ~ 1'
+
+![](../../figures/06_GO_MMU/CeolinCC-1.png)
+
+    ## GO terms dispayed:  16 
+    ## "Good genes" accounted for:  245 out of 431 ( 57% )

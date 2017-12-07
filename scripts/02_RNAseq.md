@@ -45,24 +45,18 @@ cols = c(1:6)
 colData[,cols] %<>% lapply(function(x) as.factor(as.character(x)))
 
 # daytime
-colData$daytime2 <- as.character(colData$daytime)
-colData$daytime2 <- ifelse(grepl("beforenoon", colData$daytime2), "beforenoon", "afternoon")
-colData$daytime2 <- as.factor(colData$daytime2)
-
 colData$daytime3 <- as.character(colData$daytime)
 colData$daytime3 <- ifelse(grepl("beforenoon", colData$daytime3), "daytime", 
                            ifelse(grepl("afternoon", colData$daytime3), "daytime", "nighttime"))
 colData$daytime3 <- as.factor(colData$daytime3)
 
 # summary data
-colData %>% select(Genotype, APA, daytime, daytime2, daytime3)  %>%  summary()
+colData %>% select(Genotype, APA, daytime3)  %>%  summary()
 ```
 
-    ##  Genotype    APA           daytime        daytime2       daytime3
-    ##  FMR1:8   Yoked:16   afternoon :2   afternoon :10   daytime  :8  
-    ##  WT  :8              beforenoon:6   beforenoon: 6   nighttime:8  
-    ##                      evening   :5                                
-    ##                      nighttime :3
+    ##  Genotype    APA          daytime3
+    ##  FMR1:8   Yoked:16   daytime  :8  
+    ##  WT  :8              nighttime:8
 
 Total Gene Counts Per Sample
 ----------------------------
@@ -142,7 +136,7 @@ dds # view the DESeq object - note numnber of genes
     ## rownames(22485): 0610007P14Rik 0610009B22Rik ... Zzef1 Zzz3
     ## rowData names(0):
     ## colnames(16): 16-116B 16-117D ... 16-125D 16-126B
-    ## colData names(8): RNAseqID Mouse ... daytime2 daytime3
+    ## colData names(7): RNAseqID Mouse ... daytime daytime3
 
 ``` r
 dds <- dds[ rowSums(counts(dds)) > 1, ]  # Pre-filtering genes with 0 counts
@@ -156,7 +150,7 @@ dds # view number of genes afternormalization and the number of samples
     ## rownames(16979): 0610007P14Rik 0610009B22Rik ... Zzef1 Zzz3
     ## rowData names(0):
     ## colnames(16): 16-116B 16-117D ... 16-125D 16-126B
-    ## colData names(8): RNAseqID Mouse ... daytime2 daytime3
+    ## colData names(7): RNAseqID Mouse ... daytime daytime3
 
 ``` r
 dds <- DESeq(dds) # Differential expression analysis
@@ -171,6 +165,8 @@ PCA
 ``` r
 # create the dataframe using my function pcadataframe
 pcadata <- pcadataframe(rld, intgroup=c("Genotype"), returnData=TRUE)
+write.csv(pcadata, "../results/rnaseqpcadata.csv", row.names = T)
+
 percentVar <- round(100 * attr(pcadata, "percentVar"))
 percentVar
 ```
@@ -484,7 +480,7 @@ pheatmap(DEGes, show_colnames=F, show_rownames = T,
          treeheight_row = 10, treeheight_col = 10,
          legend=T,
          fontsize = 4.5, 
-         width=3.5, height=2.25,
+         width=3.5, height=3.25,
          border_color = "grey60" ,
          color = viridis(30),
          cellwidth = 8, 
@@ -500,13 +496,13 @@ pheatmap(DEGes, show_colnames=F, show_rownames = T,
          annotation_row = NA, 
          annotation_legend = FALSE,
          annotation_names_row = FALSE, annotation_names_col = FALSE,
-         treeheight_row = 20, treeheight_col = 20,
-         fontsize = 8, 
+         treeheight_row = 10, treeheight_col = 10,
+         fontsize = 7, 
          border_color = "grey60" ,
          color = viridis(30),
-         width=3.5, height=2.25,
-         cellwidth = 10,
-         #cellheight = 10,
+         width=2.5, height=3.25,
+         #cellwidth = 10,
+         #cellheight = 7,
          clustering_method="average",
          breaks=myBreaks,
          clustering_distance_cols="correlation", 
@@ -648,9 +644,9 @@ Write the files
 ---------------
 
 ``` r
-# write.csv(vsd, file = "../data/02_vsd.csv", row.names = T)
-# write.csv(rlddf, file = "../data/02_rlddf.csv", row.names = T)
-# write.csv(colData, file = "../data/02_colData.csv", row.names = T)
+write.csv(vsd, file = "../results/02_vsd.csv", row.names = T)
+write.csv(rlddf, file = "../results/02_rlddf.csv", row.names = T)
+write.csv(colData, file = "../results/02_colData.csv", row.names = T)
 write.csv(data, file = "../results/FMR1_CA1_rnaseq.csv", row.names = F)
 write.csv(venn1, file = "../results/FMR1_CA1_venn1.csv", row.names = F)
 ```

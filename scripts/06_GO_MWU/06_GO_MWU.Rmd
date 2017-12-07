@@ -38,7 +38,7 @@ knitr::opts_chunk$set(fig.path = '../../figures/06_GO_MMU/')
 
 ## From FMR1-KO data
 
-```{r GenotypeFMR1KOWT_GOpvals, eval=F}
+```{r GenotypeMF, eval=F}
 # input files
 input="GenotypeFMR1KOWT_GOpvals.csv" 
 goAnnotations="goAnnotations.tab" 
@@ -46,7 +46,29 @@ goDatabase="go.obo"
 goDivision="MF" # either MF, or BP, or CC
 
 # Calculating stats
-gomwuStats(input, goDatabase, goAnnotations, goDivision, perlPath="perl", largest=0.1, smallest=5,clusterCutHeight=0.25)  
+#gomwuStats(input, goDatabase, goAnnotations, goDivision, perlPath="perl", largest=0.1, smallest=5,clusterCutHeight=0.25)  
+
+# Data viz
+gomwuPlot(input,goAnnotations,goDivision,
+	absValue=-log(0.05,10),  
+	level1=0.1, 
+	level2=0.05, 
+	level3=0.01, 
+	txtsize=1.4,    
+	treeHeight=0.5, 
+  colors=c("firebrick1","dodgerblue2","firebrick1","dodgerblue2") 
+)
+```
+
+```{r GenotypeCC, eval=F}
+# input files
+input="GenotypeFMR1KOWT_GOpvals.csv" 
+goAnnotations="goAnnotations.tab" 
+goDatabase="go.obo" 
+goDivision="CC" # either MF, or BP, or CC
+
+# Calculating stats
+#gomwuStats(input, goDatabase, goAnnotations, goDivision, perlPath="perl", largest=0.1, smallest=5,clusterCutHeight=0.25)  
 
 # Data viz
 gomwuPlot(input,goAnnotations,goDivision,
@@ -60,7 +82,8 @@ gomwuPlot(input,goAnnotations,goDivision,
 )
 ```
 
-```{r Ceolin_GOpvals}
+
+```{r CeolinMF}
 # input files
 input="05_Ceolin_GOpvals.csv" 
 goAnnotations="goAnnotations.tab" 
@@ -68,18 +91,8 @@ goDatabase="go.obo"
 goDivision="MF" # either MF, or BP, or CC
 
 # Calculating stats
-gomwuStats(input, goDatabase, goAnnotations, goDivision, perlPath="perl", largest=0.1, smallest=5,clusterCutHeight=0.25)  
+#gomwuStats(input, goDatabase, goAnnotations, goDivision, perlPath="perl", largest=0.1, smallest=5,clusterCutHeight=0.25)  
 
-# Data viz
-gomwuPlot(input,goAnnotations,goDivision,
-	absValue=-log(0.05,10),  
-	level1=0.05, 
-	level2=0.05, 
-	level3=0.01, 
-	txtsize=1.4,    
-	treeHeight=0.5, 
-  colors=c("#e7298a","#41b6c4","#e7298a","#41b6c4") 
-)
 
 gomwuPlot(input,goAnnotations,goDivision,
 	absValue=-log(0.05,10),  
@@ -93,39 +106,26 @@ gomwuPlot(input,goAnnotations,goDivision,
 
 ```
 
-
-```{r CeolinHarisOverlap}
-
-library(dplyr)
-
-#list of all genes. I only care about column 1
-allgenes <- read.csv("GenotypeFMR1KOWT_GOpvals.csv", header = T)
-allgenes <- select(allgenes, gene)
-
-# first, identify genes differentially expressed by region in all experiments
-intersection <- read.csv("CeolinHarrisOverlap.csv", header=F)
-colnames(intersection)<- c("gene")
-intersection$PresAbs <- 1
-intersection <- full_join(allgenes, intersection)
-intersection <- intersection %>%
-   mutate(PresAbs = replace(PresAbs,is.na(PresAbs),0))
-str(intersection)
-
-write.csv(intersection, "./intersection.csv", row.names = F)
-
-
+```{r CeolinCC}
 # input files
-input="intersection.csv" 
+input="05_Ceolin_GOpvals.csv" 
 goAnnotations="goAnnotations.tab" 
 goDatabase="go.obo" 
-goDivision="MF" # either MF, or BP, or CC
+goDivision="CC" # either MF, or BP, or CC
 
 # Calculating stats
-gomwuStats(input, goDatabase, goAnnotations, goDivision,	perlPath="perl",  largest=0.1, smallest=5, clusterCutHeight=0.25, Alternative="g")
+#gomwuStats(input, goDatabase, goAnnotations, goDivision, perlPath="perl", largest=0.1, smallest=5,clusterCutHeight=0.25)  
 
-#Secondary clustering:
-#calculating similarities....
-#Binary classification detected; will perform Fisher's test
-#0  GO terms at 10% FDR
+# Data viz
+
+gomwuPlot(input,goAnnotations,goDivision,
+	absValue=-log(0.05,10),  
+	level1=0.001, 
+	level2=0.001, 
+	level3=0.0000000000001, 
+	txtsize=1.4,    
+	treeHeight=0.5, 
+  colors=c("#e7298a","#41b6c4","#e7298a","#41b6c4") 
+)
+
 ```
-

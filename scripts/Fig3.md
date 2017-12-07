@@ -56,7 +56,7 @@ y-axis with `geom_hline`.
       geom_hline(yintercept=c(0.32,0.64, 0.96), color="black" , linetype="dashed") 
     timespent1
 
-![](../figures/01_behavior/unnamed-chunk-1-1.png)
+![](../figures/01_behavior/fig3-1.png)
 
     timespent2 <- proptime %>%
       filter(APA2 %in% c("yoked-consistent","yoked-conflict")) %>%
@@ -77,7 +77,7 @@ y-axis with `geom_hline`.
       geom_hline(yintercept=c(0.25,0.50, 0.75), color="black" , linetype="dashed")
     timespent2
 
-![](../figures/01_behavior/unnamed-chunk-1-2.png)
+![](../figures/01_behavior/fig3-2.png)
 
     pdf(file="../figures/01_behavior/timespent1.pdf", width=6, height=2.25)
     plot(timespent1)
@@ -135,5 +135,65 @@ not the first and last pre-training and retest sessions).
     ## Genotype        1  0.001  0.0012   0.053    0.818    
     ## APA2:Genotype   3  0.007  0.0023   0.100    0.960    
     ## Residuals     286  6.475  0.0226                     
+    ## ---
+    ## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+
+    timespent <- behavior %>%
+        filter(TrainSessionComboNum %in% c("2", "3", "4", "5" ,"6", "7", "8")) 
+    Anova(lm(data = timespent, pTimeTarget ~ Genotype * APA2 ), type = 3)
+
+    ## Anova Table (Type III tests)
+    ## 
+    ## Response: pTimeTarget
+    ##                Sum Sq  Df  F value Pr(>F)    
+    ## (Intercept)   1.36256   1 412.3498 <2e-16 ***
+    ## Genotype      0.00493   1   1.4909 0.2231    
+    ## APA2          1.27461   3 128.5783 <2e-16 ***
+    ## Genotype:APA2 0.00260   3   0.2627 0.8523    
+    ## Residuals     0.94505 286                    
+    ## ---
+    ## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+
+    timespent <- behavior %>%
+        filter(TrainSessionComboNum %in% c("2", "3", "4", "5" ,"6", "7", "8")) %>%
+      filter(APA2 %in% c("yoked-consistent", "yoked-conflict"))
+    Anova(lm(data = timespent, pTimeTarget ~ Genotype * APA2 ), type = 3)
+
+    ## Anova Table (Type III tests)
+    ## 
+    ## Response: pTimeTarget
+    ##                Sum Sq Df  F value Pr(>F)    
+    ## (Intercept)   1.36256  1 191.1769 <2e-16 ***
+    ## Genotype      0.00493  1   0.6912 0.4077    
+    ## APA2          0.00094  1   0.1320 0.7171    
+    ## Genotype:APA2 0.00135  1   0.1896 0.6642    
+    ## Residuals     0.70559 99                    
+    ## ---
+    ## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+
+    timespent <- behavior %>%
+        filter(TrainSessionComboNum %in% c("2", "3", "4")) %>%
+      filter(APA2 %in% c("consistent", "conflict"))
+    summary(aov(data =  timespent, pTimeTarget ~ Genotype * APA2 ))
+
+    ##               Df  Sum Sq  Mean Sq F value Pr(>F)  
+    ## Genotype       1 0.00009 0.000085   0.040 0.8414  
+    ## APA2           1 0.00729 0.007289   3.438 0.0674 .
+    ## Genotype:APA2  1 0.00038 0.000385   0.182 0.6712  
+    ## Residuals     80 0.16959 0.002120                 
+    ## ---
+    ## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+
+    Anova(lm(data = timespent, pTimeTarget ~ Genotype * APA2 ), type = 3)
+
+    ## Anova Table (Type III tests)
+    ## 
+    ## Response: pTimeTarget
+    ##                 Sum Sq Df F value    Pr(>F)    
+    ## (Intercept)   0.048546  1 22.9009 7.678e-06 ***
+    ## Genotype      0.000269  1  0.1268   0.72272    
+    ## APA2          0.006319  1  2.9809   0.08811 .  
+    ## Genotype:APA2 0.000385  1  0.1816   0.67117    
+    ## Residuals     0.169586 80                      
     ## ---
     ## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1

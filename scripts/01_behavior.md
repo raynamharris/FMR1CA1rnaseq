@@ -14,6 +14,23 @@ propportion of time spent in each of those locaitons.
                                            "APA2", "TrainSessionCombo", "TrainSessionComboNum")) 
     write.csv(proptime, "../results/behaviorproptime.csv", row.names = F)
 
+    numentr <- dplyr::summarise(group_by(behavior, Genotype, APA2, TrainSessionComboNum, conflict), m = mean(NumEntrances), se = sd(NumEntrances)/sqrt(length(NumEntrances)), len = length(NumEntrances))
+
+    pathentr <- dplyr::summarise(group_by(behavior, Genotype, APA2, TrainSessionComboNum, conflict), m = mean(Path1stEntr), se = sd(Path1stEntr)/sqrt(length(Path1stEntr)), len = length(Path1stEntr))
+
+    levels(numentr$APA2) <- c("yoked-consistent","consistent", "yoked-conflict","conflict")
+    levels(pathentr$APA2) <- c("yoked-consistent","consistent", "yoked-conflict","conflict")
+
+    numentr$conflict = factor(numentr$conflict, levels = c("consistent","conflict"))
+    pathentr$conflict = factor(numentr$conflict, levels = c("consistent","conflict"))
+    numentr$measure <- "Number of Entrances"
+    pathentr$measure <- "Path to the 1st Entrance"
+
+    PathNum <- rbind(pathentr,numentr)
+    PathNum$measure <- as.factor(PathNum$measure)
+
+    write.csv(PathNum, "../results/behaviordatasummary.csv", row.names = F)
+
     ## conflict
     PathNumStats <- behavior  %>% 
       filter(TrainSessionComboNum == "6") 
@@ -321,352 +338,14 @@ propportion of time spent in each of those locaitons.
     ## conflict-consistent             -1.3275 -10.941393  8.286393 0.9778648
     ## conflict-yoked-conflict         -2.3425 -12.873992  8.188992 0.9170112
 
+    ## quartz_off_screen 
+    ##                 2
+
     ## Warning: Removed 2 rows containing non-finite values (stat_boxplot).
 
-    ## quartz_off_screen 
-    ##                 2
+![](../figures/01_behavior/figure2-1.png)
 
-    ## quartz_off_screen 
-    ##                 2
-
-![Figure 2.4](../figures/fig1-07.png)
-
-    timespent <- behavior %>%
-        filter(TrainSessionComboNum %in% c("2", "3", "4", "5" ,"6", "7", "8")) 
-    Anova(lm(data = timespent, pTimeTarget ~ Genotype * APA2 ), type = 3)
-
-    ## Anova Table (Type III tests)
-    ## 
-    ## Response: pTimeTarget
-    ##                Sum Sq  Df  F value Pr(>F)    
-    ## (Intercept)   1.36256   1 412.3498 <2e-16 ***
-    ## Genotype      0.00493   1   1.4909 0.2231    
-    ## APA2          1.27461   3 128.5783 <2e-16 ***
-    ## Genotype:APA2 0.00260   3   0.2627 0.8523    
-    ## Residuals     0.94505 286                    
-    ## ---
-    ## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
-
-    timespent <- behavior %>%
-        filter(TrainSessionComboNum %in% c("2", "3", "4", "5" ,"6", "7", "8")) %>%
-      filter(APA2 %in% c("yoked-consistent", "yoked-conflict"))
-    Anova(lm(data = timespent, pTimeTarget ~ Genotype * APA2 ), type = 3)
-
-    ## Anova Table (Type III tests)
-    ## 
-    ## Response: pTimeTarget
-    ##                Sum Sq Df  F value Pr(>F)    
-    ## (Intercept)   1.36256  1 191.1769 <2e-16 ***
-    ## Genotype      0.00493  1   0.6912 0.4077    
-    ## APA2          0.00094  1   0.1320 0.7171    
-    ## Genotype:APA2 0.00135  1   0.1896 0.6642    
-    ## Residuals     0.70559 99                    
-    ## ---
-    ## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
-
-    timespent <- behavior %>%
-        filter(TrainSessionComboNum %in% c("2", "3", "4")) %>%
-      filter(APA2 %in% c("consistent", "conflict"))
-    summary(aov(data =  timespent, pTimeTarget ~ Genotype * APA2 ))
-
-    ##               Df  Sum Sq  Mean Sq F value Pr(>F)  
-    ## Genotype       1 0.00009 0.000085   0.040 0.8414  
-    ## APA2           1 0.00729 0.007289   3.438 0.0674 .
-    ## Genotype:APA2  1 0.00038 0.000385   0.182 0.6712  
-    ## Residuals     80 0.16959 0.002120                 
-    ## ---
-    ## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
-
-    Anova(lm(data = timespent, pTimeTarget ~ Genotype * APA2 ), type = 3)
-
-    ## Anova Table (Type III tests)
-    ## 
-    ## Response: pTimeTarget
-    ##                 Sum Sq Df F value    Pr(>F)    
-    ## (Intercept)   0.048546  1 22.9009 7.678e-06 ***
-    ## Genotype      0.000269  1  0.1268   0.72272    
-    ## APA2          0.006319  1  2.9809   0.08811 .  
-    ## Genotype:APA2 0.000385  1  0.1816   0.67117    
-    ## Residuals     0.169586 80                      
-    ## ---
-    ## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
-
-    timespent <- behavior %>%
-        filter(TrainSessionComboNum %in% c("6", "7", "8")) %>%
-      filter(APA2 %in% c("consistent", "conflict"))
-    Anova(lm(data = timespent, pTimeTarget ~ Genotype * APA2 ), type = 3)
-
-    ## Anova Table (Type III tests)
-    ## 
-    ## Response: pTimeTarget
-    ##                 Sum Sq Df F value   Pr(>F)   
-    ## (Intercept)   0.004166  1  7.5179 0.007573 **
-    ## Genotype      0.001086  1  1.9598 0.165496   
-    ## APA2          0.000674  1  1.2166 0.273413   
-    ## Genotype:APA2 0.000331  1  0.5973 0.441959   
-    ## Residuals     0.043222 78                    
-    ## ---
-    ## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
-
-    Anova(lm(data = timespent, pTimeCW ~ Genotype * APA2 ), type = 3)
-
-    ## Anova Table (Type III tests)
-    ## 
-    ## Response: pTimeCW
-    ##                Sum Sq Df F value    Pr(>F)    
-    ## (Intercept)   0.18035  1  7.8726  0.006334 ** 
-    ## Genotype      0.00610  1  0.2661  0.607424    
-    ## APA2          0.53471  1 23.3405 6.651e-06 ***
-    ## Genotype:APA2 0.00061  1  0.0267  0.870690    
-    ## Residuals     1.78689 78                      
-    ## ---
-    ## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
-
-    Anova(lm(data = timespent, pTimeCCW ~ Genotype * APA2 ), type = 3)
-
-    ## Anova Table (Type III tests)
-    ## 
-    ## Response: pTimeCCW
-    ##               Sum Sq Df  F value    Pr(>F)    
-    ## (Intercept)   3.4318  1 131.5911 < 2.2e-16 ***
-    ## Genotype      0.0667  1   2.5578  0.113793    
-    ## APA2          0.2160  1   8.2837  0.005159 ** 
-    ## Genotype:APA2 0.0668  1   2.5604  0.113612    
-    ## Residuals     2.0342 78                       
-    ## ---
-    ## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
-
-    Anova(lm(data = timespent, pTimeOPP ~ Genotype * APA2 ), type = 3)
-
-    ## Anova Table (Type III tests)
-    ## 
-    ## Response: pTimeOPP
-    ##               Sum Sq Df  F value  Pr(>F)    
-    ## (Intercept)   6.5392  1 227.5348 < 2e-16 ***
-    ## Genotype      0.1363  1   4.7442 0.03242 *  
-    ## APA2          0.0854  1   2.9729 0.08863 .  
-    ## Genotype:APA2 0.0634  1   2.2059 0.14152    
-    ## Residuals     2.2417 78                     
-    ## ---
-    ## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
-
-    TukeyHSD(aov(data = timespent, pTimeTarget ~ Genotype * APA2 ))
-
-    ##   Tukey multiple comparisons of means
-    ##     95% family-wise confidence level
-    ## 
-    ## Fit: aov(formula = pTimeTarget ~ Genotype * APA2, data = timespent)
-    ## 
-    ## $Genotype
-    ##                 diff          lwr        upr     p adj
-    ## FMR1KO-WT 0.00582024 -0.004852756 0.01649324 0.2809749
-    ## 
-    ## $APA2
-    ##                            diff         lwr        upr     p adj
-    ## conflict-consistent 0.004113866 -0.00624914 0.01447687 0.4317379
-    ## 
-    ## $`Genotype:APA2`
-    ##                                           diff          lwr        upr
-    ## FMR1KO:consistent-WT:consistent    0.010119737 -0.008857671 0.02909715
-    ## WT:conflict-WT:consistent          0.007284259 -0.010053089 0.02462161
-    ## FMR1KO:conflict-WT:consistent      0.008975000 -0.012874429 0.03082443
-    ## WT:conflict-FMR1KO:consistent     -0.002835478 -0.021341169 0.01567021
-    ## FMR1KO:conflict-FMR1KO:consistent -0.001144737 -0.023932333 0.02164286
-    ## FMR1KO:conflict-WT:conflict        0.001690741 -0.019750252 0.02313173
-    ##                                       p adj
-    ## FMR1KO:consistent-WT:consistent   0.5032108
-    ## WT:conflict-WT:consistent         0.6887573
-    ## FMR1KO:conflict-WT:consistent     0.7036780
-    ## WT:conflict-FMR1KO:consistent     0.9778290
-    ## FMR1KO:conflict-FMR1KO:consistent 0.9991738
-    ## FMR1KO:conflict-WT:conflict       0.9968360
-
-    TukeyHSD(aov(data = timespent, pTimeCW ~ Genotype * APA2 ))
-
-    ##   Tukey multiple comparisons of means
-    ##     95% family-wise confidence level
-    ## 
-    ## Fit: aov(formula = pTimeCW ~ Genotype * APA2, data = timespent)
-    ## 
-    ## $Genotype
-    ##                    diff         lwr        upr    p adj
-    ## FMR1KO-WT -0.0007857052 -0.06941043 0.06783902 0.981873
-    ## 
-    ## $APA2
-    ##                         diff       lwr       upr p adj
-    ## conflict-consistent 0.205344 0.1387124 0.2719755     0
-    ## 
-    ## $`Genotype:APA2`
-    ##                                         diff         lwr       upr
-    ## FMR1KO:consistent-WT:consistent   0.02397566 -0.09804438 0.1459957
-    ## WT:conflict-WT:consistent         0.20514213  0.09366727 0.3166170
-    ## FMR1KO:conflict-WT:consistent     0.24057083  0.10008441 0.3810573
-    ## WT:conflict-FMR1KO:consistent     0.18116647  0.06217945 0.3001535
-    ## FMR1KO:conflict-FMR1KO:consistent 0.21659518  0.07007657 0.3631138
-    ## FMR1KO:conflict-WT:conflict       0.03542870 -0.10243157 0.1732890
-    ##                                       p adj
-    ## FMR1KO:consistent-WT:consistent   0.9550673
-    ## WT:conflict-WT:consistent         0.0000389
-    ## FMR1KO:conflict-WT:consistent     0.0001379
-    ## WT:conflict-FMR1KO:consistent     0.0008182
-    ## FMR1KO:conflict-FMR1KO:consistent 0.0012165
-    ## FMR1KO:conflict-WT:conflict       0.9063729
-
-    TukeyHSD(aov(data = timespent, pTimeCCW ~ Genotype * APA2 ))
-
-    ##   Tukey multiple comparisons of means
-    ##     95% family-wise confidence level
-    ## 
-    ## Fit: aov(formula = pTimeCCW ~ Genotype * APA2, data = timespent)
-    ## 
-    ## $Genotype
-    ##                 diff         lwr       upr     p adj
-    ## FMR1KO-WT 0.05152245 -0.02169689 0.1247418 0.1652085
-    ## 
-    ## $APA2
-    ##                           diff        lwr         upr   p adj
-    ## conflict-consistent -0.1709606 -0.2420533 -0.09986782 7.9e-06
-    ## 
-    ## $`Genotype:APA2`
-    ##                                          diff         lwr         upr
-    ## FMR1KO:consistent-WT:consistent    0.07931096 -0.05087865  0.20950058
-    ## WT:conflict-WT:consistent         -0.13039352 -0.24933193 -0.01145511
-    ## FMR1KO:conflict-WT:consistent     -0.17080833 -0.32070071 -0.02091596
-    ## WT:conflict-FMR1KO:consistent     -0.20970448 -0.33665801 -0.08275096
-    ## FMR1KO:conflict-FMR1KO:consistent -0.25011930 -0.40644773 -0.09379087
-    ## FMR1KO:conflict-WT:conflict       -0.04041481 -0.18750522  0.10667559
-    ##                                       p adj
-    ## FMR1KO:consistent-WT:consistent   0.3850072
-    ## WT:conflict-WT:consistent         0.0259978
-    ## FMR1KO:conflict-WT:consistent     0.0190587
-    ## WT:conflict-FMR1KO:consistent     0.0002467
-    ## FMR1KO:conflict-FMR1KO:consistent 0.0004019
-    ## FMR1KO:conflict-WT:conflict       0.8883106
-
-    TukeyHSD(aov(data = timespent, pTimeOPP ~ Genotype * APA2 ))
-
-    ##   Tukey multiple comparisons of means
-    ##     95% family-wise confidence level
-    ## 
-    ## Fit: aov(formula = pTimeOPP ~ Genotype * APA2, data = timespent)
-    ## 
-    ## $Genotype
-    ##                  diff        lwr        upr     p adj
-    ## FMR1KO-WT -0.05656091 -0.1334239 0.02030207 0.1469407
-    ## 
-    ## $APA2
-    ##                            diff        lwr        upr     p adj
-    ## conflict-consistent -0.03848289 -0.1131134 0.03614765 0.3077956
-    ## 
-    ## $`Genotype:APA2`
-    ##                                           diff        lwr        upr
-    ## FMR1KO:consistent-WT:consistent   -0.113388596 -0.2500569 0.02327968
-    ## WT:conflict-WT:consistent         -0.082001852 -0.2068590 0.04285532
-    ## FMR1KO:conflict-WT:consistent     -0.078733333 -0.2360848 0.07861818
-    ## WT:conflict-FMR1KO:consistent      0.031386745 -0.1018844 0.16465790
-    ## FMR1KO:conflict-FMR1KO:consistent  0.034655263 -0.1294526 0.19876311
-    ## FMR1KO:conflict-WT:conflict        0.003268519 -0.1511416 0.15767862
-    ##                                       p adj
-    ## FMR1KO:consistent-WT:consistent   0.1384239
-    ## WT:conflict-WT:consistent         0.3182425
-    ## FMR1KO:conflict-WT:consistent     0.5571467
-    ## WT:conflict-FMR1KO:consistent     0.9259496
-    ## FMR1KO:conflict-FMR1KO:consistent 0.9450870
-    ## FMR1KO:conflict-WT:conflict       0.9999378
-
-    mean(timespent$pTimeTarget)
-
-    ## [1] 0.01923171
-
-    mean(timespent$pTimeOPP)
-
-    ## [1] 0.4571878
-
-    mean(timespent$pTimeCW)
-
-    ## [1] 0.1949951
-
-    mean(timespent$pTimeCCW)
-
-    ## [1] 0.3285878
-
-    timespent <- behavior %>%
-        filter(TrainSessionComboNum %in% c("6", "7", "8")) %>%
-      filter(APA2 %in% c("conflict"))
-
-    mean(timespent$pTimeTarget)
-
-    ## [1] 0.02097949
-
-    mean(timespent$pTimeOPP)
-
-    ## [1] 0.4409872
-
-    mean(timespent$pTimeCW)
-
-    ## [1] 0.3027308
-
-    mean(timespent$pTimeCCW)
-
-    ## [1] 0.2353128
-
-    timespent <- behavior %>%
-        filter(TrainSessionComboNum %in% c("6", "7", "8")) %>%
-      filter(APA2 %in% c("consistent"))
-
-    mean(timespent$pTimeTarget)
-
-    ## [1] 0.01764651
-
-    mean(timespent$pTimeOPP)
-
-    ## [1] 0.4718814
-
-    mean(timespent$pTimeCW)
-
-    ## [1] 0.0972814
-
-    mean(timespent$pTimeCCW)
-
-    ## [1] 0.413186
-
-    timespent <- behavior %>%
-        filter(TrainSessionComboNum %in% c("6", "7", "8")) %>%
-      filter(Genotype %in% c("FMR1KO"))
-    mean(timespent$pTimeOPP)
-
-    ## [1] 0.3438088
-
-    timespent <- behavior %>%
-        filter(TrainSessionComboNum %in% c("6", "7", "8")) %>%
-      filter(Genotype %in% c("WT"))
-    mean(timespent$pTimeOPP)
-
-    ## [1] 0.4225437
-
-    ## quartz_off_screen 
-    ##                 2
-
-    ## quartz_off_screen 
-    ##                 2
-
-    ## quartz_off_screen 
-    ##                 2
-
-    ## quartz_off_screen 
-    ##                 2
-
-    ## quartz_off_screen 
-    ##                 2
-
-![Fig. 2.5.Summary of punishment and estimates of memory in WT and
-FMR1-KO mice](../figures/fig1-02.png)
-
-    ## quartz_off_screen 
-    ##                 2
-
-    ## quartz_off_screen 
-    ##                 2
+    ## Warning: Removed 2 rows containing non-finite values (stat_boxplot).
 
     ## quartz_off_screen 
     ##                 2

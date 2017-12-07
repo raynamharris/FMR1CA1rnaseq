@@ -51,7 +51,7 @@ mean(PathNumStats$pTimeCW)
 
 This is the code use to make a stacked bar plot of the proportion of time spent in the area 
 
-```{r}
+```{r fig2A}
 # the name 'timespent3' is a reminant from a previous order of figures
 timespent3 <- proptime %>%
   filter(TrainSessionComboNum %in% c("1")) %>%
@@ -97,10 +97,8 @@ summary(aov(value ~  APA2 * Genotype + variable, data=proptime))
 
 This is for making panel B and C of the number of entrances and path to first entrance. I make each figure separately, then I used a 3 figure for cropping a single legend at the bottom. There might be an easier way to do this, but this is my solution.
 
-```{r numentr}
-# my black, read, grey, peadh color scheme
+```{r fig2B}
 colorvalAPA2 <-  c( "#404040","#ca0020", "#bababa", "#f4a582")
-# #404040 darkgrey #ca0020  red  #bababa light grey  #f4a582 peach
 
 num1 <- behavior %>%
     filter(TrainSessionComboNum %in% c("1")) %>% 
@@ -120,7 +118,12 @@ num1 <- behavior %>%
     background_grid(major = "y", minor = "none") 
 num1
 
+pdf(file="../figures/01_behavior/num1.pdf", width=1.75, height=1.9)
+plot(num1)
+dev.off()
+```
 
+```{r fig2C}
 path1 <- behavior %>%
     filter(TrainSessionComboNum %in% c("1")) %>% 
   ggplot(aes(x = as.numeric(TrainSessionComboNum), 
@@ -153,9 +156,6 @@ legend2 <- behavior %>%
   theme(legend.position = "bottom")
 legend2
 
-pdf(file="../figures/01_behavior/num1.pdf", width=1.75, height=1.9)
-plot(num1)
-dev.off()
 pdf(file="../figures/01_behavior/path1.pdf", width=1.75, height=1.9)
 plot(path1)
 dev.off()

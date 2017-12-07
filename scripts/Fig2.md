@@ -77,7 +77,7 @@ time spent in the area
       theme(axis.text.x = element_text(angle = 45, hjust = 1))
     timespent3
 
-![](../figures/01_behavior/unnamed-chunk-1-1.png)
+![](../figures/01_behavior/fig2A-1.png)
 
     pdf(file="../figures/01_behavior/timespent3.pdf", width=2, height=2.25)
     plot(timespent3)
@@ -154,9 +154,7 @@ first entrance. I make each figure separately, then I used a 3 figure
 for cropping a single legend at the bottom. There might be an easier way
 to do this, but this is my solution.
 
-    # my black, read, grey, peadh color scheme
     colorvalAPA2 <-  c( "#404040","#ca0020", "#bababa", "#f4a582")
-    # #404040 darkgrey #ca0020  red  #bababa light grey  #f4a582 peach
 
     num1 <- behavior %>%
         filter(TrainSessionComboNum %in% c("1")) %>% 
@@ -178,7 +176,17 @@ to do this, but this is my solution.
 
     ## Warning: Removed 4 rows containing non-finite values (stat_boxplot).
 
-![](../figures/01_behavior/numentr-1.png)
+![](../figures/01_behavior/fig2B-1.png)
+
+    pdf(file="../figures/01_behavior/num1.pdf", width=1.75, height=1.9)
+    plot(num1)
+
+    ## Warning: Removed 4 rows containing non-finite values (stat_boxplot).
+
+    dev.off()
+
+    ## quartz_off_screen 
+    ##                 2
 
     path1 <- behavior %>%
         filter(TrainSessionComboNum %in% c("1")) %>% 
@@ -197,7 +205,7 @@ to do this, but this is my solution.
         background_grid(major = "y", minor = "none") 
     path1
 
-![](../figures/01_behavior/numentr-2.png)
+![](../figures/01_behavior/fig2C-1.png)
 
     legend2 <- behavior %>%
         filter(TrainSessionComboNum %in% c("1")) %>% 
@@ -214,17 +222,7 @@ to do this, but this is my solution.
       theme(legend.position = "bottom")
     legend2
 
-![](../figures/01_behavior/numentr-3.png)
-
-    pdf(file="../figures/01_behavior/num1.pdf", width=1.75, height=1.9)
-    plot(num1)
-
-    ## Warning: Removed 4 rows containing non-finite values (stat_boxplot).
-
-    dev.off()
-
-    ## quartz_off_screen 
-    ##                 2
+![](../figures/01_behavior/fig2C-2.png)
 
     pdf(file="../figures/01_behavior/path1.pdf", width=1.75, height=1.9)
     plot(path1)

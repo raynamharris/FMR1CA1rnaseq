@@ -1,6 +1,169 @@
 ---
 title: "Figure 4"
-output: html_document
+output: md_document
 ---
 
 ![Figure 2.4](../figures/fig1-07.png)
+Fig. 2.4: Consistent and conflict trained mice use space differently during conflict training sessions. 
+A) During the conflict training sessions, consistent and conflict mice both avoid the shock zone, but there is not a difference between groups. B) Consistently trained mice spend significantly less time in space clockwise to the shock zone. C) All groups spend more time on average in the space opposite the shock zone, but there are no group differences. D) Consistently trained mice spend more time in the counterclockwise zone than conflict mice. Legend) dark grey: yoked-consistent, red: consistently-trained, light grey: yoked-conflict, peach: conflict-trained.
+
+These are the packages required for making the figures and doing stats. 
+
+```{r setup, warning = F, message = F}
+library(dplyr) # for subsetting data 
+library(car) # for fancy ANOVA
+library(ggplot2) # for plotting
+library(cowplot) # for "easier"" ggplot themes
+
+knitr::opts_chunk$set(fig.path = '../figures/01_behavior/')
+```
+
+This chuck of code is for loading and formatting the dataframes.
+
+```{r loaddata, message=F, warning = F}
+behavior <- read.csv("../results/behaviordata.csv", header = T)
+behavior$APA2 <- factor(behavior$APA2, levels = c("yoked-consistent","consistent", "yoked-conflict","conflict")) ## relevel then rename factors treatment
+behavior$Genotype <- factor(behavior$Genotype, levels = c("WT","FMR1KO")) # relevel genotype
+
+```
+
+
+```{r fig4, echo=F, warning=F, results=F}
+colorvalAPA2 <-  c( "#404040","#ca0020", "#bababa", "#f4a582")
+
+
+timet <- behavior %>%
+  filter(APA2 %in% c("consistent","conflict")) %>%
+    filter(TrainSessionComboNum %in% c("6", "7", "8")) %>% 
+  ggplot(aes(x = as.numeric(TrainSessionComboNum), y = pTimeTarget, fill=APA2)) +
+  geom_boxplot(outlier.size=0.8) +
+  facet_wrap(~Genotype) +
+  scale_fill_manual(values = c("#ca0020", "#f4a582")) +  
+ scale_x_continuous(name="Shock Zone", 
+                       breaks = c(1, 2, 3, 4, 5, 6, 7, 8, 9),
+                       labels = NULL) +
+    scale_y_continuous(name = "Propotion of Time Spent",
+                       breaks = c(0,0.04, 0.08, 0.12),
+                         limits= c(0,0.14)) +
+  #geom_hline(yintercept=c(0.04), color="black" , linetype="dashed") + 
+  theme_cowplot(font_size = 8, line_size = 0.25) +
+ theme(legend.position="none")
+timet
+
+
+timecw <- behavior %>%
+  filter(APA2 %in% c("consistent","conflict")) %>%
+    filter(TrainSessionComboNum %in% c("6", "7", "8")) %>% 
+  ggplot(aes(x = as.numeric(TrainSessionComboNum), y = pTimeCW, fill=APA2)) +
+  geom_boxplot(outlier.size=0.8) +
+  facet_wrap(~Genotype) +
+  scale_fill_manual(values = c("#ca0020", "#f4a582")) +  
+ scale_x_continuous(name="Clockwise", 
+                       breaks = c(1, 2, 3, 4, 5, 6, 7, 8, 9),
+                       labels = NULL) +
+  geom_hline(yintercept=c(0.33), color="black" , linetype="dashed") + 
+    scale_y_continuous(name = NULL,
+                       breaks = c(0,0.33, 0.66),
+                     limits= c(0,0.8)) +
+  theme_cowplot(font_size = 8, line_size = 0.25) +
+ theme(legend.position="none")
+timecw
+
+
+timeopp <- behavior %>%
+  filter(APA2 %in% c("consistent","conflict")) %>%
+    filter(TrainSessionComboNum %in% c("6", "7", "8")) %>% 
+  ggplot(aes(x = as.numeric(TrainSessionComboNum), y = pTimeOPP, fill=APA2)) +
+  geom_boxplot(outlier.size=0.8) +
+  facet_wrap(~Genotype) +
+  scale_fill_manual(values = c("#ca0020", "#f4a582")) + 
+    scale_y_continuous(name = " ",
+                       breaks = c(0,0.33, 0.66),
+                     limits= c(0,0.8)) +
+ scale_x_continuous(name="Opposite", 
+                       breaks = c(1, 2, 3, 4, 5, 6, 7, 8, 9),
+                       labels = NULL) +
+  geom_hline(yintercept=c(0.33), color="black" , linetype="dashed") + 
+  theme_cowplot(font_size = 8, line_size = 0.25) +
+  theme(legend.position="none")
+timeopp
+
+timeccw <- behavior %>%
+  filter(APA2 %in% c("consistent","conflict")) %>%
+    filter(TrainSessionComboNum %in% c("6", "7", "8")) %>% 
+  ggplot(aes(x = as.numeric(TrainSessionComboNum), y = pTimeCCW, fill=APA2)) +
+  geom_boxplot(outlier.size=0.8) +
+  facet_wrap(~Genotype) +
+  scale_fill_manual(values = c("#ca0020", "#f4a582")) +  
+ scale_x_continuous(name="Counter clockwise", 
+                       breaks = c(1, 2, 3, 4, 5, 6, 7, 8, 9),
+                       labels = NULL) +
+  geom_hline(yintercept=c(0.33), color="black" , linetype="dashed") + 
+    scale_y_continuous(name = " ",
+      breaks = c(0,0.33, 0.66),
+                     limits= c(0,0.8)) +
+  theme_cowplot(font_size = 8, line_size = 0.25) +
+  theme(legend.position="none")
+timeccw
+
+pdf(file="../figures/01_behavior/timecw.pdf", width=1.5, height=2)
+plot(timecw)
+dev.off()
+pdf(file="../figures/01_behavior/timeccw.pdf", width=1.5, height=2)
+plot(timeccw)
+dev.off()
+
+pdf(file="../figures/01_behavior/timet.pdf", width=1.5, height=2)
+plot(timet)
+dev.off()
+pdf(file="../figures/01_behavior/timeopp.pdf", width=1.5, height=2)
+plot(timeopp)
+dev.off()
+
+```
+
+
+```{r statistics}
+# time spent consistent and conflict only
+timespent <- behavior %>%
+    filter(TrainSessionComboNum %in% c("6", "7", "8")) %>%
+  filter(APA2 %in% c("consistent", "conflict"))
+Anova(lm(data = timespent, pTimeTarget ~ Genotype * APA2 ), type = 3)
+Anova(lm(data = timespent, pTimeCW ~ Genotype * APA2 ), type = 3)
+Anova(lm(data = timespent, pTimeCCW ~ Genotype * APA2 ), type = 3)
+Anova(lm(data = timespent, pTimeOPP ~ Genotype * APA2 ), type = 3)
+
+TukeyHSD(aov(data = timespent, pTimeTarget ~ Genotype * APA2 ))
+TukeyHSD(aov(data = timespent, pTimeCW ~ Genotype * APA2 ))
+TukeyHSD(aov(data = timespent, pTimeCCW ~ Genotype * APA2 ))
+TukeyHSD(aov(data = timespent, pTimeOPP ~ Genotype * APA2 ))
+
+timespent <- behavior %>%
+    filter(TrainSessionComboNum %in% c("6", "7", "8")) %>%
+  filter(APA2 %in% c("conflict"))
+
+mean(timespent$pTimeTarget)
+mean(timespent$pTimeOPP)
+mean(timespent$pTimeCW)
+mean(timespent$pTimeCCW)
+
+timespent <- behavior %>%
+    filter(TrainSessionComboNum %in% c("6", "7", "8")) %>%
+  filter(APA2 %in% c("consistent"))
+
+mean(timespent$pTimeTarget)
+mean(timespent$pTimeOPP)
+mean(timespent$pTimeCW)
+mean(timespent$pTimeCCW)
+
+timespent <- behavior %>%
+    filter(TrainSessionComboNum %in% c("6", "7", "8")) %>%
+  filter(Genotype %in% c("FMR1KO"))
+mean(timespent$pTimeOPP)
+
+timespent <- behavior %>%
+    filter(TrainSessionComboNum %in% c("6", "7", "8")) %>%
+  filter(Genotype %in% c("WT"))
+mean(timespent$pTimeOPP)
+
+```

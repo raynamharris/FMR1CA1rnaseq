@@ -10,7 +10,7 @@ The average proportion of time spent in each 60 degrees quadrant of the arena wa
 
 These are the packages required for making the figures and doing stats. 
 
-```{r figures, warning = F, message = F}
+```{r setup, warning = F, message = F}
 library(dplyr) # for subsetting data 
 library(car) # for fancy ANOVA
 library(ggplot2) # for plotting
@@ -35,7 +35,7 @@ proptime$variable <- factor(proptime$variable,
 
 This is for making the figures that show propotion of time spent in each quadrant during the training and retest sessions only. I had to make two figures so that I put the expected percent time as dashed lines on the y-axis with `geom_hline`. 
 
-```{r}
+```{r fig3}
 timespent1 <- proptime %>%
   filter(APA2 %in% c("consistent","conflict")) %>%
   filter(TrainSessionComboNum != 1, TrainSessionComboNum != 9 ) %>%
@@ -92,4 +92,20 @@ summary(aov(pTimeTarget ~  APA2 * Genotype, data=PathNumStats))
 summary(aov(pTimeOPP ~  APA2 * Genotype, data=PathNumStats))
 summary(aov(pTimeTarget ~  APA2 * Genotype, data=PathNumStats))
 summary(aov(pTimeCCW ~  APA2 * Genotype, data=PathNumStats))
+
+timespent <- behavior %>%
+    filter(TrainSessionComboNum %in% c("2", "3", "4", "5" ,"6", "7", "8")) 
+Anova(lm(data = timespent, pTimeTarget ~ Genotype * APA2 ), type = 3)
+
+timespent <- behavior %>%
+    filter(TrainSessionComboNum %in% c("2", "3", "4", "5" ,"6", "7", "8")) %>%
+  filter(APA2 %in% c("yoked-consistent", "yoked-conflict"))
+Anova(lm(data = timespent, pTimeTarget ~ Genotype * APA2 ), type = 3)
+
+timespent <- behavior %>%
+    filter(TrainSessionComboNum %in% c("2", "3", "4")) %>%
+  filter(APA2 %in% c("consistent", "conflict"))
+summary(aov(data =  timespent, pTimeTarget ~ Genotype * APA2 ))
+Anova(lm(data = timespent, pTimeTarget ~ Genotype * APA2 ), type = 3)
+
 ```

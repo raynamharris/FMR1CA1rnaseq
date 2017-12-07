@@ -11,17 +11,6 @@ resvals <- function(contrastvector, mypval){
   return(vals)
 }
 
-myhistogram <- function(contrastvector, mypval){
-  res <- results(dds, contrast = c(contrastvector[1],contrastvector[2],contrastvector[3]), independentFiltering = T)
-  vals <- cbind(res$pvalue)
-  pvalcolname <- as.character(paste(contrastvector[2], "vs",contrastvector[3], sep=" "))
-  colnames(vals) <- c(pvalcolname)
-  vals <- as.data.frame(vals)
-  histogram <- hist(vals)
-  return(histogram)
-  print(histogram)
-}
-
 
 pcadataframe <- function (object, intgroup = "condition", ntop = 500, returnData = FALSE) 
 {
@@ -50,24 +39,4 @@ pcadataframe <- function (object, intgroup = "condition", ntop = 500, returnData
     attr(d, "percentVar") <- percentVar[1:9]
     return(d)
   }
-}
-
-
-plotPCs <- function(df, xcol, ycol, aescolor, colorname, aesshape, shapename, colorvalues){
-  ggplot(df, aes(df[xcol], df[ycol], color=aescolor, shape=aesshape)) +
-    geom_point(size=2) +
-    xlab(paste0("PC", xcol, ": ", percentVar[xcol],"% variance")) +
-    ylab(paste0("PC", ycol, ": ", percentVar[ycol],"% variance")) +
-    theme_classic() +
-    
-    #stat_ellipse(level = 0.95, (aes(color=aescolor)),size=1) + 
-    scale_colour_manual(name=colorname, values=c(colorvalues))+
-    scale_shape_discrete(name=shapename) +
-    theme(axis.text = element_text(size=9),
-          axis.title.x = element_text(size=9),
-          axis.title.y = element_text(size=9),
-          legend.title = element_text(size=9),
-          legend.text = element_text(size=9)) +
-    theme(legend.title=element_blank()) 
-    #theme(legend.position="none")
 }

@@ -16,7 +16,7 @@ The GitHub Repository for "FMR1-KO knockdown alters gene expression of some auti
 	- [04_ephys.Rmd](./scripts/04_ephys.Rmd) - analysis of hippocampal electrophysiology to measure synaptic properties -- note: must be run from the R command line as knitting doesn't currently work well
 	- [05_Ceolin.md](./scripts/05_Ceolin.Rmd) - a **replication** of a recently published paper and a **comparison** to my own data
 	- [06_GO_MWU](./scripts/06_GO_MWU)	- directory with data, code, and results for Gene Ontology analysis
-	- [figureoptions.R](./scripts/figureoptions.R) - my color pallet of choice for this experiment
+	- 
 4. scripts - part 2
 	- Because I had so many behavior figures and accompanying statistics, I created a Rmd script containing the code to make the figure and calculate the statistics. 
 	-The data were generated in 01_behavior.Rmd. 

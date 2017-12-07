@@ -2,7 +2,7 @@
 title: "Behavior Data Analysis"
 author: "Rayna M Harris"
 date: "Last updated November 22, 2017"
-output: html_document
+output: md_document
 ---
 
 ```{r setup, echo = F, message=F}
@@ -81,10 +81,16 @@ write.csv(proptime, "../results/behaviorproptime.csv", row.names = F)
 This chunck of code is for summarizing the data to plot mean +/- SEM because box plots are too unwieldly for this type of data. I add a `measure` column for facetting or subsetting the data.
 
 ```{r summarized}
-numentr <- dplyr::summarise(group_by(behavior, Genotype, APA2, TrainSessionComboNum, conflict), m = mean(NumEntrances), se = sd(NumEntrances)/sqrt(length(NumEntrances)), len = length(NumEntrances))
+numentr <- dplyr::summarise(group_by(behavior, Genotype, APA2, TrainSessionComboNum, conflict), 
+                            m = mean(NumEntrances), 
+                            se = sd(NumEntrances)/sqrt(length(NumEntrances)), 
+                            len = length(NumEntrances))
 fivenum(numentr$m)
 
-pathentr <- dplyr::summarise(group_by(behavior, Genotype, APA2, TrainSessionComboNum, conflict), m = mean(Path1stEntr), se = sd(Path1stEntr)/sqrt(length(Path1stEntr)), len = length(Path1stEntr))
+pathentr <- dplyr::summarise(group_by(behavior, Genotype, APA2, TrainSessionComboNum, conflict), 
+                             m = mean(Path1stEntr), 
+                             se = sd(Path1stEntr)/sqrt(length(Path1stEntr)), 
+                             len = length(Path1stEntr))
 fivenum(pathentr$m)
 
 numentr$measure <- "Number of Entrances"

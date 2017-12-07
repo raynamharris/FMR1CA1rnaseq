@@ -21,6 +21,10 @@ The GitHub Repository for "FMR1-KO knockdown alters gene expression of some auti
 	- [figureoptions.R](./scripts/figureoptions.R) - my color pallet of choice for this experiment
 4. behavior figures
 	- Because I had so many behavior figures and accompanying statistics, I created a script for each figure containing the code to make the figure and calculate the statistics. The data were generated in 01_behavior.Rmd.
+5. results
+	- In the script, [08_results.md](./scripts/08_results.md), I write the results section for my manuscript. 
+	- This document is an executable way for me to keep the results section under version control and with newest version of the figure. 
+	- I alternate between exporting the result to a `md_document` and a `word_document` for writing my thesis
 
 ## Data Availability
 
@@ -34,7 +38,4 @@ The GitHub Repository for "FMR1-KO knockdown alters gene expression of some auti
 - For the GitHub data, code, and results repository cite [![DOI](https://zenodo.org/badge/101933073.svg)](https://zenodo.org/badge/latestdoi/101933073)
 - For the paper: cite the soon to be release bioRxiv paper or my thesis
 
-## Scientific insights
-
-See [08_results.md](./scripts/08_results.md) for a full write up of the results with figures. 
 

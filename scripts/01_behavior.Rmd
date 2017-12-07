@@ -23,12 +23,7 @@ source("figureoptions.R")
 knitr::opts_chunk$set(fig.path = '../figures/01_behavior/')
 ```
 
-# Experimental design
-
-![Active place avoidance task with conflict training.](../figures/fig1-01.png)
-
-##### Mice were assigned to one of four groups: consistently-trained (red), yoked-consistent (dark grey), conflict-trained (peach), or yoked-conflict (light grey). Mice were placed on the rotating arena (1 rpm) for training sessions that lasted 10 min and was separated by 2-h intersession interval or overnight (~17 h). The physical conditions are identical for all mice during pre-training and retention. Sample sizes for each treatment group and genotype are shown on the bottom right.
-
+# This script is use to import, clean, reformat, subset, and summarize data
 
 ```{r loaddata, echo = F, message=F, warning = F}
 ## read intermediate data (raw data from video tracker program analyzed in matlab)
@@ -55,44 +50,22 @@ behavior <- subset(behavior, !is.na(behavior$NumEntrances)) # remove nas
 write.csv(behavior, "../results/behaviordata.csv", row.names = F)
 ```
 
-
 ```{r proptimedataframe}
 ## proptime
 proptime <- behavior[,c(1,2,4,8,9,12,26:29)]
 proptime <- melt(proptime, id.vars = c("ID", "Genotype", "TrainSession",
-                                       "APA2", "TrainSessionCombo","TrainSessionComboNum")) 
-```
+                                       "APA2", "TrainSessionCombo", "TrainSessionComboNum")) 
+write.csv(proptime, "../results/behaviorproptime.csv", row.names = F)
 
+```
 
 ![Figure 2: No group differences prior to behavioral manipulation.](../figures/fig1-04.png)
 
 
 
 
+
 ```{r, warning = F}
-## pretraining
-
-PathNumStats <- behavior  %>% 
-  filter(TrainSessionComboNum == "1") 
-summary(aov(pTimeTarget ~  APA2 + Genotype, data=PathNumStats))
-summary(aov(pTimeOPP ~  APA2 + Genotype, data=PathNumStats))
-summary(aov(pTimeCW ~  APA2 + Genotype, data=PathNumStats))
-summary(aov(pTimeCCW ~  APA2 + Genotype, data=PathNumStats))
-
-Anova(lm(data = PathNumStats, pTimeTarget ~ Genotype * APA2 ), type = 3)
-
-mean(PathNumStats$pTimeTarget)
-mean(PathNumStats$pTimeOPP)
-mean(PathNumStats$pTimeCW)
-mean(PathNumStats$pTimeCCW)
-
-summary(aov(NumEntrances ~  APA2 * Genotype, data=PathNumStats))
-summary(aov(Path1stEntr~  APA2 * Genotype, data=PathNumStats))
-mean(PathNumStats$NumEntrances)
-mean(PathNumStats$Path1stEntr)
-
-summary(aov(value ~  APA2 * Genotype + variable, data=proptime))
-
 ## conflict
 PathNumStats <- behavior  %>% 
   filter(TrainSessionComboNum == "6") 
@@ -132,69 +105,11 @@ Anova(lm(data = PathNumStats, Path1stEntr ~  APA2 ), type = 3)
 summary(aov(Path1stEntr~  APA2, data=PathNumStats))
 TukeyHSD(aov(Path1stEntr~  APA2, data=PathNumStats))
 
-
-
 ```
 
  
 ```{r figure2, echo = F }
  
-num1 <- behavior %>%
-    filter(TrainSessionComboNum %in% c("1")) %>% 
-  ggplot(aes(x = as.numeric(TrainSessionComboNum), y = NumEntrances, fill=APA2)) +
-  geom_boxplot(outlier.size=0.8, lwd=0.5) +
-  facet_wrap(~Genotype) +
-  scale_fill_manual(values = colorvalAPA00) +  
- scale_x_continuous(name=NULL, 
-                       breaks = c(1, 2, 3, 4, 5, 6, 7, 8, 9),
-                       labels = NULL) +
-    background_grid(major = "y", minor = "none") +
-   scale_y_continuous(name = "Pre-training number of entrances",
-                     limits = c(0,35)) +
-  geom_hline(yintercept=c(28.58), color="black", linetype = "dashed" ) + 
-  theme_cowplot(font_size = 8, line_size = 0.25) + 
-  theme(legend.position="none") +
-    background_grid(major = "y", minor = "none") 
-
-path1 <- behavior %>%
-    filter(TrainSessionComboNum %in% c("1")) %>% 
-  ggplot(aes(x = as.numeric(TrainSessionComboNum), y = Path1stEntr, fill=APA2)) +
-  geom_boxplot(outlier.size=0.8, lwd=0.5) +
-  facet_wrap(~Genotype) +
-  scale_fill_manual(values = colorvalAPA00) +  
- scale_x_continuous(name=NULL, 
-                       breaks = c(1, 2, 3, 4, 5, 6, 7, 8, 9),
-                       labels = NULL) +
-   scale_y_continuous(name = "Pre-training path to 1st entrance") +
-    geom_hline(yintercept=c(0.42), color="black" , linetype = "dashed") + 
-  theme_cowplot(font_size = 8, line_size = 0.25) + 
-  theme(legend.position="none") +
-    background_grid(major = "y", minor = "none") 
-
-legend2 <- behavior %>%
-    filter(TrainSessionComboNum %in% c("1")) %>% 
-  ggplot(aes(x = as.numeric(TrainSessionComboNum), y = NumEntrances, fill=APA2)) +
-  geom_boxplot(outlier.size=0.8) +
-  facet_wrap(~Genotype) +
-  scale_fill_manual(values = colorvalAPA00) + 
-    scale_y_continuous(name = "Number of entrances") +
- scale_x_continuous(name=NULL, 
-                       breaks = c(1, 2, 3, 4, 5, 6, 7, 8, 9),
-                       labels = NULL) +
-  #geom_hline(yintercept=c(0.32), color="black" , linetype="dashed") + 
-  theme_cowplot(font_size = 7, line_size = 0.25) +
-  theme(legend.position = "bottom")
-
-pdf(file="../figures/01_behavior/num1.pdf", width=1.75, height=1.9)
-plot(num1)
-dev.off()
-pdf(file="../figures/01_behavior/path1.pdf", width=1.75, height=1.9)
-plot(path1)
-dev.off()
-pdf(file="../figures/01_behavior/legend2.pdf", width=4, height=2)
-plot(legend2)
-dev.off()
-
 conflict6 <- behavior %>%
     filter(TrainSessionComboNum %in% c("6")) %>% 
   ggplot(aes(x = as.numeric(TrainSessionComboNum), y = NumEntrances, fill=APA2)) +
@@ -334,7 +249,7 @@ timespent1 <- proptime %>%
                      breaks = c(0.32,0.64, 0.96)) +
   scale_fill_manual(values = c("#d01c8b", "#e5f5e0" ,"#a1d99b", "#31a354")) + 
   geom_hline(yintercept=c(0.32,0.64, 0.96), color="black" , linetype="dashed") 
-
+timespent1
 
 timespent2 <- proptime %>%
   filter(APA2 %in% c("yoked-consistent","yoked-conflict")) %>%
@@ -364,27 +279,7 @@ plot(timespent2)
 dev.off()
 
 
-timespent3 <- proptime %>%
-  filter(TrainSessionComboNum %in% c("1")) %>%
-  ggplot(aes(x = APA2, y = value,fill = variable)) + 
-    geom_bar(position = "fill",stat = "identity") +
-    scale_x_discrete(name=NULL,
-                     labels = c("yoked", "consistent", "yoked", "conflict")) +
-  facet_wrap(~Genotype, nrow=1) +
-  theme_cowplot(font_size = 8, line_size = 0.25) +
-  theme(legend.title=element_blank()) +
-  theme(legend.position="none") +
-  scale_y_continuous(name= "Pre-training proportion of time spent") +
-  scale_fill_manual(values = c("#f1b6da", "#e5f5e0" ,"#a1d99b", "#31a354")) + 
-  geom_hline(yintercept=c(0.25,0.50, 0.75), color="black" , linetype="dashed") +
-  theme(strip.text.x = element_text(size = 8)) +
-  theme(axis.text.x = element_text(angle = 45, hjust = 1))
 
-
-
-pdf(file="../figures/01_behavior/timespent3.pdf", width=2, height=2.25)
-plot(timespent3)
-dev.off()
 
 timespent4 <- proptime %>%
   #filter(APA2 %in% c("yoked-consistent","yoked-conflict")) %>%

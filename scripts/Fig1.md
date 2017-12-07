@@ -15,27 +15,26 @@ element and only count 1 row per animal.
 
     behavior <- read.csv("../results/behaviordata.csv", header = T)
     behavior$APA2 <- factor(behavior$APA2, levels = c("yoked-consistent","consistent", "yoked-conflict","conflict")) ## relevel then rename factors treatment
-    behavior$Genotype <- factor(behavior$APA2, levels = c("WT","FMR1KO")) # relevel genotype
+    behavior$Genotype <- factor(behavior$Genotype, levels = c("WT","FMR1KO")) # relevel genotype
 
     # sample size for each group calculated using
     library(dplyr) # for filtering and selecting rows
-
     behavior %>% 
       filter(TrainSessionCombo == "Retention", Genotype == "WT") %>%
       select(APA2, Genotype)  %>%  summary()
 
-    ##                APA2     Genotype
-    ##  yoked-consistent:0   WT    :0  
-    ##  consistent      :0   FMR1KO:0  
-    ##  yoked-conflict  :0             
-    ##  conflict        :0
+    ##                APA2     Genotype 
+    ##  yoked-consistent:4   WT    :24  
+    ##  consistent      :8   FMR1KO: 0  
+    ##  yoked-conflict  :3              
+    ##  conflict        :9
 
     behavior %>% 
       filter(TrainSessionCombo == "Retention", Genotype == "FMR1KO") %>%
       select(APA2, Genotype)  %>%  summary()
 
-    ##                APA2     Genotype
-    ##  yoked-consistent:0   WT    :0  
-    ##  consistent      :0   FMR1KO:0  
-    ##  yoked-conflict  :0             
-    ##  conflict        :0
+    ##                APA2     Genotype 
+    ##  yoked-consistent:7   WT    : 0  
+    ##  consistent      :9   FMR1KO:26  
+    ##  yoked-conflict  :5              
+    ##  conflict        :5

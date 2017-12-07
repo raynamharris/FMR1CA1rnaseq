@@ -1,0 +1,169 @@
+---
+title: "Figure 2"
+output: md_document
+---
+
+![](../figures/fig1-04.png)
+Fig. 2: No group differences before behavioral manipulation.
+A) This graph shows that all groups of mice spend ~ 25% of their time equally across four quadrants of the arena during the pre-training session (pink: future shock zone, dark green: clockwise, green: opposite the shock zone, light green: counterclockwise). B) Pre-training number of entrances into the shock zone and C) path to the first entrance are not significantly different between treatment groups and genotypes (dark grey: yoked-consistent, red: consistently-trained, light grey: yoked-conflict, peach: conflict-trained).
+
+
+These are the packages required for making the figures and doing stats. 
+
+```{r figures, warning = F, message = F}
+library(dplyr) # for subsetting data 
+library(car) # for fancy ANOVA
+library(ggplot2) # for plotting
+library(cowplot) # for "easier"" ggplot themes
+```
+
+This chuck of code is for loading and formatting the dataframes.
+
+```{r loaddata, message=F, warning = F}
+behavior <- read.csv("../results/behaviordata.csv", header = T)
+behavior$APA2 <- factor(behavior$APA2, levels = c("yoked-consistent","consistent", "yoked-conflict","conflict")) ## relevel then rename factors treatment
+behavior$Genotype <- factor(behavior$Genotype, levels = c("WT","FMR1KO")) # relevel genotype
+
+proptime <- read.csv("../results/behaviorproptime.csv", header = T)
+proptime$APA2 <- factor(proptime$APA2, levels = c("yoked-consistent","consistent", "yoked-conflict","conflict")) ## relevel then rename factors treatment
+proptime$Genotype <- factor(proptime$Genotype, levels = c("WT","FMR1KO")) # relevel genotype
+```
+
+# Pannel A
+
+This shows time spent in each quadrant indepent of groups. These numbers are displayed inside a schematic arena on the figure.
+
+```{r meanproptime}
+PathNumStats <- behavior  %>% 
+  filter(TrainSessionComboNum == "1") 
+
+mean(PathNumStats$pTimeTarget)
+mean(PathNumStats$pTimeOPP)
+mean(PathNumStats$pTimeCW)
+mean(PathNumStats$pTimeCCW)
+```
+
+This is the code use to make a stacked bar plot of the proportion of time spent in the area 
+
+```{r}
+# the name 'timespent3' is a reminant from a previous order of figures
+timespent3 <- proptime %>%
+  filter(TrainSessionComboNum %in% c("1")) %>%
+  ggplot(aes(x = APA2, y = value,fill = variable)) + 
+    geom_bar(position = "fill",stat = "identity") +
+    scale_x_discrete(name=NULL,
+                     labels = c("yoked", "consistent", "yoked", "conflict")) +
+  facet_wrap(~Genotype, nrow=1) +
+  theme_cowplot(font_size = 8, line_size = 0.25) +
+  theme(legend.title=element_blank()) +
+  theme(legend.position="none") +
+  scale_y_continuous(name= "Pre-training proportion of time spent") +
+  scale_fill_manual(values = c("#f1b6da", "#e5f5e0" ,"#a1d99b", "#31a354")) + 
+  geom_hline(yintercept=c(0.25,0.50, 0.75), color="black" , linetype="dashed") +
+  theme(strip.text.x = element_text(size = 8)) +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+timespent3
+
+pdf(file="../figures/01_behavior/timespent3.pdf", width=2, height=2.25)
+plot(timespent3)
+dev.off()
+```
+
+This is the statistical analysis of variance for the pretraining session 
+
+```{r stats}
+PathNumStats <- behavior  %>% 
+  filter(TrainSessionComboNum == "1") 
+
+summary(aov(pTimeTarget ~  APA2 + Genotype, data=PathNumStats))
+summary(aov(pTimeOPP ~  APA2 + Genotype, data=PathNumStats))
+summary(aov(pTimeCW ~  APA2 + Genotype, data=PathNumStats))
+summary(aov(pTimeCCW ~  APA2 + Genotype, data=PathNumStats))
+
+# anova for genotype, training, and the interaction
+library(car)
+Anova(lm(data = PathNumStats, pTimeTarget ~ Genotype * APA2 ), type = 3)
+summary(aov(value ~  APA2 * Genotype + variable, data=proptime))
+```
+
+
+## Pannels B and C
+
+This is for making panel B and C of the number of entrances and path to first entrance. I make each figure separately, then I used a 3 figure for cropping a single legend at the bottom. There might be an easier way to do this, but this is my solution.
+
+```{r numentr}
+# my black, read, grey, peadh color scheme
+colorvalAPA2 <-  c( "#404040","#ca0020", "#bababa", "#f4a582")
+# #404040 darkgrey #ca0020  red  #bababa light grey  #f4a582 peach
+
+num1 <- behavior %>%
+    filter(TrainSessionComboNum %in% c("1")) %>% 
+  ggplot(aes(x = as.numeric(TrainSessionComboNum), y = NumEntrances, fill=APA2)) +
+  geom_boxplot(outlier.size=0.8, lwd=0.5) +
+  facet_wrap(~Genotype) +
+  scale_fill_manual(values = colorvalAPA2) +  
+ scale_x_continuous(name=NULL, 
+                       breaks = c(1, 2, 3, 4, 5, 6, 7, 8, 9),
+                       labels = NULL) +
+    background_grid(major = "y", minor = "none") +
+   scale_y_continuous(name = "Pre-training number of entrances",
+                     limits = c(0,35)) +
+  geom_hline(yintercept=c(28.58), color="black", linetype = "dashed" ) + 
+  theme_cowplot(font_size = 8, line_size = 0.25) + 
+  theme(legend.position="none") +
+    background_grid(major = "y", minor = "none") 
+num1
+
+
+path1 <- behavior %>%
+    filter(TrainSessionComboNum %in% c("1")) %>% 
+  ggplot(aes(x = as.numeric(TrainSessionComboNum), 
+             y = Path1stEntr, fill=APA2)) +
+  geom_boxplot(outlier.size=0.8, lwd=0.5) +
+  facet_wrap(~Genotype) +
+  scale_fill_manual(values = colorvalAPA2) +  
+ scale_x_continuous(name=NULL, 
+                       breaks = c(1, 2, 3, 4, 5, 6, 7, 8, 9),
+                       labels = NULL) +
+   scale_y_continuous(name = "Pre-training path to 1st entrance") +
+    geom_hline(yintercept=c(0.42), color="black" , linetype = "dashed") + 
+  theme_cowplot(font_size = 8, line_size = 0.25) + 
+  theme(legend.position="none") +
+    background_grid(major = "y", minor = "none") 
+path1
+
+legend2 <- behavior %>%
+    filter(TrainSessionComboNum %in% c("1")) %>% 
+  ggplot(aes(x = as.numeric(TrainSessionComboNum), 
+             y = NumEntrances, fill=APA2)) +
+  geom_boxplot(outlier.size=0.8) +
+  facet_wrap(~Genotype) +
+  scale_fill_manual(values = colorvalAPA2) + 
+    scale_y_continuous(name = "Number of entrances") +
+ scale_x_continuous(name=NULL, 
+                       breaks = c(1, 2, 3, 4, 5, 6, 7, 8, 9),
+                       labels = NULL)  +
+  theme_cowplot(font_size = 7, line_size = 0.25) +
+  theme(legend.position = "bottom")
+legend2
+
+pdf(file="../figures/01_behavior/num1.pdf", width=1.75, height=1.9)
+plot(num1)
+dev.off()
+pdf(file="../figures/01_behavior/path1.pdf", width=1.75, height=1.9)
+plot(path1)
+dev.off()
+pdf(file="../figures/01_behavior/legend2.pdf", width=4, height=2)
+plot(legend2)
+dev.off()
+```
+
+This is for calculating the mean number of entrance or 1st path to the shock zone and the corrresponding ANOVA.
+
+```{r NumPathEntr}
+summary(aov(NumEntrances ~  APA2 * Genotype, data=PathNumStats))
+summary(aov(Path1stEntr~  APA2 * Genotype, data=PathNumStats))
+mean(PathNumStats$NumEntrances)
+mean(PathNumStats$Path1stEntr)
+```
+

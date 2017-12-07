@@ -36,31 +36,3 @@ colorvalAPA11 <-  c("WT_consistent" = "#ca0020", "FMR1KO_consistent" = "white",
 ann_colorsGenotype = list(
   Genotype =  c('FMR1' = (values=c("white")), 
             'WT' = (values=c("#404040"))))
-
-ann_colorsdaytime2 = list(
-  daytime2 =  c('beforenoon' = (values=c("orange")), 
-                'afternoon' = (values=c("red"))))
-
-ann_colorsdaytime3 = list(
-  daytime3 =  c('daytime' = (values=c("orange")), 
-                'nighttime' = (values=c("blue"))))
-
-ann_colorsdaytime = list(
-  daytime =  c('afternoon' = (values=c("red")), 
-                'beforenoon' = (values=c("orange")),
-               'evening' = (values=c("blue")), 
-               'nighttime' = (values=c("black"))))
-
-ann_colorsall = list(
-  daytime =  c('afternoon' = (values=c("red")), 
-               'beforenoon' = (values=c("orange")),
-               'evening' = (values=c("blue")), 
-               'nighttime' = (values=c("black"))),
-  Genotype =  c('FMR1' = (values=c("white")), 
-                'WT' = (values=c("#404040"))))
-
-ann_colorsdaytime3frm1 = list(
-  Genotype =  c('FMR1' = (values=c("white")), 
-                'WT' = (values=c("#404040"))),
-  daytime3 =  c('daytime' = (values=c("orange")), 
-                'nighttime' = (values=c("blue"))))

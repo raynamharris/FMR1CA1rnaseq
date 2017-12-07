@@ -2,24 +2,23 @@
 title: "Electrophysiology Data Analysis"
 author: "Rayna M Harris"
 date: "November 23, 2017"
-output:
-  md_document:
-    variant: markdown_github
+output: md_document
 ---
 
-```{r}
+```{r setup, warning = F, message = F}
 library(ggplot2)
 library(reshape2)
-library(tidyr)
+library(tidyr) # for drop na function
 library(cowplot)
 library(dplyr)
 library(magrittr)  # for function function "%<>%"
 
-source("figureoptions.R")
+colorvalAPA2 <-  c( "#404040","#ca0020", "#bababa", "#f4a582")
+```
 
+Read and wrangle data
 
-## read and transform data
-
+```{r data}
 ephys2 <- read.csv("../data/Ephy_forDataAnalysisV2.csv", header=T, na.strings=c(""), stringsAsFactors = FALSE)
 
 ## rename columns 
@@ -40,7 +39,7 @@ ephys2$APA2 <- ifelse(grepl("TTT", ephys2$group), "consistent",
 ephys2$Year <- ifelse(grepl("151", ephys2$ID), "2015", 
                       ifelse(grepl("16-", ephys2$ID), "2016", NA))
 
-
+names(ephys2)
 ## reorder, drop old group coloumn
 ephys2 <- ephys2[c(2,15:18,3:14)]
 
@@ -49,7 +48,6 @@ ephys2 <- ephys2[c(-10,-12, -16, -17)]
 
 
 ## make characters either factors or numbers, as appropriate
-str(ephys2)
 colsfactor = c(1:5)
 #colsnumeric = c(18)
 ephys2[,colsfactor] %<>% lapply(function(x) as.factor(as.factor(x)))
@@ -98,75 +96,13 @@ ephys2summaryNum <- as.data.frame(ephys2summaryNum)
 levels(ephys2summaryNum$Genotype) <- c("WT","FMR1KO")
 
 ephys2$genoAPA <- as.factor(paste(ephys2$Genotype,ephys2$APA2,sep="_"))
-#levels(ephys2$genoAPA) <- c("WT_yoked-consistent","WT_consistent", "WT_yoked-conflict", "WT_conflict","FMR1KO_yoked-consistent","FMR1KO_consistent", "FMR1KO_yoked-conflict", "FMR1KO_conflict")
+```
 
+Plot of fEPSP slop by treatment group and genotype
 
-
-
-## Stimulus strength on x fepsp slope on y
-ephys2_long %>% 
-  ggplot(aes(x=variablenumeric, y=value, color=APA2 )) + 
-  stat_smooth(alpha=0.2, size=2) +
-  geom_jitter(size=2, width = 0.5) +
-  background_grid(major = "xy", minor = "none") + 
-  theme_cowplot(font_size = 20, line_size = 1) + 
-  facet_grid(~Genotype) +   
-  scale_y_continuous(trans = "reverse",
-                     limits = c(0.005, -0.010)) + 
-  scale_x_continuous(breaks=c(1,2,3,4,5,6,7),
-                     labels=c("0", "10", "15", "20", "30", "40", "50")) +
-  scale_color_manual(values = colorvalAPA2) + 
-  labs(x = "Stimulus Strenght (V)", y = "fEPSP Slope") + 
-  theme(legend.position="none")
-
-
-plot1 <- ephys2 %>% 
-  filter(Genotype == "WT") %>% 
-  ggplot(aes(x=APA2, y=max, fill=APA2, color=APA2)) +
-  geom_violin() +
-  geom_point(size=2) +
-  scale_y_continuous(trans = "reverse",
-                     limits = c(0.001 , -0.002)) + 
-  background_grid(major = "xy", minor = "none") + 
-  theme_cowplot(font_size = 8, line_size = 0.25) + 
-  scale_color_manual(values = colorvalAPA00) +
-  scale_fill_manual(values=alpha(c( "#404040","#ca0020", "#bababa", "#f4a582"), .3)) +
-  labs(y = "Maximum fEPSP Slope", x = NULL) +
-  facet_wrap(~Genotype) + 
-  theme(legend.position="none",
-        axis.text.x = element_blank())
-plot1
-
-pdf(file="~/Github/FMR1CA1rnaseq/figures/04_ephys/ephys1.pdf", width=2, height=2.5)
-plot(plot1)
-dev.off()
-
-
-plot2 <- ephys2 %>% 
-  filter(Genotype != "WT") %>% 
-  ggplot(aes(x=APA2, y=max, color=APA2)) +
-  geom_violin() +
-  geom_point(size=2) +
-  scale_y_continuous(trans = "reverse",
-                     limits = c(0.001 , -0.002)) + 
-  background_grid(major = "xy", minor = "none") + 
-  theme_cowplot(font_size = 8, line_size = 0.25) + 
-  scale_color_manual(values = c("#f4a582" ,"#ca0020" ,"#bababa",   "#404040")) +
-  labs(y = "Maximum fEPSP Slope", x = NULL) +
-  facet_wrap(~Genotype) + 
-  theme(legend.position="none",
-        axis.text.x = element_blank())
-plot2
-
-summary(ephys2$max)
-
-pdf(file="~/Github/FMR1CA1rnaseq/figures/04_ephys/ephys2.pdf", width=2, height=2.5)
-plot(plot2)
-dev.off()
-
-
+```{r fEPSPslope}
+# this was the third plot I made. Name left of from that
 plot3 <- ephys2 %>% 
-  #filter(Genotype != "WT") %>% 
   ggplot(aes(x=Genotype, y=max, color=APA2)) +
   geom_violin(aes(fill = factor(Genotype))) +
   geom_point(size=2) +
@@ -174,20 +110,21 @@ plot3 <- ephys2 %>%
                      limits = c(0.001 , -0.002)) + 
   background_grid(major = "xy", minor = "none") + 
   theme_cowplot(font_size = 8, line_size = 0.25) + 
-  scale_color_manual(values = colorvalAPA00) +
+  scale_color_manual(values = colorvalAPA2) +
   scale_fill_manual(values=alpha(c( "#404040","white"), .1)) +
   labs(y = "Maximum fEPSP Slope", x = "Genotype") +
   facet_wrap(~APA2, nrow = 1) + 
   theme(legend.position="none")
 plot3
 
-
 pdf(file="~/Github/FMR1CA1rnaseq/figures/04_ephys/ephys3.pdf", width=6, height=2.5)
 plot(plot3)
 dev.off()
+```
 
+Statistics
 
-
+```{r stats}
 aov1 <- aov(min ~ Genotype, data=ephys2)
 summary(aov1) 
 
@@ -201,94 +138,4 @@ aov1 <- aov(max ~ Genotype * APA2, data=ephys2)
 summary(aov1)
 
 summary(ephys2$min)
-  
-
-#### pca ----
-
-W = ephys2[,6:19]
-
-W <- W[!colSums(W)%in%NA]   ## removing cols with NA
-W <- W[,apply(W, 2, var, na.rm=TRUE) != 0]
-
-# Run PCA
-W
-pcW = prcomp(W, scale.=TRUE)
-
-# Look at the summary methods
-pcW
-summary(pcW)
-
-## a bunch of different plots
-plot(pcW)
-#biplot(pc)
-
-
-### quick pca plot
-pcW$rotation
-loadingsW = pcW$rotation
-scoresW = pcW$x
-qplot(scoresW[,1], scoresW[,2], color=ephys2$APA, xlab='Component 1', ylab='Component 3')
-qplot(scoresW[,1], scoresW[,2], color=ephys2$Genotype, xlab='Component 1', ylab='Component 3')
-qplot(scoresW[,1], scoresW[,3], color=ephys2$APA, xlab='Component 1', ylab='Component 3')
-qplot(scoresW[,2], scoresW[,3], color=ephys2$APA, xlab='Component 1', ylab='Component 3')
-
-
-## exporting the data
-scoresWdf <- as.data.frame(scoresW)
-scoresWdf$ID <-  ephys2$ID
-scoresWdf$APA <- ephys2$APA
-
-# capture the rotation matrix in a data frame
-rotation_data <- data.frame(pcW$rotation, variable=row.names(pcW$rotation))
-# define a pleasing arrow style
-arrow_style <- arrow(length = unit(0.05, "inches"),
-                     type = "closed")
-
-ggplot(rotation_data) + 
-  geom_segment(aes(xend=PC1, yend=PC2), x=0, y=0, arrow=arrow_style) + 
-  geom_text(aes(x=PC1, y=PC2, label=variable), hjust=0, size=5, color='red') 
-
-ggplot(rotation_data) + 
-  geom_segment(aes(xend=PC2, yend=PC3), x=0, y=0, arrow=arrow_style) + 
-  geom_text(aes(x=PC2, y=PC3, label=variable), hjust=0, size=5, color='red') 
-
-
-
-### ggplotified
-ggplot(scoresWdf, aes(PC1, PC2, colour=ephys2$Genotype)) + 
-  geom_point(size = 8) +
-  theme_cowplot(font_size = 20, line_size = 1) + 
-  background_grid(major = "xy", minor = "none") + 
-  theme(strip.background = element_blank())  
-
-ggplot(scoresWdf, aes(PC1, PC2, colour=ephys2$genoAPA)) + 
-  geom_point(size = 8) +
-  theme_cowplot(font_size = 20, line_size = 1) + 
-  background_grid(major = "xy", minor = "none") + 
-  theme(strip.background = element_blank())   
-
-ggplot(scoresWdf, aes(PC2, PC3, colour=ephys2$genoAPA)) + 
-  geom_point(size = 8) +
-  theme_cowplot(font_size = 20, line_size = 1) + 
-  background_grid(major = "xy", minor = "none") + 
-  theme(strip.background = element_blank())  
-
-ggplot(scoresWdf, aes(PC3, PC4, colour=ephys2$genoAPA)) + 
-  geom_point(size = 8) +
-  theme_cowplot(font_size = 20, line_size = 1) + 
-  background_grid(major = "xy", minor = "none") + 
-  theme(strip.background = element_blank())  
-
-ggplot(scoresWdf, aes(PC3, PC4, colour=ephys2$Genotype)) + 
-  geom_point(size = 8) +
-  theme_cowplot(font_size = 20, line_size = 1) + 
-  background_grid(major = "xy", minor = "none") + 
-  theme(strip.background = element_blank())  
-
-ggplot(scoresWdf, aes(PC3, PC4, colour=ephys2$APA)) + 
-  geom_point(size = 8) +
-  theme_cowplot(font_size = 20, line_size = 1) + 
-  background_grid(major = "xy", minor = "none") + 
-  theme(strip.background = element_blank())  
-
 ```

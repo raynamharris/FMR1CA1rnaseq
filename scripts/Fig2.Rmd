@@ -16,6 +16,8 @@ library(ggplot2) # for plotting
 library(cowplot) # for "easier"" ggplot themes
 
 knitr::opts_chunk$set(fig.path = '../figures/01_behavior/')
+
+colorvalAPA2 <-  c( "#404040","#ca0020", "#bababa", "#f4a582")
 ```
 
 This chuck of code is for loading and formatting the dataframes.
@@ -97,8 +99,6 @@ summary(aov(value ~  APA2 * Genotype + variable, data=proptime))
 This is for making panel B and C of the number of entrances and path to first entrance. I make each figure separately, then I used a 3 figure for cropping a single legend at the bottom. There might be an easier way to do this, but this is my solution.
 
 ```{r fig2B}
-colorvalAPA2 <-  c( "#404040","#ca0020", "#bababa", "#f4a582")
-
 num1 <- behavior %>%
     filter(TrainSessionComboNum %in% c("1")) %>% 
   ggplot(aes(x = as.numeric(TrainSessionComboNum), y = NumEntrances, fill=APA2)) +

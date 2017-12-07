@@ -25,7 +25,6 @@ library(pheatmap) ## awesome heatmaps
 library(viridis) # for awesome color pallette
 
 ## load functions 
-source("figureoptions.R")
 source("functions_RNAseq.R")
 
 ## set output file for figures 
@@ -247,7 +246,11 @@ DEGes <- as.matrix(DEGes)
 df <- as.data.frame(colData(dds)[,c("Genotype")]) ## matrix to df
 rownames(df) <- names(countData)
 colnames(df) <- "Genotype"
-ann_colors <- ann_colorsGenotype
+
+
+ann_colors <- list(Genotype =  
+                     c('FMR1' = (values=c("white")), 
+                       'WT' = (values=c("#404040"))))
 
 # set color breaks
 paletteLength <- 30

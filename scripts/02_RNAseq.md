@@ -18,7 +18,6 @@ library(pheatmap) ## awesome heatmaps
 library(viridis) # for awesome color pallette
 
 ## load functions 
-source("figureoptions.R")
 source("functions_RNAseq.R")
 
 ## set output file for figures 
@@ -401,7 +400,35 @@ dev.off()
     ## quartz_off_screen 
     ##                 2
 
+GO setup
+========
+
+``` r
+#calculate significance of all two way comparisions
+contrast1 <- resvals(contrastvector = c("Genotype", "FMR1", "WT"), mypval = 0.1) # 11
+```
+
     FALSE [1] 29
+
+``` r
+GOpvals <- assay(rld)
+GOpvals <- cbind(GOpvals, contrast1)
+GOpvals <- as.data.frame(GOpvals)
+GOpvals <- GOpvals[ , grepl( "padj|pval" , names( GOpvals ) ) ]
+
+GOpvals$gene<-rownames(GOpvals)
+
+GOpvals <- GOpvals %>%
+  select(gene, pvalGenotypeFMR1WT)
+GOpvals$logP <- log(GOpvals$pvalGenotypeFMR1WT)
+GOpvals <- GOpvals %>%
+  select(gene, logP)
+
+write.csv(GOpvals, "./06_GO_MWU/GenotypeFMR1KOWT_GOpvals.csv", row.names = F)
+```
+
+Heatmap
+=======
 
 ``` r
 DEGes <- assay(rld)
@@ -423,7 +450,11 @@ DEGes <- as.matrix(DEGes)
 df <- as.data.frame(colData(dds)[,c("Genotype")]) ## matrix to df
 rownames(df) <- names(countData)
 colnames(df) <- "Genotype"
-ann_colors <- ann_colorsGenotype
+
+
+ann_colors <- list(Genotype =  
+                     c('FMR1' = (values=c("white")), 
+                       'WT' = (values=c("#404040"))))
 
 # set color breaks
 paletteLength <- 30
@@ -483,394 +514,29 @@ pheatmap(DEGes, show_colnames=F, show_rownames = T,
          )
 ```
 
-Daytime 2
----------
+Venn Diagram of both study's DEGS
+---------------------------------
 
 ``` r
-dds <- DESeqDataSetFromMatrix(countData = countData,
-                              colData = colData,
-                              design = ~ daytime2)
-dds # view the DESeq object - note numnber of genes
+contrast1 <- resvals(contrastvector = c("Genotype", "FMR1", "WT"), mypval = 0.1) # 11
 ```
 
-    ## class: DESeqDataSet 
-    ## dim: 22485 16 
-    ## metadata(1): version
-    ## assays(1): counts
-    ## rownames(22485): 0610007P14Rik 0610009B22Rik ... Zzef1 Zzz3
-    ## rowData names(0):
-    ## colnames(16): 16-116B 16-117D ... 16-125D 16-126B
-    ## colData names(8): RNAseqID Mouse ... daytime2 daytime3
+    ## [1] 29
 
 ``` r
-dds <- dds[ rowSums(counts(dds)) > 1, ]  # Pre-filtering genes with 0 counts
-dds # view number of genes afternormalization and the number of samples
+#create a new DF with the gene counts
+rldpvals <- assay(rld)
+rldpvals <- cbind(rldpvals, contrast1)
+rldpvals <- as.data.frame(rldpvals)
+rldpvals <- rldpvals[ , grepl( "padj|pval" , names( rldpvals ) ) ]
+names(rldpvals)
 ```
 
-    ## class: DESeqDataSet 
-    ## dim: 16979 16 
-    ## metadata(1): version
-    ## assays(1): counts
-    ## rownames(16979): 0610007P14Rik 0610009B22Rik ... Zzef1 Zzz3
-    ## rowData names(0):
-    ## colnames(16): 16-116B 16-117D ... 16-125D 16-126B
-    ## colData names(8): RNAseqID Mouse ... daytime2 daytime3
+    ## [1] "pvalGenotypeFMR1WT" "padjGenotypeFMR1WT"
 
 ``` r
-dds <- DESeq(dds) # Differential expression analysis
-rld <- rlog(dds, blind=FALSE) ## log transformed data
-
-contrast1 <- resvals(contrastvector = c("daytime2", "afternoon", "beforenoon"), mypval = 0.1) # 793 (337 with outliers)
-```
-
-    ## [1] 337
-
-``` r
-res <- results(dds, contrast =c("daytime2", "afternoon", "beforenoon"), independentFiltering = T, alpha = 0.1)
-resOrdered <- res[order(res$padj),]
-head(resOrdered, 10)
-```
-
-    ## log2 fold change (MAP): daytime2 afternoon vs beforenoon 
-    ## Wald test p-value: daytime2 afternoon vs beforenoon 
-    ## DataFrame with 10 rows and 6 columns
-    ##           baseMean log2FoldChange      lfcSE      stat       pvalue
-    ##          <numeric>      <numeric>  <numeric> <numeric>    <numeric>
-    ## Cck      588.80246     -0.6350744 0.13009251 -4.881714 1.051678e-06
-    ## Srrm2   1882.70766      0.2807543 0.05746930  4.885292 1.032759e-06
-    ## Ctsb     867.49785     -0.3369583 0.07345542 -4.587248 4.491263e-06
-    ## Irs2     376.36499      0.6326652 0.13580481  4.658636 3.183107e-06
-    ## Laptm4a  235.32818     -0.4971941 0.10927261 -4.550034 5.363717e-06
-    ## Ndufb7    38.50238     -0.8602495 0.18544286 -4.638892 3.502814e-06
-    ## Nrgn    3194.30034     -0.3990034 0.08614294 -4.631876 3.623679e-06
-    ## Ube2m    161.30997     -0.4559715 0.09981091 -4.568353 4.915722e-06
-    ## Scand1    55.77737     -0.7230971 0.15987947 -4.522764 6.103730e-06
-    ## Sepw1    764.67921     -0.5183379 0.11528367 -4.496195 6.918027e-06
-    ##                padj
-    ##           <numeric>
-    ## Cck     0.004417049
-    ## Srrm2   0.004417049
-    ## Ctsb    0.005631902
-    ## Irs2    0.005631902
-    ## Laptm4a 0.005631902
-    ## Ndufb7  0.005631902
-    ## Nrgn    0.005631902
-    ## Ube2m   0.005631902
-    ## Scand1  0.005696815
-    ## Sepw1   0.005811142
-
-``` r
-summary(res)
-```
-
-    ## 
-    ## out of 16936 with nonzero total read count
-    ## adjusted p-value < 0.1
-    ## LFC > 0 (up)     : 146, 0.86% 
-    ## LFC < 0 (down)   : 191, 1.1% 
-    ## outliers [1]     : 33, 0.19% 
-    ## low counts [2]   : 8546, 50% 
-    ## (mean count < 26)
-    ## [1] see 'cooksCutoff' argument of ?results
-    ## [2] see 'independentFiltering' argument of ?results
-
-``` r
-DEGes <- assay(rld)
-DEGes <- cbind(DEGes, contrast1)
-DEGes <- as.data.frame(DEGes) # convert matrix to dataframe
-DEGes$rownames <- rownames(DEGes)  # add the rownames to the dataframe
-DEGes$padjmin <- DEGes$padjdaytime2afternoonbeforenoon
-
-# create new col with min padj
-DEGes <- DEGes %>% filter(padjmin < 0.1)
-rownames(DEGes) <- DEGes$rownames
-drop.cols <-colnames(DEGes[,grep("padj|pval|rownames", colnames(DEGes))])
-DEGes <- DEGes %>% dplyr::select(-one_of(drop.cols))
-DEGes <- as.matrix(DEGes)
-DEGes <- DEGes - rowMeans(DEGes)
-DEGes <- as.matrix(DEGes) 
-
-## the heatmap annotation file
-df <- as.data.frame(colData(dds)[,c("daytime2")]) ## matrix to df
-rownames(df) <- names(countData)
-colnames(df) <- "daytime2"
-ann_colors <- ann_colorsdaytime2
-
-# set color breaks
-paletteLength <- 30
-myBreaks <- c(seq(min(DEGes), 0, length.out=ceiling(paletteLength/2) + 1), 
-              seq(max(DEGes)/paletteLength, max(DEGes), length.out=floor(paletteLength/2)))
-
-pheatmap(DEGes, show_colnames=F, show_rownames = F,
-         annotation_col=df, annotation_colors = ann_colors,
-         treeheight_row = 25, treeheight_col = 25,
-         fontsize = 11, 
-         width=4.5, height=2.25,
-         border_color = "grey60" ,
-         color = viridis(30),
-         cellwidth = 8, 
-         clustering_method="average",
-         breaks=myBreaks,
-         clustering_distance_cols="correlation" 
-         )
-```
-
-![](../figures/02_RNAseq/unnamed-chunk-1-1.png)
-
-``` r
-# for adobe
-pheatmap(DEGes, show_colnames=F, show_rownames = F,
-         annotation_col=df, annotation_colors = ann_colors,
-         treeheight_row = 25, treeheight_col = 25,
-         fontsize = 10, 
-         width=4.5, height=2.25,
-         border_color = "grey60" ,
-         color = viridis(30),
-         cellwidth = 8, 
-         clustering_method="average",
-         breaks=myBreaks,
-         clustering_distance_cols="correlation",
-         filename = "../figures/02_RNAseq/daytimeheat.pdf"
-         )
-```
-
-Daytime 3 - daytime nighttime
------------------------------
-
-``` r
-dds <- DESeqDataSetFromMatrix(countData = countData,
-                              colData = colData,
-                              design = ~ daytime3)
-dds # view the DESeq object - note numnber of genes
-```
-
-    ## class: DESeqDataSet 
-    ## dim: 22485 16 
-    ## metadata(1): version
-    ## assays(1): counts
-    ## rownames(22485): 0610007P14Rik 0610009B22Rik ... Zzef1 Zzz3
-    ## rowData names(0):
-    ## colnames(16): 16-116B 16-117D ... 16-125D 16-126B
-    ## colData names(8): RNAseqID Mouse ... daytime2 daytime3
-
-``` r
-dds <- dds[ rowSums(counts(dds)) > 1, ]  # Pre-filtering genes with 0 counts
-dds # view number of genes afternormalization and the number of samples
-```
-
-    ## class: DESeqDataSet 
-    ## dim: 16979 16 
-    ## metadata(1): version
-    ## assays(1): counts
-    ## rownames(16979): 0610007P14Rik 0610009B22Rik ... Zzef1 Zzz3
-    ## rowData names(0):
-    ## colnames(16): 16-116B 16-117D ... 16-125D 16-126B
-    ## colData names(8): RNAseqID Mouse ... daytime2 daytime3
-
-``` r
-dds <- DESeq(dds) # Differential expression analysis
-rld <- rlog(dds, blind=FALSE) ## log transformed data
-
-contrast1 <- resvals(contrastvector = c("daytime3", "nighttime", "daytime"), mypval = 0.1) # 978 (530 with outliers included)
-```
-
-    ## [1] 530
-
-``` r
-res <- results(dds, contrast =c("daytime3", "nighttime", "daytime"), independentFiltering = T, alpha = 0.1)
-resOrdered <- res[order(res$padj),]
-head(resOrdered, 20)
-```
-
-    ## log2 fold change (MAP): daytime3 nighttime vs daytime 
-    ## Wald test p-value: daytime3 nighttime vs daytime 
-    ## DataFrame with 20 rows and 6 columns
-    ##          baseMean log2FoldChange      lfcSE      stat       pvalue
-    ##         <numeric>      <numeric>  <numeric> <numeric>    <numeric>
-    ## Efna3    181.3672     -0.5476312 0.09766881 -5.607023 2.058368e-08
-    ## Mif      111.3487     -0.7186259 0.12918912 -5.562588 2.658023e-08
-    ## Fkbp4    143.0442     -0.6114104 0.11215853 -5.451306 5.000125e-08
-    ## Cox4i1   350.4879     -0.6230585 0.12034535 -5.177254 2.251752e-07
-    ## Nedd4l   534.9398      0.3429340 0.06696366  5.121195 3.036055e-07
-    ## ...           ...            ...        ...       ...          ...
-    ## Laptm4a  235.3282     -0.5076397 0.10820731 -4.691362 2.713917e-06
-    ## Lsamp   1186.4206      0.3987008 0.08594989  4.638759 3.505070e-06
-    ## Kbtbd11  721.2242      0.3339773 0.07250264  4.606416 4.096679e-06
-    ## Rbfox2   751.8005      0.2934002 0.06397542  4.586139 4.515182e-06
-    ## Rps25     94.3567     -0.6672838 0.14618214 -4.564742 5.001082e-06
-    ##                 padj
-    ##            <numeric>
-    ## Efna3   0.0000853757
-    ## Mif     0.0000853757
-    ## Fkbp4   0.0001070694
-    ## Cox4i1  0.0003250603
-    ## Nedd4l  0.0003250603
-    ## ...              ...
-    ## Laptm4a  0.001089638
-    ## Lsamp    0.001324504
-    ## Kbtbd11  0.001462059
-    ## Rbfox2   0.001526607
-    ## Rps25    0.001606348
-
-``` r
-summary(res)
-```
-
-    ## 
-    ## out of 16917 with nonzero total read count
-    ## adjusted p-value < 0.1
-    ## LFC > 0 (up)     : 287, 1.7% 
-    ## LFC < 0 (down)   : 243, 1.4% 
-    ## outliers [1]     : 0, 0% 
-    ## low counts [2]   : 10555, 62% 
-    ## (mean count < 49)
-    ## [1] see 'cooksCutoff' argument of ?results
-    ## [2] see 'independentFiltering' argument of ?results
-
-``` r
-DEGes <- assay(rld)
-DEGes <- cbind(DEGes, contrast1)
-DEGes <- as.data.frame(DEGes) # convert matrix to dataframe
-DEGes$rownames <- rownames(DEGes)  # add the rownames to the dataframe
-DEGes$padjmin <- DEGes$padjdaytime3nighttimedaytime
-DEGes <- DEGes %>% filter(padjmin < 0.1)
-rownames(DEGes) <- DEGes$rownames
-drop.cols <-colnames(DEGes[,grep("padj|pval|rownames", colnames(DEGes))])
-DEGes <- DEGes %>% dplyr::select(-one_of(drop.cols))
-DEGes <- as.matrix(DEGes)
-DEGes <- DEGes - rowMeans(DEGes)
-DEGes <- as.matrix(DEGes) 
-
-## the heatmap annotation file
-df <- as.data.frame(colData(dds)[,c("daytime3")]) ## matrix to df
-rownames(df) <- names(countData)
-colnames(df) <- "daytime3"
-ann_colors <- ann_colorsdaytime3
-
-# set color breaks
-paletteLength <- 30
-myBreaks <- c(seq(min(DEGes), 0, length.out=ceiling(paletteLength/2) + 1), 
-              seq(max(DEGes)/paletteLength, max(DEGes), length.out=floor(paletteLength/2)))
-
-pheatmap(DEGes, show_colnames=F, show_rownames = F,
-         annotation_col=df, annotation_colors = ann_colors,
-         treeheight_row = 10, treeheight_col = 10, cellwidth = 8, 
-         border_color = "grey60" ,
-         color = viridis(30), breaks=myBreaks,
-         clustering_method="average", 
-         clustering_distance_cols="correlation" 
-         )
-```
-
-![](../figures/02_RNAseq/unnamed-chunk-2-1.png)
-
-``` r
-# for adobe
-pheatmap(DEGes, show_colnames=F, show_rownames = F,
-         annotation_col=df, annotation_colors = ann_colors,
-         treeheight_row = 25, treeheight_col = 25, cellwidth = 8, 
-         fontsize = 10, 
-         width=4.5, height=2.25,
-         border_color = "grey60" ,
-         color = viridis(30),
-         clustering_method="average", breaks=myBreaks,
-         clustering_distance_cols="correlation",
-         filename = "../figures/02_RNAseq/daynightheat.pdf"
-         )
-```
-
-Daytime3 and FMR1 - no outliers removed
----------------------------------------
-
-``` r
-dds <- DESeqDataSetFromMatrix(countData = countData,
-                              colData = colData,
-                              design = ~ Genotype * daytime3 )
-dds <- dds[ rowSums(counts(dds)) > 1, ]  # Pre-filtering genes with 0 counts
-dds # view number of genes afternormalization and the number of samples
-```
-
-    ## class: DESeqDataSet 
-    ## dim: 16979 16 
-    ## metadata(1): version
-    ## assays(1): counts
-    ## rownames(16979): 0610007P14Rik 0610009B22Rik ... Zzef1 Zzz3
-    ## rowData names(0):
-    ## colnames(16): 16-116B 16-117D ... 16-125D 16-126B
-    ## colData names(8): RNAseqID Mouse ... daytime2 daytime3
-
-``` r
-dds <- DESeq(dds) # Differential expression analysis
-rld <- rlog(dds, blind=FALSE) ## log transformed data
-
-contrast1 <- resvals(contrastvector = c("daytime3", "nighttime", "daytime"), mypval = 0.1) #    (11 with outliers included)
-```
-
-    ## [1] 11
-
-``` r
-contrast2 <- resvals(contrastvector = c("Genotype", "FMR1", "WT"), mypval = 0.1) #    (2 with outliers removed)
-```
-
-    ## [1] 2
-
-``` r
-DEGes <- assay(rld)
-DEGes <- cbind(DEGes, contrast1, contrast2)
-DEGes <- as.data.frame(DEGes) # convert matrix to dataframe
-DEGes$rownames <- rownames(DEGes)  # add the rownames to the dataframe
-DEGes$padjmin <- with(DEGes, pmin(padjdaytime3nighttimedaytime, padjGenotypeFMR1WT)) 
-
-# create new col with min padj
-DEGes <- DEGes %>% filter(padjmin < 0.1)
-rownames(DEGes) <- DEGes$rownames
-drop.cols <-colnames(DEGes[,grep("padj|pval|rownames", colnames(DEGes))])
-DEGes <- DEGes %>% dplyr::select(-one_of(drop.cols))
-DEGes <- as.matrix(DEGes)
-DEGes <- DEGes - rowMeans(DEGes)
-DEGes <- as.matrix(DEGes) 
-
-## the heatmap annotation file
-df <- as.data.frame(colData(dds)[,c("daytime3", "Genotype")]) ## matrix to df
-rownames(df) <- names(countData)
-ann_colors <- ann_colorsdaytime3frm1
-
-# set color breaks
-paletteLength <- 30
-myBreaks <- c(seq(min(DEGes), 0, length.out=ceiling(paletteLength/2) + 1), 
-              seq(max(DEGes)/paletteLength, max(DEGes), length.out=floor(paletteLength/2)))
-
-pheatmap(DEGes, show_colnames=F, show_rownames = F,
-        annotation_col=df, annotation_colors = ann_colors,
-         treeheight_row = 25, treeheight_col = 25,
-         fontsize = 11, 
-         width=4.5, height=2.25,
-         border_color = "grey60" ,
-         color = viridis(30),
-         cellwidth = 8, 
-         clustering_method="average",
-         breaks=myBreaks,
-         clustering_distance_cols="correlation" 
-         )
-```
-
-![](../figures/02_RNAseq/unnamed-chunk-3-1.png)
-
-``` r
-# for adobe
-pheatmap(DEGes, show_colnames=F, show_rownames = F,
-         annotation_col=df, annotation_colors = ann_colors,
-         treeheight_row = 25, treeheight_col = 25,
-         fontsize = 10, 
-         width=4.5, height=2.25,
-         border_color = "grey60" ,
-         color = viridis(30),
-         cellwidth = 8, 
-         clustering_method="average",
-         breaks=myBreaks,
-         clustering_distance_cols="correlation",
-         filename = "../figures/02_RNAseq/daytime3Genotype.pdf"
-         )
+# venn with padj values
+venn1 <- row.names(rldpvals[rldpvals[2] <0.1 & !is.na(rldpvals[2]),])
 ```
 
 ``` r
@@ -985,4 +651,6 @@ Write the files
 # write.csv(vsd, file = "../data/02_vsd.csv", row.names = T)
 # write.csv(rlddf, file = "../data/02_rlddf.csv", row.names = T)
 # write.csv(colData, file = "../data/02_colData.csv", row.names = T)
+write.csv(data, file = "../results/FMR1_CA1_rnaseq.csv", row.names = F)
+write.csv(venn1, file = "../results/FMR1_CA1_venn1.csv", row.names = F)
 ```

@@ -1,4 +1,11 @@
-![Fig. 2.6.Retention mice](../figures/fig1-10.png)
+![Fig. 2.6.Retention mice](../figures/fig1-10.png) Fig. 2.6. During
+recall, mice avoid the shock zone using a non-place strategy. A, B) WT
+but not FMR1-KO consistent mice make fewer entrances into the shock zone
+than conflict mice on C1. C, D) Path to first entrance on C2 is no
+different between groups indicating a lack of evidence for the use of
+place memory. Groups are shown in dark grey: yoked-consistent, red:
+consistently-trained, light grey: yoked-conflict, peach:
+conflict-trained, dashed lines: FMR1-KO, solid lines: WT.
 
 These are the packages required for making the figures and doing stats.
 

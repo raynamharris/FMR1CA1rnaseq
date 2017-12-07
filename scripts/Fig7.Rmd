@@ -1,0 +1,150 @@
+---
+title: "Figure 7"
+output: md_document
+---
+
+![Fig. 2.6.Retention mice](../figures/fig1-09.png)
+Fig. 2.7. During recall, mice avoid the shock zone.
+A) Trained mice spend less time in the shock zone than their yoked counterparts. B) They also make fewer entrances into the shock zone, C) but their path to the shock zone is not significantly longer. Legend) dark grey: yoked-consistent, red: consistently-trained, light grey: yoked-conflict, peach: conflict-trained, pink: future shock zone, dark green: clockwise, green: opposite the shock zone, light green: counterclockwise.
+
+These are the packages required for making the figures and doing stats. 
+
+```{r setup, warning = F, message = F}
+library(dplyr) # for subsetting data 
+library(car) # for fancy ANOVA
+library(ggplot2) # for plotting
+library(cowplot) # for "easier"" ggplot themes
+
+knitr::opts_chunk$set(fig.path = '../figures/01_behavior/')
+
+colorvalAPA2 <-  c( "#404040","#ca0020", "#bababa", "#f4a582")
+```
+
+This chuck of code is for loading and formatting the dataframes.
+
+```{r loaddata, message=F, warning = F}
+behavior <- read.csv("../results/behaviordata.csv", header = T)
+behavior$APA2 <- factor(behavior$APA2, levels = c("yoked-consistent","consistent", "yoked-conflict","conflict")) ## relevel then rename factors treatment
+behavior$Genotype <- factor(behavior$Genotype, levels = c("WT","FMR1KO")) # relevel genotype
+
+proptime <- read.csv("../results/behaviorproptime.csv", header = T)
+proptime$APA2 <- factor(proptime$APA2, levels = c("yoked-consistent","consistent", "yoked-conflict","conflict")) ## relevel then rename factors treatment
+proptime$Genotype <- factor(proptime$Genotype, levels = c("WT","FMR1KO")) # relevel genotype
+proptime$variable <- factor(proptime$variable, 
+          levels = c("pTimeTarget", "pTimeCCW", "pTimeOPP", "pTimeCW"))
+```
+
+Figure 7A: Proportion time spent on the shock zone on the retention trial
+
+```{r figure2, echo = F }
+
+timespent4 <- proptime %>%
+  #filter(APA2 %in% c("yoked-consistent","yoked-conflict")) %>%
+  filter(TrainSessionComboNum %in% c("9")) %>%
+  ggplot(aes(x = APA2, y = value,fill = variable)) + 
+    geom_bar(position = "fill",stat = "identity") +
+    scale_x_discrete(name=NULL,
+                     labels = c("yoked", "consistent", "yoked", "conflict")) +
+  facet_wrap(~Genotype, nrow=1) +
+  theme_cowplot(font_size = 8, line_size = 0.25) +
+  theme(legend.title=element_blank()) +
+  theme(legend.position="none") +
+  scale_y_continuous(name= "Proportion of Time Spent") +
+  scale_fill_manual(values = c("#f1b6da", "#e5f5e0" ,"#a1d99b", "#31a354")) + 
+   # geom_hline(yintercept=c(0.25,0.50, 0.75), color="black" , linetype="dashed") +
+  theme(strip.text.x = element_text(size = 8)) +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1)) 
+timespent4
+pdf(file="../figures/01_behavior/timespent4.pdf", width=2, height=2.25)
+plot(timespent4)
+dev.off()
+ 
+```
+
+
+Figure 7B Number of entrances on retention
+
+```{r fig 7B}
+num9 <- behavior %>%
+    filter(TrainSessionComboNum %in% c("9")) %>% 
+  ggplot(aes(x = as.numeric(TrainSessionComboNum), y = NumEntrances, fill=APA2)) +
+  geom_boxplot(outlier.size=0.8, lwd=0.5) +
+  facet_wrap(~Genotype) +
+  scale_fill_manual(values = colorvalAPA2) +  
+ scale_x_continuous(name=NULL, 
+                       breaks = c(1, 2, 3, 4, 5, 6, 7, 8, 9),
+                       labels = NULL) +
+    background_grid(major = "y", minor = "none") +
+   scale_y_continuous(name = "Retention number of entrances",
+                     limits = c(0,35)) +
+  #geom_hline(yintercept=c(9.21), color="red" , linetype = "dashed") + 
+   # geom_hline(yintercept=c(18.65), color="black", linetype = "dashed" ) + 
+  theme_cowplot(font_size = 8, line_size = 0.25) + 
+  theme(legend.position="none") +
+    background_grid(major = "y", minor = "none") 
+num9
+pdf(file="../figures/01_behavior/num9.pdf", width=1.75, height=1.9)
+plot(num9)
+dev.off()
+```
+
+```{r fig7C}
+path9 <- behavior %>%
+    filter(TrainSessionComboNum %in% c("9")) %>% 
+  ggplot(aes(x = as.numeric(TrainSessionComboNum), y = Path1stEntr, fill=APA2)) +
+  geom_boxplot(outlier.size=0.8, lwd=0.5) +
+  facet_wrap(~ Genotype ) +
+  scale_fill_manual(values = colorvalAPA2) +  
+ scale_x_continuous(name=NULL, 
+                       breaks = c(1, 2, 3, 4, 5, 6, 7, 8, 9),
+                       labels = NULL) +
+   scale_y_continuous(name = "Retention path to 1st entrance") +
+   geom_hline(yintercept=c(2.832), color="black" , linetype = "dashed") + 
+   theme_cowplot(font_size = 8, line_size = 0.25) + 
+   theme(legend.position="none") +
+    background_grid(major = "y", minor = "none") 
+path9
+
+pdf(file="../figures/01_behavior/path9.pdf", width=1.75, height=1.9)
+plot(path9)
+dev.off()
+```
+
+
+Statistics
+
+```{r retention}
+PathNumStats <- behavior  %>% 
+  filter(TrainSessionComboNum == "9") 
+
+summary(aov(NumEntrances ~  APA2 * Genotype, data=PathNumStats))
+summary(aov(Path1stEntr ~  APA2 * Genotype, data=PathNumStats))
+
+Anova(lm(data = PathNumStats, Path1stEntr ~ APA2 * Genotype), type = 3)
+Anova(lm(data = PathNumStats, NumEntrances ~ APA2 * Genotype ), type = 3)
+Anova(lm(data = PathNumStats, pTimeTarget ~ APA2 * Genotype ), type = 3)
+
+TukeyHSD(aov(data = PathNumStats, NumEntrances ~ Genotype * APA2))
+TukeyHSD(aov(data = PathNumStats, Path1stEntr ~ Genotype * APA2))
+TukeyHSD(aov(data = PathNumStats, pTimeTarget ~  Genotype * APA2))
+
+
+PathNumStats <- behavior  %>% 
+ filter(TrainSessionComboNum %in% c("9"))  %>% 
+  filter(APA2 %in% c("yoked-consistent", "yoked-conflict")) 
+mean(PathNumStats$NumEntrances)
+mean(PathNumStats$Path1stEntr)
+mean(PathNumStats$pTimeTarget)
+
+PathNumStats <- behavior  %>% 
+   filter(TrainSessionComboNum %in% c("9"))  %>%
+  filter(APA2 %in% c("consistent", "conflict")) 
+mean(PathNumStats$NumEntrances)
+mean(PathNumStats$Path1stEntr)
+mean(PathNumStats$pTimeTarget)
+
+PathNumStats <- behavior  %>% 
+   filter(TrainSessionComboNum %in% c("9"))  
+mean(PathNumStats$Path1stEntr)
+
+```

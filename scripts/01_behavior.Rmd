@@ -2,7 +2,7 @@
 title: "Behavior Data Analysis"
 author: "Rayna M Harris"
 date: "Last updated November 22, 2017"
-output: md_document
+output: html_document
 ---
 
 ```{r setup, echo = F, message=F}
@@ -11,21 +11,13 @@ library(tidyr) ## for respahing data
 library(plyr) ## for renmaing factors
 library(dplyr) ## for filtering and selecting rows
 library(reshape2) ## for melting dataframe
-library(ggplot2)
-library(cowplot)
-library(pheatmap)
-library(viridis)
-library(car) # for fancy ANOVA
-
-## load color settings
-source("figureoptions.R")
-
-knitr::opts_chunk$set(fig.path = '../figures/01_behavior/')
 ```
 
-# This script is use to import, clean, reformat, subset, and summarize data
+This script is use to import, clean, reformat, subset, and summarize data
 
-```{r loaddata, echo = F, message=F, warning = F}
+This first chuck of code loads and wrangles the data.
+
+```{r loaddata}
 ## read intermediate data (raw data from video tracker program analyzed in matlab)
 behavior <- read.csv("../data/fmr1.csv", header = T)
 behavior$APA <- as.factor(behavior$APA)
@@ -34,7 +26,6 @@ behavior$APA2 <- as.factor(behavior$APA2)
 ## relevel then rename factors treatment
 behavior$APA2 <- factor(behavior$APA2, levels = c("controlconsistent", "consistent", "controlconflict", "conflict"))
 levels(behavior$APA2) <- c("yoked-consistent","consistent", "yoked-conflict","conflict")
-levels(behavior$APA2)
 
 levels(behavior$Genotype) <- c("WT","FMR1KO") ## relevel genotype
 
@@ -50,6 +41,31 @@ behavior <- subset(behavior, !is.na(behavior$NumEntrances)) # remove nas
 write.csv(behavior, "../results/behaviordata.csv", row.names = F)
 ```
 
+The videotracking software captures ~ 40 measures about the animal moves around the arena. I also have a handful of columns of meta data that range in their utitlity.
+```{r measures}
+names(behavior)
+```
+
+I focus on these 6 "behavioral" measures with a few descriptive columns about the data. The `ID` identified each unique mouse. I use `TrainSessionCombo` and `TrainSessionCombo` to indicate the order of active place avoiance training sessions. `Genotype` and `APA2` are catagorical variables under investigation. The behaioral measures are explored in detail in the subesent scripts named Fig-Fig7.
+
+```{r overview}
+
+avoidance <- behavior[,c(1,2,8,4,9,12,26:29,15,16)]
+summary(avoidance)
+```
+
+These group sizes are also shown in Fig 1.
+
+```{r samplesizes}
+avoidance %>% 
+  filter(TrainSessionCombo == "Retention", Genotype == "WT") %>%
+  select(APA2, Genotype)  %>%  summary()
+avoidance %>% 
+  filter(TrainSessionCombo == "Retention", Genotype == "FMR1KO") %>%
+  select(APA2, Genotype)  %>%  summary()
+```
+
+
 This is a long dataframe where `variable` has four levels (shock zone, clockwise, opposite, or counter-clockwise) and `value` has the propportion of time spent in each of those locaitons. 
 
 ```{r proptimedataframe}
@@ -57,289 +73,22 @@ This is a long dataframe where `variable` has four levels (shock zone, clockwise
 proptime <- behavior[,c(1,2,4,8,9,12,26:29)]
 proptime <- melt(proptime, id.vars = c("ID", "Genotype", "TrainSession",
                                        "APA2", "TrainSessionCombo", "TrainSessionComboNum")) 
+
+levels(proptime$variable)
 write.csv(proptime, "../results/behaviorproptime.csv", row.names = F)
 ```
 
+This chunck of code is for summarizing the data to plot mean +/- SEM because box plots are too unwieldly for this type of data. I add a `measure` column for facetting or subsetting the data.
+
 ```{r summarized}
 numentr <- dplyr::summarise(group_by(behavior, Genotype, APA2, TrainSessionComboNum, conflict), m = mean(NumEntrances), se = sd(NumEntrances)/sqrt(length(NumEntrances)), len = length(NumEntrances))
+fivenum(numentr$m)
 
 pathentr <- dplyr::summarise(group_by(behavior, Genotype, APA2, TrainSessionComboNum, conflict), m = mean(Path1stEntr), se = sd(Path1stEntr)/sqrt(length(Path1stEntr)), len = length(Path1stEntr))
+fivenum(pathentr$m)
 
-levels(numentr$APA2) <- c("yoked-consistent","consistent", "yoked-conflict","conflict")
-levels(pathentr$APA2) <- c("yoked-consistent","consistent", "yoked-conflict","conflict")
-
-numentr$conflict = factor(numentr$conflict, levels = c("consistent","conflict"))
-pathentr$conflict = factor(numentr$conflict, levels = c("consistent","conflict"))
 numentr$measure <- "Number of Entrances"
 pathentr$measure <- "Path to the 1st Entrance"
-
 PathNum <- rbind(pathentr,numentr)
-PathNum$measure <- as.factor(PathNum$measure)
-
 write.csv(PathNum, "../results/behaviordatasummary.csv", row.names = F)
-```
-
-
-
-```{r, warning = F}
-## conflict
-PathNumStats <- behavior  %>% 
-  filter(TrainSessionComboNum == "6") 
-Anova(lm(data = PathNumStats, NumEntrances ~ Genotype * APA2 ), type = 3)
-summary(aov(NumEntrances ~  APA2 * Genotype, data=PathNumStats))
-TukeyHSD(aov(NumEntrances~  APA2 * Genotype, data=PathNumStats))
-mean(PathNumStats$NumEntrances)
-
-PathNumStats <- behavior  %>% 
-  filter(TrainSessionComboNum == "6",
-         APA2 %in% c("yoked-consistent", "yoked-conflict")) 
-mean(PathNumStats$NumEntrances)
-
-PathNumStats <- behavior  %>% 
-  filter(TrainSessionComboNum == "6",
-         APA2 %in% c("consistent", "conflict")) 
-mean(PathNumStats$NumEntrances)
-
-PathNumStats <- behavior  %>% 
-  filter(TrainSessionComboNum == "7") 
-Anova(lm(data = PathNumStats, Path1stEntr ~ Genotype * APA2 ), type = 3)
-summary(aov(Path1stEntr~  APA2 * Genotype, data=PathNumStats))
-TukeyHSD(aov(Path1stEntr~  APA2 * Genotype, data=PathNumStats))
-mean(PathNumStats$Path1stEntr)
-
-PathNumStats <- behavior  %>% 
-  filter(TrainSessionComboNum == "7",
-         Genotype == "WT")
-Anova(lm(data = PathNumStats, Path1stEntr ~  APA2 ), type = 3)
-summary(aov(Path1stEntr~  APA2, data=PathNumStats))
-TukeyHSD(aov(Path1stEntr~  APA2, data=PathNumStats))
-
-PathNumStats <- behavior  %>% 
-  filter(TrainSessionComboNum == "7",
-         Genotype != "WT")
-Anova(lm(data = PathNumStats, Path1stEntr ~  APA2 ), type = 3)
-summary(aov(Path1stEntr~  APA2, data=PathNumStats))
-TukeyHSD(aov(Path1stEntr~  APA2, data=PathNumStats))
-
-```
-
- 
-```{r figure2, echo = F }
-
-timespent4 <- proptime %>%
-  #filter(APA2 %in% c("yoked-consistent","yoked-conflict")) %>%
-  filter(TrainSessionComboNum %in% c("9")) %>%
-  ggplot(aes(x = APA2, y = value,fill = variable)) + 
-    geom_bar(position = "fill",stat = "identity") +
-    scale_x_discrete(name=NULL,
-                     labels = c("yoked", "consistent", "yoked", "conflict")) +
-  facet_wrap(~Genotype, nrow=1) +
-  theme_cowplot(font_size = 8, line_size = 0.25) +
-  theme(legend.title=element_blank()) +
-  theme(legend.position="none") +
-  scale_y_continuous(name= "Proportion of Time Spent") +
-  scale_fill_manual(values = c("#f1b6da", "#e5f5e0" ,"#a1d99b", "#31a354")) + 
-   # geom_hline(yintercept=c(0.25,0.50, 0.75), color="black" , linetype="dashed") +
-  theme(strip.text.x = element_text(size = 8)) +
-  theme(axis.text.x = element_text(angle = 45, hjust = 1)) 
-
-pdf(file="../figures/01_behavior/timespent4.pdf", width=2, height=2.25)
-plot(timespent4)
-dev.off()
- 
-conflict6 <- behavior %>%
-    filter(TrainSessionComboNum %in% c("6")) %>% 
-  ggplot(aes(x = as.numeric(TrainSessionComboNum), y = NumEntrances, fill=APA2)) +
-  geom_boxplot(outlier.size=0.8, lwd=0.5) +
-  facet_wrap(~Genotype) +
-  scale_fill_manual(values = colorvalAPA2) +  
- scale_x_continuous(name=NULL, 
-                       breaks = c(6),
-                       labels = c("C1")) +
-   scale_y_continuous(name = "C1 number of entrances",
-                      limits = c(0,24)) +
-    #geom_hline(yintercept=c(16.6875), color="black", linetype = "dashed" ) + 
-    #  geom_hline(yintercept=c(8.75), color="red", linetype = "dashed" ) + 
-  theme_cowplot(font_size = 8, line_size = 0.25) + 
-  theme(legend.position="none") +
-    background_grid(major = "y", minor = "none") 
-conflict6
-
-conflict7 <- behavior %>%
-    filter(TrainSessionComboNum %in% c("7")) %>% 
-  ggplot(aes(x = as.numeric(TrainSessionComboNum), y = Path1stEntr, fill=APA2)) +
-  geom_boxplot(outlier.size=0.8, lwd=0.5) +
-  facet_wrap(~Genotype) +
-  scale_fill_manual(values = colorvalAPA2) +  
- scale_x_continuous(name=NULL, 
-                       breaks = c(7),
-                       labels = c("C2")) +
-   scale_y_continuous(name = "C2 path to 1st entrance") +
-    geom_hline(yintercept=c(2.859524), color="black" , linetype = "dashed") + 
-  theme_cowplot(font_size = 8, line_size = 0.25) + 
-  theme(legend.position="none") +
-    background_grid(major = "y", minor = "none") 
-
-pdf(file="../figures/01_behavior/conflict6.pdf", width=1.75, height=1.9)
-plot(conflict6)
-dev.off()
-pdf(file="../figures/01_behavior/conflict7.pdf", width=1.75, height=1.9)
-plot(conflict7)
-dev.off()
-```
-
-
-
-
-
-
-
-```{r, echo =F, warning = F, results = F}
-
-
-conflictnum <- PathNum  %>% 
-  filter(TrainSessionComboNum %in% c("6", "7", "8")) %>% 
-  filter(measure == "Number of Entrances") %>% 
-  #filter(Genotype == "WT") %>% 
-  ggplot(aes(x=, TrainSessionComboNum, y=m, color=APA2, shape=Genotype)) + 
-    geom_errorbar(aes(ymin=m-se, ymax=m+se), width=.1) +
-    geom_point(size = 2) +
-   geom_line(aes(linetype=Genotype, colour=APA2)) +
-   scale_y_continuous(name= "Conflict number of entrances") +
-    scale_x_continuous(name=NULL, 
-                       breaks = c(1, 2, 3, 4, 5, 6, 7, 8, 9),
-                       labels = c( "Pre.", "T1", "T2", "T3",
-                                   "Retest", "C1", "C2","C3", 
-                                   "Reten.")) +
-  theme_cowplot(font_size = 8, line_size = 0.25) +
-  background_grid(major = "y", minor = "none") +
-  scale_color_manual(values = colorvalAPA2)  +
-  theme(legend.title=element_blank()) +
-  theme(legend.position="none") +
-  scale_shape_manual(values=c(16,1)) 
-
-pdf(file="../figures/01_behavior/conflictnum.pdf", width=1.5, height=2)
-plot(conflictnum)
-dev.off()
-
-conflictpath <- PathNum  %>% 
-  filter(TrainSessionComboNum %in% c("6", "7", "8")) %>% 
-  filter(measure == "Path to the 1st Entrance") %>% 
-  #filter(Genotype == "WT") %>% 
-  ggplot(aes(x=, TrainSessionComboNum, y=m, color=APA2, shape=Genotype)) + 
-    geom_errorbar(aes(ymin=m-se, ymax=m+se), width=.1) +
-    geom_point(size = 2) +
-   geom_line(aes(linetype=Genotype, colour=APA2)) +
-   scale_y_continuous(name= "Conflict path to 1st entrance") +
-    scale_x_continuous(name=NULL, 
-                       breaks = c(1, 2, 3, 4, 5, 6, 7, 8, 9),
-                       labels = c( "Pre.", "T1", "T2", "T3",
-                                   "Retest", "C1", "C2","C3", 
-                                   "Reten.")) +
-  theme_cowplot(font_size = 8, line_size = 0.25) +
-  background_grid(major = "y", minor = "none") +
-  scale_color_manual(values = colorvalAPA2)  +
-  theme(legend.title=element_blank()) +
-  theme(legend.position="none") +
-  scale_shape_manual(values=c(16,1)) 
-
-pdf(file="../figures/01_behavior/conflictpath.pdf", width=1.5, height=2)
-plot(conflictpath)
-dev.off()
-
-
-```
-
-
-
-![Fig. 2.6.Retention mice](../figures/fig1-09.png)
-
-
-```{r retention}
-PathNumStats <- behavior  %>% 
-  filter(TrainSessionComboNum == "9") 
-
-summary(aov(NumEntrances ~  APA2 * Genotype, data=PathNumStats))
-summary(aov(Path1stEntr ~  APA2 * Genotype, data=PathNumStats))
-
-Anova(lm(data = PathNumStats, Path1stEntr ~ APA2 * Genotype), type = 3)
-Anova(lm(data = PathNumStats, NumEntrances ~ APA2 * Genotype ), type = 3)
-Anova(lm(data = PathNumStats, pTimeTarget ~ APA2 * Genotype ), type = 3)
-
-TukeyHSD(aov(data = PathNumStats, NumEntrances ~ Genotype * APA2))
-TukeyHSD(aov(data = PathNumStats, Path1stEntr ~ Genotype * APA2))
-TukeyHSD(aov(data = PathNumStats, pTimeTarget ~  Genotype * APA2))
-
-
-PathNumStats <- behavior  %>% 
- filter(TrainSessionComboNum %in% c("9"))  %>% 
-  filter(APA2 %in% c("yoked-consistent", "yoked-conflict")) 
-mean(PathNumStats$NumEntrances)
-mean(PathNumStats$Path1stEntr)
-mean(PathNumStats$pTimeTarget)
-
-PathNumStats <- behavior  %>% 
-   filter(TrainSessionComboNum %in% c("9"))  %>%
-  filter(APA2 %in% c("consistent", "conflict")) 
-mean(PathNumStats$NumEntrances)
-mean(PathNumStats$Path1stEntr)
-mean(PathNumStats$pTimeTarget)
-
-PathNumStats <- behavior  %>% 
-   filter(TrainSessionComboNum %in% c("9"))  
-mean(PathNumStats$Path1stEntr)
-
-```
-
-```{r conflict}
-PathNumStats <- behavior  %>% 
-  filter(TrainSessionComboNum  %in% c("7")) 
-TukeyHSD(aov(data = PathNumStats, Path1stEntr ~ Genotype * APA2))
-
-PathNumStats <- behavior  %>% 
-  filter(TrainSessionComboNum  %in% c("6")) 
-TukeyHSD(aov(data = PathNumStats, NumEntrances ~ Genotype * APA2))
-```
-
-```{r retention2}
-num9 <- behavior %>%
-    filter(TrainSessionComboNum %in% c("9")) %>% 
-  ggplot(aes(x = as.numeric(TrainSessionComboNum), y = NumEntrances, fill=APA2)) +
-  geom_boxplot(outlier.size=0.8, lwd=0.5) +
-  facet_wrap(~Genotype) +
-  scale_fill_manual(values = colorvalAPA2) +  
- scale_x_continuous(name=NULL, 
-                       breaks = c(1, 2, 3, 4, 5, 6, 7, 8, 9),
-                       labels = NULL) +
-    background_grid(major = "y", minor = "none") +
-   scale_y_continuous(name = "Retention number of entrances",
-                     limits = c(0,35)) +
-  #geom_hline(yintercept=c(9.21), color="red" , linetype = "dashed") + 
-   # geom_hline(yintercept=c(18.65), color="black", linetype = "dashed" ) + 
-  theme_cowplot(font_size = 8, line_size = 0.25) + 
-  theme(legend.position="none") +
-    background_grid(major = "y", minor = "none") 
-
-path9 <- behavior %>%
-    filter(TrainSessionComboNum %in% c("9")) %>% 
-  ggplot(aes(x = as.numeric(TrainSessionComboNum), y = Path1stEntr, fill=APA2)) +
-  geom_boxplot(outlier.size=0.8, lwd=0.5) +
-  facet_wrap(~ Genotype ) +
-  scale_fill_manual(values = colorvalAPA2) +  
- scale_x_continuous(name=NULL, 
-                       breaks = c(1, 2, 3, 4, 5, 6, 7, 8, 9),
-                       labels = NULL) +
-   scale_y_continuous(name = "Retention path to 1st entrance") +
-   geom_hline(yintercept=c(2.832), color="black" , linetype = "dashed") + 
-   theme_cowplot(font_size = 8, line_size = 0.25) + 
-   theme(legend.position="none") +
-    background_grid(major = "y", minor = "none") 
-
-
-pdf(file="../figures/01_behavior/num9.pdf", width=1.75, height=1.9)
-plot(num9)
-dev.off()
-pdf(file="../figures/01_behavior/path9.pdf", width=1.75, height=1.9)
-plot(path9)
-dev.off()
 ```

@@ -30,7 +30,6 @@ proptime$APA2 <- factor(proptime$APA2, levels = c("yoked-consistent","consistent
 proptime$Genotype <- factor(proptime$Genotype, levels = c("WT","FMR1KO")) # relevel genotype
 proptime$variable <- factor(proptime$variable, 
           levels = c("pTimeTarget", "pTimeCCW", "pTimeOPP", "pTimeCW"))
-
 ```
 
 # Pannel A

@@ -18,12 +18,18 @@ The GitHub Repository for "FMR1-KO knockdown alters gene expression of some auti
 	- [06_GO_MWU](./scripts/06_GO_MWU)	- directory with data, code, and results for Gene Ontology analysis
 	- [figureoptions.R](./scripts/figureoptions.R) - my color pallet of choice for this experiment
 4. scripts - part 2
-	- Because I had so many behavior figures and accompanying statistics, I created a Rmd script containing the code to make the figure and calculate the statistics. The data were generated in 01_behavior.Rmd. The markdown files with the statistics and the sub fiures are here: [1](./scripts/Fig1.md), [2](./scripts/Fig2.md), [3](./scripts/Fig3.md), [4](./scripts/Fig4.md), [5](./scripts/Fig5.md), [6](./scripts/Fig6.md), [7](./scripts/Fig7.md).
+	- Because I had so many behavior figures and accompanying statistics, I created a Rmd script containing the code to make the figure and calculate the statistics. 
+	-The data were generated in 01_behavior.Rmd. 
+	The markdown files with the statistics and the sub fiures are here: [1](./scripts/Fig1.md), [2](./scripts/Fig2.md), [3](./scripts/Fig3.md), [4](./scripts/Fig4.md), [5](./scripts/Fig5.md), [6](./scripts/Fig6.md), [7](./scripts/Fig7.md).
 	
 5. results
 	- In the R script accompanying this file, [08_results.md](./scripts/08_results.md), I write the results section for my manuscript. 
 	- This document is an executable way for me to keep the results section under version control and with newest version of the figure. 
 	- I alternate between exporting the result to a `md_document` and a `word_document` for writing my thesis
+	
+	This is an overview of all nine results figures that accompany this research.
+	
+![](./figures/07_colorblindr/overview-1.png)
 
 ## Data Availability
 

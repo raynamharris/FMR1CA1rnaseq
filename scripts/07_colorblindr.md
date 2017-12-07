@@ -35,23 +35,11 @@ Hippocampus color scheme
     q3 <- edit_colors(q, deutan, sev = 1.0)
     q4 <- edit_colors(q, protan, sev = 1.0)
 
-    r0 <- magick::image_read("../figures/fig1-08.png")
+    r0 <- magick::image_read("../figures/fig3-01.png")
     r <- ggdraw() + draw_image(r0) # turn png into ggplot object
     r2 <- edit_colors(r, tritan, sev = 1.0)
     r3 <- edit_colors(r, deutan, sev = 1.0)
     r4 <- edit_colors(r, protan, sev = 1.0)
-
-    plot_grid(p, p2, p3, p4)
-
-![](../figures/07_colorblindr/colorblindr-1.png)
-
-    plot_grid(q, q2, q3, q4)
-
-![](../figures/07_colorblindr/colorblindr-2.png)
-
-    plot_grid(r, r2, r3, r4)
-
-![](../figures/07_colorblindr/colorblindr-3.png)
 
     t0 <- magick::image_read("../figures/fig1-01.png")
     t1 <- ggdraw() + draw_image(t0) # turn png into ggplot
@@ -65,11 +53,32 @@ Hippocampus color scheme
     t0 <- magick::image_read("../figures/fig1-05.png")
     t5 <- ggdraw() + draw_image(t0) # turn png into ggplot
 
-    t0 <- magick::image_read("../figures/fig3-01.png")
+    t0 <- magick::image_read("../figures/fig1-08.png")
     t31 <- ggdraw() + draw_image(t0) # turn png into ggplot
 
+    t0 <- magick::image_read("../figures/fig1-07.png")
+    t7 <- ggdraw() + draw_image(t0) # turn png into ggplot
 
+    t0 <- magick::image_read("../figures/fig1-10.png")
+    t10 <- ggdraw() + draw_image(t0) # turn png into ggplot
 
-    plot_grid(t1, p, t6, r, q, t5, t3, t31)
+    t0 <- magick::image_read("../figures/fig1-09.png")
+    t9 <- ggdraw() + draw_image(t0) # turn png into ggplot
 
-![](../figures/07_colorblindr/colorblindr-4.png)
+    plot_grid(p, p2, p3, p4)
+
+![](../figures/07_colorblindr/colorblindr-1.png)
+
+    plot_grid(q, q2, q3, q4)
+
+![](../figures/07_colorblindr/colorblindr-2.png)
+
+    plot_grid(r, r2, r3, r4)
+
+![](../figures/07_colorblindr/colorblindr-3.png)
+
+    plot_grid(p, t6, t7, 
+              q, t10, t9,
+              r, t3, t31)
+
+![](../figures/07_colorblindr/overview-1.png)

@@ -26,8 +26,7 @@ The GitHub Repository for "FMR1-KO knockdown alters gene expression of some auti
 	- In the R script accompanying this file, [08_results.md](./scripts/08_results.md), I write the results section for my manuscript. 
 	- This document is an executable way for me to keep the results section under version control and with newest version of the figure. 
 	- I alternate between exporting the result to a `md_document` and a `word_document` for writing my thesis
-	
-	This is an overview of all nine results figures that accompany this research.
+	- This is an overview of all nine results figures that accompany this research:
 	
 ![](./figures/07_colorblindr/overview-1.png)
 

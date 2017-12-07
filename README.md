@@ -2,7 +2,7 @@
 
 The GitHub Repository for "FMR1-KO knockdown alters gene expression of some autism disorder risk genes"
 
-## Data organization
+## Repository organization
 
 1. UNIXworkflow - runs on The Texas Advanced Computing Center's (TACC) cluster 'Stampede'
 2. data

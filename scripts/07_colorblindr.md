@@ -79,6 +79,6 @@ Hippocampus color scheme
 
     plot_grid(p, t6, t7, 
               q, t10, t9,
-              r, t3, t31)
+              t9, t3, t31)
 
 ![](../figures/07_colorblindr/overview-1.png)

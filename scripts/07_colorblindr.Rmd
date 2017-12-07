@@ -79,6 +79,6 @@ plot_grid(r, r2, r3, r4)
 ```{r overview}
 plot_grid(p, t6, t7, 
           q, t10, t9,
-          r, t3, t31)
+          t9, t3, t31)
 ```
 

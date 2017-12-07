@@ -9,11 +9,11 @@ The GitHub Repository for "FMR1-KO knockdown alters gene expression of some auti
 	- the files with the 01 and 02 prefix are semi-raw files for starting analysis
 	- all other files are results files or meta data
 3. workflow
-	- 00_cpfiles.sh	- a bash script for copying files into and out of this repo
-	- 01_behavior.Rmd - knittable analysis script for wrangling the avoidance behavior  data. The output is use for the `Fig*.Rmd` scripts that accompany each figure 
-	- 01_behavior.md - output of above script
-	- 02_RNAseq.Rmd	- knittable analysis of differential gene expression of RNA-seq data with DESeq2, GO-WMU, and WGCNA
-	- 02_RNAseq.md	- output of above script
+	- [00_cpfiles.sh](.scripts/00_cpfiles.sh)	- a bash script for copying files into and out of this repo
+	- [01_behavior.Rmd](.scripts/01_behavior.Rmd) - knittable analysis script for wrangling the avoidance behavior  data. The output is use for the `Fig*.Rmd` scripts that accompany each figure 
+	- [01_behavior.md](.scripts/01_behavior.md) - output of above script
+	- 02_RNAseq.Rmd(.scripts/)	- knittable analysis of differential gene expression of RNA-seq data with DESeq2, GO-WMU, and WGCNA
+	- 02_RNAseq.md(.scripts/)	- output of above script
 	- 03_wgcna.R	- R script for weighted gene co-expression network analysis
 	- 04_ephys.Rmd	- knittable analysis hippocampal electrophysiology to measure synaptic properties
 	- 04_ephys.md - output of above script

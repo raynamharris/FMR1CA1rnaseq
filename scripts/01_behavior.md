@@ -1,118 +1,18 @@
-Experimental design
-===================
-
-![Active place avoidance task with conflict
-training.](../figures/fig1-01.png)
-
-##### Mice were assigned to one of four groups: consistently-trained (red), yoked-consistent (dark grey), conflict-trained (peach), or yoked-conflict (light grey). Mice were placed on the rotating arena (1 rpm) for training sessions that lasted 10 min and was separated by 2-h intersession interval or overnight (~17 h). The physical conditions are identical for all mice during pre-training and retention. Sample sizes for each treatment group and genotype are shown on the bottom right.
+This script is use to import, clean, reformat, subset, and summarize data
+=========================================================================
 
     ## [1] "yoked-consistent" "consistent"       "yoked-conflict"  
     ## [4] "conflict"
 
+This is a long dataframe where `variable` has four levels (shock zone,
+clockwise, opposite, or counter-clockwise) and `value` has the
+propportion of time spent in each of those locaitons.
+
     ## proptime
     proptime <- behavior[,c(1,2,4,8,9,12,26:29)]
     proptime <- melt(proptime, id.vars = c("ID", "Genotype", "TrainSession",
-                                           "APA2", "TrainSessionCombo","TrainSessionComboNum")) 
-
-![Figure 2: No group differences prior to behavioral
-manipulation.](../figures/fig1-04.png)
-
-    ## pretraining
-
-    PathNumStats <- behavior  %>% 
-      filter(TrainSessionComboNum == "1") 
-    summary(aov(pTimeTarget ~  APA2 + Genotype, data=PathNumStats))
-
-    ##             Df  Sum Sq  Mean Sq F value Pr(>F)
-    ## APA2         3 0.00315 0.001049   0.507  0.680
-    ## Genotype     1 0.00091 0.000906   0.438  0.512
-    ## Residuals   38 0.07868 0.002071
-
-    summary(aov(pTimeOPP ~  APA2 + Genotype, data=PathNumStats))
-
-    ##             Df  Sum Sq   Mean Sq F value Pr(>F)
-    ## APA2         3 0.00528 0.0017596   1.051  0.381
-    ## Genotype     1 0.00001 0.0000134   0.008  0.929
-    ## Residuals   38 0.06360 0.0016736
-
-    summary(aov(pTimeCW ~  APA2 + Genotype, data=PathNumStats))
-
-    ##             Df  Sum Sq   Mean Sq F value Pr(>F)
-    ## APA2         3 0.00415 0.0013839   0.507  0.680
-    ## Genotype     1 0.00042 0.0004178   0.153  0.698
-    ## Residuals   38 0.10375 0.0027302
-
-    summary(aov(pTimeCCW ~  APA2 + Genotype, data=PathNumStats))
-
-    ##             Df  Sum Sq   Mean Sq F value Pr(>F)
-    ## APA2         3 0.00906 0.0030208   0.979  0.413
-    ## Genotype     1 0.00004 0.0000374   0.012  0.913
-    ## Residuals   38 0.11725 0.0030856
-
-    Anova(lm(data = PathNumStats, pTimeTarget ~ Genotype * APA2 ), type = 3)
-
-    ## Anova Table (Type III tests)
-    ## 
-    ## Response: pTimeTarget
-    ##                 Sum Sq Df F value    Pr(>F)    
-    ## (Intercept)   0.214554  1 96.5179 1.345e-11 ***
-    ## Genotype      0.000011  1  0.0048    0.9454    
-    ## APA2          0.001534  3  0.2301    0.8748    
-    ## Genotype:APA2 0.000881  3  0.1322    0.9403    
-    ## Residuals     0.077803 35                      
-    ## ---
-    ## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
-
-    mean(PathNumStats$pTimeTarget)
-
-    ## [1] 0.2447605
-
-    mean(PathNumStats$pTimeOPP)
-
-    ## [1] 0.2150884
-
-    mean(PathNumStats$pTimeCW)
-
-    ## [1] 0.2643767
-
-    mean(PathNumStats$pTimeCCW)
-
-    ## [1] 0.2757767
-
-    summary(aov(NumEntrances ~  APA2 * Genotype, data=PathNumStats))
-
-    ##               Df Sum Sq Mean Sq F value Pr(>F)
-    ## APA2           3  133.4   44.48   1.717  0.181
-    ## Genotype       1    2.7    2.74   0.106  0.747
-    ## APA2:Genotype  3  127.6   42.55   1.643  0.197
-    ## Residuals     35  906.6   25.90
-
-    summary(aov(Path1stEntr~  APA2 * Genotype, data=PathNumStats))
-
-    ##               Df Sum Sq Mean Sq F value Pr(>F)
-    ## APA2           3  0.943 0.31429   1.583  0.211
-    ## Genotype       1  0.028 0.02777   0.140  0.711
-    ## APA2:Genotype  3  0.098 0.03277   0.165  0.919
-    ## Residuals     35  6.947 0.19848
-
-    mean(PathNumStats$NumEntrances)
-
-    ## [1] 28.5814
-
-    mean(PathNumStats$Path1stEntr)
-
-    ## [1] 0.4237209
-
-    summary(aov(value ~  APA2 * Genotype + variable, data=proptime))
-
-    ##                 Df Sum Sq Mean Sq F value Pr(>F)    
-    ## APA2             3   0.00   0.000     0.0      1    
-    ## Genotype         1   0.00   0.000     0.0      1    
-    ## variable         3  13.62   4.541   224.5 <2e-16 ***
-    ## APA2:Genotype    3   0.00   0.000     0.0      1    
-    ## Residuals     1537  31.09   0.020                   
-    ## ---
-    ## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+                                           "APA2", "TrainSessionCombo", "TrainSessionComboNum")) 
+    write.csv(proptime, "../results/behaviorproptime.csv", row.names = F)
 
     ## conflict
     PathNumStats <- behavior  %>% 
@@ -421,17 +321,6 @@ manipulation.](../figures/fig1-04.png)
     ## conflict-consistent             -1.3275 -10.941393  8.286393 0.9778648
     ## conflict-yoked-conflict         -2.3425 -12.873992  8.188992 0.9170112
 
-    ## Warning: Removed 4 rows containing non-finite values (stat_boxplot).
-
-    ## quartz_off_screen 
-    ##                 2
-
-    ## quartz_off_screen 
-    ##                 2
-
-    ## quartz_off_screen 
-    ##                 2
-
     ## Warning: Removed 2 rows containing non-finite values (stat_boxplot).
 
     ## quartz_off_screen 
@@ -439,8 +328,6 @@ manipulation.](../figures/fig1-04.png)
 
     ## quartz_off_screen 
     ##                 2
-
-![](../figures/fig1-06.png)
 
 ![Figure 2.4](../figures/fig1-07.png)
 
@@ -756,47 +643,6 @@ manipulation.](../figures/fig1-04.png)
     mean(timespent$pTimeOPP)
 
     ## [1] 0.4225437
-
-    ##                Df Sum Sq Mean Sq F value Pr(>F)    
-    ## APA2            3 2.6064  0.8688 262.921 <2e-16 ***
-    ## Genotype        1 0.0031  0.0031   0.952  0.330    
-    ## APA2:Genotype   3 0.0026  0.0009   0.263  0.852    
-    ## Residuals     286 0.9451  0.0033                   
-    ## ---
-    ## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
-
-    ##                Df Sum Sq Mean Sq F value Pr(>F)    
-    ## APA2            3  2.354  0.7847  39.138 <2e-16 ***
-    ## Genotype        1  0.034  0.0344   1.717  0.191    
-    ## APA2:Genotype   3  0.004  0.0013   0.067  0.977    
-    ## Residuals     286  5.734  0.0200                   
-    ## ---
-    ## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
-
-    ##                Df Sum Sq Mean Sq F value Pr(>F)    
-    ## APA2            3 2.6064  0.8688 262.921 <2e-16 ***
-    ## Genotype        1 0.0031  0.0031   0.952  0.330    
-    ## APA2:Genotype   3 0.0026  0.0009   0.263  0.852    
-    ## Residuals     286 0.9451  0.0033                   
-    ## ---
-    ## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
-
-    ##                Df Sum Sq Mean Sq F value   Pr(>F)    
-    ## APA2            3  1.143  0.3809  16.824 4.31e-10 ***
-    ## Genotype        1  0.001  0.0012   0.053    0.818    
-    ## APA2:Genotype   3  0.007  0.0023   0.100    0.960    
-    ## Residuals     286  6.475  0.0226                     
-    ## ---
-    ## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
-
-    ## quartz_off_screen 
-    ##                 2
-
-    ## quartz_off_screen 
-    ##                 2
-
-    ## quartz_off_screen 
-    ##                 2
 
     ## quartz_off_screen 
     ##                 2
@@ -1353,7 +1199,7 @@ FMR1-KO mice](../figures/fig1-02.png)
       ggplot(aes(x = as.numeric(TrainSessionComboNum), y = NumEntrances, fill=APA2)) +
       geom_boxplot(outlier.size=0.8, lwd=0.5) +
       facet_wrap(~Genotype) +
-      scale_fill_manual(values = colorvalAPA00) +  
+      scale_fill_manual(values = colorvalAPA2) +  
      scale_x_continuous(name=NULL, 
                            breaks = c(1, 2, 3, 4, 5, 6, 7, 8, 9),
                            labels = NULL) +
@@ -1371,7 +1217,7 @@ FMR1-KO mice](../figures/fig1-02.png)
       ggplot(aes(x = as.numeric(TrainSessionComboNum), y = Path1stEntr, fill=APA2)) +
       geom_boxplot(outlier.size=0.8, lwd=0.5) +
       facet_wrap(~ Genotype ) +
-      scale_fill_manual(values = colorvalAPA00) +  
+      scale_fill_manual(values = colorvalAPA2) +  
      scale_x_continuous(name=NULL, 
                            breaks = c(1, 2, 3, 4, 5, 6, 7, 8, 9),
                            labels = NULL) +

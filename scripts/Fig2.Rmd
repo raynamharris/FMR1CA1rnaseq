@@ -7,7 +7,6 @@ output: md_document
 Fig. 2: No group differences before behavioral manipulation.
 A) This graph shows that all groups of mice spend ~ 25% of their time equally across four quadrants of the arena during the pre-training session (pink: future shock zone, dark green: clockwise, green: opposite the shock zone, light green: counterclockwise). B) Pre-training number of entrances into the shock zone and C) path to the first entrance are not significantly different between treatment groups and genotypes (dark grey: yoked-consistent, red: consistently-trained, light grey: yoked-conflict, peach: conflict-trained).
 
-
 These are the packages required for making the figures and doing stats. 
 
 ```{r figures, warning = F, message = F}
@@ -27,20 +26,25 @@ behavior$Genotype <- factor(behavior$Genotype, levels = c("WT","FMR1KO")) # rele
 proptime <- read.csv("../results/behaviorproptime.csv", header = T)
 proptime$APA2 <- factor(proptime$APA2, levels = c("yoked-consistent","consistent", "yoked-conflict","conflict")) ## relevel then rename factors treatment
 proptime$Genotype <- factor(proptime$Genotype, levels = c("WT","FMR1KO")) # relevel genotype
+proptime$variable <- factor(proptime$variable, 
+          levels = c("pTimeTarget", "pTimeCCW", "pTimeOPP", "pTimeCW"))
+
 ```
 
 # Pannel A
 
-This shows time spent in each quadrant indepent of groups. These numbers are displayed inside a schematic arena on the figure.
+This shows time spent in each quadrant indepent of groups. These numbers are displayed inside a schematic arena on the figure. The colored boxes corresponding to the behaioral treatment groups were added in Adobe.
+
 
 ```{r meanproptime}
 PathNumStats <- behavior  %>% 
   filter(TrainSessionComboNum == "1") 
 
 mean(PathNumStats$pTimeTarget)
+mean(PathNumStats$pTimeCCW)
 mean(PathNumStats$pTimeOPP)
 mean(PathNumStats$pTimeCW)
-mean(PathNumStats$pTimeCCW)
+
 ```
 
 This is the code use to make a stacked bar plot of the proportion of time spent in the area 

@@ -1,10 +1,10 @@
 dodge <- position_dodge(.3)
 
-colorvalAPA2 <-  c( "#404040","#ca0020","#bababa",  "#f4a582")
-#404040 ## darkgrey - yoked-consistent
-#bababa ## light grey - yoked-conflict
-#ca0020 ## red - consistent 
-#f4a582 ## pink - conflict
+colorvalAPA2 <-  c( "#404040","#ca0020", "#bababa", "#f4a582")
+#404040 ## darkgrey - Yoked_NoConflict
+#ca0020 ## red - Trained_NoConflict 
+#bababa ## light grey - Yoked_Conflict
+#f4a582 ## pink - Trained_Conflict
 
 colorvalAPA4 <-  c( "#bababa","#f4a582")
 #bababa ## light grey - yoked-conflict
@@ -32,12 +32,6 @@ colorvalAPA11 <-  c("WT_consistent" = "#ca0020", "FMR1KO_consistent" = "white",
                    "WT_yoked-consistent" = "#404040", "FMR1KO_yoked-consistent" = "white",
                    "WT_conflict" = "#f4a582",   "FMR1KO_conflict" = "white",  
                    "WT_yoked-conflict" = "#bababa", "FMR1KO_yoked_conflict" = "white" )
-
-colorvalAPA00 <-  c( "#404040","#ca0020", "#bababa", "#f4a582")
-#404040 ## darkgrey - Yoked_NoConflict
-#ca0020 ## red - Trained_NoConflict 
-#bababa ## light grey - Yoked_Conflict
-#f4a582 ## pink - Trained_Conflict
 
 ann_colorsGenotype = list(
   Genotype =  c('FMR1' = (values=c("white")), 

@@ -25,12 +25,15 @@ This chuck of code is for loading and formatting the dataframes.
     proptime <- read.csv("../results/behaviorproptime.csv", header = T)
     proptime$APA2 <- factor(proptime$APA2, levels = c("yoked-consistent","consistent", "yoked-conflict","conflict")) ## relevel then rename factors treatment
     proptime$Genotype <- factor(proptime$Genotype, levels = c("WT","FMR1KO")) # relevel genotype
+    proptime$variable <- factor(proptime$variable, 
+              levels = c("pTimeTarget", "pTimeCCW", "pTimeOPP", "pTimeCW"))
 
 Pannel A
 ========
 
 This shows time spent in each quadrant indepent of groups. These numbers
-are displayed inside a schematic arena on the figure.
+are displayed inside a schematic arena on the figure. The colored boxes
+corresponding to the behaioral treatment groups were added in Adobe.
 
     PathNumStats <- behavior  %>% 
       filter(TrainSessionComboNum == "1") 
@@ -39,6 +42,10 @@ are displayed inside a schematic arena on the figure.
 
     ## [1] 0.2447605
 
+    mean(PathNumStats$pTimeCCW)
+
+    ## [1] 0.2757767
+
     mean(PathNumStats$pTimeOPP)
 
     ## [1] 0.2150884
@@ -46,10 +53,6 @@ are displayed inside a schematic arena on the figure.
     mean(PathNumStats$pTimeCW)
 
     ## [1] 0.2643767
-
-    mean(PathNumStats$pTimeCCW)
-
-    ## [1] 0.2757767
 
 This is the code use to make a stacked bar plot of the proportion of
 time spent in the area

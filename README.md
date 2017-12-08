@@ -1,6 +1,4 @@
-# FMR1rnaseqCA1
-
-The GitHub Repository for "Reproducible approaches for studying behavior and transcription in a mouse model for autism"
+# FMR1CA1rnaseq: The GitHub Repository for "Reproducible approaches for studying behavior and transcription in a mouse model for autism"
 
 ## The forthcoming manuscript
 This research has been written up as a chapter of my doctoral thesis. It will be modified before submitting to a jounral for peer review and publishing. Stayed tuned for citation details and links.
@@ -18,9 +16,7 @@ This research has been written up as a chapter of my doctoral thesis. It will be
 	- [04_ephys.Rmd](./scripts/04_ephys.Rmd) - analysis of hippocampal electrophysiology to measure synaptic properties -- note: must be run from the R command line as knitting doesn't currently work well
 	- [05_Ceolin.md](./scripts/05_Ceolin.Rmd) - a **replication** of a recently published paper and a **comparison** to my own data
 	- [06_GO_MWU](./scripts/06_GO_MWU)	- directory with data, code, and results for Gene Ontology analysis
-	- Because I had so many behavior figures and accompanying statistics, I created a Rmd script containing the code to make the figure and calculate the statistics. 
-	-The data were generated in 01_behavior.Rmd. 
-	The markdown files with the statistics and the sub fiures are here: **Figures** [1](./scripts/Fig1.md), [2](./scripts/Fig2.md), [3](./scripts/Fig3.md), [4](./scripts/Fig4.md), [5](./scripts/Fig5.md), [6](./scripts/Fig6.md), [7](./scripts/Fig7.md).
+	- Because I had so many behavior figures and accompanying statistics, I created a Rmd script containing the code to make the figure and calculate the statistics. The data were generated in 01_behavior.Rmd. The markdown files with the statistics and the sub fiures are here: **Figures** [1](./scripts/Fig1.md), [2](./scripts/Fig2.md), [3](./scripts/Fig3.md), [4](./scripts/Fig4.md), [5](./scripts/Fig5.md), [6](./scripts/Fig6.md), [7](./scripts/Fig7.md).
 	
 5. [results](./results/)
 	- In the R script accompanying this file, [08_results.md](./scripts/08_results.md), I write the results section for my manuscript. 
@@ -36,4 +32,4 @@ This research has been written up as a chapter of my doctoral thesis. It will be
 
 - For the NCBI data archive, include this inline: [Accession: GSE106595](https://www.ncbi.nlm.nih.gov/geo/query/acc.cgi?acc=GSE106595)
 - For the GitHub data, code, and results repository cite [![DOI](https://zenodo.org/badge/101933073.svg)](https://zenodo.org/badge/latestdoi/101933073)
-- For the paper: cite the soon to be released bioRxiv paper or my thesis
+- For the paper: stay tuned!!

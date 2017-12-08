@@ -1,13 +1,15 @@
 # FMR1rnaseqCA1
 
-The GitHub Repository for "FMR1-KO knockdown alters gene expression of some autism disorder risk genes"
+The GitHub Repository for "Reproducible approaches for studying behavior and transcription in a mouse model for autism"
+
+## The forthcoming manuscript
+This research has been written up as a chapter of my doctoral thesis. It will be modified before submitting to a jounral for peer review and publishing. Stayed tuned for citation details and links.
 
 ## Repository organization and workflow
 
 1. UNIXworkflow - runs on The Texas Advanced Computing Center's (TACC) cluster 'Stampede'
 2. data
-	- the files with the 01 and 02 prefix are semi-raw files for starting analysis
-	- all other files are results files or meta data
+	- mostly raw data and meta data, some results included
 3. scripts - part 1
 	- [00_cpfiles.sh](./scripts/00_cpfiles.sh)	- a bash script for copying files into and out of this repo
 	- [01_behavior.md](./scripts/01_behavior.md) - output of a knittable analysis script for wrangling the avoidance behavior  data. The output is use for the `Fig*.Rmd` scripts that accompany each figure 
@@ -16,7 +18,6 @@ The GitHub Repository for "FMR1-KO knockdown alters gene expression of some auti
 	- [04_ephys.Rmd](./scripts/04_ephys.Rmd) - analysis of hippocampal electrophysiology to measure synaptic properties -- note: must be run from the R command line as knitting doesn't currently work well
 	- [05_Ceolin.md](./scripts/05_Ceolin.Rmd) - a **replication** of a recently published paper and a **comparison** to my own data
 	- [06_GO_MWU](./scripts/06_GO_MWU)	- directory with data, code, and results for Gene Ontology analysis
-	- 
 4. scripts - part 2
 	- Because I had so many behavior figures and accompanying statistics, I created a Rmd script containing the code to make the figure and calculate the statistics. 
 	-The data were generated in 01_behavior.Rmd. 

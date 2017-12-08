@@ -27,6 +27,7 @@ behavior$Genotype <- factor(behavior$Genotype, levels = c("WT","FMR1KO")) # rele
 
 ```
 
+Panels A, B, C, and D
 
 ```{r fig4, echo=F, warning=F, results=F}
 colorvalAPA2 <-  c( "#404040","#ca0020", "#bababa", "#f4a582")

@@ -194,10 +194,4 @@ Anova(lm(data = PathNumStats, Path1stEntr ~  APA2 ), type = 3)
 summary(aov(Path1stEntr~  APA2, data=PathNumStats))
 TukeyHSD(aov(Path1stEntr~  APA2, data=PathNumStats))
 
-PathNumStats <- behavior  %>% 
-  filter(TrainSessionComboNum == "7",
-         Genotype != "WT")
-Anova(lm(data = PathNumStats, Path1stEntr ~  APA2 ), type = 3)
-summary(aov(Path1stEntr~  APA2, data=PathNumStats))
-TukeyHSD(aov(Path1stEntr~  APA2, data=PathNumStats))
 ```

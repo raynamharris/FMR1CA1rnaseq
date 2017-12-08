@@ -66,22 +66,23 @@ Hippocampus color scheme
     t9 <- ggdraw() + draw_image(t0) # turn png into ggplot
 
     plot_grid(p, p2, p3, p4)
-
-![](../figures/07_colorblindr/colorblindr-1.png)
-
     plot_grid(q, q2, q3, q4)
-
-![](../figures/07_colorblindr/colorblindr-2.png)
-
     plot_grid(r, r2, r3, r4)
-
-![](../figures/07_colorblindr/colorblindr-3.png)
 
     plot_grid(p, t6, t7, 
               q, t10, t9,
-              t9, t3, t31,
+              t31, t3, r,
               labels = c("Fig. 2", "Fig. 3", "Fig. 4", 
                          "Fig. 5", "Fig. 6", "Fig. 7", 
                          "Fig. 8", "Fig. 9", "Fig. 10"))
 
 ![](../figures/07_colorblindr/overview-1.png)
+
+    plot_grid(t6, q,
+              t7, t10, t9, p,
+              nrow = 3,
+              labels = c("Fig. 3", "Fig. 5", 
+                         "Fig. 4", "Fig. 6", 
+                         "Fig. 7", "Fig. 2"))
+
+![](../figures/07_colorblindr/behavior-1.png)

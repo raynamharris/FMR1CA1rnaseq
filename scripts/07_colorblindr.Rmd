@@ -70,7 +70,7 @@ t0 <- magick::image_read("../figures/fig1-09.png")
 t9 <- ggdraw() + draw_image(t0) # turn png into ggplot
 ```
 
-```{r colorblindr}
+```{r colorblindr, eval = F}
 plot_grid(p, p2, p3, p4)
 plot_grid(q, q2, q3, q4)
 plot_grid(r, r2, r3, r4)
@@ -79,9 +79,18 @@ plot_grid(r, r2, r3, r4)
 ```{r overview}
 plot_grid(p, t6, t7, 
           q, t10, t9,
-          t9, t3, t31,
+          t31, t3, r,
           labels = c("Fig. 2", "Fig. 3", "Fig. 4", 
                      "Fig. 5", "Fig. 6", "Fig. 7", 
                      "Fig. 8", "Fig. 9", "Fig. 10"))
+```
+
+```{r behavior}
+plot_grid(t6, q,
+          t7, t10, t9, p,
+          nrow = 3,
+          labels = c("Fig. 3", "Fig. 5", 
+                     "Fig. 4", "Fig. 6", 
+                     "Fig. 7", "Fig. 2"))
 ```
 

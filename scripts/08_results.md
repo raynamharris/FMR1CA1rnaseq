@@ -1,3 +1,15 @@
+### Experimental Design
+
+![](../figures/fig1-01.png) \#\#\#\# Fig. 1: Active place avoidance task
+with conflict training. Mice were assigned to one of four groups:
+consistently-trained (red), yoked-consistent (dark grey),
+conflict-trained (peach), or yoked-conflict (light grey). Mice were
+placed on the rotating arena (1 rpm) for training sessions that lasted
+10 min and was separated by 2-h intersession interval or overnight (~17
+h). The physical conditions are identical for all mice during
+pre-training and retention. Sample sizes for each treatment group and
+genotype are shown on the bottom right.
+
 ### Results
 
 The goal of this research was to identify transcriptional changes in
@@ -32,10 +44,9 @@ F(1,35) = 0.106, p = 0.747; training: F(3,35)= 1.717, p = 0.181) or path
 to the 1st entrance (mean = 0.42, genotype: F(1,35) = 0.165, p = 0.92;
 training: F(3,35)= 1.583, p = 0.211).
 
-![Fig. 2.2: No group differences before behavioral
-manipulation.](../figures/fig1-04.png)
+![](../figures/fig1-04.png)
 
-##### A) This graph shows that all groups of mice spend ~ 25% of their time equally across four quadrants of the arena during the pre-training session (pink: future shock zone, dark green: clockwise, green: opposite the shock zone, light green: counterclockwise). B) Pre-training number of entrances into the shock zone and C) path to the first entrance are not significantly different between treatment groups and genotypes (dark grey: yoked-consistent, red: consistently-trained, light grey: yoked-conflict, peach: conflict-trained).
+##### Fig. 2.2: No group differences before behavioral manipulation. A) This graph shows that all groups of mice spend ~ 25% of their time equally across four quadrants of the arena during the pre-training session (pink: future shock zone, dark green: clockwise, green: opposite the shock zone, light green: counterclockwise). B) Pre-training number of entrances into the shock zone and C) path to the first entrance are not significantly different between treatment groups and genotypes (dark grey: yoked-consistent, red: consistently-trained, light grey: yoked-conflict, peach: conflict-trained).
 
 #### Training has more substantial effect than genotype on avoidance behaviors
 
@@ -51,10 +62,9 @@ only the yoked groups, there is no effect of genotype (F(1,80) = 0.040,
 p = 0.84) or training (F(1,80) = 3.438, p = 0.067) on time spent in the
 shock zone.
 
-![Fig. 2.3. Fig. 2.3. The proportion of time spent in in the arena with
-the shock on.](../figures/fig1-06.png)
+![](../figures/fig1-06.png)
 
-##### The average proportion of time spent in each 60 degrees quadrant of the arena was calculated or each group for each session with the shock was on (T1, T2, T3: training sessions 1-3; R1: retest; C1, C2, C3: conflict training sessions; pink: future shock zone; dark green: clockwise; green: opposite the shock zone; light green: counter clockwise ). For trained mice, mice are expected to spend very little time in the shock zone (&lt;0.4%) and to equally split their time between the three remaining quadrants (~32% each). For yoked mice, time spent is expected to be evenly distributed across all four quadrants (~25% each).
+##### Fig. 2.3. The proportion of time spent in in the arena with the shock on. The average proportion of time spent in each 60 degrees quadrant of the arena was calculated or each group for each session with the shock was on (T1, T2, T3: training sessions 1-3; R1: retest; C1, C2, C3: conflict training sessions; pink: future shock zone; dark green: clockwise; green: opposite the shock zone; light green: counter clockwise ). For trained mice, mice are expected to spend very little time in the shock zone (&lt;0.4%) and to equally split their time between the three remaining quadrants (~32% each). For yoked mice, time spent is expected to be evenly distributed across all four quadrants (~25% each).
 
 The differences between the conflict and consistently trained mice are
 apparent during the three conflict training sessions (**Fig 2.4**). Both
@@ -66,10 +76,9 @@ conflict trained groups (F (1,78) = 23.3405, p &lt; 0.001). Consistently
 trained groups spend more time in the counterclockwise zone than
 conflict trained mice (F (1,78) = 8.2837, p = 0.005).
 
-![Fig. 2.4. Consistent and conflict trained mice use space differently
-during conflict training sessions.](../figures/fig1-07.png)
+![](../figures/fig1-07.png)
 
-#### A) During the conflict training sessions, consistent and conflict mice both avoid the shock zone but there is not a difference between groups. B) Consistently trained mice spend significantly less time in space clockwise to the shock zone. C) All groups spend more time on average in the space opposite the shock zone, but there are no group differences. D) Consistently trained mice spend more time in the counterclockwise zone than conflict mice. Legend) dark grey: yoked-consistent, red: consistently-trained, light grey: yoked-conflict, peach: conflict-trained.
+#### Fig. 2.4. Consistent and conflict trained mice use space differently during conflict training sessions. A) During the conflict training sessions, consistent and conflict mice both avoid the shock zone but there is not a difference between groups. B) Consistently trained mice spend significantly less time in space clockwise to the shock zone. C) All groups spend more time on average in the space opposite the shock zone, but there are no group differences. D) Consistently trained mice spend more time in the counterclockwise zone than conflict mice. Legend) dark grey: yoked-consistent, red: consistently-trained, light grey: yoked-conflict, peach: conflict-trained.
 
 #### Initial learning not as strong as anticipated
 
@@ -87,10 +96,9 @@ retest, but this appears to be driven by unexplained avoidance behavior
 driven by a yoked group (Fig. 2.5 E, F). At this level of analysis, the
 results place learning was not robust in WT or FMR1-KO mice.
 
-![Fig. 2.5.Summary of punishment and estimates of memory in WT and
-FMR1-KO mice](../figures/fig1-02.png)
+![](../figures/fig1-02.png)
 
-##### A,B) Consistent and conflict trained mice from WT and FMR1-KO groups to make fewer entrances into the shock zone than yoked-mice; C) however, the pattern does not exactly match the expected results. D, E) Consistent and conflict trained mice from WT FMR1-KO do not show evidence of place memory until after the first day of initial training. F) This pattern does also not mirror the expected results. Legend) Pre: pre-training; T1,T2,T3: training sessions 1-3; C1, C2, C3: conflict training sessions; Reten: retention session; dark grey: yoked-consistent, red: consistently-trained, light grey: yoked-conflict, peach: conflict-trained. The pie-shaped shaded regions of the inserts highlight the region used to count the number of entrances.
+##### Fig. 2.5.Summary of punishment and estimates of memory in WT and FMR1-KO mice. A,B) Consistent and conflict trained mice from WT and FMR1-KO groups to make fewer entrances into the shock zone than yoked-mice; C) however, the pattern does not exactly match the expected results. D, E) Consistent and conflict trained mice from WT FMR1-KO do not show evidence of place memory until after the first day of initial training. F) This pattern does also not mirror the expected results. Legend) Pre: pre-training; T1,T2,T3: training sessions 1-3; C1, C2, C3: conflict training sessions; Reten: retention session; dark grey: yoked-consistent, red: consistently-trained, light grey: yoked-conflict, peach: conflict-trained. The pie-shaped shaded regions of the inserts highlight the region used to count the number of entrances.
 
 #### Confirm the expression of place avoidance behaviors that indicate use of spatial memory
 
@@ -118,8 +126,8 @@ effect of genotype alone on the number of entrances \[F(1, 69)= 8.17, p
 and FMR1-KO conflict (p = 0.78) or between WT yoked-conflict and FMR1-KO
 yoked-conflict (p = 0.93).
 
-![Fig. 2.6. During recall, mice avoid the shock zone using a non-place
-strategy.](../figures/fig1-10.png)
+![](../figures/fig1-10.png) \#\#\#\# Fig. 2.6. During recall, mice avoid
+the shock zone using a non-place strategy.
 
 #### Poor recall evidence of minimal place avoidance learning
 
@@ -134,10 +142,9 @@ shock zone (**Fig. 2.6B**), but their path to the shock zone is not
 significantly longer (**Fig. 2.6C**). The results of a two-way ANOVA
 followed by Tukey HSD was are visualized on on Figure 2.C.
 
-![Fig. 2.6. During recall, mice avoid the shock
-zone.](../figures/fig1-09.png)
+![](../figures/fig1-09.png)
 
-##### A) Trained mice spend less time in the shock zone than their yoked counterparts. B) They also make fewer entrances into the shock zone, C) but their path to the shock zone is not significantly longer. Legend) dark grey: yoked-consistent, red: consistently-trained, light grey: yoked-conflict, peach: conflict-trained, pink: future shock zone, dark green: clockwise, green: opposite the shock zone, light green: counterclockwise.
+##### Fig. 2.7. During recall, mice avoid the shock zone. A) Trained mice spend less time in the shock zone than their yoked counterparts. B) They also make fewer entrances into the shock zone, C) but their path to the shock zone is not significantly longer. Legend) dark grey: yoked-consistent, red: consistently-trained, light grey: yoked-conflict, peach: conflict-trained, pink: future shock zone, dark green: clockwise, green: opposite the shock zone, light green: counterclockwise.
 
 Consistent with the evidence for poor place memory, I found no change in
 synaptic strength at the CA3-CA1 synapse (as measured by maximum fEPSP
@@ -147,10 +154,9 @@ Genotype and Training Group was not significant \[F(3, 48)= 0.304, p =
 0.822\]. Thus, even thought Calmodulin activity is reduced, synaptic
 strength is not diminished.
 
-![Fig. 2.7. CA3-CA1 synaptic strength is not altered by genotype or
-place avoidance training.](../figures/fig1-08.png)
+![](../figures/fig1-08.png)
 
-##### The maximum fEPSP slope is no different between groups indicating that neither training or genotype influence synaptic strength at CA3-CA1 synapses. WT: filled violin plot, FMR1-KO, open violin plots, dark grey: yoked-consistent, red: consistently-trained, light grey: yoked-conflict, peach.
+##### Fig. 2.8. CA3-CA1 synaptic strength is not altered by genotype or place avoidance training. The maximum fEPSP slope is no different between groups indicating that neither training or genotype influence synaptic strength at CA3-CA1 synapses. WT: filled violin plot, FMR1-KO, open violin plots, dark grey: yoked-consistent, red: consistently-trained, light grey: yoked-conflict, peach.
 
 ### CA1 transcriptional response to constitutive FMR1 knockout
 
@@ -179,10 +185,9 @@ Cpne7, Dlx1, Efcab6, Fgfr1, Fmr1, Kcnt1, Mtus1, Plat, Serpina3n,
 Slc29a4, Sstr3, and Xbp1). Ccnd2 and Fmr1 are highly upregulated in WT
 compared to FMR1-KO mice (Fig 2.3C).
 
-![Fig. 2.8. FMR1-KO show downregulation of calcium ion signaling in the
-the the CA1 subfield](../figures/fig1-03.png)
+![](../figures/fig1-03.png)
 
-##### A) The sample size for RNA-sequencing is 8 WT and 8 FMR1-KO tissues from the CA1 subfield from only the consistent-yoke group. B) Hierarchical clustering of differentially expressed genes shows that only 13 genes are upregulated in response to FMR1KO while 16, including Fmr1, were downregulated in the CA1 subfield of yoked-consistent mice. C) Down-regulation of ion channel binding, receptor binding, calcium binding, metal ion membrane transport, calcium ion transmembrane transporter, delayed rectifier potassium channel, channel, cation channel, channel regulator, calmodulin binding, PDZ domain binding, structural molecular, and structural constituent of ribosome. On the plot, different fonts are used to indicate significance (bold: p &lt; 0.01, regular: p &lt; 0.05) and color indicates enrichment with either up (red) or down (blue) regulated genes. The fraction next to GO category name indicates the fraction of "good" genes that exceed the p-value cutoff.
+##### Fig. 2.9. FMR1-KO show downregulation of calcium ion signaling in the the the CA1 subfield. A) The sample size for RNA-sequencing is 8 WT and 8 FMR1-KO tissues from the CA1 subfield from only the consistent-yoke group. B) Hierarchical clustering of differentially expressed genes shows that only 13 genes are upregulated in response to FMR1KO while 16, including Fmr1, were downregulated in the CA1 subfield of yoked-consistent mice. C) Down-regulation of ion channel binding, receptor binding, calcium binding, metal ion membrane transport, calcium ion transmembrane transporter, delayed rectifier potassium channel, channel, cation channel, channel regulator, calmodulin binding, PDZ domain binding, structural molecular, and structural constituent of ribosome. On the plot, different fonts are used to indicate significance (bold: p &lt; 0.01, regular: p &lt; 0.05) and color indicates enrichment with either up (red) or down (blue) regulated genes. The fraction next to GO category name indicates the fraction of "good" genes that exceed the p-value cutoff.
 
 #### Down-regulation of ion transport in the the the CA1 subfield
 
@@ -214,7 +219,6 @@ functions (**Fig 2.9E**). This suggests a role for dysregulation of
 calcium signalling in the hippocampus of Fragile X Syndrome patients and
 is consistent with my research findings.
 
-![Fig. 2.9. Reproducing the Ceolin study for direct comparison of
-results.](../figures/fig3-01.png)
+![](../figures/fig3-01.png)
 
-##### A) Graphical representation of the samples for the Ceolin et al. 201732 A) Graphical representation of the samples for the Ceolin et al. 2017 study examining CA1 expression in WT and FMR1-KO mice. B) Reproduction: This volcano plot shows that my analysis of the Ceolin et al count data identified 88 genes that are up-regulated in FMR1-KO mice and the 146 genes that are up-regulated in WT mice a p &lt; 0.05. Comparison: The gene expression and significance values from the Ceolin data are color-coded by the levels of significance from my results described in Fig 2.8. Four genes that are upregulated in WT in my study were also upregulated in my reproduction of the Ceolin data. C) Analysis showing that 39 of top 45 most significant (p &lt; 0.01) genes in my reproduction of the analysis, make up over half of the top most significant (p &lt; 0.05) genes of from the Ceolin study. D) Hierarchical clustering shows the names and expression patterns of those same significant genes. D) GO analysis showing a very similar pattern of depletion of calcium channel activity as was shown in Fig. 2.8). In contrast, Ceolin detected enrichment of ribosomal processes in response to FMR1-KO in CA1 pyramidal neurons. Legend) Teal: Enriched in FMR1-KO, pink: enriched in WT, grey: genes with insignificant expression, black: genes whos expression was not calculated in my original analysis
+##### Fig. 2.10. Reproducing the Ceolin study for direct comparison of results. A) Graphical representation of the samples for the Ceolin et al. 201732 A) Graphical representation of the samples for the Ceolin et al. 2017 study examining CA1 expression in WT and FMR1-KO mice. B) Reproduction: This volcano plot shows that my analysis of the Ceolin et al count data identified 88 genes that are up-regulated in FMR1-KO mice and the 146 genes that are up-regulated in WT mice a p &lt; 0.05. Comparison: The gene expression and significance values from the Ceolin data are color-coded by the levels of significance from my results described in Fig 2.8. Four genes that are upregulated in WT in my study were also upregulated in my reproduction of the Ceolin data. C) Analysis showing that 39 of top 45 most significant (p &lt; 0.01) genes in my reproduction of the analysis, make up over half of the top most significant (p &lt; 0.05) genes of from the Ceolin study. D) Hierarchical clustering shows the names and expression patterns of those same significant genes. D) GO analysis showing a very similar pattern of depletion of calcium channel activity as was shown in Fig. 2.8). In contrast, Ceolin detected enrichment of ribosomal processes in response to FMR1-KO in CA1 pyramidal neurons. Legend) Teal: Enriched in FMR1-KO, pink: enriched in WT, grey: genes with insignificant expression, black: genes whos expression was not calculated in my original analysis

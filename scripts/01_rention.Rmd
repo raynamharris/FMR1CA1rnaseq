@@ -1,0 +1,133 @@
+---
+output: md_document
+---
+
+### Summary of treatment and genotype differences from the retention session on the last day
+
+```{r setup, echo = F, message=F}
+library(dplyr)
+library(ggplot2)
+library(tidyr)
+library(cowplot)
+library(car)
+
+knitr::opts_chunk$set(fig.path = '../figures/01_retention/')
+
+
+colorvalAPA2 <-  c( "#404040","#ca0020", "#bababa", "#f4a582")
+# dark grey, red, light grey, peach
+
+behavior <- read.csv("../results/behaviordata.csv")
+behavior$APA2 <- factor(behavior$APA2, levels = c("yoked-consistent","consistent", "yoked-conflict","conflict")) ## relevel then rename factors treatment
+behavior$Genotype <- factor(behavior$Genotype, levels = c("WT","FMR1KO")) # relevel genotype
+```
+
+
+## Groups ananlyzed individually
+
+```{r, echo = F}
+# This is my function to plot specific variables for spefic groups
+
+groupspecific <- function(group, colorvals, cols){
+df1 <- filter(behavior, TrainSession == "Retention", APA2 == group) %>% droplevels()
+table(df1$APA2, df1$Genotype)
+
+for(i in names(df1)[cols]) {
+  df2 <- df1[, c(i, "APA2", "Genotype")]
+  df2$wrap <- i
+  
+  plots <- ggplot(df2) + geom_boxplot(aes_string(y = i, x = "Genotype", fill="APA2", color="Genotype")) +   
+    theme_cowplot(font_size = 10, line_size = 0.25) +
+    scale_fill_manual(values = colorvals) +
+   scale_color_manual(values = c("black", "grey")) +
+    facet_wrap(~wrap) + background_grid(major = "y", minor = "none")
+  
+  #png(paste0("../figures/01_retention/", i, ".png", sep = ""), width = 300, height = 170)
+  #print(plots)
+  #dev.off()
+  
+  print(i)
+  
+  colnames(df2)[1] <- "variable"
+ 
+  print(summary(aov(variable ~ Genotype, data= df2)))
+  print(t.test(variable ~ Genotype, data= df2))
+  print(plots)
+}
+}
+```
+
+#### Yoked consistent
+
+**RayleigAngle** is significantly different between WT and FMR1-KO when examining the yoked-consistent group in isolation (ANOVA and t-test). We have RNA sequencing data to compare with this behavioral data. 
+
+```{r}
+groupspecific("yoked-consistent", c("#404040","#404040"), c(31))
+```
+
+#### Consistent
+**Speed2ndEntr and Max50.RngLoBin** are significantly different between WT and FMR1-KO when examining the consistent group in isolation (ANOVA and t-test).
+
+```{r}
+groupspecific("consistent", c("#ca0020","#ca0020"), c(24,41))
+```
+
+#### Yoked conflict
+
+**Speed2ndEntr amd RayleigAngle** are significantly different between WT and FMR1-KO when examining the yoked conflict group in isolation (ANOVA and t-test).
+
+```{r}
+groupspecific("yoked-conflict", c("#bababa","#bababa"), c(24,31))
+```
+
+#### Conflict
+
+**Speed2ndEntr** is significantly different between WT and FMR1-KO when examining the conflict group in isolation (ANOVA and t-test).
+
+```{r}
+groupspecific("conflict", c("#f4a582","#f4a582"), c(24))
+```
+
+#### Multiple  groups analyzed at once
+
+```{r, echo = F}
+# This is my function for looking at multiple groups at a time
+multiplegroups <- function(group, colorvals, cols){
+
+df1 <- filter(behavior, TrainSession == "Retention", APA2 %in% group) %>% droplevels()
+#print(table(df1$APA2, df1$Genotype))
+
+for(i in names(df1)[cols]) {
+  df2 <- df1[, c(i, "APA2", "Genotype")]
+  df2$wrap <- i
+  
+  plots <- ggplot(df2) + geom_boxplot(aes_string(y = i, x = "APA2", fill="APA2", color="Genotype")) +   
+    theme_cowplot(font_size = 10, line_size = 0.25) +
+    scale_fill_manual(values = colorvals) +
+   scale_color_manual(values = c("black", "grey")) +
+    facet_wrap(~wrap) + background_grid(major = "y", minor = "none")
+
+    print(i)
+  
+  colnames(df2)[1] <- "variable"
+ 
+  print(summary(aov(variable ~ Genotype *APA2, data= df2)))
+  #print(TukeyHSD(aov(variable ~ Genotype *APA2, data= df2)))
+  print(plots)
+}
+}
+```
+
+When controlling for training, Speed2ndEntr, RayleigAngle, and Min50.RngHiBin are significantly different between WT and FMR1-KO.  Number of entrances and path to 1st entrance are not.
+
+```{r}
+multiplegroups(c("conflict", "consistent","yoked-conflict", "yoked-consistent" ), colorvalAPA2, c(24,31,37,15:17))
+``` 
+
+```{r, echo = F}
+# Add this to the for loop for prining a png file
+  #png(paste0("../figures/01_retention/", i, ".png", sep = ""), width = 300, height = 170)
+  #print(plots)
+  #dev.off()
+```
+

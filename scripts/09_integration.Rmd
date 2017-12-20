@@ -1,0 +1,170 @@
+---
+title: "Figure 8: Integration"
+output: md_document
+---
+
+```{r setup, warning = F, message = F, echo=F}
+library(dplyr) # for subsetting data 
+library(car) # for fancy ANOVA
+library(ggplot2) # for plotting
+library(cowplot) # for "easier"" ggplot themes
+library(reshape2)
+library(corrplot)
+library("Hmisc")
+
+knitr::opts_chunk$set(fig.path = '../figures/01_retention/',
+                      echo = F)
+```
+
+```{r loaddata, message=F, warning = F}
+
+# mice with rnaseq data
+colData <- read.csv("../results/02_colData.csv", header = T, row.names = 1, check.names = F)
+
+# beahvior data
+retention <- read.csv("../results/01_retention.csv", header = T)
+retention$APA2 <- factor(retention$APA2, levels = c("yoked-consistent","consistent", "yoked-conflict","conflict")) ## relevel then rename factors treatment
+retention$Genotype <- factor(retention$Genotype, levels = c("WT","FMR1KO")) # relevel genotype
+colnames(retention)[1] <- "Mouse"
+
+# combine the colData and retention data
+integration1 <- left_join(colData, retention, by = "Mouse")
+
+# subset data to significant genes
+DEGes <- read.csv("../results/02_DEGes.csv", header = T,  check.names = F)
+row.names(DEGes) <- DEGes$rownames
+DEGes <- filter(DEGes, padjGenotypeFMR1WT < 0.1)
+
+# subset and transform the DEseq data
+tDEGes <- t(DEGes)
+colnames(tDEGes) <- tDEGes[19, ]
+tDEGes <- tDEGes[1:16,]
+tDEGes <- as.data.frame(tDEGes)
+tDEGes$Mouse <- row.names(tDEGes)
+
+cols = c(1:29)  
+tDEGes[,cols] = apply(tDEGes[,cols], 2, function(x) as.numeric(as.character(x)))
+#summary(tDEGes)
+
+# join the retention data and the gene expression data
+integration2 <- right_join(integration1, tDEGes, by = "Mouse")
+#summary(integration2)
+
+integrationnum <- integration2[c(11:78)]
+#names(integrationnum)
+
+integrationnum <- integrationnum[complete.cases(integrationnum), ]
+```
+
+```{r}
+
+## create correlation matrix, remove duplicates self correlations
+M <- cor(integrationnum)
+cors <- as.data.frame(M)
+cors$var1 <- row.names(cors)
+cors <- melt(cors, id.vars = c("var1")) 
+cors$var12 <- paste(cors$var1, cors$variable, sep="_")
+
+# create pvalue matrix, remove deuplications and self correlations
+pvals <- rcorr(M, type = c("spearman"))
+pvals <- as.data.frame(pvals$P)
+pvals$var1 <- row.names(pvals)
+pvals <- melt(pvals, id.vars = c("var1")) 
+pvals$var12 <- paste(pvals$var1, pvals$variable, sep="_")
+
+# join the pval and R2 values
+corpvals <- full_join(cors, pvals, by = "var12")
+corpvals <- corpvals[-c(4,5,6)]
+
+colnames(corpvals)[1] <- "var1"
+colnames(corpvals)[2] <- "var2"
+colnames(corpvals)[3] <- "R2"
+colnames(corpvals)[4] <- "pval"
+
+# remove NAs
+corpvals <- corpvals[complete.cases(corpvals), ]
+```
+
+
+The plots on the left show behavioral correlations with ALL data. The correlations on the right show data for ONLY yoked-consistent for which we have CA1 RNA-seq data.
+
+```{r}
+par(mfrow=c(2,2))
+plot(retention$Path1stEntr, retention$Time1stEntr,
+      xlab = "Path1stEntr", ylab = "Time1stEntr",
+     main = "Retention: All groups") 
+abline(lm(Time1stEntr ~ Path1stEntr, data = retention))
+plot(integrationnum$Path1stEntr, integrationnum$Time1stEntr,
+      xlab = "Path1stEntr", ylab = "Time1stEntr",
+     main = "Retention: yoked-consistent only")
+abline(lm(Time1stEntr ~ Path1stEntr, data = integrationnum))
+plot(retention$PolarMaxVal, retention$PolarMinVal,
+      xlab = "PolarMaxVal", ylab = "PolarMinVal",
+     main = "Retention: All groups")
+abline(lm(PolarMinVal ~ PolarMaxVal, data = retention))
+plot(integrationnum$PolarMaxVal, integrationnum$PolarMinVal,
+      xlab = "PolarMaxVal", ylab = "PolarMinVal",
+     main = "Retention: yoked-consistent only")
+abline(lm(PolarMinVal ~ PolarMaxVal, data = integrationnum))
+```
+
+These plots show correlations between gene expression measures.
+
+```{r}
+par(mfrow=c(2,2))
+plot(integrationnum$Fmr1, integrationnum$Ccnd2,
+      xlab = "Fmr1", ylab = "Ccnd2",
+     main = "Genes vs Genes")
+abline(lm(Ccnd2 ~ Fmr1, data = integrationnum))
+plot(integrationnum$Wipf3, integrationnum$Grin1,
+      xlab = "Wipf3", ylab = "Grin1",
+     main = "Genes vs Genes")
+abline(lm(Grin1 ~ Wipf3, data = integrationnum))
+plot(integrationnum$Plat, integrationnum$Grin1,
+      xlab = "Plat", ylab = "Grin1",
+     main = "Genes vs Genes")
+abline(lm(Grin1 ~ Plat, data = integrationnum))
+plot(integrationnum$Serpina3n, integrationnum$Cry2,
+      xlab = "Serpina3n", ylab = "Cry2",
+     main = "Genes vs Genes")
+abline(lm(Cry2 ~ Serpina3n, data = integrationnum))
+
+```
+
+These plots show correlations between behavior and gene expresssion.
+
+```{r}
+par(mfrow=c(2,2))
+plot(integrationnum$Ccnd2, integrationnum$RayleigAngle,
+      xlab = "Ccnd2", ylab = "RayleigAngle",
+     main = "Gene expression vs. Behavior")
+plot(integrationnum$Efcab6, integrationnum$Speed2ndEntr,
+      xlab = "Efcab6", ylab = "Speed2ndEntr",
+    main = "Gene expression vs. Behavior")
+plot(integrationnum$Arel1, integrationnum$Speed2ndEntr,
+      xlab = "Arel1", ylab = "Speed2ndEntr",
+     main = "Gene expression vs. Behavior")
+plot(integrationnum$Fibcd1, integrationnum$RayleigAngle,
+      xlab = "Fibcd1", ylab = "RayleigAngle",
+    main = "Gene expression vs. Behavior")
+```
+
+Top 100 positive correlations
+
+```{r}
+top <- arrange(corpvals, desc(R2)) %>%
+  head(n=200)
+toDelete <- seq(1, nrow(top), 2)
+top <- top[ toDelete ,]
+top
+```
+
+Top 100 negative correlations
+
+```{r}
+bottom <- arrange(corpvals, R2) %>%
+  head(n=300)
+toDelete <- seq(1, nrow(bottom), 2)
+bottom <- bottom[ toDelete ,]
+bottom
+```

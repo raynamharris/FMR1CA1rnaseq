@@ -433,6 +433,8 @@ DEGes <- as.data.frame(DEGes) # convert matrix to dataframe
 DEGes$rownames <- rownames(DEGes)  # add the rownames to the dataframe
 DEGes$padjmin <- DEGes$padjGenotypeFMR1WT
 
+write.csv(as.data.frame(DEGes), "../results/02_DEGes.csv", row.names = F)
+
 # create new col with min padj
 DEGes <- DEGes %>% filter(padjmin < 0.1)
 rownames(DEGes) <- DEGes$rownames

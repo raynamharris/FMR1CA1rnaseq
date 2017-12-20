@@ -12,7 +12,7 @@ library(reshape2)
 library(corrplot)
 library("Hmisc")
 
-knitr::opts_chunk$set(fig.path = '../figures/01_retention/',
+knitr::opts_chunk$set(fig.path = '../figures/09_integration/',
                       echo = F)
 ```
 

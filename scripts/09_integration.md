@@ -2,15 +2,15 @@ The plots on the left show behavioral correlations with ALL data. The
 correlations on the right show data for ONLY yoked-consistent for which
 we have CA1 RNA-seq data.
 
-![](../figures/01_retention/unnamed-chunk-2-1.png)
+![](../figures/09_integration/unnamed-chunk-2-1.png)
 
 These plots show correlations between gene expression measures.
 
-![](../figures/01_retention/unnamed-chunk-3-1.png)
+![](../figures/09_integration/unnamed-chunk-3-1.png)
 
 These plots show correlations between behavior and gene expresssion.
 
-![](../figures/01_retention/unnamed-chunk-4-1.png)
+![](../figures/09_integration/unnamed-chunk-4-1.png)
 
 Top 100 positive correlations
 

@@ -38,8 +38,8 @@ df1 <- filter(behavior, TrainSession == "Retention", APA2 == group) %>% dropleve
 for(i in names(df1)[cols]) {
   df2 <- df1[, c(i, "APA2", "Genotype")]
   df2$wrap <- i
-print(i)  
-  plots <- ggplot(df2) + geom_boxplot(aes_string(y = i, x = "Genotype", fill="APA2", color="Genotype")) +   
+  
+plots <- ggplot(df2) + geom_boxplot(aes_string(y = i, x = "Genotype", fill="APA2", color="Genotype")) +   
     theme_cowplot(font_size = 10, line_size = 0.25) +
     scale_fill_manual(values = colorvals) +
    scale_color_manual(values = c("black", "grey")) +

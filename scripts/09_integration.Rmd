@@ -1,6 +1,6 @@
 ---
 title: "Figure 8: Integration"
-output: md_document
+output: html_document
 ---
 
 For this analysis, I calculated all pair-wise correlations for all behavioral and gene expression measures. I list the top and bottom 100 correlations. You will notice that strongest correlations are within a level (genes vs. genes, or behavior vs. behavior) but there are some very interesting patterns across levels. I also plotted the most significant for viewing here:
@@ -140,15 +140,19 @@ par(mfrow=c(2,2))
 plot(integrationnum$Ccnd2, integrationnum$RayleigAngle,
       xlab = "Ccnd2", ylab = "RayleigAngle",
      main = "Gene expression vs. Behavior")
+abline(lm(RayleigAngle ~ Ccnd2, data = integrationnum))
 plot(integrationnum$Efcab6, integrationnum$Speed2ndEntr,
       xlab = "Efcab6", ylab = "Speed2ndEntr",
     main = "Gene expression vs. Behavior")
+abline(lm(Speed2ndEntr ~ Efcab6, data = integrationnum))
 plot(integrationnum$Arel1, integrationnum$Speed2ndEntr,
       xlab = "Arel1", ylab = "Speed2ndEntr",
      main = "Gene expression vs. Behavior")
+abline(lm(Speed2ndEntr ~ Arel1, data = integrationnum))
 plot(integrationnum$Fibcd1, integrationnum$RayleigAngle,
       xlab = "Fibcd1", ylab = "RayleigAngle",
     main = "Gene expression vs. Behavior")
+abline(lm(RayleigAngle ~ Fibcd1, data = integrationnum))
 ```
 
 Top 100 positive correlations

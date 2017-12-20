@@ -1,3 +1,10 @@
+For this analysis, I calculated all pair-wise correlations for all
+behavioral and gene expression measures. I list the top and bottom 100
+correlations. You will notice that strongest correlations are within a
+level (genes vs. genes, or behavior vs. behavior) but there are some
+very interesting patterns across levels. I also plotted the most
+significant for viewing here:
+
 The plots on the left show behavioral correlations with ALL data. The
 correlations on the right show data for ONLY yoked-consistent for which
 we have CA1 RNA-seq data.

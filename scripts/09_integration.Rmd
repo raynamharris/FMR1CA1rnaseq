@@ -3,6 +3,8 @@ title: "Figure 8: Integration"
 output: md_document
 ---
 
+For this analysis, I calculated all pair-wise correlations for all behavioral and gene expression measures. I list the top and bottom 100 correlations. You will notice that strongest correlations are within a level (genes vs. genes, or behavior vs. behavior) but there are some very interesting patterns across levels. I also plotted the most significant for viewing here:
+
 ```{r setup, warning = F, message = F, echo=F}
 library(dplyr) # for subsetting data 
 library(car) # for fancy ANOVA

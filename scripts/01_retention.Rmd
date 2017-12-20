@@ -1,5 +1,5 @@
 ---
-output: md_document
+output: html_document
 ---
 
 # Summary of treatment and genotype differences from the retention session on the last day
@@ -38,7 +38,7 @@ df1 <- filter(behavior, TrainSession == "Retention", APA2 == group) %>% dropleve
 for(i in names(df1)[cols]) {
   df2 <- df1[, c(i, "APA2", "Genotype")]
   df2$wrap <- i
-  
+print(i)  
   plots <- ggplot(df2) + geom_boxplot(aes_string(y = i, x = "Genotype", fill="APA2", color="Genotype")) +   
     theme_cowplot(font_size = 10, line_size = 0.25) +
     scale_fill_manual(values = colorvals) +
@@ -72,7 +72,7 @@ groupspecific("yoked-consistent", c("#404040","#404040"), c(31))
 **Speed2ndEntr and Max50.RngLoBin** are significantly different between WT and FMR1-KO when examining the consistent group in isolation (ANOVA and t-test).
 
 ```{r, echo=F}
-groupspecific("consistent", c("#ca0020","#ca0020"), c(24,41))
+groupspecific("consistent", c("#ca0020","#ca0020"), c(24,40))
 ```
 
 ### Yoked conflict
@@ -121,10 +121,10 @@ for(i in names(df1)[cols]) {
 }
 ```
 
-When controlling for training, Speed2ndEntr, RayleigAngle, and Min50.RngHiBin are significantly different between WT and FMR1-KO.  Number of entrances and path to 1st entrance are not.
+When controlling for training, **Speed2ndEntr, RayleigAngle, and Min50.RngHiBin** are significantly different between WT and FMR1-KO.  Number of entrances and path to 1st entrance are not.
 
 ```{r, echo = F}
-multiplegroups(c("conflict", "consistent","yoked-conflict", "yoked-consistent" ), colorvalAPA2, c(24,31,37,15:17))
+multiplegroups(c("conflict", "consistent","yoked-conflict", "yoked-consistent" ), colorvalAPA2, c(24,31,40,15:17))
 ``` 
 
 ```{r, echo = F}

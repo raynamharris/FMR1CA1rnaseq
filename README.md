@@ -1,7 +1,7 @@
 # FMR1CA1rnaseq
 
 ## The forthcoming manuscript
-This research has been written up as a chapter of my doctoral thesis called "Reproducible approaches for studying behavior and transcription in a mouse model for autism". It will be modified before submitting to a jounral for peer review and publishing. Stayed tuned for citation details and links.
+This research has been written up as a chapter of my doctoral thesis called "Reproducible approaches for studying behavior and transcription in a mouse model for autism". It will be modified before submitting to a jounral for peer review and publishing. Stayed tuned for citation details and links. The current draft can be found here: [https://raynamharris.github.io/Thesis/02_fmr1](https://raynamharris.github.io/Thesis/02_fmr1).
 
 ## Repository organization and workflow
 

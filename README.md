@@ -16,7 +16,7 @@ This research has been written up as a chapter of my doctoral thesis called "Rep
 	- [04_ephys.Rmd](./scripts/04_ephys.Rmd) - analysis of hippocampal electrophysiology to measure synaptic properties -- note: must be run from the R command line as knitting doesn't currently work well
 	- [05_Ceolin.md](./scripts/05_Ceolin.Rmd) - a **replication** of a recently published paper and a **comparison** to my own data
 	- [06_GO_MWU](./scripts/06_GO_MWU)	- directory with data, code, and results for Gene Ontology analysis
-	- Because I had so many behavior figures and accompanying statistics, I created a Rmd script containing the code to make the figure and calculate the statistics. The data were generated in 01_behavior.Rmd. The markdown files with the statistics and the sub fiures are here: **Figures** [1](./scripts/Fig1.md), [2](./scripts/Fig2.md), [3](./scripts/Fig3.md), [4](./scripts/Fig4.md), [5](./scripts/Fig5.md), [6](./scripts/Fig6.md), [7](./scripts/Fig7.md).
+	- **Figures** [1](./scripts/Fig1.md), [2](./scripts/Fig2.md), [3](./scripts/Fig3.md), [4](./scripts/Fig4.md), [5](./scripts/Fig5.md), [6](./scripts/Fig6.md), [7](./scripts/Fig7.md) - Because I had so many behavior figures and accompanying statistics, I created a Rmd script containing the code to make the figure and calculate the statistics. The data were generated in 01_behavior.Rmd. The markdown files with the statistics and the sub fiures are here: 
 	
 5. [results](./results/)
 	- In the R script accompanying this file, [08_results.md](./scripts/08_results.md), I write the results section for my manuscript. 

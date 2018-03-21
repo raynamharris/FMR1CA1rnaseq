@@ -1,0 +1,137 @@
+---
+title: "Usando y Enseñando R para Investigación Reproducible"
+#subtitle: "mis 10 mejores consejos"
+author: |
+  | Rayna M. Harris 
+  | Twitter: @raynamharris
+  | página web: https://raynamharris.github.io
+  |
+date: |
+  | 27 Marzo 2018
+  | R-Ladies Buenos Aires
+output:
+  beamer_presentation:
+    color: dove
+    fig_caption: no
+    font: structuresmallcapsserif
+---
+
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE,
+                      fig.path = '../figures/talk/')
+```
+
+# ¿quién soy? 
+
+![](../figures/talk/twitter.png)
+
+# Soy voluntaria de Software Carpentry. 
+
+Desarrollamos lecciones en colaboración y enseñamos talleres en todo el mundo
+
+![](../figures/talk/swc.png)
+
+Imagen de https://software-carpentry.org/
+
+# Cosas que aprendií que quiero compartir
+
+- Un mejor manera de aprender es a ensenñar
+- Otro mejor manera de apreder es de imnersión
+- Todos aprenden mas cuando todos trabajamo abierto 
+
+# Consejo 1: Nunca enseñes sola
+
+
+# Consejo 2: Desarrolla lecciones en colaboración
+
+
+
+# Consejo 3: Usa R notebooks para la reproducibilidad
+
+# Consejo 4: Usa el control de versiones para la reproducbilidata
+
+![](../figures/talk/github.png)
+
+# Consejo 5: Documente su flujo de trabajo
+
+![](https://www.blogdelfotografo.com/wp-content/uploads/2016/05/mark-516279_1920.jpg)
+
+https://www.blogdelfotografo.com/workflow-flujo-trabajo-foto/
+
+# Por ejemplo, puede enumerar los comandos por orden de operación
+
+![](../figures/talk/unixworkflow.png)
+
+Imagen de https://github.com/raynamharris/FMR1CA1rnaseq-ES
+
+# Pruebe múltiples estrategias de organización y haga lo que funcione mejor para vos
+
+![](../figures/talk/Rworkflow.png)
+
+Imagen de https://github.com/raynamharris/FMR1CA1rnaseq-ES
+
+# Consejo 6: Desarrolla tu propia paleta de colores
+
+![](../figures/talk/colorbrewer.png)
+
+Imagen de http://colorbrewer2.org/
+
+
+# Consejo 7: Leyendas graficas son joyas
+
+```{r timespent, warning = F, message = F}
+library(tidyverse) # for subsetting data 
+library(car) # for fancy ANOVA
+library(cowplot) # for "easier"" ggplot themes
+library(plyr)
+
+
+behavior <- read.csv("../results/behaviordata.csv", header = T)
+behavior$APA2 <- factor(behavior$APA2, levels = c("yoked-consistent","consistent", "yoked-conflict","conflict")) ## relevel then rename factors treatment
+behavior$Genotype <- factor(behavior$Genotype, levels = c("WT","FMR1KO")) # relevel genotype
+
+proptime <- read.csv("../results/behaviorproptime.csv", header = T)
+proptime$APA2 <- factor(proptime$APA2, levels = c("yoked-consistent","consistent", "yoked-conflict","conflict")) ## relevel then rename factors treatment
+proptime$Genotype <- factor(proptime$Genotype, levels = c("WT","FMR1KO")) # relevel genotype
+proptime$variable <- factor(proptime$variable, 
+          levels = c("pTimeTarget", "pTimeCCW", "pTimeOPP", "pTimeCW"))
+
+behavior$APA2 <- plyr::revalue(behavior$APA2, c("consistent" = "consistente", "conflict" = "conflicto", 
+                                          "yoked-consistent" = "yoked-consistente", 
+                                          "yoked-conflict" = "yoked-conflicto"))
+proptime$APA2 <- plyr::revalue(proptime$APA2, c("consistent" = "consistente", "conflict" = "conflicto", 
+                                          "yoked-consistent" = "yoked-consistente", 
+                                          "yoked-conflict" = "yoked-conflicto"))
+proptime$variable <- plyr::revalue(proptime$variable, c("pTimeTarget" = "objetivo", "pTimeCCW" = "izquierda", 
+                                          "pTimeOPP" = "opuesto",  "pTimeCW" = "derecho"))
+
+timespent <- proptime %>%
+   # filter(APA2 %in% c("consistente","conflicto")) %>%
+      filter(Genotype %in% c("WT")) %>%
+    filter(TrainSessionComboNum == 6 ) %>%
+  ggplot(aes(x = APA2, y = value,fill = variable)) + 
+    geom_bar(position = "fill",stat = "identity") +
+    scale_x_discrete(name="Grupo de entrenamiento") + 
+  #facet_wrap(~APA2, nrow=1) +
+  theme_cowplot(font_size = 12, line_size = 0.25) +
+  theme(legend.title=element_blank()) +
+  #theme(legend.position="none") +
+  scale_y_continuous(name= "Proporción de tiempo ") +
+  scale_fill_manual(values = c("#d01c8b", "#e5f5e0" ,"#a1d99b", "#31a354")) + 
+  geom_hline(yintercept=c(0.25,0.50, 0.75), color="black" , linetype="dashed")
+
+image <- ggdraw() + draw_image("../figures/talk/talk_pista.png", scale = 1)
+
+ggdraw() +
+  draw_plot(timespent, x = 0, y = 0, width = 0.82, height = 1) +
+  draw_plot(image, x = 0.7, y = 0.5, width = 0.3, height = 0.5)
+
+```
+
+https://cran.r-project.org/web/packages/cowplot/index.html
+
+# Consejo 8: Comparte tu trabajo 
+
+# Consejo 9: Promover tu trabajo
+

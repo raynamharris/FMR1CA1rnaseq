@@ -24,7 +24,7 @@ output:
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = FALSE,
-                      fig.path = '../figures/talk/')
+                      fig.path = '../figures/10_talk/')
 library(tidyverse) # for subsetting data 
 library(car) # for fancy ANOVA
 library(cowplot) # for "easier"" ggplot themes
@@ -34,7 +34,7 @@ library(colorblindr) # for color blind test
 
 # ¿Quién soy? 
 
-![](../figures/talk/twitter.png) 
+![](../figures/10_talk/twitter.png) 
 [^1]
 
 [^1]: https://twitter.com/raynamharris
@@ -42,11 +42,11 @@ library(colorblindr) # for color blind test
 
 # Soy voluntaria de Sofware Carpentry
 
-![](../figures/talk/swc1.png)
+![](../figures/10_talk/swc1.png)
 
-![](../figures/talk/swc2.png)
+![](../figures/10_talk/swc2.png)
 
-![](../figures/talk/swc3.png)
+![](../figures/10_talk/swc3.png)
 [^2]
 
 [^2]: https://software-carpentry.org/lessons/
@@ -64,7 +64,7 @@ library(colorblindr) # for color blind test
 
 Colorbrewer[^1a] te ayuda a elegir colores amigables para el daltónico
 
-![](../figures/talk/colorbrewer.png){width=75%}
+![](../figures/10_talk/colorbrewer.png){width=75%}
 
 [^1a]: http://colorbrewer2.org/
 
@@ -96,12 +96,12 @@ allthree
 
 # Convertir HEX a RGB si necesita
 
-![](../figures/talk/orange.png){width=50%}
+![](../figures/10_talk/orange.png){width=50%}
 
-![](../figures/talk/teal.png){width=50%}
+![](../figures/10_talk/teal.png){width=50%}
 
 
-![](../figures/talk/purple.png){width=50%}
+![](../figures/10_talk/purple.png){width=50%}
 [^1b]
 
 [^1b]: https://www.webpagefx.com/web-design/hex-to-rgb/
@@ -167,7 +167,7 @@ timespent
 # Deseo 2: Usa leyendas graficas
 
 ```{r timespent2, warning = F, message = F, fig.height= 5}
-image <- ggdraw() + draw_image("../figures/talk/talk_pista.png", scale = 1)
+image <- ggdraw() + draw_image("../figures/10_talk/talk_pista.png", scale = 1)
 
 ggdraw() +
   draw_plot(timespent, x = 0, y = 0, width = 0.82, height = 1) +
@@ -182,14 +182,14 @@ ggdraw() +
 
 # Deseo 3: Usa *R Markdown* para la reproducibilidad 
 
-![](../figures/talk/Rmarkdown.png){width=50%}
+![](../figures/10_talk/Rmarkdown.png){width=50%}
 [^3] 
 
 [^3]: https://rmarkdown.rstudio.com/authoring_quick_tour.html
 
 # Deseo 4: Usa el control de versiones para la colaboración con otros y con vos en el futuro
 
-![](../figures/talk/git-graphic-01.png){width=75%}
+![](../figures/10_talk/git-graphic-01.png){width=75%}
 [^4]
 
 [^4]: http://technetnepal.net/blogs/shirishamaharjan/archive/2017/05/07/expand-horizons-change-attitudes-git-and-github-workshop.aspx
@@ -206,14 +206,14 @@ Porque probablemente sea único y complejo
 
 # Por ejemplo, puede enumerar los comandos por orden de operación
 
-![](../figures/talk/unixworkflow.png){width=75%}
+![](../figures/10_talk/unixworkflow.png){width=75%}
 [^5b]
 
 [^5b]:  https://github.com/raynamharris/FMR1CA1rnaseq
 
 # Pruebe múltiples estrategias de organización y haga lo que funcione mejor para vos
 
-![](../figures/talk/Rworkflow.png){width=75%}
+![](../figures/10_talk/Rworkflow.png){width=75%}
 [^5b]
 
 
@@ -225,10 +225,9 @@ Porque probablemente sea único y complejo
 - Deseo 4: Usa el control de versiones para la colaboración
 - Deseo 5: Documenta su flujo de trabajo
 
-
 # Deseo 6: Me ayuda mejor las nuevas lecciones en español de Software Carpentry
 
-![](../figures/talk/R-gapminder-es.png)
+![](../figures/10_talk/R-gapminder-es.png)
 
 # Como podes ayudarme
 
@@ -245,14 +244,14 @@ Porque probablemente sea único y complejo
 - Ahora, no hay instructoras en Argentina :(
 - Aplica aquí: http://carpentries.github.io/instructor-training/
 
-![](../figures/talk/joinus.png){width=75%}
+![](../figures/10_talk/joinus.png){width=75%}
 [^7] 
 
 [^7]: https://software-carpentry.org/team/
 
 # Deseo 8: Organizar y / o asistir a un taller
 
-![](../figures/talk/workshops.png){width=75%}
+![](../figures/10_talk/workshops.png){width=75%}
 [^8] 
 
 [^8]: https://software-carpentry.org/workshops/

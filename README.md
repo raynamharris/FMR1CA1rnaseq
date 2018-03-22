@@ -34,8 +34,3 @@ This research has been written up as a chapter of my doctoral thesis called "Rep
 - For the GitHub data, code, and results repository cite [![DOI](https://zenodo.org/badge/101933073.svg)](https://zenodo.org/badge/latestdoi/101933073)
 - For the paper: stay tuned!!
 
-## Bonus: Data visualization process
-
-I try real hard to make my data reproducible. I also want to make beautiful and consistent figures. My current data visualization process combines both those things using R markdown scripts and Adobe Illustrator for making visuals. I love that Adobe updates my figures the moment an image is updated. I also use 1 big illustrator file with multiple artboards to keep all related images in one document. This mean that when I'm working on 1 figure, all the other figure are in view. Here's the illustrator file that contains all but 9 out of 10 of the figures associate with this data.
-
-![](./figures/fig1.png)

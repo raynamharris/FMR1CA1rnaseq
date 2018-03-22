@@ -30,11 +30,9 @@ library(car) # for fancy ANOVA
 library(cowplot) # for "easier"" ggplot themes
 library(plyr) # data wrangling
 library(colorblindr) # for color blind test
-library(magick) # for color blind test
 ```
 
 # ¿Quién soy? 
-
 
 ![](../figures/talk/twitter.png) 
 [^1]
@@ -54,52 +52,25 @@ library(magick) # for color blind test
 [^2]: https://software-carpentry.org/lessons/
 
 
-# Mis 10 mejores deseos (en lugar de mis 10 mejores consejos)
+# Mis mejores 8 deseos con consejos
 
->-
->-  Recuerda: Vos podés hacer lo que quieras
->-  Recuerda: Nadie es re buena al principio 
+>-  Pero antes de comenzar
+>-  Recuerda que vos podés hacer lo que quieras
+>-  Recuerda que nadie es re buena al principio 
 >-  Yo creo que la mejor manera de aprender es a ensenñar
 >-  Yo creo que todos aprenden más cuando la ciencia y la educación están abiertas 
 
-# Deseo 1: Usa *R Markdown* para la reproducibilidad 
+# Deseo 1: Desarrolla tu propia paleta de colores
 
-![](../figures/talk/Rmarkdown.png){width=50%}
-[^3] 
+Colorbrewer[^1a] te ayuda a elegir colores amigables para el daltónico
 
-[^3]: https://rmarkdown.rstudio.com/authoring_quick_tour.html
+![](../figures/talk/colorbrewer.png){width=75%}
 
-# Deseo 2: Usa el control de versiones para la colaboración
+[^1a]: http://colorbrewer2.org/
 
-![](../figures/talk/git-graphic-01.png){width=75%}
-[^4]
+# Ejemplos de paleta de colores
 
-[^4]: http://technetnepal.net/blogs/shirishamaharjan/archive/2017/05/07/expand-horizons-change-attitudes-git-and-github-workshop.aspx
-
-
-# Deseo 3: Documenta su flujo de trabajo
-
-Porque probablemente sea único y complejo
-
-![](https://www.blogdelfotografo.com/wp-content/uploads/2016/05/mark-516279_1920.jpg){width=75%}
-[^5]
-[^5]: https://www.blogdelfotografo.com/workflow-flujo-trabajo-foto/
-
-# Por ejemplo, puede enumerar los comandos por orden de operación
-
-![](../figures/talk/unixworkflow.png){width=75%}
-[^6]
-
-[^6]:  https://github.com/raynamharris/FMR1CA1rnaseq
-
-# Pruebe múltiples estrategias de organización y haga lo que funcione mejor para vos
-
-![](../figures/talk/Rworkflow.png){width=75%}
-[^6]
-
-# Deseo 4: Desarrolla tu propia paleta de colores
-
-```{r, out.width = "250px"}
+```{r ejemplo, out.width = "225px"}
 df <- read.table(header=TRUE, text='
  cond yval
     A 2
@@ -115,29 +86,42 @@ two <- ggplot(df, aes(x=cond, y=yval, fill=cond)) + geom_bar(stat="identity") +
 three <- ggplot(df, aes(x=cond, y=yval, fill=cond)) + geom_bar(stat="identity") + 
     scale_fill_manual(values=c("#d95f02", "#1b9e77", "#7570b3"))
 
-allthree <- plot_grid(one,two,three, nrow =1, labels = c("I", "II","III"))
+allthree <- plot_grid(one,two,three, nrow =1, labels = c(" Predeterminado", "     Basico", "  Personalizado"))
 allthree
 
-deutranplot <- edit_colors(allthree, desaturate, sev=0.9)
-plot_grid(deutranplot)
 ```
 
--  I: predeterminado
--  II: values=c("red", "green", "blue")
--  III: values=c("#d95f02", "#1b9e77", "#7570b3")
+-  Basico: `+ scale_fill_manual(values=c("red", "green", "blue"))`
+-  Personalizado: `+ scale_fill_manual(values=c("#d95f02", "#1b9e77", "#7570b3"))`
+
+# Convertir HEX a RGB si necesita
+
+![](../figures/talk/orange.png){width=50%}
+
+![](../figures/talk/teal.png){width=50%}
 
 
-# Deseo 4: Desarrolla tu propia paleta de colores
+![](../figures/talk/purple.png){width=50%}
+[^1b]
 
-Colorbrewer[^7] te ayuda a elegir colores amigables para el daltónico
+[^1b]: https://www.webpagefx.com/web-design/hex-to-rgb/
 
-![](../figures/talk/colorbrewer.png){width=75%}
+# Confirme que tu palet es amigable con los daltónicos
 
+colorblindr[^1c] simula deficiencias de visión del color
 
-[^7]: http://colorbrewer2.org/
+```{r, colorblindgrid, out.width = "225px"}
 
+p2 <- edit_colors(three, protan)
+p3 <- edit_colors(three, deutan)
+p4 <- edit_colors(three, tritan)
 
-# Deseo 5: Usa leyendas graficas
+plot_grid(three, p2, p3, p4, labels = c("   original", "    protan", "    deutan", "    tritan"))
+```
+
+[^1c]: https://github.com/clauswilke/colorblindr
+
+# Deseo 2: Usa leyendas graficas
 
 ```{r timespent, warning = F, message = F, fig.height= 5}
 behavior <- read.csv("../results/behaviordata.csv", header = T)
@@ -180,7 +164,7 @@ timespent
 >- ¿Por qué el rosa "objetivo"?
 >- ¿Por qué hay líneas discontinuas?
 
-# Deseo 5: Usa leyendas graficas
+# Deseo 2: Usa leyendas graficas
 
 ```{r timespent2, warning = F, message = F, fig.height= 5}
 image <- ggdraw() + draw_image("../figures/talk/talk_pista.png", scale = 1)
@@ -192,35 +176,90 @@ ggdraw() +
 
 >- "objetivo", "izquierda", etc. son cuadrantes de una arena
 >- Yo quería mostrar un uso desproporcionado del espacio
->- **cowplot**[^8] es genial!
+>- Use **cowplot**[^2] para agregar imágenes dentro de R
 
-[^8]: **cowplot** https://cran.r-project.org/web/packages/cowplot/index.html
+[^2]: **cowplot** https://cran.r-project.org/web/packages/cowplot/index.html
 
-# En resumen
+# Deseo 3: Usa *R Markdown* para la reproducibilidad 
 
-- Deseo 1: Usa *R Markdown* para la reproducibilidad 
-- Deseo 2: Usa el control de versiones para la colaboración
-- Deseo 3: Documenta su flujo de trabajo
-- Deseo 4: Desarrolla tu propia paleta de colores
-- Deseo 5: Usa leyendas graficas
+![](../figures/talk/Rmarkdown.png){width=50%}
+[^3] 
+
+[^3]: https://rmarkdown.rstudio.com/authoring_quick_tour.html
+
+# Deseo 4: Usa el control de versiones para la colaboración con otros y con vos en el futuro
+
+![](../figures/talk/git-graphic-01.png){width=75%}
+[^4]
+
+[^4]: http://technetnepal.net/blogs/shirishamaharjan/archive/2017/05/07/expand-horizons-change-attitudes-git-and-github-workshop.aspx
 
 
-# Deseo 6: Me ayuda mejor las lecciones de Software Carpentry
+# Deseo 5: Documenta su flujo de trabajo
+
+Porque probablemente sea único y complejo
+
+![](https://www.blogdelfotografo.com/wp-content/uploads/2016/05/mark-516279_1920.jpg){width=75%}
+[^5a]
+
+[^5a]: https://www.blogdelfotografo.com/workflow-flujo-trabajo-foto/
+
+# Por ejemplo, puede enumerar los comandos por orden de operación
+
+![](../figures/talk/unixworkflow.png){width=75%}
+[^5b]
+
+[^5b]:  https://github.com/raynamharris/FMR1CA1rnaseq
+
+# Pruebe múltiples estrategias de organización y haga lo que funcione mejor para vos
+
+![](../figures/talk/Rworkflow.png){width=75%}
+[^5b]
+
+
+# Punto medio resumen
+
+- Deseo 1: Desarrolla tu propia paleta de colores
+- Deseo 2: Usa leyendas graficas
+- Deseo 3: Usa *R Markdown* para la reproducibilidad 
+- Deseo 4: Usa el control de versiones para la colaboración
+- Deseo 5: Documenta su flujo de trabajo
+
+
+# Deseo 6: Me ayuda mejor las nuevas lecciones en español de Software Carpentry
 
 ![](../figures/talk/R-gapminder-es.png)
 
-# Como puedes ayudar
+# Como podes ayudarme
 
->- Leer y comentar o editar en GitHub
->- Particpar en el **Bug BBQ** el Abril 11 y 12
->- Organizar un taller o reunion para usarla
->- Haga videos de usted leyendo y codificando junto con la lección
+>- Leer y comentar o editar en GitHub[^6a]
+>- Particpar en el **Bug BBQ**[^6b] el Abril 11 y 12
+>- Haga videos de usted leyendo y codificando junto con la lección[^6c]
+
+[^6a]: https://swcarpentry.github.io/r-novice-gapminder-es/
+[^6b]: https://carpentries.github.io/2018-04-bug-bbq/ 
+[^6c]: https://www.youtube.com/watch?v=rQkfLaTdAvw
 
 # Deseo 7: Convertirse en una instructor certificada
 
->- Aplicar aquí: http://carpentries.github.io/instructor-training/
+- Ahora, no hay instructoras en Argentina :(
+- Aplica aquí: http://carpentries.github.io/instructor-training/
 
-# ¡Gracias por su atención! ¡Mantengamonos en contacto!
+![](../figures/talk/joinus.png){width=75%}
+[^7] 
+
+[^7]: https://software-carpentry.org/team/
+
+# Deseo 8: Organizar y / o asistir a un taller
+
+![](../figures/talk/workshops.png){width=75%}
+[^8] 
+
+[^8]: https://software-carpentry.org/workshops/
+
+
+# ¡Gracias por tu atención! ¡Mantengamonos en contacto!
 
 Twitter: @raynamharris
+
 Email: rayna.harris@gmail.com

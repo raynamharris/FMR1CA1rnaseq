@@ -97,19 +97,21 @@ R-Ladies Buenos Aires}
 
 \includegraphics{../figures/talk/swc2.png}
 
-\includegraphics{../figures/talk/swc3.png} \footnote<.->{\url{https://software-carpentry.org/lessons/}}
+\includegraphics{../figures/talk/swc3.png} \footnote<.->{\textbf{cowplot}
+  \url{https://cran.r-project.org/web/packages/cowplot/index.html}}
 
 \end{frame}
 
-\begin{frame}{Mis 10 mejores deseos (en lugar de mis 10 mejores
-consejos)}
+\begin{frame}{Mis mejores 8 deseos con consejos}
 
 \begin{itemize}[<+->]
+\tightlist
 \item
+  Pero antes de comenzar
 \item
-  Recuerda: Vos podés hacer lo que quieras
+  Recuerda que vos podés hacer lo que quieras
 \item
-  Recuerda: Nadie es re buena al principio
+  Recuerda que nadie es re buena al principio
 \item
   Yo creo que la mejor manera de aprender es a ensenñar
 \item
@@ -119,27 +121,106 @@ consejos)}
 
 \end{frame}
 
-\begin{frame}{Deseo 1: Usa \emph{R Markdown} para la reproducibilidad}
+\begin{frame}{Deseo 1: Desarrolla tu propia paleta de colores}
+
+Colorbrewer\footnote<.->{\url{http://colorbrewer2.org/}} te ayuda a
+elegir colores amigables para el daltónico
+
+\includegraphics[width=0.75000\textwidth]{../figures/talk/colorbrewer.png}
+
+\end{frame}
+
+\begin{frame}[fragile]{Ejemplos de paleta de colores}
+
+\includegraphics[width=225px]{../figures/talk/ejemplo-1}
+
+\begin{itemize}
+\tightlist
+\item
+  Basico:
+  \texttt{+\ scale\_fill\_manual(values=c("red",\ "green",\ "blue"))}
+\item
+  Personalizado:
+  \texttt{+\ scale\_fill\_manual(values=c("\#d95f02",\ "\#1b9e77",\ "\#7570b3"))}
+\end{itemize}
+
+\end{frame}
+
+\begin{frame}{Convertir HEX a RGB si necesita}
+
+\includegraphics[width=0.50000\textwidth]{../figures/talk/orange.png}
+
+\includegraphics[width=0.50000\textwidth]{../figures/talk/teal.png}
+
+\includegraphics[width=0.50000\textwidth]{../figures/talk/purple.png}
+\footnote<.->{\url{https://www.webpagefx.com/web-design/hex-to-rgb/}}
+
+\end{frame}
+
+\begin{frame}{Confirme que tu palet es amigable con los daltónicos}
+
+colorblindr\footnote<.->{\url{https://github.com/clauswilke/colorblindr}}
+simula deficiencias de visión del color
+
+\includegraphics[width=225px]{../figures/talk/colorblindgrid-1}
+
+\end{frame}
+
+\begin{frame}{Deseo 2: Usa leyendas graficas}
+
+\includegraphics{../figures/talk/timespent-1.pdf}
+
+\begin{itemize}[<+->]
+\tightlist
+\item
+  ¿Qué significa ``objetivo'', ``izquierda'', ``opuesto'' y ``derecho''?
+\item
+  ¿Por qué el rosa ``objetivo''?
+\item
+  ¿Por qué hay líneas discontinuas?
+\end{itemize}
+
+\end{frame}
+
+\begin{frame}{Deseo 2: Usa leyendas graficas}
+
+\includegraphics{../figures/talk/timespent2-1.pdf}
+
+\begin{itemize}[<+->]
+\tightlist
+\item
+  ``objetivo'', ``izquierda'', etc. son cuadrantes de una arena
+\item
+  Yo quería mostrar un uso desproporcionado del espacio
+\item
+  Use \textbf{cowplot}\footnote<.->{\textbf{cowplot}
+    \url{https://cran.r-project.org/web/packages/cowplot/index.html}}
+  para agregar imágenes dentro de R
+\end{itemize}
+
+\end{frame}
+
+\begin{frame}{Deseo 3: Usa \emph{R Markdown} para la reproducibilidad}
 
 \includegraphics[width=0.50000\textwidth]{../figures/talk/Rmarkdown.png}
 \footnote<.->{\url{https://rmarkdown.rstudio.com/authoring_quick_tour.html}}
 
 \end{frame}
 
-\begin{frame}{Deseo 2: Usa el control de versiones para la colaboración}
+\begin{frame}{Deseo 4: Usa el control de versiones para la colaboración
+con otros y con vos en el futuro}
 
 \includegraphics[width=0.75000\textwidth]{../figures/talk/git-graphic-01.png}
 \footnote<.->{\url{http://technetnepal.net/blogs/shirishamaharjan/archive/2017/05/07/expand-horizons-change-attitudes-git-and-github-workshop.aspx}}
 
 \end{frame}
 
-\begin{frame}{Deseo 3: Documenta su flujo de trabajo}
+\begin{frame}{Deseo 5: Documenta su flujo de trabajo}
 
 Porque probablemente sea único y complejo
 
 \includegraphics[width=0.75000\textwidth]{https://www.blogdelfotografo.com/wp-content/uploads/2016/05/mark-516279_1920.jpg}
-{[}\^{}5{]} {[}\^{}5{]}:
-\url{https://www.blogdelfotografo.com/workflow-flujo-trabajo-foto/}
+\footnote<.->{\url{https://www.blogdelfotografo.com/workflow-flujo-trabajo-foto/}}
 
 \end{frame}
 
@@ -159,119 +240,74 @@ funcione mejor para vos}
 
 \end{frame}
 
-\begin{frame}{Deseo 4: Desarrolla tu propia paleta de colores}
-
-\includegraphics[width=250px]{../figures/talk/unnamed-chunk-1-1}
+\begin{frame}{Punto medio resumen}
 
 \begin{itemize}
 \tightlist
 \item
-  I: predeterminado
+  Deseo 1: Desarrolla tu propia paleta de colores
 \item
-  II: values=c(``red'', ``green'', ``blue'')
+  Deseo 2: Usa leyendas graficas
 \item
-  III: values=c(``\#d95f02'', ``\#7570b3'', ``\#1b9e77'')
+  Deseo 3: Usa \emph{R Markdown} para la reproducibilidad
+\item
+  Deseo 4: Usa el control de versiones para la colaboración
+\item
+  Deseo 5: Documenta su flujo de trabajo
 \end{itemize}
 
 \end{frame}
 
-\begin{frame}{Deseo 4: Desarrolla tu propia paleta de colores}
-
-Colorbrewer\footnote<.->{\url{http://colorbrewer2.org/}} te ayuda a
-elegir colores amigables para el daltónico
-
-\includegraphics[width=0.75000\textwidth]{../figures/talk/colorbrewer.png}
-
-\end{frame}
-
-\begin{frame}{Deseo 5: Usa leyendas graficas}
-
-\includegraphics{../figures/talk/timespent-1.pdf}
-
-\begin{itemize}[<+->]
-\tightlist
-\item
-  ¿Qué significa ``objetivo'', ``izquierda'', ``opuesto'' y ``derecho''?
-\item
-  ¿Por qué el rosa ``objetivo''?
-\item
-  ¿Por qué hay líneas discontinuas?
-\end{itemize}
-
-\end{frame}
-
-\begin{frame}{Deseo 5: Usa leyendas graficas}
-
-\includegraphics{../figures/talk/timespent2-1.pdf}
-
-\begin{itemize}[<+->]
-\tightlist
-\item
-  ``objetivo'', ``izquierda'', etc. son cuadrantes de una arena
-\item
-  Yo quería mostrar un uso desproporcionado del espacio
-\item
-  \textbf{cowplot}\footnote<.->{\textbf{cowplot}
-    \url{https://cran.r-project.org/web/packages/cowplot/index.html}} es
-  genial!
-\end{itemize}
-
-\end{frame}
-
-\begin{frame}{En resumen}
-
-\begin{itemize}
-\tightlist
-\item
-  Deseo 1: Usa \emph{R Markdown} para la reproducibilidad
-\item
-  Deseo 2: Usa el control de versiones para la colaboración
-\item
-  Deseo 3: Documenta su flujo de trabajo
-\item
-  Deseo 4: Desarrolla tu propia paleta de colores
-\item
-  Deseo 5: Usa leyendas graficas
-\end{itemize}
-
-\end{frame}
-
-\begin{frame}{Deseo 6: Me ayuda mejor las lecciones de Software
-Carpentry}
+\begin{frame}{Deseo 6: Me ayuda mejor las nuevas lecciones en español de
+Software Carpentry}
 
 \includegraphics{../figures/talk/R-gapminder-es.png}
 
 \end{frame}
 
-\begin{frame}{Como puedes ayudar}
+\begin{frame}{Como podes ayudarme}
 
 \begin{itemize}[<+->]
 \tightlist
 \item
-  Leer y comentar o editar en GitHub
+  Leer y comentar o editar en GitHub\footnote<.->{\url{https://swcarpentry.github.io/r-novice-gapminder-es/}}
 \item
-  Particpar en el \textbf{Bug BBQ} el Abril 11 y 12
+  Particpar en el \textbf{Bug BBQ}\footnote<.->{\url{https://carpentries.github.io/2018-04-bug-bbq/}}
+  el Abril 11 y 12
 \item
-  Organizar un taller o reunion para usarla
-\item
-  Haga videos de usted leyendo y codificando junto con la lección
+  Haga videos de usted leyendo y codificando junto con la
+  lección\footnote<.->{\url{https://www.youtube.com/watch?v=rQkfLaTdAvw}}
 \end{itemize}
 
 \end{frame}
 
 \begin{frame}{Deseo 7: Convertirse en una instructor certificada}
 
-\begin{itemize}[<+->]
+\begin{itemize}
 \tightlist
 \item
-  Aplicar aquí: \url{http://carpentries.github.io/instructor-training/}
+  Ahora, no hay instructoras en Argentina :(
+\item
+  Aplica aquí: \url{http://carpentries.github.io/instructor-training/}
 \end{itemize}
+
+\includegraphics[width=0.75000\textwidth]{../figures/talk/joinus.png}
+\footnote<.->{\url{https://software-carpentry.org/team/}}
 
 \end{frame}
 
-\begin{frame}{¡Gracias por su atención! ¡Mantengamonos en contacto!}
+\begin{frame}{Deseo 8: Organizar y / o asistir a un taller}
 
-Twitter: @raynamharris Email:
+\includegraphics[width=0.75000\textwidth]{../figures/talk/workshops.png}
+\footnote<.->{\url{https://software-carpentry.org/workshops/}}
+
+\end{frame}
+
+\begin{frame}{¡Gracias por tu atención! ¡Mantengamonos en contacto!}
+
+Twitter: @raynamharris
+
+Email:
 \href{mailto:rayna.harris@gmail.com}{\nolinkurl{rayna.harris@gmail.com}}
 
 \end{frame}

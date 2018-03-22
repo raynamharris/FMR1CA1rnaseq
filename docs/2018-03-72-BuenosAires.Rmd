@@ -29,6 +29,8 @@ library(tidyverse) # for subsetting data
 library(car) # for fancy ANOVA
 library(cowplot) # for "easier"" ggplot themes
 library(plyr) # data wrangling
+library(colorblindr) # for color blind test
+library(magick) # for color blind test
 ```
 
 # ¿Quién soy? 
@@ -111,14 +113,18 @@ two <- ggplot(df, aes(x=cond, y=yval, fill=cond)) + geom_bar(stat="identity") +
     scale_fill_manual(values=c("red", "green", "blue"))
 
 three <- ggplot(df, aes(x=cond, y=yval, fill=cond)) + geom_bar(stat="identity") + 
-    scale_fill_manual(values=c("#CC6666",  "#66CC99", "#9999CC"))
+    scale_fill_manual(values=c("#d95f02", "#1b9e77", "#7570b3"))
 
-plot_grid(one,two,three, nrow =1, labels = c("I", "II","III"))
+allthree <- plot_grid(one,two,three, nrow =1, labels = c("I", "II","III"))
+allthree
+
+deutranplot <- edit_colors(allthree, desaturate, sev=0.9)
+plot_grid(deutranplot)
 ```
 
 -  I: predeterminado
 -  II: values=c("red", "green", "blue")
--  III: values=c("#CC6666",  "#66CC99", "#9999CC")
+-  III: values=c("#d95f02", "#1b9e77", "#7570b3")
 
 
 # Deseo 4: Desarrolla tu propia paleta de colores
@@ -182,7 +188,6 @@ image <- ggdraw() + draw_image("../figures/talk/talk_pista.png", scale = 1)
 ggdraw() +
   draw_plot(timespent, x = 0, y = 0, width = 0.82, height = 1) +
   draw_plot(image, x = 0.7, y = 0.5, width = 0.3, height = 0.6)
-
 ```
 
 >- "objetivo", "izquierda", etc. son cuadrantes de una arena

@@ -211,7 +211,11 @@ ggdraw() +
 >- Organizar un taller o reunion para usarla
 >- Haga videos de usted leyendo y codificando junto con la lección
 
-
 # Deseo 7: Convertirse en una instructor certificada
 
 >- Aplicar aquí: http://carpentries.github.io/instructor-training/
+
+# ¡Gracias por su atención! ¡Mantengamonos en contacto!
+
+Twitter: @raynamharris
+Email: rayna.harris@gmail.com

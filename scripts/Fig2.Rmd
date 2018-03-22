@@ -3,7 +3,7 @@ title: "Figure 2"
 output: md_document
 ---
 
-![](../figures/fig1-04.png)
+![](../figures/behavior-04.png)
 Fig. 2: No group differences before behavioral manipulation.
 A) This graph shows that all groups of mice spend ~ 25% of their time equally across four quadrants of the arena during the pre-training session (pink: future shock zone, dark green: clockwise, green: opposite the shock zone, light green: counterclockwise). B) Pre-training number of entrances into the shock zone and C) path to the first entrance are not significantly different between treatment groups and genotypes (dark grey: yoked-consistent, red: consistently-trained, light grey: yoked-conflict, peach: conflict-trained).
 

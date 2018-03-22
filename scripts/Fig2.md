@@ -1,4 +1,4 @@
-![](../figures/fig1-04.png) Fig. 2: No group differences before
+![](../figures/behavior-04.png) Fig. 2: No group differences before
 behavioral manipulation. A) This graph shows that all groups of mice
 spend ~ 25% of their time equally across four quadrants of the arena
 during the pre-training session (pink: future shock zone, dark green:
@@ -17,6 +17,8 @@ These are the packages required for making the figures and doing stats.
     library(cowplot) # for "easier"" ggplot themes
 
     knitr::opts_chunk$set(fig.path = '../figures/01_behavior/')
+
+    colorvalAPA2 <-  c( "#404040","#ca0020", "#bababa", "#f4a582")
 
 This chuck of code is for loading and formatting the dataframes.
 
@@ -153,8 +155,6 @@ This is for making panel B and C of the number of entrances and path to
 first entrance. I make each figure separately, then I used a 3 figure
 for cropping a single legend at the bottom. There might be an easier way
 to do this, but this is my solution.
-
-    colorvalAPA2 <-  c( "#404040","#ca0020", "#bababa", "#f4a582")
 
     num1 <- behavior %>%
         filter(TrainSessionComboNum %in% c("1")) %>% 

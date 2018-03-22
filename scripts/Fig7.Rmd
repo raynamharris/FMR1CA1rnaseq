@@ -3,7 +3,7 @@ title: "Figure 7"
 output: md_document
 ---
 
-![Fig. 2.6.Retention mice](../figures/fig1-09.png)
+![Fig. 2.6.Retention mice](../figures/behavior-08.png)
 Fig. 2.7. During recall, mice avoid the shock zone.
 A) Trained mice spend less time in the shock zone than their yoked counterparts. B) They also make fewer entrances into the shock zone, C) but their path to the shock zone is not significantly longer. Legend) dark grey: yoked-consistent, red: consistently-trained, light grey: yoked-conflict, peach: conflict-trained, pink: future shock zone, dark green: clockwise, green: opposite the shock zone, light green: counterclockwise.
 

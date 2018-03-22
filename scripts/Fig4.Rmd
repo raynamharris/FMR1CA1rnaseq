@@ -3,7 +3,7 @@ title: "Figure 4"
 output: md_document
 ---
 
-![Figure 2.4](../figures/fig1-07.png)
+![Figure 2.4](../figures/behavior-06.png)
 Fig. 2.4: Consistent and conflict trained mice use space differently during conflict training sessions. 
 A) During the conflict training sessions, consistent and conflict mice both avoid the shock zone, but there is not a difference between groups. B) Consistently trained mice spend significantly less time in space clockwise to the shock zone. C) All groups spend more time on average in the space opposite the shock zone, but there are no group differences. D) Consistently trained mice spend more time in the counterclockwise zone than conflict mice. Legend) dark grey: yoked-consistent, red: consistently-trained, light grey: yoked-conflict, peach: conflict-trained.
 

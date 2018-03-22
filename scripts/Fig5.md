@@ -1,19 +1,20 @@
 ![Fig. 2.5.Summary of punishment and estimates of memory in WT and
-FMR1-KO mice](../figures/fig1-02.png) Fig. 2.5. Summary of punishment
-and estimates of memory in WT and FMR1-KO mice A) Expected results for
-number of entrances based on data from Chapter 1 and Radwan et al.8 B,C)
-Consistent and conflict trained mice from WT and FMR1-KO groups to make
-fewer entrances into the shock zone than yoked-mice; however, the
-pattern does not exactly match the expected results. D) Expected results
-for number of entrances based on data from Chapter 1 and Radwan et al.8
-E, F) Consistent and conflict trained mice from WT FMR1-KO do not show
-evidence of place memory until after the first day of initial training.
-This pattern does also not mirror the expected results. Legend) Pre:
-pre-training; T1, T2, T3: training sessions 1-3; C1, C2, C3: conflict
-training sessions; Reten.: retention session; dark grey:
-yoked-consistent, red: consistently-trained, light grey: yoked-conflict,
-peach: conflict-trained. The pie-shaped shaded regions of the inserts
-highlight the region used to count the number of entrances.
+FMR1-KO mice](../figures/behavior-02.png) Fig. 2.5. Summary of
+punishment and estimates of memory in WT and FMR1-KO mice A) Expected
+results for number of entrances based on data from Chapter 1 and Radwan
+et al.8 B,C) Consistent and conflict trained mice from WT and FMR1-KO
+groups to make fewer entrances into the shock zone than yoked-mice;
+however, the pattern does not exactly match the expected results. D)
+Expected results for number of entrances based on data from Chapter 1
+and Radwan et al.8 E, F) Consistent and conflict trained mice from WT
+FMR1-KO do not show evidence of place memory until after the first day
+of initial training. This pattern does also not mirror the expected
+results. Legend) Pre: pre-training; T1, T2, T3: training sessions 1-3;
+C1, C2, C3: conflict training sessions; Reten.: retention session; dark
+grey: yoked-consistent, red: consistently-trained, light grey:
+yoked-conflict, peach: conflict-trained. The pie-shaped shaded regions
+of the inserts highlight the region used to count the number of
+entrances.
 
 These are the packages required for making the figures and doing stats.
 

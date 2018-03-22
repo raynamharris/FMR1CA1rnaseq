@@ -1,4 +1,4 @@
-![Fig. 2.6.Retention mice](../figures/fig1-10.png) Fig. 2.6. During
+![Fig. 2.6.Retention mice](../figures/behavior-09.png) Fig. 2.6. During
 recall, mice avoid the shock zone using a non-place strategy. A, B) WT
 but not FMR1-KO consistent mice make fewer entrances into the shock zone
 than conflict mice on C1. C, D) Path to first entrance on C2 is no
@@ -155,7 +155,174 @@ Figure 6D.
     ## quartz_off_screen 
     ##                 2
 
-Here are the statisticl analyses
+Stats for panel B and C
+
+    PathNumStats <- behavior  %>% 
+      filter(TrainSessionComboNum  %in% c("7")) 
+    TukeyHSD(aov(data = PathNumStats, Path1stEntr ~ Genotype * APA2))
+
+    ##   Tukey multiple comparisons of means
+    ##     95% family-wise confidence level
+    ## 
+    ## Fit: aov(formula = Path1stEntr ~ Genotype * APA2, data = PathNumStats)
+    ## 
+    ## $Genotype
+    ##                diff       lwr      upr     p adj
+    ## FMR1KO-WT 0.5198627 -2.216535 3.256261 0.7018376
+    ## 
+    ## $APA2
+    ##                                       diff       lwr      upr     p adj
+    ## consistent-yoked-consistent      0.5187127 -4.493054 5.530479 0.9922339
+    ## yoked-conflict-yoked-consistent -1.4355403 -7.617995 4.746914 0.9226271
+    ## conflict-yoked-consistent       -2.1617434 -7.248379 2.924892 0.6630445
+    ## yoked-conflict-consistent       -1.9542530 -7.678094 3.769588 0.7932404
+    ## conflict-consistent             -2.6804562 -7.198583 1.837670 0.3908923
+    ## conflict-yoked-conflict         -0.7262031 -6.515712 5.063305 0.9863786
+    ## 
+    ## $`Genotype:APA2`
+    ##                                                     diff        lwr
+    ## FMR1KO:yoked-consistent-WT:yoked-consistent    4.5710000  -4.830079
+    ## WT:consistent-WT:yoked-consistent              4.2875000  -4.294472
+    ## FMR1KO:consistent-WT:yoked-consistent          1.2650000  -7.781193
+    ## WT:yoked-conflict-WT:yoked-consistent         -1.0750000 -13.211741
+    ## FMR1KO:yoked-conflict-WT:yoked-consistent      2.2800000  -7.629607
+    ## WT:conflict-WT:yoked-consistent                0.3872222  -8.034325
+    ## FMR1KO:conflict-WT:yoked-consistent           -0.0625000  -9.972107
+    ## WT:consistent-FMR1KO:yoked-consistent         -0.2835000  -8.272881
+    ## FMR1KO:consistent-FMR1KO:yoked-consistent     -3.3060000 -11.792081
+    ## WT:yoked-conflict-FMR1KO:yoked-consistent     -5.6460000 -17.371206
+    ## FMR1KO:yoked-conflict-FMR1KO:yoked-consistent -2.2910000 -11.692079
+    ## WT:conflict-FMR1KO:yoked-consistent           -4.1837778 -12.000582
+    ## FMR1KO:conflict-FMR1KO:yoked-consistent       -4.6335000 -14.034579
+    ## FMR1KO:consistent-WT:consistent               -3.0225000 -10.591088
+    ## WT:yoked-conflict-WT:consistent               -5.3625000 -16.441778
+    ## FMR1KO:yoked-conflict-WT:consistent           -2.0075000 -10.589472
+    ## WT:conflict-WT:consistent                     -3.9002778 -10.710004
+    ## FMR1KO:conflict-WT:consistent                 -4.3500000 -12.931972
+    ## WT:yoked-conflict-FMR1KO:consistent           -2.3400000 -13.782629
+    ## FMR1KO:yoked-conflict-FMR1KO:consistent        1.0150000  -8.031193
+    ## WT:conflict-FMR1KO:consistent                 -0.8777778  -8.263963
+    ## FMR1KO:conflict-FMR1KO:consistent             -1.3275000 -10.373693
+    ## FMR1KO:yoked-conflict-WT:yoked-conflict        3.3550000  -8.781741
+    ## WT:conflict-WT:yoked-conflict                  1.4622222  -9.493261
+    ## FMR1KO:conflict-WT:yoked-conflict              1.0125000 -11.124241
+    ## WT:conflict-FMR1KO:yoked-conflict             -1.8927778 -10.314325
+    ## FMR1KO:conflict-FMR1KO:yoked-conflict         -2.3425000 -12.252107
+    ## FMR1KO:conflict-WT:conflict                   -0.4497222  -8.871269
+    ##                                                     upr     p adj
+    ## FMR1KO:yoked-consistent-WT:yoked-consistent   13.972079 0.7647289
+    ## WT:consistent-WT:yoked-consistent             12.869472 0.7400240
+    ## FMR1KO:consistent-WT:yoked-consistent         10.311193 0.9997905
+    ## WT:yoked-conflict-WT:yoked-consistent         11.061741 0.9999905
+    ## FMR1KO:yoked-conflict-WT:yoked-consistent     12.189607 0.9948924
+    ## WT:conflict-WT:yoked-consistent                8.808769 0.9999999
+    ## FMR1KO:conflict-WT:yoked-consistent            9.847107 1.0000000
+    ## WT:consistent-FMR1KO:yoked-consistent          7.705881 1.0000000
+    ## FMR1KO:consistent-FMR1KO:yoked-consistent      5.180081 0.9080559
+    ## WT:yoked-conflict-FMR1KO:yoked-consistent      6.079206 0.7731749
+    ## FMR1KO:yoked-conflict-FMR1KO:yoked-consistent  7.110079 0.9927700
+    ## WT:conflict-FMR1KO:yoked-consistent            3.633026 0.6704196
+    ## FMR1KO:conflict-FMR1KO:yoked-consistent        4.767579 0.7525618
+    ## FMR1KO:consistent-WT:consistent                4.546088 0.8968335
+    ## WT:yoked-conflict-WT:consistent                5.716778 0.7687191
+    ## FMR1KO:yoked-conflict-WT:consistent            6.574472 0.9943514
+    ## WT:conflict-WT:consistent                      2.909449 0.5935498
+    ## FMR1KO:conflict-WT:consistent                  4.231972 0.7262044
+    ## WT:yoked-conflict-FMR1KO:consistent            9.102629 0.9975369
+    ## FMR1KO:yoked-conflict-FMR1KO:consistent       10.061193 0.9999523
+    ## WT:conflict-FMR1KO:consistent                  6.508408 0.9999296
+    ## FMR1KO:conflict-FMR1KO:consistent              7.718693 0.9997116
+    ## FMR1KO:yoked-conflict-WT:yoked-conflict       15.491741 0.9848553
+    ## WT:conflict-WT:yoked-conflict                 12.417705 0.9998465
+    ## FMR1KO:conflict-WT:yoked-conflict             13.149241 0.9999937
+    ## WT:conflict-FMR1KO:yoked-conflict              6.528769 0.9955737
+    ## FMR1KO:conflict-FMR1KO:yoked-conflict          7.567107 0.9939810
+    ## FMR1KO:conflict-WT:conflict                    7.971825 0.9999997
+
+    PathNumStats <- behavior  %>% 
+      filter(TrainSessionComboNum  %in% c("6")) 
+    TukeyHSD(aov(data = PathNumStats, NumEntrances ~ Genotype * APA2))
+
+    ##   Tukey multiple comparisons of means
+    ##     95% family-wise confidence level
+    ## 
+    ## Fit: aov(formula = NumEntrances ~ Genotype * APA2, data = PathNumStats)
+    ## 
+    ## $Genotype
+    ##                diff       lwr      upr     p adj
+    ## FMR1KO-WT 0.7583333 -2.444905 3.961572 0.6340395
+    ## 
+    ## $APA2
+    ##                                      diff        lwr        upr     p adj
+    ## consistent-yoked-consistent     -9.354815 -15.278708 -3.4309219 0.0007929
+    ## yoked-conflict-yoked-consistent  4.099074  -2.981332 11.1794804 0.4141129
+    ## conflict-yoked-consistent       -2.162464  -8.254843  3.9299141 0.7749428
+    ## yoked-conflict-consistent       13.453889   7.022790 19.8849873 0.0000124
+    ## conflict-consistent              7.192350   1.868447 12.5162539 0.0045329
+    ## conflict-yoked-conflict         -6.261538 -12.848161  0.3250839 0.0674296
+    ## 
+    ## $`Genotype:APA2`
+    ##                                                      diff         lwr
+    ## FMR1KO:yoked-consistent-WT:yoked-consistent     2.0500000  -9.2023630
+    ## WT:consistent-WT:yoked-consistent              -9.0000000 -19.2719551
+    ## FMR1KO:consistent-WT:yoked-consistent          -7.4642857 -17.9779669
+    ## WT:yoked-conflict-WT:yoked-consistent           5.2500000  -7.5613788
+    ## FMR1KO:yoked-conflict-WT:yoked-consistent       5.2500000  -6.6110320
+    ## WT:conflict-WT:yoked-consistent                -0.3055556 -10.3854945
+    ## FMR1KO:conflict-WT:yoked-consistent            -3.2500000 -15.1110320
+    ## WT:consistent-FMR1KO:yoked-consistent         -11.0500000 -20.6126697
+    ## FMR1KO:consistent-FMR1KO:yoked-consistent      -9.5142857 -19.3361534
+    ## WT:yoked-conflict-FMR1KO:yoked-consistent       3.2000000  -9.0500212
+    ## FMR1KO:yoked-conflict-FMR1KO:yoked-consistent   3.2000000  -8.0523630
+    ## WT:conflict-FMR1KO:yoked-consistent            -2.3555556 -11.7116638
+    ## FMR1KO:conflict-FMR1KO:yoked-consistent        -5.3000000 -16.5523630
+    ## FMR1KO:consistent-WT:consistent                 1.5357143  -7.1456722
+    ## WT:yoked-conflict-WT:consistent                14.2500000   2.8939264
+    ## FMR1KO:yoked-conflict-WT:consistent            14.2500000   3.9780449
+    ## WT:conflict-WT:consistent                       8.6944444   0.5437298
+    ## FMR1KO:conflict-WT:consistent                   5.7500000  -4.5219551
+    ## WT:yoked-conflict-FMR1KO:consistent            12.7142857   1.1391037
+    ## FMR1KO:yoked-conflict-FMR1KO:consistent        12.7142857   2.2006045
+    ## WT:conflict-FMR1KO:consistent                   7.1587302  -1.2945876
+    ## FMR1KO:conflict-FMR1KO:consistent               4.2142857  -6.2993955
+    ## FMR1KO:yoked-conflict-WT:yoked-conflict         0.0000000 -12.8113788
+    ## WT:conflict-WT:yoked-conflict                  -5.5555556 -16.7382438
+    ## FMR1KO:conflict-WT:yoked-conflict              -8.5000000 -21.3113788
+    ## WT:conflict-FMR1KO:yoked-conflict              -5.5555556 -15.6354945
+    ## FMR1KO:conflict-FMR1KO:yoked-conflict          -8.5000000 -20.3610320
+    ## FMR1KO:conflict-WT:conflict                    -2.9444444 -13.0243834
+    ##                                                      upr     p adj
+    ## FMR1KO:yoked-consistent-WT:yoked-consistent   13.3023630 0.9988551
+    ## WT:consistent-WT:yoked-consistent              1.2719551 0.1222755
+    ## FMR1KO:consistent-WT:yoked-consistent          3.0493955 0.3302891
+    ## WT:yoked-conflict-WT:yoked-consistent         18.0613788 0.8861219
+    ## FMR1KO:yoked-conflict-WT:yoked-consistent     17.1110320 0.8405486
+    ## WT:conflict-WT:yoked-consistent                9.7743834 1.0000000
+    ## FMR1KO:conflict-WT:yoked-consistent            8.6110320 0.9859926
+    ## WT:consistent-FMR1KO:yoked-consistent         -1.4873303 0.0141784
+    ## FMR1KO:consistent-FMR1KO:yoked-consistent      0.3075819 0.0633444
+    ## WT:yoked-conflict-FMR1KO:yoked-consistent     15.4500212 0.9893925
+    ## FMR1KO:yoked-conflict-FMR1KO:yoked-consistent 14.4523630 0.9826704
+    ## WT:conflict-FMR1KO:yoked-consistent            7.0005527 0.9914691
+    ## FMR1KO:conflict-FMR1KO:yoked-consistent        5.9523630 0.7947108
+    ## FMR1KO:consistent-WT:consistent               10.2171008 0.9990529
+    ## WT:yoked-conflict-WT:consistent               25.6060736 0.0059740
+    ## FMR1KO:yoked-conflict-WT:consistent           24.5219551 0.0017907
+    ## WT:conflict-WT:consistent                     16.8451591 0.0295954
+    ## FMR1KO:conflict-WT:consistent                 16.0219551 0.6241249
+    ## WT:yoked-conflict-FMR1KO:consistent           24.2894677 0.0228639
+    ## FMR1KO:yoked-conflict-FMR1KO:consistent       23.2279669 0.0089219
+    ## WT:conflict-FMR1KO:consistent                 15.6120479 0.1484802
+    ## FMR1KO:conflict-FMR1KO:consistent             14.7279669 0.8970577
+    ## FMR1KO:yoked-conflict-WT:yoked-conflict       12.8113788 1.0000000
+    ## WT:conflict-WT:yoked-conflict                  5.6271327 0.7486472
+    ## FMR1KO:conflict-WT:yoked-conflict              4.3113788 0.4141170
+    ## WT:conflict-FMR1KO:yoked-conflict              4.5243834 0.6418261
+    ## FMR1KO:conflict-FMR1KO:yoked-conflict          3.3610320 0.3190938
+    ## FMR1KO:conflict-WT:conflict                    7.1354945 0.9798377
+
+Here are the statisticl analyses by conflict session for number of
+entrances and path to 1st entrances
 
     ## conflict
     PathNumStats <- behavior  %>% 
@@ -426,40 +593,3 @@ Here are the statisticl analyses
     ## yoked-conflict-consistent       -5.3625000 -13.276633  2.5516334 0.2589888
     ## conflict-consistent             -3.9002778  -8.764591  0.9640359 0.1445418
     ## conflict-yoked-conflict          1.4622222  -6.363482  9.2879268 0.9518875
-
-    PathNumStats <- behavior  %>% 
-      filter(TrainSessionComboNum == "7",
-             Genotype != "WT")
-    Anova(lm(data = PathNumStats, Path1stEntr ~  APA2 ), type = 3)
-
-    ## Anova Table (Type III tests)
-    ## 
-    ## Response: Path1stEntr
-    ##             Sum Sq Df F value  Pr(>F)  
-    ## (Intercept) 159.39  1  5.9686 0.02741 *
-    ## APA2         53.53  3  0.6682 0.58456  
-    ## Residuals   400.56 15                  
-    ## ---
-    ## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
-
-    summary(aov(Path1stEntr~  APA2, data=PathNumStats))
-
-    ##             Df Sum Sq Mean Sq F value Pr(>F)
-    ## APA2         3   53.5   17.84   0.668  0.585
-    ## Residuals   15  400.6   26.70
-
-    TukeyHSD(aov(Path1stEntr~  APA2, data=PathNumStats))
-
-    ##   Tukey multiple comparisons of means
-    ##     95% family-wise confidence level
-    ## 
-    ## Fit: aov(formula = Path1stEntr ~ APA2, data = PathNumStats)
-    ## 
-    ## $APA2
-    ##                                    diff        lwr       upr     p adj
-    ## consistent-yoked-consistent     -3.3060 -12.324631  5.712631 0.7199517
-    ## yoked-conflict-yoked-consistent -2.2910 -12.282051  7.700051 0.9100565
-    ## conflict-yoked-consistent       -4.6335 -14.624551  5.357551 0.5552191
-    ## yoked-conflict-consistent        1.0150  -8.598893 10.628893 0.9898144
-    ## conflict-consistent             -1.3275 -10.941393  8.286393 0.9778648
-    ## conflict-yoked-conflict         -2.3425 -12.873992  8.188992 0.9170112

@@ -3,7 +3,7 @@ title: "Figure 1"
 output: md_document
 ---
 
-![](../figures/fig1-01.png)
+![](../figures/behavior-01.png)
 Fig. 1: Active place avoidance task with conflict training. Mice were assigned to one of four groups: consistently-trained (red), yoked-consistent (dark grey), conflict-trained (peach), or yoked-conflict (light grey). Mice were placed on the rotating arena (1 rpm) for training sessions that lasted 10 min and was separated by 2-h intersession interval or overnight (~17 h). The physical conditions are identical for all mice during pre-training and retention. Sample sizes for each treatment group and genotype are shown on the bottom right.
 
 The Markdown file imports the cleaned data and caluated the number of animals in each behavioral treatment group for each genotyp. I use `TrainSessionCombo == "Retention"` as a way to remove the time series element and only count 1 row per animal.

@@ -1,4 +1,4 @@
-![Fig. 2.6.Retention mice](../figures/fig1-09.png) Fig. 2.7. During
+![Fig. 2.6.Retention mice](../figures/behavior-08.png) Fig. 2.7. During
 recall, mice avoid the shock zone. A) Trained mice spend less time in
 the shock zone than their yoked counterparts. B) They also make fewer
 entrances into the shock zone, C) but their path to the shock zone is

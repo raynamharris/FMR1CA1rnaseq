@@ -1,4 +1,4 @@
-![](../figures/fig1-06.png)
+![](../figures/behavior-06.png)
 
 Fig. 3. The proportion of time spent in in the arena with the shock on.
 The average proportion of time spent in each 60 degrees quadrant of the

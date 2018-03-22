@@ -1,14 +1,14 @@
-![Figure 2.4](../figures/fig1-07.png) Fig. 2.4: Consistent and conflict
-trained mice use space differently during conflict training sessions. A)
-During the conflict training sessions, consistent and conflict mice both
-avoid the shock zone, but there is not a difference between groups. B)
-Consistently trained mice spend significantly less time in space
-clockwise to the shock zone. C) All groups spend more time on average in
-the space opposite the shock zone, but there are no group differences.
-D) Consistently trained mice spend more time in the counterclockwise
-zone than conflict mice. Legend) dark grey: yoked-consistent, red:
-consistently-trained, light grey: yoked-conflict, peach:
-conflict-trained.
+![Figure 2.4](../figures/behavior-06.png) Fig. 2.4: Consistent and
+conflict trained mice use space differently during conflict training
+sessions. A) During the conflict training sessions, consistent and
+conflict mice both avoid the shock zone, but there is not a difference
+between groups. B) Consistently trained mice spend significantly less
+time in space clockwise to the shock zone. C) All groups spend more time
+on average in the space opposite the shock zone, but there are no group
+differences. D) Consistently trained mice spend more time in the
+counterclockwise zone than conflict mice. Legend) dark grey:
+yoked-consistent, red: consistently-trained, light grey: yoked-conflict,
+peach: conflict-trained.
 
 These are the packages required for making the figures and doing stats.
 
@@ -24,6 +24,8 @@ This chuck of code is for loading and formatting the dataframes.
     behavior <- read.csv("../results/behaviordata.csv", header = T)
     behavior$APA2 <- factor(behavior$APA2, levels = c("yoked-consistent","consistent", "yoked-conflict","conflict")) ## relevel then rename factors treatment
     behavior$Genotype <- factor(behavior$Genotype, levels = c("WT","FMR1KO")) # relevel genotype
+
+Panels A, B, C, and D
 
 ![](../figures/01_behavior/fig4-1.png)![](../figures/01_behavior/fig4-2.png)![](../figures/01_behavior/fig4-3.png)![](../figures/01_behavior/fig4-4.png)
 

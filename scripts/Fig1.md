@@ -1,4 +1,4 @@
-![](../figures/fig1-01.png) Fig. 1: Active place avoidance task with
+![](../figures/behavior-01.png) Fig. 1: Active place avoidance task with
 conflict training. Mice were assigned to one of four groups:
 consistently-trained (red), yoked-consistent (dark grey),
 conflict-trained (peach), or yoked-conflict (light grey). Mice were

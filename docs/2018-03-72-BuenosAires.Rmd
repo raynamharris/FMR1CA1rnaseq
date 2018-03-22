@@ -14,44 +14,42 @@ output:
     color: dove
     fig_caption: no
     font: structuresmallcapsserif
+    incremental: true
+    keep_tex: true
 ---
 
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = FALSE,
                       fig.path = '../figures/talk/')
+library(tidyverse) # for subsetting data 
+library(car) # for fancy ANOVA
+library(cowplot) # for "easier"" ggplot themes
+library(plyr) # data wrangling
 ```
 
-# ¿quién soy? 
+# ¿Quién soy? 
+
 
 ![](../figures/talk/twitter.png)
 
-# Soy voluntaria de Software Carpentry. 
+# Soy voluntaria de Sofware Carpentry
 
-Desarrollamos lecciones en colaboración y enseñamos talleres en todo el mundo
 
-![](../figures/talk/swc.png)
-
-Imagen de https://software-carpentry.org/
 
 # Cosas que aprendií que quiero compartir
 
-- Un mejor manera de aprender es a ensenñar
-- Otro mejor manera de apreder es de imnersión
-- Todos aprenden mas cuando todos trabajamo abierto 
-
-# Consejo 1: Nunca enseñes sola
-
-
-# Consejo 2: Desarrolla lecciones en colaboración
+- Todos somos terribles al principio 
+- La mejor manera de aprender es a ensenñar
+- Todos aprenden más cuando la ciencia y la educación están abiertas
 
 
 
 # Consejo 3: Usa R notebooks para la reproducibilidad
 
-# Consejo 4: Usa el control de versiones para la reproducbilidata
+# Consejo 4: Usa el control de versiones para la colaboración
 
-![](../figures/talk/github.png)
+![](../figures/talk/git-graphic-01.png)
 
 # Consejo 5: Documente su flujo de trabajo
 
@@ -71,6 +69,35 @@ Imagen de https://github.com/raynamharris/FMR1CA1rnaseq-ES
 
 Imagen de https://github.com/raynamharris/FMR1CA1rnaseq-ES
 
+
+# Esperanza: que uses colores personalizados
+
+```{r, out.width = "250px"}
+df <- read.table(header=TRUE, text='
+ cond yval
+    A 2
+    B 2.5
+    C 1.6
+')
+
+one <- ggplot(df, aes(x=cond, y=yval, fill=cond)) + geom_bar(stat="identity")
+
+two <- ggplot(df, aes(x=cond, y=yval, fill=cond)) + geom_bar(stat="identity") + 
+    scale_fill_manual(values=c("red", "green", "blue"))
+
+three <- ggplot(df, aes(x=cond, y=yval, fill=cond)) + geom_bar(stat="identity") + 
+    scale_fill_manual(values=c("#CC6666",  "#66CC99", "#9999CC"))
+
+plot_grid(one,two,three, nrow =1, labels = c("I", "II","III"))
+```
+
+I: predeterminado
+
+II: values=c("red", "green", "blue")
+
+III: values=c("#CC6666",  "#66CC99", "#9999CC")
+
+
 # Consejo 6: Desarrolla tu propia paleta de colores
 
 ![](../figures/talk/colorbrewer.png)
@@ -81,12 +108,6 @@ Imagen de http://colorbrewer2.org/
 # Consejo 7: Leyendas graficas son joyas
 
 ```{r timespent, warning = F, message = F}
-library(tidyverse) # for subsetting data 
-library(car) # for fancy ANOVA
-library(cowplot) # for "easier"" ggplot themes
-library(plyr)
-
-
 behavior <- read.csv("../results/behaviordata.csv", header = T)
 behavior$APA2 <- factor(behavior$APA2, levels = c("yoked-consistent","consistent", "yoked-conflict","conflict")) ## relevel then rename factors treatment
 behavior$Genotype <- factor(behavior$Genotype, levels = c("WT","FMR1KO")) # relevel genotype
@@ -135,3 +156,20 @@ https://cran.r-project.org/web/packages/cowplot/index.html
 
 # Consejo 9: Promover tu trabajo
 
+
+# Consejo 1: Nunca enseñes sola
+
+
+# Consejo 2: Desarrolla lecciones en colaboración
+
+Citation: Devenyi GA, Emonet R, Harris RM, Hertweck KL, Irving D, Milligan I, et al. (2018) Ten simple rules for collaborative lesson development. PLoS Comput Biol 14(3): e1005963. https://doi.org/10.1371/journal.pcbi.1005963
+
+![](../figures/talk/plos.png)
+
+# Les invito ser voluntarias de Software Carpentry como yo 
+
+Desarrollamos lecciones en colaboración y enseñamos talleres en todo el mundo
+
+![](../figures/talk/swc.png)
+
+Imagen de https://software-carpentry.org/

@@ -6,9 +6,11 @@ This research has been written up as a chapter of my doctoral thesis called "Rep
 ## Repository organization and workflow
 
 1. [UNIXworkflow](./UNIXworkflow/) - runs on The Texas Advanced Computing Center's (TACC) cluster 'Stampede'
-2. [data](./data/)
+1. [data](./data/)
 	- mostly raw data and meta data, some results included
-3. [scripts](./scripts/)
+1. [docs](./docs/)
+	- my talk for the R-Ladies Buenos Aires group 
+1. [scripts](./scripts/)
 	- [00_cpfiles.sh](./scripts/00_cpfiles.sh)	- a bash script for copying files into and out of this repo
 	- [01_behavior.md](./scripts/01_behavior.md) - output of a knittable analysis script for wrangling the avoidance behavior  data. The output is use for the `Fig*.Rmd` scripts that accompany each figure 
 		- **Figures** [1](./scripts/Fig1.md), [2](./scripts/Fig2.md), [3](./scripts/Fig3.md), [4](./scripts/Fig4.md), [5](./scripts/Fig5.md), [6](./scripts/Fig6.md), [7](./scripts/Fig7.md) - Because I had so many behavior figures and accompanying statistics, I created a Rmd script containing the code to make the figure and calculate the statistics. The data were generated in 01_behavior.Rmd. 
@@ -17,8 +19,8 @@ This research has been written up as a chapter of my doctoral thesis called "Rep
 	- [04_ephys.Rmd](./scripts/04_ephys.Rmd) - analysis of hippocampal electrophysiology to measure synaptic properties -- note: must be run from the R command line as knitting doesn't currently work well
 	- [05_Ceolin.md](./scripts/05_Ceolin.Rmd) - a **replication** of a recently published paper and a **comparison** to my own data
 	- [06_GO_MWU](./scripts/06_GO_MWU)	- directory with data, code, and results for Gene Ontology analysis
-	 
-5. [results](./results/)
+		 
+1. [results](./results/)
 	- In the R script accompanying this file, [08_results.md](./scripts/08_results.md), I write the results section for my manuscript. 
 	- This document is an executable way for me to keep the results section under version control and with newest version of the figure. 
 	- I alternate between exporting the result to a `md_document` and a `word_document` for writing my thesis

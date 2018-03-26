@@ -3,8 +3,8 @@ title: "Usando y Enseñando R para Investigación Reproducible"
 #subtitle: "mis 10 mejores consejos"
 author: |
   | Rayna M. Harris 
-  | Twitter: @raynamharris
-  | página web: https://raynamharris.github.io
+  | Twitter y Instagram: @raynamharris
+  | Página web: https://raynamharris.github.io
   |
 date: |
   | 27 Marzo 2018
@@ -34,10 +34,9 @@ library(colorblindr) # for color blind test
 # La programación es importante porque permite automatizar tareas.
 
 ![](../figures/10_talk/trabajo-tiempo-8.png){width=75%}
-
 [^3b] 
 
-[^3]: http://www.mclibre.org/consultar/python/otros/lenguajes-programacion.html
+[^3b]: http://www.mclibre.org/consultar/python/otros/lenguajes-programacion.html
 
 # R permite estadísticas reproducibles y visualización de datos
 
@@ -47,15 +46,6 @@ library(colorblindr) # for color blind test
 
 ![](../figures/10_talk/tiempo-02.png){width=75%}
 
-# Mi filosofía
-
-# Mi filosofía
-
->-  Yo creo que todos aprenden más cuando la ciencia y la educación están abiertas
->-  Yo creo que la mejor manera de aprender es enseñando
->-  Recuerda que nadie es re buena al principio, pero todas mejoramos con la práctica
->-  Recuerda que vos podés hacer lo que quieras
-
 # Consejo 1: Use *R Markdown* para reproducibilidad y familiarícese con archivos de texto sin formato
 
 ![](../figures/10_talk/Rmarkdown.png){width=50%}
@@ -63,7 +53,7 @@ library(colorblindr) # for color blind test
 
 [^3]: https://rmarkdown.rstudio.com/authoring_quick_tour.html
 
-# Consejo 4: Usa el control de versiones para colaborar con otros y con vos en el futuro
+# Consejo 2: Usa el control de versiones para colaborar con otros y con vos en el futuro
 
 ![](../figures/10_talk/git-graphic-01.png){width=75%}
 [^4]
@@ -96,7 +86,7 @@ Colorbrewer[^1a] te ayuda a elegir colores amigables para daltónicos
 
 [^1a]: http://colorbrewer2.org/
 
-# Ejemplos de paletas de colores
+# Ejemplos de paletas de colores en `ggplot`
 
 ```{r ejemplo, out.width = "225px"}
 df <- read.table(header=TRUE, text='
@@ -122,18 +112,6 @@ allthree
 -  Basico: `+ scale_fill_manual(values=c("red", "green", "blue"))`
 -  Personalizado: `+ scale_fill_manual(values=c("#d95f02", "#1b9e77", "#7570b3"))`
 
-# Convertir HEX a RGB si fuera necesario
-
-![](../figures/10_talk/orange.png){width=50%}
-
-![](../figures/10_talk/teal.png){width=50%}
-
-
-![](../figures/10_talk/purple.png){width=50%}
-[^1b]
-
-[^1b]: https://www.webpagefx.com/web-design/hex-to-rgb/
-
 # Confirmá que tu paleta es amigable con los daltónicos
 
 colorblindr[^1c] simula deficiencias de visión del color
@@ -144,10 +122,17 @@ p2 <- edit_colors(three, protan)
 p3 <- edit_colors(three, deutan)
 p4 <- edit_colors(three, tritan)
 
-plot_grid(three, p2, p3, p4, labels = c("   original", "    protan", "    deutan", "    tritan"))
+plot_grid(three, p2, p3, p4, labels = c("     original", "      protan", "     deutan", "      tritan"))
 ```
 
 [^1c]: https://github.com/clauswilke/colorblindr
+
+# Tu podés convertir HEX a RGB para usar la misma paletas para las illustraciones
+
+![](../figures/10_talk/talk_colors.png)
+[^1b]
+
+[^1b]: https://www.webpagefx.com/web-design/hex-to-rgb/
 
 # Consejo 5: Usa leyendas gráficas
 
@@ -183,13 +168,13 @@ timespent <- proptime %>%
   theme(legend.title=element_blank()) +
   #theme(legend.position="none") +
   scale_y_continuous(name= "Proporción de tiempo ") +
-  scale_fill_manual(values = c("#d01c8b", "#e5f5e0" ,"#a1d99b", "#31a354")) + 
+  scale_fill_manual(values = c("#de2d26", "#e5f5e0" ,"#a1d99b", "#31a354")) + 
   geom_hline(yintercept=c(0.25,0.50, 0.75), color="black" , linetype="dashed")
 timespent
 ```
 
 >- ¿Qué significa "objetivo", "izquierda", "opuesto" y "derecho"?
->- ¿Por qué el rosa "objetivo"?
+>- ¿Por qué el "objetivo" estaá rojo?
 >- ¿Por qué hay líneas discontinuas?
 
 # Consejo 5: Usa leyendas gráficas
@@ -204,9 +189,9 @@ ggdraw() +
 
 >- "objetivo", "izquierda", etc. son cuadrantes de una arena
 >- Yo quería mostrar un uso desproporcionado del espacio
->- Use **cowplot**[^2] para agregar imágenes dentro de R
+>- Use **cowplot**[^2d] para agregar imágenes dentro de R
 
-[^2]: **cowplot** https://cran.r-project.org/web/packages/cowplot/index.html
+[^2d]: **cowplot** https://cran.r-project.org/web/packages/cowplot/index.html
 
 
 # Punto medio resumen
@@ -217,7 +202,7 @@ ggdraw() +
 - Consejo 4: Desarrolla tu propia paleta de colores
 - Consejo 5: Usa leyendas gráficas
 
-# Software Carpentry aprovecha el diseño colaborativo de lecciones para enseñar las mejores prácticas para la informática
+# Desarrollo de lecciones colaborativas
 
 ![](../figures/10_talk/swc1.png)
 
@@ -267,6 +252,27 @@ ggdraw() +
 
 [^8]: https://software-carpentry.org/workshops/
 
+
+# Resumen
+
+- Consejo 1: Usa *R Markdown* para la reproducibilidad 
+- Consejo 2: Usa el control de versiones para la colaboración
+- Consejo 3: Documenta tu flujo de trabajo
+- Consejo 4: Desarrolla tu propia paleta de colores
+- Consejo 5: Usa leyendas gráficas
+
+
+- Deseo 1: Me ayudás a mejorar las lecciones en español 
+- Deseo 2: Convertirse en una instructora certificada
+- Deseo 3: ¡Asiste a nuestro primer taller de español!
+- Deseo 4: Organizar unos talleres en el futuro
+
+# Pensamiento concluyente
+
+>-  Yo creo que todos aprenden más cuando la ciencia y la educación está abiertas y reproducibles
+>-  Yo creo que la mejor manera de aprender es enseñando
+>-  Recuerda que nadie es re buena al principio, pero todas mejoramos con la práctica
+>-  Recuerda que vos podés hacer lo que quieras
 
 # ¡Gracias por tu atención! ¡Mantengámonos en contacto!
 

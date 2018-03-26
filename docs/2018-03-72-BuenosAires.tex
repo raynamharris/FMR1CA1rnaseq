@@ -77,8 +77,8 @@
 
 \title{Usando y Enseñando R para Investigación Reproducible}
 \author{Rayna M. Harris\\
-Twitter: @raynamharris\\
-página web: \url{https://raynamharris.github.io}\\}
+Twitter y Instagram: @raynamharris\\
+Página web: \url{https://raynamharris.github.io}\\}
 \date{27 Marzo 2018\\
 R-Ladies Buenos Aires}
 
@@ -89,8 +89,7 @@ R-Ladies Buenos Aires}
 tareas.}
 
 \includegraphics[width=0.75000\textwidth]{../figures/10_talk/trabajo-tiempo-8.png}
-
-{[}\^{}3b{]}
+\footnote<.->{\url{http://www.mclibre.org/consultar/python/otros/lenguajes-programacion.html}}
 
 \end{frame}
 
@@ -107,28 +106,6 @@ datos}
 
 \end{frame}
 
-\begin{frame}{Mi filosofía}
-
-\end{frame}
-
-\begin{frame}{Mi filosofía}
-
-\begin{itemize}[<+->]
-\tightlist
-\item
-  Yo creo que todos aprenden más cuando la ciencia y la educación están
-  abiertas
-\item
-  Yo creo que la mejor manera de aprender es enseñando
-\item
-  Recuerda que nadie es re buena al principio, pero todas mejoramos con
-  la práctica
-\item
-  Recuerda que vos podés hacer lo que quieras
-\end{itemize}
-
-\end{frame}
-
 \begin{frame}{Consejo 1: Use \emph{R Markdown} para reproducibilidad y
 familiarícese con archivos de texto sin formato}
 
@@ -137,7 +114,7 @@ familiarícese con archivos de texto sin formato}
 
 \end{frame}
 
-\begin{frame}{Consejo 4: Usa el control de versiones para colaborar con
+\begin{frame}{Consejo 2: Usa el control de versiones para colaborar con
 otros y con vos en el futuro}
 
 \includegraphics[width=0.75000\textwidth]{../figures/10_talk/git-graphic-01.png}
@@ -170,7 +147,8 @@ elegir colores amigables para daltónicos
 
 \end{frame}
 
-\begin{frame}[fragile]{Ejemplos de paletas de colores}
+\begin{frame}[fragile]{Ejemplos de paletas de colores en
+\texttt{ggplot}}
 
 \includegraphics[width=225px]{../figures/10_talk/ejemplo-1}
 
@@ -186,23 +164,19 @@ elegir colores amigables para daltónicos
 
 \end{frame}
 
-\begin{frame}{Convertir HEX a RGB si fuera necesario}
-
-\includegraphics[width=0.50000\textwidth]{../figures/10_talk/orange.png}
-
-\includegraphics[width=0.50000\textwidth]{../figures/10_talk/teal.png}
-
-\includegraphics[width=0.50000\textwidth]{../figures/10_talk/purple.png}
-\footnote<.->{\url{https://www.webpagefx.com/web-design/hex-to-rgb/}}
-
-\end{frame}
-
 \begin{frame}{Confirmá que tu paleta es amigable con los daltónicos}
 
 colorblindr\footnote<.->{\url{https://github.com/clauswilke/colorblindr}}
 simula deficiencias de visión del color
 
 \includegraphics[width=225px]{../figures/10_talk/colorblindgrid-1}
+
+\end{frame}
+
+\begin{frame}{Tu podés convertir HEX a RGB para usar la misma paletas
+para las illustraciones}
+
+\includegraphics{../figures/10_talk/talk_colors.png} \footnote<.->{\url{https://www.webpagefx.com/web-design/hex-to-rgb/}}
 
 \end{frame}
 
@@ -215,7 +189,7 @@ simula deficiencias de visión del color
 \item
   ¿Qué significa ``objetivo'', ``izquierda'', ``opuesto'' y ``derecho''?
 \item
-  ¿Por qué el rosa ``objetivo''?
+  ¿Por qué el ``objetivo'' estaá rojo?
 \item
   ¿Por qué hay líneas discontinuas?
 \end{itemize}
@@ -233,7 +207,8 @@ simula deficiencias de visión del color
 \item
   Yo quería mostrar un uso desproporcionado del espacio
 \item
-  Use \textbf{cowplot}\footnote<.->{\url{https://software-carpentry.org/lessons/}}
+  Use \textbf{cowplot}\footnote<.->{\textbf{cowplot}
+    \url{https://cran.r-project.org/web/packages/cowplot/index.html}}
   para agregar imágenes dentro de R
 \end{itemize}
 
@@ -257,8 +232,7 @@ simula deficiencias de visión del color
 
 \end{frame}
 
-\begin{frame}{Software Carpentry aprovecha el diseño colaborativo de
-lecciones para enseñar las mejores prácticas para la informática}
+\begin{frame}{Desarrollo de lecciones colaborativas}
 
 \includegraphics{../figures/10_talk/swc1.png}
 
@@ -317,6 +291,49 @@ español de Software Carpentry}
 
 \includegraphics[width=0.75000\textwidth]{../figures/10_talk/workshops.png}
 \footnote<.->{\url{https://software-carpentry.org/workshops/}}
+
+\end{frame}
+
+\begin{frame}{Resumen}
+
+\begin{itemize}
+\item
+  Consejo 1: Usa \emph{R Markdown} para la reproducibilidad
+\item
+  Consejo 2: Usa el control de versiones para la colaboración
+\item
+  Consejo 3: Documenta tu flujo de trabajo
+\item
+  Consejo 4: Desarrolla tu propia paleta de colores
+\item
+  Consejo 5: Usa leyendas gráficas
+\item
+  Deseo 1: Me ayudás a mejorar las lecciones en español
+\item
+  Deseo 2: Convertirse en una instructora certificada
+\item
+  Deseo 3: ¡Asiste a nuestro primer taller de español!
+\item
+  Deseo 4: Organizar unos talleres en el futuro
+\end{itemize}
+
+\end{frame}
+
+\begin{frame}{Pensamiento concluyente}
+
+\begin{itemize}[<+->]
+\tightlist
+\item
+  Yo creo que todos aprenden más cuando la ciencia y la educación está
+  abiertas y reproducibles
+\item
+  Yo creo que la mejor manera de aprender es enseñando
+\item
+  Recuerda que nadie es re buena al principio, pero todas mejoramos con
+  la práctica
+\item
+  Recuerda que vos podés hacer lo que quieras
+\end{itemize}
 
 \end{frame}
 

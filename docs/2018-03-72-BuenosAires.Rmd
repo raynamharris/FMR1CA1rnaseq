@@ -21,7 +21,6 @@ output:
       in_header: header_pagenrs.tex
 ---
 
-
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = FALSE,
                       fig.path = '../figures/10_talk/')
@@ -32,35 +31,32 @@ library(plyr) # data wrangling
 library(colorblindr) # for color blind test
 ```
 
-# ¿Quién soy? 
+# La programación es importante porque permite automatizar tareas.
 
-![](../figures/10_talk/twitter.png) 
-[^1]
+![](../figures/10_talk/trabajo-tiempo-8.png){width=50%}
 
-[^1]: https://twitter.com/raynamharris
+[^3b] 
 
+[^3]: http://www.mclibre.org/consultar/python/otros/lenguajes-programacion.html
 
-# Soy voluntaria en Sofware Carpentry
+# R permite estadísticas reproducibles y visualización de datos
 
-![](../figures/10_talk/swc1.png)
+![](../figures/10_talk/tiempo-01.png){width=50%}
 
-![](../figures/10_talk/swc2.png)
+# La enseñanza colaborativa también ahorra tiempo
 
-![](../figures/10_talk/swc3.png)
-[^2]
+![](../figures/10_talk/tiempo-02.png){width=50%}
 
-[^2]: https://software-carpentry.org/lessons/
+# Mi filosofía
 
+# Mi filosofía
 
-# Mis mejores 8 deseos con consejos
-
-# Mis mejores 8 deseos con consejos
-
->-  Pero antes de comenzar...
->-  Recuerda que vos podés hacer lo que quieras
->-  Recuerda que nadie es re buena al principio 
 >-  Yo creo que la mejor manera de aprender es enseñando
 >-  Yo creo que todos aprenden más cuando la ciencia y la educación están abiertas 
+>-  Recuerda que nadie es re buena al principio, pero todas mejoramos con la práctica
+>-  Recuerda que vos podés hacer lo que quieras
+
+
 
 # Deseo 1: Desarrolla tu propia paleta de colores
 
@@ -189,14 +185,6 @@ ggdraw() +
 
 [^3]: https://rmarkdown.rstudio.com/authoring_quick_tour.html
 
-# Pero tenga en cuenta el tiempo pasado
-
-![](../figures/10_talk/trabajo-tiempo-8.png){width=50%}
-
-[^3b] 
-
-[^3]: http://www.mclibre.org/consultar/python/otros/lenguajes-programacion.html
-
 
 # Deseo 4: Usa el control de versiones para colaborar con otros y con vos en el futuro
 
@@ -239,6 +227,17 @@ Porque probablemente sea único y complejo
 # Deseo 6: Me ayudás a mejorar las nuevas lecciones en español de Software Carpentry
 
 ![](../figures/10_talk/R-gapminder-es.png)
+
+# Soy voluntaria en Sofware Carpentry
+
+![](../figures/10_talk/swc1.png)
+
+![](../figures/10_talk/swc2.png)
+
+![](../figures/10_talk/swc3.png)
+[^2]
+
+[^2]: https://software-carpentry.org/lessons/
 
 # Como podés ayudarme
 

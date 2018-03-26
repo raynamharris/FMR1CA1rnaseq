@@ -5,3 +5,5 @@ scripts/06_GO_MWU/*.pdf
 scripts/*.log
 scripts/*html
 figures/talk/*.ai
+figures/10/talk/*ai
+figures/10_talk/*.ai

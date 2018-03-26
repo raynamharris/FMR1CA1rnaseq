@@ -54,7 +54,9 @@ library(colorblindr) # for color blind test
 
 # Mis mejores 8 deseos con consejos
 
->-  Pero antes de comenzar
+# Mis mejores 8 deseos con consejos
+
+>-  Pero antes de comenzar...
 >-  Recuerda que vos podés hacer lo que quieras
 >-  Recuerda que nadie es re buena al principio 
 >-  Yo creo que la mejor manera de aprender es enseñando
@@ -186,6 +188,15 @@ ggdraw() +
 [^3] 
 
 [^3]: https://rmarkdown.rstudio.com/authoring_quick_tour.html
+
+# Pero tenga en cuenta el tiempo pasado
+
+![](../figures/10_talk/trabajo-tiempo-8.png){width=50%}
+
+[^3b] 
+
+[^3]: http://www.mclibre.org/consultar/python/otros/lenguajes-programacion.html
+
 
 # Deseo 4: Usa el control de versiones para colaborar con otros y con vos en el futuro
 

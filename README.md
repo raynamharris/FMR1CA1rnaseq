@@ -1,5 +1,3 @@
-# FMR1CA1rnaseq
-
 ## Repository organization and workflow
 
 1. [UNIXworkflow](./UNIXworkflow/) - runs on The Texas Advanced Computing Center's (TACC) cluster 'Stampede'

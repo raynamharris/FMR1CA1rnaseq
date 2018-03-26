@@ -3,7 +3,7 @@ title: "Usando y Enseñando R para Investigación Reproducible"
 #subtitle: "mis 10 mejores consejos"
 author: |
   | Rayna M. Harris 
-  | Twitter y Instagram: @raynamharris
+  | Twitter y Instagram y GitHub: @raynamharris
   | Página web: https://raynamharris.github.io
   |
 date: |
@@ -109,23 +109,8 @@ allthree
 
 ```
 
--  Basico: `+ scale_fill_manual(values=c("red", "green", "blue"))`
+>-  Basico: `+ scale_fill_manual(values=c("red", "green", "blue"))`
 -  Personalizado: `+ scale_fill_manual(values=c("#d95f02", "#1b9e77", "#7570b3"))`
-
-# Confirmá que tu paleta es amigable con los daltónicos
-
-colorblindr[^1c] simula deficiencias de visión del color
-
-```{r, colorblindgrid, out.width = "225px"}
-
-p2 <- edit_colors(three, protan)
-p3 <- edit_colors(three, deutan)
-p4 <- edit_colors(three, tritan)
-
-plot_grid(three, p2, p3, p4, labels = c("     original", "      protan", "     deutan", "      tritan"))
-```
-
-[^1c]: https://github.com/clauswilke/colorblindr
 
 # Tu podés convertir HEX a RGB para usar la misma paletas para las illustraciones
 
@@ -170,16 +155,7 @@ timespent <- proptime %>%
   scale_y_continuous(name= "Proporción de tiempo ") +
   scale_fill_manual(values = c("#de2d26", "#e5f5e0" ,"#a1d99b", "#31a354")) + 
   geom_hline(yintercept=c(0.25,0.50, 0.75), color="black" , linetype="dashed")
-timespent
-```
 
->- ¿Qué significa "objetivo", "izquierda", "opuesto" y "derecho"?
->- ¿Por qué el "objetivo" estaá rojo?
->- ¿Por qué hay líneas discontinuas?
-
-# Consejo 5: Usa leyendas gráficas
-
-```{r timespent2, warning = F, message = F, fig.height= 5}
 image <- ggdraw() + draw_image("../figures/10_talk/talk_pista.png", scale = 1)
 
 ggdraw() +
@@ -187,8 +163,7 @@ ggdraw() +
   draw_plot(image, x = 0.7, y = 0.5, width = 0.3, height = 0.6)
 ```
 
->- "objetivo", "izquierda", etc. son cuadrantes de una arena
->- Yo quería mostrar un uso desproporcionado del espacio
+>- Leyendas gráficas transmitir más información
 >- Use **cowplot**[^2d] para agregar imágenes dentro de R
 
 [^2d]: **cowplot** https://cran.r-project.org/web/packages/cowplot/index.html
@@ -202,7 +177,7 @@ ggdraw() +
 - Consejo 4: Desarrolla tu propia paleta de colores
 - Consejo 5: Usa leyendas gráficas
 
-# Desarrollo de lecciones colaborativas
+# Desarrollo colaborativo de la lección
 
 ![](../figures/10_talk/swc1.png)
 
@@ -229,8 +204,9 @@ ggdraw() +
 
 # Deseo 2: Convertirse en una instructora certificada
 
-- Ahora, no hay instructoras en Argentina :(
-- Aplicá aquí: http://carpentries.github.io/instructor-training/
+>- Ahora, no hay instructoras en Argentina :(
+>- Aplicá aquí: http://carpentries.github.io/instructor-training/
+>- Usa el **Group Name** "R Ladies Buenos Aires"
 
 ![](../figures/10_talk/joinus.png){width=75%}
 [^7] 
@@ -252,6 +228,12 @@ ggdraw() +
 
 [^8]: https://software-carpentry.org/workshops/
 
+# Deseo 5: Adoptar la práctica del desarrollo colaborativo de lecciones
+
+![](../figures/10_talk/figure1_es.png)
+[^10] 
+
+[^10]: Devenyi et al. 2018 PLOS Comp Bio http://journals.plos.org/ploscompbiol/article?id=10.1371/journal.pcbi.1005963
 
 # Resumen
 
@@ -266,6 +248,8 @@ ggdraw() +
 - Deseo 2: Convertirse en una instructora certificada
 - Deseo 3: ¡Asiste a nuestro primer taller de español!
 - Deseo 4: Organizar unos talleres en el futuro
+- Deseo 5: Adoptar la práctica del desarrollo colaborativo de lecciones
+
 
 # Pensamiento concluyente
 
@@ -276,6 +260,6 @@ ggdraw() +
 
 # ¡Gracias por tu atención! ¡Mantengámonos en contacto!
 
-Twitter: @raynamharris
+Twitter y GitHub y Instrgram: @raynamharris
 
 Email: rayna.harris@gmail.com

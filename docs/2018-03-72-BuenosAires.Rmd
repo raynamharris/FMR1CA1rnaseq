@@ -33,7 +33,7 @@ library(colorblindr) # for color blind test
 
 # La programación es importante porque permite automatizar tareas.
 
-![](../figures/10_talk/trabajo-tiempo-8.png){width=50%}
+![](../figures/10_talk/trabajo-tiempo-8.png){width=75%}
 
 [^3b] 
 
@@ -41,24 +41,54 @@ library(colorblindr) # for color blind test
 
 # R permite estadísticas reproducibles y visualización de datos
 
-![](../figures/10_talk/tiempo-01.png){width=50%}
+![](../figures/10_talk/tiempo-01.png){width=75%}
 
 # La enseñanza colaborativa también ahorra tiempo
 
-![](../figures/10_talk/tiempo-02.png){width=50%}
+![](../figures/10_talk/tiempo-02.png){width=75%}
 
 # Mi filosofía
 
 # Mi filosofía
 
+>-  Yo creo que todos aprenden más cuando la ciencia y la educación están abiertas
 >-  Yo creo que la mejor manera de aprender es enseñando
->-  Yo creo que todos aprenden más cuando la ciencia y la educación están abiertas 
 >-  Recuerda que nadie es re buena al principio, pero todas mejoramos con la práctica
 >-  Recuerda que vos podés hacer lo que quieras
 
+# Consejo 1: Use *R Markdown* para reproducibilidad y familiarícese con archivos de texto sin formato
+
+![](../figures/10_talk/Rmarkdown.png){width=50%}
+[^3] 
+
+[^3]: https://rmarkdown.rstudio.com/authoring_quick_tour.html
+
+# Consejo 4: Usa el control de versiones para colaborar con otros y con vos en el futuro
+
+![](../figures/10_talk/git-graphic-01.png){width=75%}
+[^4]
+
+[^4]: http://technetnepal.net/blogs/shirishamaharjan/archive/2017/05/07/expand-horizons-change-attitudes-git-and-github-workshop.aspx
 
 
-# Deseo 1: Desarrolla tu propia paleta de colores
+# Consejo 3: Documenta tu flujo de trabajo
+
+Porque probablemente sea único y complejo
+
+![](https://www.blogdelfotografo.com/wp-content/uploads/2016/05/mark-516279_1920.jpg){width=75%}
+[^5a]
+
+[^5a]: https://www.blogdelfotografo.com/workflow-flujo-trabajo-foto/
+
+# Ejemplo de archivo README.md
+
+![](../figures/10_talk/Rworkflow.png){width=75%}
+[^5b]
+
+[^5b]:  https://github.com/raynamharris/FMR1CA1rnaseq
+
+
+# Consejo 4: Desarrolla tu propia paleta de colores
 
 Colorbrewer[^1a] te ayuda a elegir colores amigables para daltónicos
 
@@ -119,7 +149,7 @@ plot_grid(three, p2, p3, p4, labels = c("   original", "    protan", "    deutan
 
 [^1c]: https://github.com/clauswilke/colorblindr
 
-# Deseo 2: Usa leyendas gráficas
+# Consejo 5: Usa leyendas gráficas
 
 ```{r timespent, warning = F, message = F, fig.height= 5}
 behavior <- read.csv("../results/behaviordata.csv", header = T)
@@ -162,7 +192,7 @@ timespent
 >- ¿Por qué el rosa "objetivo"?
 >- ¿Por qué hay líneas discontinuas?
 
-# Deseo 2: Usa leyendas gráficas
+# Consejo 5: Usa leyendas gráficas
 
 ```{r timespent2, warning = F, message = F, fig.height= 5}
 image <- ggdraw() + draw_image("../figures/10_talk/talk_pista.png", scale = 1)
@@ -178,57 +208,16 @@ ggdraw() +
 
 [^2]: **cowplot** https://cran.r-project.org/web/packages/cowplot/index.html
 
-# Deseo 3: Usa *R Markdown* para la reproducibilidad 
-
-![](../figures/10_talk/Rmarkdown.png){width=50%}
-[^3] 
-
-[^3]: https://rmarkdown.rstudio.com/authoring_quick_tour.html
-
-
-# Deseo 4: Usa el control de versiones para colaborar con otros y con vos en el futuro
-
-![](../figures/10_talk/git-graphic-01.png){width=75%}
-[^4]
-
-[^4]: http://technetnepal.net/blogs/shirishamaharjan/archive/2017/05/07/expand-horizons-change-attitudes-git-and-github-workshop.aspx
-
-
-# Deseo 5: Documenta tu flujo de trabajo
-
-Porque probablemente sea único y complejo
-
-![](https://www.blogdelfotografo.com/wp-content/uploads/2016/05/mark-516279_1920.jpg){width=75%}
-[^5a]
-
-[^5a]: https://www.blogdelfotografo.com/workflow-flujo-trabajo-foto/
-
-# Por ejemplo, podés enumerar los comandos por orden de operación
-
-![](../figures/10_talk/unixworkflow.png){width=75%}
-[^5b]
-
-[^5b]:  https://github.com/raynamharris/FMR1CA1rnaseq
-
-# Probá múltiples estrategias de organización y hace lo que funcione mejor para vos
-
-![](../figures/10_talk/Rworkflow.png){width=75%}
-[^5b]
-
 
 # Punto medio resumen
 
-- Deseo 1: Desarrolla tu propia paleta de colores
-- Deseo 2: Usa leyendas gráficas
-- Deseo 3: Usa *R Markdown* para la reproducibilidad 
-- Deseo 4: Usa el control de versiones para la colaboración
-- Deseo 5: Documenta tu flujo de trabajo
+- Consejo 1: Usa *R Markdown* para la reproducibilidad 
+- Consejo 2: Usa el control de versiones para la colaboración
+- Consejo 3: Documenta tu flujo de trabajo
+- Consejo 4: Desarrolla tu propia paleta de colores
+- Consejo 5: Usa leyendas gráficas
 
-# Deseo 6: Me ayudás a mejorar las nuevas lecciones en español de Software Carpentry
-
-![](../figures/10_talk/R-gapminder-es.png)
-
-# Soy voluntaria en Sofware Carpentry
+# Software Carpentry aprovecha el diseño colaborativo de lecciones para enseñar las mejores prácticas para la informática
 
 ![](../figures/10_talk/swc1.png)
 
@@ -238,6 +227,10 @@ Porque probablemente sea único y complejo
 [^2]
 
 [^2]: https://software-carpentry.org/lessons/
+
+# Deseo 1: Me ayudás a mejorar las nuevas lecciones en español de Software Carpentry
+
+![](../figures/10_talk/R-gapminder-es.png)
 
 # Como podés ayudarme
 
@@ -249,7 +242,7 @@ Porque probablemente sea único y complejo
 [^6b]: https://carpentries.github.io/2018-04-bug-bbq/ 
 [^6c]: https://www.youtube.com/watch?v=rQkfLaTdAvw
 
-# Deseo 7: Convertirse en una instructora certificada
+# Deseo 2: Convertirse en una instructora certificada
 
 - Ahora, no hay instructoras en Argentina :(
 - Aplicá aquí: http://carpentries.github.io/instructor-training/
@@ -259,7 +252,15 @@ Porque probablemente sea único y complejo
 
 [^7]: https://software-carpentry.org/team/
 
-# Deseo 8: Organizar y/o asistir a un taller
+
+# Deseo 3: ¡Asiste a nuestro primer taller de español!
+
+![](../figures/10_talk/BAtaller.png){width=75%}
+[^9] 
+
+[^9]: https://raynamharris.github.io/2018-04-07-BuenosAires/
+
+# Deseo 4: Organizar unos talleres en el futuro
 
 ![](../figures/10_talk/workshops.png){width=75%}
 [^8] 

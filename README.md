@@ -1,8 +1,5 @@
 # FMR1CA1rnaseq
 
-## The forthcoming manuscript
-This research has been written up as a chapter of my doctoral thesis called "Reproducible approaches for studying behavior and transcription in a mouse model for autism". It will be modified before submitting to a jounral for peer review and publishing. Stayed tuned for citation details and links. The current draft can be found here: [https://raynamharris.github.io/Thesis/02_fmr1](https://raynamharris.github.io/Thesis/02_fmr1).
-
 ## Repository organization and workflow
 
 1. [UNIXworkflow](./UNIXworkflow/) - runs on The Texas Advanced Computing Center's (TACC) cluster 'Stampede'
@@ -27,6 +24,9 @@ This research has been written up as a chapter of my doctoral thesis called "Rep
 
 - NCBI: The raw sequencing data, the counts matrix, and meta data at https://www.ncbi.nlm.nih.gov/geo/query/acc.cgi?acc=GSE106595
 - GitHub: A collection of RNA-seq datasets listed by GEO accession number https://github.com/raynamharris/MouseHippocampusRNAseqData
+
+## The forthcoming manuscript
+This research has been written up as a chapter of my doctoral thesis called "Reproducible approaches for studying behavior and transcription in a mouse model for autism". It will be modified before submitting to a jounral for peer review and publishing. Stayed tuned for citation details and links. The current draft can be found here: [https://raynamharris.github.io/Thesis/02_fmr1](https://raynamharris.github.io/Thesis/02_fmr1).
 
 ## Citation 
 

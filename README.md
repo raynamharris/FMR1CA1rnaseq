@@ -6,10 +6,8 @@ This research has been written up as a chapter of my doctoral thesis called "Rep
 ## Repository organization and workflow
 
 1. [UNIXworkflow](./UNIXworkflow/) - runs on The Texas Advanced Computing Center's (TACC) cluster 'Stampede'
-1. [data](./data/)
-	- mostly raw data and meta data, some results included
-1. [docs](./docs/)
-	- my talk for the R-Ladies Buenos Aires group 
+1. [data](./data/) - mostly raw data and meta data, some results included
+1. [docs](./docs/) - my talk for the R-Ladies Buenos Aires group 
 1. [scripts](./scripts/)
 	- [00_cpfiles.sh](./scripts/00_cpfiles.sh)	- a bash script for copying files into and out of this repo
 	- [01_behavior.md](./scripts/01_behavior.md) - output of a knittable analysis script for wrangling the avoidance behavior  data. The output is use for the `Fig*.Rmd` scripts that accompany each figure 

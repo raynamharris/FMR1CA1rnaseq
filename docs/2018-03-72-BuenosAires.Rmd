@@ -109,7 +109,7 @@ allthree
 
 ```
 
->-  Basico: `+ scale_fill_manual(values=c("red", "green", "blue"))`
+-  Basico: `+ scale_fill_manual(values=c("red", "green", "blue"))`
 -  Personalizado: `+ scale_fill_manual(values=c("#d95f02", "#1b9e77", "#7570b3"))`
 
 # Tu podés convertir HEX a RGB para usar la misma paletas para las illustraciones

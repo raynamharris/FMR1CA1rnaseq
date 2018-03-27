@@ -15,7 +15,7 @@ output:
     fig_caption: no
     font: structurebold
     #incremental: true
-    keep_tex: true
+    #keep_tex: true
     md_extensions: +footnotes
     includes:
       in_header: header_pagenrs.tex
@@ -29,6 +29,7 @@ library(car) # for fancy ANOVA
 library(cowplot) # for "easier"" ggplot themes
 library(plyr) # data wrangling
 library(colorblindr) # for color blind test
+
 ```
 
 # La programación es importante porque permite automatizar tareas.
@@ -42,11 +43,11 @@ library(colorblindr) # for color blind test
 
 ![](../figures/10_talk/tiempo-01.png){width=75%}
 
-# La enseñanza colaborativa también ahorra tiempo
+# La enseñanza colaborativa también ahorra tiempo con una mayor cantidad de trabajo
 
 ![](../figures/10_talk/tiempo-02.png){width=75%}
 
-# Consejo 1: Use *R Markdown* para reproducibilidad y familiarícese con archivos de texto sin formato
+# Consejo 1: Usa **R Markdown** para crear y compartir documentos
 
 ![](../figures/10_talk/Rmarkdown.png){width=50%}
 [^3] 
@@ -59,7 +60,6 @@ library(colorblindr) # for color blind test
 [^4]
 
 [^4]: http://technetnepal.net/blogs/shirishamaharjan/archive/2017/05/07/expand-horizons-change-attitudes-git-and-github-workshop.aspx
-
 
 # Consejo 3: Documenta tu flujo de trabajo
 
@@ -171,7 +171,7 @@ ggdraw() +
 
 # Punto medio resumen
 
-- Consejo 1: Usa *R Markdown* para la reproducibilidad 
+- Consejo 1: Usa **R Markdown** para crear y compartir documentos
 - Consejo 2: Usa el control de versiones para la colaboración
 - Consejo 3: Documenta tu flujo de trabajo
 - Consejo 4: Desarrolla tu propia paleta de colores
@@ -200,7 +200,7 @@ ggdraw() +
 
 [^6a]: https://swcarpentry.github.io/r-novice-gapminder-es/
 [^6b]: https://carpentries.github.io/2018-04-bug-bbq/ 
-[^6c]: https://www.youtube.com/watch?v=rQkfLaTdAvw
+[^6c]: https://www.youtube.com/watch?v=bXxBeNkKmJE&list=PLNfIROxhN1JAtIbzNqSoFODe0Z_WSVL4D
 
 # Deseo 2: Convertirse en una instructora certificada
 
@@ -242,8 +242,7 @@ ggdraw() +
 - Consejo 3: Documenta tu flujo de trabajo
 - Consejo 4: Desarrolla tu propia paleta de colores
 - Consejo 5: Usa leyendas gráficas
-
-
+-
 - Deseo 1: Me ayudás a mejorar las lecciones en español 
 - Deseo 2: Convertirse en una instructora certificada
 - Deseo 3: ¡Asiste a nuestro primer taller de español!
@@ -260,6 +259,13 @@ ggdraw() +
 
 # ¡Gracias por tu atención! ¡Mantengámonos en contacto!
 
-Twitter y GitHub y Instrgram: @raynamharris
-
 Email: rayna.harris@gmail.com
+
+Twitter y GitHub y Instrgram y Speaker Deck: @raynamharris
+
+Diapositivas acá[^11a] y acá[^11b] 
+
+[^11a]: https://github.com/raynamharris/FMR1CA1rnaseq
+[^11b]:https://speakerdeck.com/raynamharris/
+
+

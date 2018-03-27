@@ -257,7 +257,7 @@ ggdraw() +
 >-  Recuerda que nadie es re buena al principio, pero todas mejoramos con la práctica
 >-  Recuerda que vos podés hacer lo que quieras
 
-# ¡Gracias por tu atención! ¡Mantengámonos en contacto!
+# ¡Gracias por tu atención y ayuda! ¡Mantengámonos en contacto!
 
 Email: rayna.harris@gmail.com
 

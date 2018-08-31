@@ -8,7 +8,7 @@ author: |
   |
 date: |
   | 4 Septiembre 2018
-  | R-Ladies Buenos Aires
+  | LatinR, Buenos Aires
 output:
   beamer_presentation:
     color: seahorse
@@ -39,29 +39,54 @@ knitr::opts_chunk$set(echo = FALSE,
 
 
 
-
-# Desarrollo colaborativo de la lección
+# Software Carpentry and Data Carpentry
 
 ![](../figures/10_talk/swc1.png)
 
-![](../figures/10_talk/swc4.png)
-[^2]
+![](../figures/10_talk/dc-1.png)
 
-[^2]: https://software-carpentry.org/lessons/
+![](../figures/10_talk/carpentries-1.png)
 
-# Las materials está abierta y disponible bajo la licencia Creative Commons Attribution 
-
-![](../figures/10_talk/R-gapminder-es.png)
 
 # La enseñanza colaborativa también ahorra tiempo con una mayor cantidad de trabajo
 
 ![](../figures/10_talk/tiempo-02.png){width=75%}
 
 
-# Convertirse en una instructora certificada
 
+# Desarrollo colaborativo de la lección
+
+![](../figures/10_talk/swc4.png)
+[^2]
+
+[^2]: https://software-carpentry.org/lessons/
+
+
+# Las materials está abierta y disponible bajo la licencia Creative Commons Attribution 
+
+![](../figures/10_talk/R-gapminder-es.png)
+
+
+# La práctica del desarrollo colaborativo de lecciones
+
+![](../figures/10_talk/figure1_es.png)
+
+[^10] 
+
+[^10]: Devenyi et al. 2018 PLOS Comp Bio http://journals.plos.org/ploscompbiol/article?id=10.1371/journal.pcbi.1005963
+
+
+# Además, enseñamos cómo enseñar mejor
 
 >- Taller mananña: http://latin-r.com/cronograma/#session-25
+![](../figures/10_talk/LatinRtaller.png){width=75%}
+[^9] 
+
+[^9]: https://raynamharris.github.io/2018-08-18-ttt-LatinAmerica/
+
+
+# Hay instructoras certificadas en todo casi todo el mundo
+
 >- Aplicá aquí: http://carpentries.github.io/instructor-training/
 >- Usa el **Group Name** "LatinR"
 
@@ -79,22 +104,6 @@ knitr::opts_chunk$set(echo = FALSE,
 [^8]: https://software-carpentry.org/workshops/
 
 
-# Deseo 5: Adoptar la práctica del desarrollo colaborativo de lecciones
-
-![](../figures/10_talk/figure1_es.png)
-
-[^10] 
-
-[^10]: Devenyi et al. 2018 PLOS Comp Bio http://journals.plos.org/ploscompbiol/article?id=10.1371/journal.pcbi.1005963
-
-# Además, enseñamos cómo enseñar mejor
-
-![](../figures/10_talk/LatinRtaller.png){width=75%}
-[^9] 
-
-[^9]: https://raynamharris.github.io/2018-08-18-ttt-LatinAmerica/
-
-
 # Pensamiento concluyente
 
 >-  Yo creo que todos aprenden más cuando la ciencia y la educación está abiertas y reproducibles
@@ -103,9 +112,9 @@ knitr::opts_chunk$set(echo = FALSE,
 
 # ¡Gracias por tu atención y ayuda! ¡Mantengámonos en contacto!
 
-Email: rayna.harris@gmail.com
+Rayna M. Harris @raynamharris
 
-Twitter y GitHub y Instrgram y Speaker Deck: @raynamharris
+Florencia D'Andrea @FlorciDAndrea
 
 Diapositivas acá[^11a] y acá[^11b] 
 

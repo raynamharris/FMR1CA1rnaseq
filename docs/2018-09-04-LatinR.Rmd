@@ -4,7 +4,7 @@ title: "Panel de comunidades 4: Desarrollo de recursos - The Carpentries"
 author: |
   | Rayna M. Harris @raynamharris
   |  
-  | Florencia D'Andrea @FlorciDAndrea
+  | Florencia D'Andrea @cantoflor_87
   |
 date: |
   | 4 Septiembre 2018
@@ -26,14 +26,14 @@ knitr::opts_chunk$set(echo = FALSE,
                       fig.path = '../figures/10_talk/')
 ```
 
-# La programación es importante porque permite automatizar tareas.
+# La programación es importante porque nos permite automatizar tareas.
 
 ![](../figures/10_talk/trabajo-tiempo-8.png){width=75%}
 [^3b] 
 
 [^3b]: http://www.mclibre.org/consultar/python/otros/lenguajes-programacion.html
 
-# R permite estadísticas reproducibles y visualización de datos
+# R permite generar estadísticas reproducibles y visualizar datos
 
 ![](../figures/10_talk/tiempo-01.png){width=75%}
 
@@ -48,7 +48,7 @@ knitr::opts_chunk$set(echo = FALSE,
 ![](../figures/10_talk/carpentries-1.png)
 
 
-# La enseñanza colaborativa también ahorra tiempo con una mayor cantidad de trabajo
+# La enseñanza colaborativa también ahorra tiempo, ya que implica una menor cantidad de trabajo
 
 ![](../figures/10_talk/tiempo-02.png){width=75%}
 
@@ -62,12 +62,12 @@ knitr::opts_chunk$set(echo = FALSE,
 [^2]: https://software-carpentry.org/lessons/
 
 
-# Las materials está abierta y disponible bajo la licencia Creative Commons Attribution 
+# Los materiales se encuentran abiertos y disponibles bajo la licencia Creative Commons Attribution 
 
 ![](../figures/10_talk/R-gapminder-es.png)
 
 
-# La práctica del desarrollo colaborativo de lecciones
+# ¿Cómo desarrollamos las lecciones de forma colaborativa?
 
 ![](../figures/10_talk/figure1_es.png)
 
@@ -104,17 +104,17 @@ knitr::opts_chunk$set(echo = FALSE,
 [^8]: https://software-carpentry.org/workshops/
 
 
-# Pensamiento concluyente
+# Algunos pensamientos para concluir
 
->-  Yo creo que todos aprenden más cuando la ciencia y la educación está abiertas y reproducibles
->-  Yo creo que la mejor manera de aprender es enseñando
+>-  Creo que todos aprenden más cuando la ciencia y la educación son abiertas y reproducibles
+>-  La mejor manera de aprender es enseñando
 >-  Recuerda que nadie es re buena al principio, pero todas mejoramos con la práctica
 
-# ¡Gracias por tu atención y ayuda! ¡Mantengámonos en contacto!
+# ¡Gracias por tu atención! ¡Mantengámonos en contacto!
 
 Rayna M. Harris @raynamharris
 
-Florencia D'Andrea @FlorciDAndrea
+Florencia D'Andrea @cantoflor_87
 
 Diapositivas acá[^11a] y acá[^11b] 
 

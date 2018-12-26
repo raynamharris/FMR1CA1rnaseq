@@ -4,10 +4,10 @@ resvals <- function(contrastvector, mypval){
   #print(sumpvalue)
   sumpadj <- sum(res$padj < mypval, na.rm = TRUE)
   print(sumpadj)
-  vals <- cbind(res$pvalue, res$padj)
+  vals <- cbind(res$pvalue, res$padj, res$log2FoldChange)
   pvalcolname <- as.character(paste("pval",contrastvector[1],contrastvector[2],contrastvector[3], sep=""))
   padjcolname <- as.character(paste("padj",contrastvector[1],contrastvector[2],contrastvector[3], sep=""))
-  colnames(vals) <- c(pvalcolname, padjcolname)
+  colnames(vals) <- c(pvalcolname, padjcolname, "log2FoldChange")
   return(vals)
 }
 

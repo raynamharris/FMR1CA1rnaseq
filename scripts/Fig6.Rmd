@@ -14,7 +14,10 @@ library(dplyr) # for subsetting data
 library(car) # for fancy ANOVA
 library(ggplot2) # for plotting
 library(cowplot) # for "easier"" ggplot themes
+library(plotly)
+```
 
+```{r figsetting}
 knitr::opts_chunk$set(fig.path = '../figures/01_behavior/')
 
 colorvalAPA2 <-  c( "#404040","#ca0020", "#bababa", "#f4a582")
@@ -58,9 +61,13 @@ conflictnum <- PathNum  %>%
   scale_shape_manual(values=c(16,1)) 
 conflictnum
 
+ggplotly(conflictnum)
+
 pdf(file="../figures/01_behavior/conflictnum.pdf", width=1.5, height=2)
 plot(conflictnum)
 dev.off()
+
+
 ```
 
 Fig 6B

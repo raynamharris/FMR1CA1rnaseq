@@ -193,10 +193,21 @@ DEGes <- cbind(DEGes, contrast1)
 DEGes <- as.data.frame(DEGes) # convert matrix to dataframe
 DEGes$rownames <- rownames(DEGes)  # add the rownames to the dataframe
 
+coelinDEGs <-  DEGes %>%
+  select("pvalgenotypeFMR1WT", "padjgenotypeFMR1WT","log2FoldChange", "rownames")
+
+coelinDEGs <- na.omit(coelinDEGs)
+head(coelinDEGs)
+
+write.csv(coelinDEGs, "../data/coelinDEGs.csv", row.names = T)
+
+```
+
+```{r heatmap}
 DEGes <- DEGes %>% filter(padjgenotypeFMR1WT < 0.01)
 
 rownames(DEGes) <- DEGes$rownames
-drop.cols <-colnames(DEGes[,grep("padj|pval|rownames", colnames(DEGes))])
+drop.cols <-colnames(DEGes[,grep("padj|pval|rownames|log2FoldChange", colnames(DEGes))])
 DEGes <- DEGes %>% select(-one_of(drop.cols))
 DEGes <- as.matrix(DEGes)
 DEGes <- DEGes - rowMeans(DEGes)
@@ -266,20 +277,16 @@ res <- results(dds, contrast =c("genotype", "FMR1", "WT"), independentFiltering 
 summary(res)
 resOrdered <- res[order(res$padj),]
 head(resOrdered, 10)
-data <- data.frame(gene = row.names(res), pvalue = -log10(res$padj), lfc = res$log2FoldChange)
+data <- data.frame(gene = row.names(res), pvalue = -log10(res$pvalue), lfc = res$log2FoldChange)
 data <- na.omit(data)
 
 data$wrap <- "Reproduction"
 data <- data %>%
-  mutate(color = ifelse(data$lfc > 0 & data$pvalue > 2, 
+  mutate(color = ifelse(data$lfc > 1.5 & data$pvalue > 2, 
                         yes = "FMR1", 
-                        no = ifelse(data$lfc < 0 & data$pvalue > 2, 
+                        no = ifelse(data$lfc < -1.5 & data$pvalue > 2, 
                                     yes = "WT", 
                                     no = "none")))
-top_labelled <- top_n(data, n = 5, wt = pvalue)
-
-topGene <- rownames(res)[which.min(res$padj)]
-plotCounts(dds, gene = topGene, intgroup=c("genotype"))
 
 # Color corresponds to fold change directionality
 
@@ -299,9 +306,9 @@ volcano <- ggplot(data, aes(x = lfc, y = pvalue)) +
   facet_wrap(~wrap)
 volcano
 
-pdf(file="../figures/05_Ceolin/volcano.pdf", width=1.25, height=1.7)
-plot(volcano)
-dev.off()
+#pdf(file="../figures/05_Ceolin/volcano.pdf", width=1.25, height=1.7)
+#plot(volcano)
+#dev.off()
 
 ```
 

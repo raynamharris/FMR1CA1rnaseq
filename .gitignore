@@ -8,3 +8,6 @@ figures/talk/*.ai
 figures/10/talk/*ai
 figures/10_talk/*.ai
 figures/10_talk/talk.ai
+.Rproj.user
+.DS_Store
+figures/.DS_Store

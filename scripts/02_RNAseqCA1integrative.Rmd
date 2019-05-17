@@ -1,6 +1,6 @@
 ---
 title: "Untitled"
-output: html_document
+output: md_document
 ---
 
 ```{r setup, include=FALSE}
@@ -9,6 +9,8 @@ library(DESeq2)
 library(tidyverse)
 library(viridis)
 library(cowplot)
+
+knitr::opts_chunk$set(fig.path = '../figures/02_RNAseqCA1integrative/')
 ```
 
 ## CA1 setup for deseq

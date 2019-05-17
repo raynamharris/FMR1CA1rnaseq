@@ -126,17 +126,19 @@ PCA12 <- ggplot(pcadata, aes(PC1, PC2, shape = Genotype, color = Genotype)) +
     ylab(paste0("PC2: ", percentVar[2],"% variance")) +
     scale_color_manual(values =c("#404040", "#404040")) +
     theme_cowplot(font_size = 8, line_size = 0.25)  +
-    theme(legend.position="none") +
+    theme(legend.position="bottom") +
+  stat_ellipse(aes(linetype = Genotype)) +
     scale_shape_manual(values=c(16, 1)) 
 PCA12
 
 PCA14 <- ggplot(pcadata, aes(PC1, PC4, shape = Genotype, color = Genotype)) + 
   geom_point(size = 3, alpha = 1) +
     xlab(paste0("PC1: ", percentVar[1],"% variance")) +
-    ylab(paste0("PC2: ", percentVar[4],"% variance")) +
+    ylab(paste0("PC4: ", percentVar[4],"% variance")) +
     scale_color_manual(values =c("#404040", "#404040")) +
     theme_cowplot(font_size = 8, line_size = 0.25)  +
-    theme(legend.position="none") +
+    theme(legend.position="bottom") +
+  stat_ellipse(aes(linetype = Genotype)) +
     scale_shape_manual(values=c(16, 1)) 
 PCA14
 
@@ -181,22 +183,29 @@ data <- data %>%
                                     yes = "WT", no = "none")))
 
 FMR1volcano <- ggplot(data, aes(x = lfc, y = pvalue)) + 
-  geom_point(aes(color = factor(color), shape = factor(color)), size = 1, alpha = 0.8, na.rm = T) + # add gene points
+  geom_point(aes(color = factor(color), shape = factor(color)), size = 3, alpha = 0.8, na.rm = T) + # add gene points
   theme_cowplot(font_size = 8, line_size = 0.25) +
   geom_hline(yintercept = 1,  size = 0.25, linetype = 2) + 
   scale_color_manual(values = c("black", "grey", "black"))  + 
   scale_shape_manual(values = c(1,16,16))  + 
   xlab(paste0("Log Fold Change")) +       
   ylab(paste0("-log(p-value)")) + 
-    scale_x_continuous( limits=c(-2, 2)) +
+    #scale_x_continuous( limits=c(-2, 2)) +
   theme(panel.grid.minor=element_blank(),
-        legend.position = "none", # remove legend 
-        panel.grid.major=element_blank())
+        legend.position = "bottom", # remove legend 
+        panel.grid.major=element_blank()) +
+  scale_y_log10()
 FMR1volcano
 
 pdf(file="../figures/02_RNAseq/FMR1volcano.pdf", width=2, height=2)
 plot(FMR1volcano)
 dev.off()
+
+plot_grid(PCA12, FMR1volcano)
+
+
+# log transformed pvalues and lfc for significant genes
+data %>% filter(color != "none") %>% arrange(color, gene)
 
 ```
 
@@ -218,6 +227,7 @@ GOpvals <- GOpvals %>%
 GOpvals$logP <- log(GOpvals$pvalGenotypeFMR1WT)
 GOpvals <- GOpvals %>%
   select(gene, logP)
+head(GOpvals)
 
 write.csv(GOpvals, "./06_GO_MWU/GenotypeFMR1KOWT_GOpvals.csv", row.names = F)
 ```
@@ -236,7 +246,7 @@ write.csv(as.data.frame(DEGes), "../results/02_DEGes.csv", row.names = F)
 # create new col with min padj
 DEGes <- DEGes %>% filter(padjmin < 0.1)
 rownames(DEGes) <- DEGes$rownames
-drop.cols <-colnames(DEGes[,grep("padj|pval|rownames", colnames(DEGes))])
+drop.cols <-colnames(DEGes[,grep("padj|pval|rownames|log2FoldChange", colnames(DEGes))])
 DEGes <- DEGes %>% dplyr::select(-one_of(drop.cols))
 DEGes <- as.matrix(DEGes)
 DEGes <- DEGes - rowMeans(DEGes)
@@ -307,22 +317,6 @@ pheatmap(DEGes, show_colnames=F, show_rownames = T,
 ```
 
 
-## Venn Diagram of both study's DEGS
-
-```{r venn}
-contrast1 <- resvals(contrastvector = c("Genotype", "FMR1", "WT"), mypval = 0.1) # 11
-
-#create a new DF with the gene counts
-rldpvals <- assay(rld)
-rldpvals <- cbind(rldpvals, contrast1)
-rldpvals <- as.data.frame(rldpvals)
-rldpvals <- rldpvals[ , grepl( "padj|pval" , names( rldpvals ) ) ]
-names(rldpvals)
-
-# venn with padj values
-venn1 <- row.names(rldpvals[rldpvals[2] <0.1 & !is.na(rldpvals[2]),])
-
-```
 
 
 ```{r multiqc}
@@ -359,5 +353,4 @@ write.csv(vsd, file = "../results/02_vsd.csv", row.names = T)
 write.csv(rlddf, file = "../results/02_rlddf.csv", row.names = T)
 write.csv(colData, file = "../results/02_colData.csv", row.names = T)
 write.csv(data, file = "../results/FMR1_CA1_rnaseq.csv", row.names = F)
-write.csv(venn1, file = "../results/FMR1_CA1_venn1.csv", row.names = F)
 ```

@@ -1,9 +1,11 @@
 RNAseq gene expression analysis with DESeq2
 -------------------------------------------
 
-This workflow was modified from the DESeq2 tutorial found at: <https://www.bioconductor.org/packages/release/bioc/vignettes/DESeq2/inst/doc/DESeq2.pdf>
+This workflow was modified from the DESeq2 tutorial found at:
+<a href="https://www.bioconductor.org/packages/release/bioc/vignettes/DESeq2/inst/doc/DESeq2.pdf" class="uri">https://www.bioconductor.org/packages/release/bioc/vignettes/DESeq2/inst/doc/DESeq2.pdf</a>
 
-First I load a handful of packages for data wrangling, gene expression analysis, data visualization, and statistics.
+First I load a handful of packages for data wrangling, gene expression
+analysis, data visualization, and statistics.
 
 ``` r
 library(dplyr) ## for filtering and selecting rows
@@ -24,7 +26,9 @@ source("functions_RNAseq.R")
 knitr::opts_chunk$set(fig.path = '../figures/02_RNAseq/')
 ```
 
-We are ready to calculate differential gene expression using the DESeq package. For simplicity, I will use the standard nameing of "countData" and "colData" for the gene counts and gene information, respectively.
+We are ready to calculate differential gene expression using the DESeq
+package. For simplicity, I will use the standard nameing of “countData”
+and “colData” for the gene counts and gene information, respectively.
 
 ``` r
 colData <- read.csv("../data/fmr1ColData.csv", header = T)
@@ -171,39 +175,39 @@ percentVar <- round(100 * attr(pcadata, "percentVar"))
 percentVar
 ```
 
-    ## [1] 54 16  9  5  3  2  2  2  2
+    ## [1] 56 15  9  5  2  2  2  2  2
 
 ``` r
 summary(aov(PC1 ~ Genotype, data=pcadata)) 
 ```
 
     ##             Df Sum Sq Mean Sq F value Pr(>F)
-    ## Genotype     1   54.8   54.82   1.163  0.299
-    ## Residuals   14  660.0   47.14
+    ## Genotype     1   60.6   60.58   1.186  0.295
+    ## Residuals   14  715.2   51.08
 
 ``` r
 summary(aov(PC2 ~ Genotype, data=pcadata)) 
 ```
 
     ##             Df Sum Sq Mean Sq F value Pr(>F)
-    ## Genotype     1   28.2   28.20   2.197   0.16
-    ## Residuals   14  179.7   12.84
+    ## Genotype     1  25.58   25.58   1.959  0.183
+    ## Residuals   14 182.77   13.05
 
 ``` r
 summary(aov(PC3 ~ Genotype, data=pcadata)) 
 ```
 
     ##             Df Sum Sq Mean Sq F value Pr(>F)
-    ## Genotype     1  14.66  14.661   1.992   0.18
-    ## Residuals   14 103.07   7.362
+    ## Genotype     1  17.87  17.869   2.488  0.137
+    ## Residuals   14 100.54   7.181
 
 ``` r
 summary(aov(PC4 ~ Genotype, data=pcadata)) 
 ```
 
     ##             Df Sum Sq Mean Sq F value Pr(>F)
-    ## Genotype     1   0.02   0.021   0.004  0.948
-    ## Residuals   14  66.49   4.749
+    ## Genotype     1   0.02   0.017   0.004  0.952
+    ## Residuals   14  65.40   4.672
 
 ``` r
 pcadata$Genotype <- factor(pcadata$Genotype, levels=c("WT", "FMR1"))
@@ -214,7 +218,8 @@ PCA12 <- ggplot(pcadata, aes(PC1, PC2, shape = Genotype, color = Genotype)) +
     ylab(paste0("PC2: ", percentVar[2],"% variance")) +
     scale_color_manual(values =c("#404040", "#404040")) +
     theme_cowplot(font_size = 8, line_size = 0.25)  +
-    theme(legend.position="none") +
+    theme(legend.position="bottom") +
+  stat_ellipse(aes(linetype = Genotype)) +
     scale_shape_manual(values=c(16, 1)) 
 PCA12
 ```
@@ -225,10 +230,11 @@ PCA12
 PCA14 <- ggplot(pcadata, aes(PC1, PC4, shape = Genotype, color = Genotype)) + 
   geom_point(size = 3, alpha = 1) +
     xlab(paste0("PC1: ", percentVar[1],"% variance")) +
-    ylab(paste0("PC2: ", percentVar[4],"% variance")) +
+    ylab(paste0("PC4: ", percentVar[4],"% variance")) +
     scale_color_manual(values =c("#404040", "#404040")) +
     theme_cowplot(font_size = 8, line_size = 0.25)  +
-    theme(legend.position="none") +
+    theme(legend.position="bottom") +
+  stat_ellipse(aes(linetype = Genotype)) +
     scale_shape_manual(values=c(16, 1)) 
 PCA14
 ```
@@ -271,12 +277,12 @@ summary(res)
 ```
 
     ## 
-    ## out of 16917 with nonzero total read count
+    ## out of 16975 with nonzero total read count
     ## adjusted p-value < 0.1
-    ## LFC > 0 (up)     : 13, 0.077% 
-    ## LFC < 0 (down)   : 16, 0.095% 
-    ## outliers [1]     : 0, 0% 
-    ## low counts [2]   : 6293, 37% 
+    ## LFC > 0 (up)       : 13, 0.077%
+    ## LFC < 0 (down)     : 16, 0.094%
+    ## outliers [1]       : 0, 0%
+    ## low counts [2]     : 6257, 37%
     ## (mean count < 10)
     ## [1] see 'cooksCutoff' argument of ?results
     ## [2] see 'independentFiltering' argument of ?results
@@ -286,33 +292,33 @@ resOrdered <- res[order(res$padj),]
 head(resOrdered, 10)
 ```
 
-    ## log2 fold change (MAP): Genotype FMR1 vs WT 
+    ## log2 fold change (MLE): Genotype FMR1 vs WT 
     ## Wald test p-value: Genotype FMR1 vs WT 
     ## DataFrame with 10 rows and 6 columns
-    ##          baseMean log2FoldChange      lfcSE       stat       pvalue
-    ##         <numeric>      <numeric>  <numeric>  <numeric>    <numeric>
-    ## Ccnd2    43.99689     -1.8572662 0.16016256 -11.596132 4.311281e-31
-    ## Fmr1     77.54058     -1.0999523 0.15694873  -7.008354 2.411375e-12
-    ## Kcnt1    69.17765     -0.8121867 0.16122731  -5.037525 4.715890e-07
-    ## Arel1   718.10450      0.3544819 0.07386369   4.799135 1.593521e-06
-    ## Slc29a4  18.12739     -0.6881522 0.16806055  -4.094668 4.227738e-05
-    ## Efcab6   30.24328     -0.6767416 0.16835420  -4.019749 5.826023e-05
-    ## Sstr3    26.99639     -0.6729482 0.16849586  -3.993856 6.500740e-05
-    ## Apc2    494.35939      0.3624314 0.09169804   3.952444 7.735696e-05
-    ## Brf1    100.46734      0.4607804 0.12597128   3.657821 2.543685e-04
-    ## Cacna1g 154.16646     -0.5563997 0.15070957  -3.691867 2.226140e-04
-    ##                 padj
-    ##            <numeric>
-    ## Ccnd2   4.607035e-27
-    ## Fmr1    1.288398e-08
-    ## Kcnt1   1.679800e-03
-    ## Arel1   4.257091e-03
-    ## Slc29a4 9.035521e-02
-    ## Efcab6  9.923844e-02
-    ## Sstr3   9.923844e-02
-    ## Apc2    9.933341e-02
-    ## Brf1    9.933341e-02
-    ## Cacna1g 9.933341e-02
+    ##                 baseMean     log2FoldChange              lfcSE
+    ##                <numeric>          <numeric>          <numeric>
+    ## Ccnd2   43.9968900774827    -2.931317365124  0.258660195108116
+    ## Fmr1    77.5405845988733  -1.61651418122629  0.231261031483639
+    ## Kcnt1   69.1776467654086  -1.26556843551879  0.250330799028629
+    ## Arel1   718.104497612054  0.373412259235834 0.0778098026099157
+    ## Slc29a4 18.1273925407761  -1.52091456116453  0.368882244533574
+    ## Efcab6  30.2432840502322  -1.44647141231064  0.356249703725004
+    ## Apc2    494.359393153328  0.394074984866652 0.0997443578434772
+    ## Brf1    100.467340454643  0.553739209857252  0.151571114963524
+    ## Cacna1g 154.166456813415 -0.768624661408763  0.208218510940869
+    ## Car4    43.5868541170519  -1.14978761769577  0.294663576562308
+    ##                      stat               pvalue                 padj
+    ##                 <numeric>            <numeric>            <numeric>
+    ## Ccnd2   -11.3326960257598 9.03792430253231e-30 9.69046243717515e-26
+    ## Fmr1    -6.98999814562643   2.748898772616e-12 1.47368463199944e-08
+    ## Kcnt1   -5.05558421268831  4.2907523788331e-07  0.00153351490019495
+    ## Arel1    4.79903876774837 1.59428935524941e-06  0.00427349261674605
+    ## Slc29a4  -4.1230354230999 3.73912170278074e-05   0.0801817257944302
+    ## Efcab6  -4.06027400777069 4.90151595984827e-05   0.0875900902024885
+    ## Apc2     3.95084988651739 7.78741596557186e-05   0.0989335018322235
+    ## Brf1     3.65332939584505 0.000258861805037064   0.0989335018322235
+    ## Cacna1g  -3.6914328987159 0.000222994229867789   0.0989335018322235
+    ## Car4    -3.90203509748225 9.53873223660705e-05   0.0989335018322235
 
 ``` r
 data <- data.frame(gene = row.names(res), padj = (res$padj), lfc = res$log2FoldChange)
@@ -322,35 +328,35 @@ data[order(data$padj),]
 ```
 
     ##         gene         padj        lfc
-    ## 6      Ccnd2 4.607035e-27 -1.8572662
-    ## 13      Fmr1 1.288398e-08 -1.0999523
-    ## 15     Kcnt1 1.679800e-03 -0.8121867
-    ## 2      Arel1 4.257091e-03  0.3544819
-    ## 24   Slc29a4 9.035521e-02 -0.6881522
-    ## 10    Efcab6 9.923844e-02 -0.6767416
-    ## 26     Sstr3 9.923844e-02 -0.6729482
-    ## 1       Apc2 9.933341e-02  0.3624314
-    ## 3       Brf1 9.933341e-02  0.4607804
-    ## 4    Cacna1g 9.933341e-02 -0.5563997
-    ## 5       Car4 9.933341e-02 -0.6530049
-    ## 7      Cpne7 9.933341e-02 -0.5195620
-    ## 8       Cry2 9.933341e-02  0.3672937
-    ## 9       Dlx1 9.933341e-02 -0.6151019
-    ## 11     Fgfr1 9.933341e-02 -0.3824715
-    ## 12    Fibcd1 9.933341e-02  0.2002234
-    ## 14     Grin1 9.933341e-02  0.2661368
-    ## 16   Laptm4a 9.933341e-02 -0.4293355
-    ## 17     Mtus1 9.933341e-02 -0.6174893
-    ## 18      Ncdn 9.933341e-02  0.1707820
-    ## 19      Plat 9.933341e-02 -0.5396718
-    ## 20    Pnmal2 9.933341e-02  0.3144891
-    ## 21     Prpf8 9.933341e-02  0.3478673
-    ## 22 Serpina3n 9.933341e-02 -0.4769215
-    ## 23     Sidt1 9.933341e-02  0.3978328
-    ## 25    Slc8a2 9.933341e-02  0.2202670
-    ## 27      Tnik 9.933341e-02  0.3904730
-    ## 28     Wipf3 9.933341e-02  0.2778451
-    ## 29      Xbp1 9.933341e-02 -0.5057252
+    ## 6      Ccnd2 9.690462e-26 -2.9313174
+    ## 13      Fmr1 1.473685e-08 -1.6165142
+    ## 15     Kcnt1 1.533515e-03 -1.2655684
+    ## 2      Arel1 4.273493e-03  0.3734123
+    ## 24   Slc29a4 8.018173e-02 -1.5209146
+    ## 10    Efcab6 8.759009e-02 -1.4464714
+    ## 1       Apc2 9.893350e-02  0.3940750
+    ## 3       Brf1 9.893350e-02  0.5537392
+    ## 4    Cacna1g 9.893350e-02 -0.7686247
+    ## 5       Car4 9.893350e-02 -1.1497876
+    ## 7      Cpne7 9.893350e-02 -0.6557796
+    ## 8       Cry2 9.893350e-02  0.4052742
+    ## 9       Dlx1 9.893350e-02 -1.2033711
+    ## 11     Fgfr1 9.893350e-02 -0.4248942
+    ## 12    Fibcd1 9.893350e-02  0.2057497
+    ## 14     Grin1 9.893350e-02  0.2795984
+    ## 16   Laptm4a 9.893350e-02 -0.4939915
+    ## 17     Mtus1 9.893350e-02 -1.7087320
+    ## 18      Ncdn 9.893350e-02  0.1742106
+    ## 19      Plat 9.893350e-02 -0.7160725
+    ## 20    Pnmal2 9.893350e-02  0.3355115
+    ## 21     Prpf8 9.893350e-02  0.3779082
+    ## 22 Serpina3n 9.893350e-02 -0.5682942
+    ## 23     Sidt1 9.893350e-02  0.4497890
+    ## 25    Slc8a2 9.893350e-02  0.2275669
+    ## 26     Sstr3 9.893350e-02 -1.3207045
+    ## 27      Tnik 9.893350e-02  0.4375887
+    ## 28     Wipf3 9.893350e-02  0.2936410
+    ## 29      Xbp1 9.893350e-02 -0.6459036
 
 ``` r
 topGene <- rownames(res)[which.min(res$padj)]
@@ -371,17 +377,18 @@ data <- data %>%
                                     yes = "WT", no = "none")))
 
 FMR1volcano <- ggplot(data, aes(x = lfc, y = pvalue)) + 
-  geom_point(aes(color = factor(color), shape = factor(color)), size = 1, alpha = 0.8, na.rm = T) + # add gene points
+  geom_point(aes(color = factor(color), shape = factor(color)), size = 3, alpha = 0.8, na.rm = T) + # add gene points
   theme_cowplot(font_size = 8, line_size = 0.25) +
   geom_hline(yintercept = 1,  size = 0.25, linetype = 2) + 
   scale_color_manual(values = c("black", "grey", "black"))  + 
   scale_shape_manual(values = c(1,16,16))  + 
   xlab(paste0("Log Fold Change")) +       
   ylab(paste0("-log(p-value)")) + 
-    scale_x_continuous( limits=c(-2, 2)) +
+    #scale_x_continuous( limits=c(-2, 2)) +
   theme(panel.grid.minor=element_blank(),
-        legend.position = "none", # remove legend 
-        panel.grid.major=element_blank())
+        legend.position = "bottom", # remove legend 
+        panel.grid.major=element_blank()) +
+  scale_y_log10()
 FMR1volcano
 ```
 
@@ -395,6 +402,48 @@ dev.off()
 
     ## quartz_off_screen 
     ##                 2
+
+``` r
+plot_grid(PCA12, FMR1volcano)
+```
+
+![](../figures/02_RNAseq/Twowaycontrasts3-3.png)
+
+``` r
+# log transformed pvalues and lfc for significant genes
+data %>% filter(color != "none") %>% arrange(color, gene)
+```
+
+    ##         gene    pvalue        lfc color
+    ## 1       Apc2  1.004657  0.3940750  FMR1
+    ## 2      Arel1  2.369217  0.3734123  FMR1
+    ## 3       Brf1  1.004657  0.5537392  FMR1
+    ## 4       Cry2  1.004657  0.4052742  FMR1
+    ## 5     Fibcd1  1.004657  0.2057497  FMR1
+    ## 6      Grin1  1.004657  0.2795984  FMR1
+    ## 7       Ncdn  1.004657  0.1742106  FMR1
+    ## 8     Pnmal2  1.004657  0.3355115  FMR1
+    ## 9      Prpf8  1.004657  0.3779082  FMR1
+    ## 10     Sidt1  1.004657  0.4497890  FMR1
+    ## 11    Slc8a2  1.004657  0.2275669  FMR1
+    ## 12      Tnik  1.004657  0.4375887  FMR1
+    ## 13     Wipf3  1.004657  0.2936410  FMR1
+    ## 14   Cacna1g  1.004657 -0.7686247    WT
+    ## 15      Car4  1.004657 -1.1497876    WT
+    ## 16     Ccnd2 25.013655 -2.9313174    WT
+    ## 17     Cpne7  1.004657 -0.6557796    WT
+    ## 18      Dlx1  1.004657 -1.2033711    WT
+    ## 19    Efcab6  1.057545 -1.4464714    WT
+    ## 20     Fgfr1  1.004657 -0.4248942    WT
+    ## 21      Fmr1  7.831595 -1.6165142    WT
+    ## 22     Kcnt1  2.814312 -1.2655684    WT
+    ## 23   Laptm4a  1.004657 -0.4939915    WT
+    ## 24     Mtus1  1.004657 -1.7087320    WT
+    ## 25      Plat  1.004657 -0.7160725    WT
+    ## 26 Serpina3n  1.004657 -0.5682942    WT
+    ## 27   Slc29a4  1.095925 -1.5209146    WT
+    ## 28     Sstr3  1.004657 -1.3207045    WT
+    ## 29      Xbp1  1.004657 -0.6459036    WT
 
 GO setup
 ========
@@ -419,7 +468,18 @@ GOpvals <- GOpvals %>%
 GOpvals$logP <- log(GOpvals$pvalGenotypeFMR1WT)
 GOpvals <- GOpvals %>%
   select(gene, logP)
+head(GOpvals)
+```
 
+    FALSE                        gene        logP
+    FALSE 0610007P14Rik 0610007P14Rik -0.02438446
+    FALSE 0610009B22Rik 0610009B22Rik -0.34911768
+    FALSE 0610009L18Rik 0610009L18Rik -0.74421309
+    FALSE 0610009O20Rik 0610009O20Rik -0.30369736
+    FALSE 0610010F05Rik 0610010F05Rik -1.19986777
+    FALSE 0610010K14Rik 0610010K14Rik -0.64491696
+
+``` r
 write.csv(GOpvals, "./06_GO_MWU/GenotypeFMR1KOWT_GOpvals.csv", row.names = F)
 ```
 
@@ -438,7 +498,7 @@ write.csv(as.data.frame(DEGes), "../results/02_DEGes.csv", row.names = F)
 # create new col with min padj
 DEGes <- DEGes %>% filter(padjmin < 0.1)
 rownames(DEGes) <- DEGes$rownames
-drop.cols <-colnames(DEGes[,grep("padj|pval|rownames", colnames(DEGes))])
+drop.cols <-colnames(DEGes[,grep("padj|pval|rownames|log2FoldChange", colnames(DEGes))])
 DEGes <- DEGes %>% dplyr::select(-one_of(drop.cols))
 DEGes <- as.matrix(DEGes)
 DEGes <- DEGes - rowMeans(DEGes)
@@ -510,31 +570,6 @@ pheatmap(DEGes, show_colnames=F, show_rownames = T,
          clustering_distance_cols="correlation", 
          filename = "../figures/02_RNAseq/pheatmap_minimal.pdf"
          )
-```
-
-Venn Diagram of both study's DEGS
----------------------------------
-
-``` r
-contrast1 <- resvals(contrastvector = c("Genotype", "FMR1", "WT"), mypval = 0.1) # 11
-```
-
-    ## [1] 29
-
-``` r
-#create a new DF with the gene counts
-rldpvals <- assay(rld)
-rldpvals <- cbind(rldpvals, contrast1)
-rldpvals <- as.data.frame(rldpvals)
-rldpvals <- rldpvals[ , grepl( "padj|pval" , names( rldpvals ) ) ]
-names(rldpvals)
-```
-
-    ## [1] "pvalGenotypeFMR1WT" "padjGenotypeFMR1WT"
-
-``` r
-# venn with padj values
-venn1 <- row.names(rldpvals[rldpvals[2] <0.1 & !is.na(rldpvals[2]),])
 ```
 
 ``` r
@@ -650,5 +685,4 @@ write.csv(vsd, file = "../results/02_vsd.csv", row.names = T)
 write.csv(rlddf, file = "../results/02_rlddf.csv", row.names = T)
 write.csv(colData, file = "../results/02_colData.csv", row.names = T)
 write.csv(data, file = "../results/FMR1_CA1_rnaseq.csv", row.names = F)
-write.csv(venn1, file = "../results/FMR1_CA1_venn1.csv", row.names = F)
 ```

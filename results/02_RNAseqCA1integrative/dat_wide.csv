@@ -1,0 +1,7 @@
+"","V1","FMR1_Yoked","WT_conflict","WT_consistent","WT_Yoked","WT_yoked_conflict","WT_yoked_consistent"
+"1","FMR1_Yoked",NA,2206,134,6,1224,3103
+"2","WT_conflict",2206,NA,0,1339,2,1108
+"3","WT_consistent",134,0,NA,4,1,1733
+"4","WT_Yoked",6,1339,4,NA,353,2645
+"5","WT_yoked_conflict",1224,2,1,353,NA,1738
+"6","WT_yoked_consistent",3103,1108,1733,2645,1738,NA

@@ -109,8 +109,8 @@ head(dat)
 
 # widen data to create table of degs
 rownames(dat) <- NULL #remove row names
-data_wide <- spread(dat, V2, V3)
-print(data_wide) 
+dat_wide <- spread(dat, V2, V3)
+print(dat_wide) 
 
 # set factors
 allcontrasts <- dat %>%
@@ -180,6 +180,72 @@ print(pca34)
 print(summary(aov(PC4 ~ treatment, data=pcadata))) 
 print(TukeyHSD(aov(PC4 ~ treatment, data=pcadata), which = "treatment")) 
 
+
+```
+
+```{r test}
+candidates <- countData
+candidates$gene <- rownames(candidates)
+candidates <- candidates %>%
+  filter(grepl("Oxt|Avp|Fmr1|Prkcz|Grm", gene)) 
+head(candidates)
+row.names(candidates) <- candidates$gene
+candidates <- as.data.frame(t(candidates))
+candidates$RNAseqID <- rownames(candidates)
+head(candidates)
+
+candidates <- candidates %>% gather(gene, value, -RNAseqID)  %>% # https://tidyr.tidyverse.org/reference/gather.html
+  filter(RNAseqID != "gene")
+candidates$value <- as.numeric(candidates$value)
+head(candidates)
+
+candidatecounts <- full_join(candidates, colData)
+head(candidatecounts)
+
+candidatecounts$faketime <- as.numeric(candidatecounts$treatment)
+head(candidatecounts, 100)
+
+candidatecounts %>%
+  filter(gene %in% c( "Avpr1a", "Avpr2", "Fmr1", "Oxt", "Oxtr", "Prkcz")) %>%
+  ggplot(aes(x = treatment, y = value, fill = treatment)) +
+  geom_boxplot() +
+  facet_wrap(~gene, scales = "free") +
+  theme(axis.text.x = element_blank(),
+        legend.position = "bottom")
+
+candidatecounts %>%
+  filter(grepl("Grm", gene)) %>%
+  ggplot(aes(x = treatment, y = value, fill = treatment)) +
+  geom_boxplot() +
+  facet_wrap(~gene, scales = "free") +
+  theme(axis.text.x = element_blank(),
+        legend.position = "bottom")
+  
+```
+
+
+
+```{r writefiles}
+head(colData)
+write.csv(colData, "../results/02_RNAseqCA1integrative/colData.csv")
+
+head(countData)
+write.csv(countData, "../results/02_RNAseqCA1integrative/countData.csv")
+
+head(dat)
+write.csv(dat, "../results/02_RNAseqCA1integrative/dat.csv")
+
+
+head(dat_wide)
+write.csv(dat_wide, "../results/02_RNAseqCA1integrative/dat_wide.csv")
+
+head(assay(dds))
+
+DESeq2counts <- assay(dds)
+write.csv(DESeq2counts, "../results/02_RNAseqCA1integrative/DESeq2counts.csv")
+
+head(pcadata)
+write.csv(pcadata, "../results/02_RNAseqCA1integrative/pcadata.csv")
 
 ```
 

@@ -112,7 +112,7 @@ allthree
 -  Basico: `+ scale_fill_manual(values=c("red", "green", "blue"))`
 -  Personalizado: `+ scale_fill_manual(values=c("#d95f02", "#1b9e77", "#7570b3"))`
 
-# Tu podés convertir HEX a RGB para usar la misma paletas para las illustraciones
+# Tu puedes convertir HEX a RGB para usar las mismsa paletas para las ilustraciones
 
 ![](../figures/10_talk/talk_colors.png)
 [^1b]
@@ -163,7 +163,7 @@ ggdraw() +
   draw_plot(image, x = 0.7, y = 0.5, width = 0.3, height = 0.6)
 ```
 
->- Leyendas gráficas transmitir más información
+>- Leyendas gráficas transmiten más información
 >- Use **cowplot**[^2d] para agregar imágenes dentro de R
 
 [^2d]: **cowplot** https://cran.r-project.org/web/packages/cowplot/index.html
@@ -195,7 +195,7 @@ ggdraw() +
 # Como podés ayudarme
 
 >- Leer y comentar o editar en GitHub[^6a]
->- Particpar en el **Bug BBQ**[^6b] el Abril 11 y 12
+>- Participar en el **Bug BBQ**[^6b] el Abril 11 y 12
 >- Hace videos de vos leyendo y codificando junto con la lección[^6c]
 
 [^6a]: https://swcarpentry.github.io/r-novice-gapminder-es/
@@ -252,7 +252,7 @@ ggdraw() +
 
 # Pensamiento concluyente
 
->-  Yo creo que todos aprenden más cuando la ciencia y la educación está abiertas y reproducibles
+>-  Yo creo que todos aprenden más cuando la ciencia y la educación están abiertas y son reproducibles
 >-  Yo creo que la mejor manera de aprender es enseñando
 >-  Recuerda que nadie es re buena al principio, pero todas mejoramos con la práctica
 >-  Recuerda que vos podés hacer lo que quieras
@@ -261,7 +261,7 @@ ggdraw() +
 
 Email: rayna.harris@gmail.com
 
-Twitter y GitHub y Instrgram y Speaker Deck: @raynamharris
+Twitter y GitHub y Instagram y Speaker Deck: @raynamharris
 
 Diapositivas acá[^11a] y acá[^11b] 
 

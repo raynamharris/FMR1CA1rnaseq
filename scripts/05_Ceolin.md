@@ -1,7 +1,7 @@
-Reproduction of and comparison to the Ceolin et al. 2017 study.
+Reproduction of and comparison to the Ceolin et al. 2017 study.
 ---------------------------------------------------------------
 
-From [Ceolin L, Bouquier N, Vitre-Boubaker J, Rialle S et al. Cell
+From [Ceolin L, Bouquier N, Vitre-Boubaker J, Rialle S et al. Cell
 Type-Specific mRNA Dysregulation in Hippocampal CA1 Pyramidal Neurons of
 the Fragile X Syndrome Mouse Model. Front Mol Neurosci 2017;10:340.
 PMID:
@@ -11,16 +11,16 @@ This data was made available here [open source
 data](https://www.ncbi.nlm.nih.gov/geo/query/acc.cgi?acc=GSE94559).
 
 The parts of their paper that I reproduced are visuzalized in Figure 2
-and 3 of Ceolin et al 2017. Ceolin's fluoresence staining of the CA1
+and 3 of Ceolin et al 2017. Ceolin’s fluoresence staining of the CA1
 provided the inspriation for the color palette. I reproduced the heatmap
 and part of the GO anlsysis but not that of FMRP binding. Then, I
-compared this "reproduced analysis of the Ceolin data" to my primary
+compared this “reproduced analysis of the Ceolin data” to my primary
 results to identify genes that robustly change expression in CA1
 following *Fmr1* gene knock out.
 
 ![](../figures/fig3-02.png)
 
-I reproduced the data from the Ceolin et al. 2017 which used
+I reproduced the data from the Ceolin et al. 2017 which used
 fluorescence labeling to selectively sequence pyramidal neurons in the
 CA1 subfield of the hippocampus from WT and FMR1-KO mice (Fig 2A). My
 reproduction of their data produced a very similar pattern of gene
@@ -34,7 +34,7 @@ significantly different als identified by Coelin and described as
 significantly different. I determined that 39 of top 45 most significant
 (p &lt; 0.01) genes in my analysis make up over half of the most
 significant (p &lt; 0.05) genes of from the Ceolin study (Fig 2C). Of my
-list of "replicated" 39 differentially expressed genes, two genes
+list of “replicated” 39 differentially expressed genes, two genes
 (Serpina3a and Efcab6) were also identified in my analysis of
 differential expression (Fig 2D). My GO analysis highlighted different
 but also overlapping patterns. The Ceolin study highlights the molecular
@@ -46,7 +46,7 @@ research findings.
 
 ![](../figures/fig3-01.png) Reproducing the Ceolin study for direct
 comparison of results. A) Graphical representation of the samples for
-the Ceolin et al. 2017 study examining CA1 expression in WT and FMR1-KO
+the Ceolin et al. 2017 study examining CA1 expression in WT and FMR1-KO
 mice. B) Reproduction: This volcano plot shows that my analysis of the
 Ceolin et al count data identified 88 genes that are up-regulated in
 FMR1-KO mice and the 146 genes that are up-regulated in WT mice a p &lt;
@@ -78,11 +78,12 @@ Here is the analysis,
     library(genefilter)
     library(pheatmap)
     library(edgeR)
-    library(colorRamps) # for a matlab like color scheme
+    #library(colorRamps) # for a matlab like color scheme
     library(viridis)
     library(genefilter)  ## for PCA fuction
     library(ggrepel) ## for labeling volcano plot
     library(cowplot)
+    library(topconfects)
 
     source("functions_RNAseq.R")
 
@@ -177,7 +178,7 @@ effect genotype.
 
     dds <- DESeqDataSetFromMatrix(countData = countData,
                                   colData = colData,
-                                  design = ~ genotype )
+                                  design = ~genotype )
 
     ## converting counts to integer mode
 
@@ -201,26 +202,103 @@ effect genotype.
     ## class: DESeqDataSet 
     ## dim: 19361 12 
     ## metadata(1): version
-    ## assays(3): counts mu cooks
+    ## assays(4): counts mu H cooks
     ## rownames(19361): 0610005C13Rik 0610007P14Rik ... Zzef1 Zzz3
-    ## rowData names(27): baseMean baseVar ... deviance maxCooks
+    ## rowData names(22): baseMean baseVar ... deviance maxCooks
     ## colnames(12): KO1 KO2 ... WT5 WT6
     ## colData names(3): sample genotype sizeFactor
 
     ## for variance stablized gene expression and log transformed data
     rld <- rlog(dds, blind=FALSE)
 
-    res <- results(dds, contrast =c("genotype", "FMR1", "WT"), independentFiltering = T, alpha = 0.1)
-    summary(res)
+
+    results(dds, contrast =c("genotype", "FMR1", "WT"), independentFiltering = T)
+
+    ## log2 fold change (MLE): genotype FMR1 vs WT 
+    ## Wald test p-value: genotype FMR1 vs WT 
+    ## DataFrame with 19361 rows and 6 columns
+    ##                       baseMean      log2FoldChange              lfcSE
+    ##                      <numeric>           <numeric>          <numeric>
+    ## 0610005C13Rik 12.3836842245309   -21.4822551988674    3.0056900130607
+    ## 0610007P14Rik 48797.8320853426  0.0446162068928321 0.0751658671078423
+    ## 0610009B22Rik 25691.5427060416 -0.0778405035952667 0.0989335868660761
+    ## 0610009L18Rik  1143.8574766414  -0.230146360527051  0.302476615797001
+    ## 0610009O20Rik 33655.7846363426  0.0599534817184228 0.0898967784882136
+    ## ...                        ...                 ...                ...
+    ## Zyg11a        6.19184211226545   -6.18744023476566   3.00819992966199
+    ## Zyg11b        216840.408890062  -0.145100372359937 0.0516948553773774
+    ## Zyx           24625.8079783001   0.023352506672673  0.122089301513339
+    ## Zzef1         52687.2816154765  0.0131355363928746  0.065231600692671
+    ## Zzz3           75770.606886356 -0.0461123319262117 0.0445234785954328
+    ##                             stat              pvalue              padj
+    ##                        <numeric>           <numeric>         <numeric>
+    ## 0610005C13Rik  -7.14719585370417                  NA                NA
+    ## 0610007P14Rik  0.593570041955615   0.552799723133589 0.999781696584314
+    ## 0610009B22Rik -0.786795526787454   0.431401572499944 0.989611193172537
+    ## 0610009L18Rik -0.760873232863421    0.44673278769446  0.99684247778883
+    ## 0610009O20Rik  0.666914685116144    0.50482663019688 0.999781696584314
+    ## ...                          ...                 ...               ...
+    ## Zyg11a         -2.05685804781629                  NA                NA
+    ## Zyg11b         -2.80686291316012 0.00500265261376567 0.178075192078467
+    ## Zyx            0.191273980465206   0.848310945306944 0.999781696584314
+    ## Zzef1          0.201367684579147   0.840411081611035 0.999781696584314
+    ## Zzz3           -1.03568574111686   0.300348776641202 0.941411306522267
+
+    summary(results(dds, contrast =c("genotype", "FMR1", "WT"), independentFiltering = T)) #original use
 
     ## 
     ## out of 19361 with nonzero total read count
     ## adjusted p-value < 0.1
-    ## LFC > 0 (up)     : 88, 0.45% 
-    ## LFC < 0 (down)   : 146, 0.75% 
-    ## outliers [1]     : 928, 4.8% 
-    ## low counts [2]   : 4330, 22% 
-    ## (mean count < 668)
+    ## LFC > 0 (up)       : 140, 0.72%
+    ## LFC < 0 (down)     : 216, 1.1%
+    ## outliers [1]       : 851, 4.4%
+    ## low counts [2]     : 0, 0%
+    ## (mean count < 0)
+    ## [1] see 'cooksCutoff' argument of ?results
+    ## [2] see 'independentFiltering' argument of ?results
+
+    results(dds, contrast =c("genotype", "WT", "FMR1"))
+
+    ## log2 fold change (MLE): genotype WT vs FMR1 
+    ## Wald test p-value: genotype WT vs FMR1 
+    ## DataFrame with 19361 rows and 6 columns
+    ##                       baseMean      log2FoldChange              lfcSE
+    ##                      <numeric>           <numeric>          <numeric>
+    ## 0610005C13Rik 12.3836842245309    21.4822551988674    3.0056900130607
+    ## 0610007P14Rik 48797.8320853426 -0.0446162068928321 0.0751658671078423
+    ## 0610009B22Rik 25691.5427060416  0.0778405035952667 0.0989335868660761
+    ## 0610009L18Rik  1143.8574766414   0.230146360527051  0.302476615797001
+    ## 0610009O20Rik 33655.7846363426 -0.0599534817184228 0.0898967784882136
+    ## ...                        ...                 ...                ...
+    ## Zyg11a        6.19184211226545    6.18744023476566   3.00819992966199
+    ## Zyg11b        216840.408890062   0.145100372359937 0.0516948553773774
+    ## Zyx           24625.8079783001  -0.023352506672673  0.122089301513339
+    ## Zzef1         52687.2816154765 -0.0131355363928746  0.065231600692671
+    ## Zzz3           75770.606886356  0.0461123319262117 0.0445234785954328
+    ##                             stat              pvalue              padj
+    ##                        <numeric>           <numeric>         <numeric>
+    ## 0610005C13Rik   7.14719585370417                  NA                NA
+    ## 0610007P14Rik -0.593570041955615   0.552799723133589 0.999781696584314
+    ## 0610009B22Rik  0.786795526787454   0.431401572499944 0.989611193172537
+    ## 0610009L18Rik  0.760873232863421    0.44673278769446  0.99684247778883
+    ## 0610009O20Rik -0.666914685116144    0.50482663019688 0.999781696584314
+    ## ...                          ...                 ...               ...
+    ## Zyg11a          2.05685804781629                  NA                NA
+    ## Zyg11b          2.80686291316012 0.00500265261376567 0.178075192078467
+    ## Zyx           -0.191273980465206   0.848310945306944 0.999781696584314
+    ## Zzef1         -0.201367684579147   0.840411081611035 0.999781696584314
+    ## Zzz3            1.03568574111686   0.300348776641202 0.941411306522267
+
+    summary(results(dds, contrast =c("genotype", "WT", "FMR1"))) # added for comparison to deseq2_confects results
+
+    ## 
+    ## out of 19361 with nonzero total read count
+    ## adjusted p-value < 0.1
+    ## LFC > 0 (up)       : 216, 1.1%
+    ## LFC < 0 (down)     : 140, 0.72%
+    ## outliers [1]       : 851, 4.4%
+    ## low counts [2]     : 0, 0%
+    ## (mean count < 0)
     ## [1] see 'cooksCutoff' argument of ?results
     ## [2] see 'independentFiltering' argument of ?results
 
@@ -300,7 +378,7 @@ and allows us to visualize patterns of expression with gene names.
 
     contrast1 <- resvals(contrastvector = c('genotype', 'FMR1', 'WT'), mypval = 0.1)
 
-    FALSE [1] 234
+    FALSE [1] 356
 
     ## Any padj <0.1
     DEGes <- assay(rld)
@@ -308,10 +386,33 @@ and allows us to visualize patterns of expression with gene names.
     DEGes <- as.data.frame(DEGes) # convert matrix to dataframe
     DEGes$rownames <- rownames(DEGes)  # add the rownames to the dataframe
 
+    coelinDEGs <-  DEGes %>%
+      select("pvalgenotypeFMR1WT", "padjgenotypeFMR1WT","log2FoldChange", "rownames")
+
+    coelinDEGs <- na.omit(coelinDEGs)
+    head(coelinDEGs)
+
+    FALSE               pvalgenotypeFMR1WT padjgenotypeFMR1WT log2FoldChange
+    FALSE 0610007P14Rik          0.5527997          0.9997817     0.04461621
+    FALSE 0610009B22Rik          0.4314016          0.9896112    -0.07784050
+    FALSE 0610009L18Rik          0.4467328          0.9968425    -0.23014636
+    FALSE 0610009O20Rik          0.5048266          0.9997817     0.05995348
+    FALSE 0610010B08Rik          0.7847458          0.9997817     0.23562423
+    FALSE 0610010F05Rik          0.6637219          0.9997817    -0.02690120
+    FALSE                    rownames
+    FALSE 0610007P14Rik 0610007P14Rik
+    FALSE 0610009B22Rik 0610009B22Rik
+    FALSE 0610009L18Rik 0610009L18Rik
+    FALSE 0610009O20Rik 0610009O20Rik
+    FALSE 0610010B08Rik 0610010B08Rik
+    FALSE 0610010F05Rik 0610010F05Rik
+
+    write.csv(coelinDEGs, "../data/coelinDEGs.csv", row.names = T)
+
     DEGes <- DEGes %>% filter(padjgenotypeFMR1WT < 0.01)
 
     rownames(DEGes) <- DEGes$rownames
-    drop.cols <-colnames(DEGes[,grep("padj|pval|rownames", colnames(DEGes))])
+    drop.cols <-colnames(DEGes[,grep("padj|pval|rownames|log2FoldChange", colnames(DEGes))])
     DEGes <- DEGes %>% select(-one_of(drop.cols))
     DEGes <- as.matrix(DEGes)
     DEGes <- DEGes - rowMeans(DEGes)
@@ -339,7 +440,7 @@ and allows us to visualize patterns of expression with gene names.
              clustering_method="average"
              )
 
-![](../figures/05_Ceolin/HeatmapPadj-1.png)
+![](../figures/05_Ceolin/heatmap-1.png)
 
     # for adobe
     pheatmap(DEGes, show_colnames=F, show_rownames = T,
@@ -381,61 +482,55 @@ Volcanos
     FALSE 
     FALSE out of 19361 with nonzero total read count
     FALSE adjusted p-value < 0.1
-    FALSE LFC > 0 (up)     : 88, 0.45% 
-    FALSE LFC < 0 (down)   : 146, 0.75% 
-    FALSE outliers [1]     : 928, 4.8% 
-    FALSE low counts [2]   : 4330, 22% 
-    FALSE (mean count < 668)
+    FALSE LFC > 0 (up)       : 140, 0.72%
+    FALSE LFC < 0 (down)     : 216, 1.1%
+    FALSE outliers [1]       : 851, 4.4%
+    FALSE low counts [2]     : 0, 0%
+    FALSE (mean count < 0)
     FALSE [1] see 'cooksCutoff' argument of ?results
     FALSE [2] see 'independentFiltering' argument of ?results
 
     resOrdered <- res[order(res$padj),]
     head(resOrdered, 10)
 
-    FALSE log2 fold change (MAP): genotype FMR1 vs WT 
+    FALSE log2 fold change (MLE): genotype FMR1 vs WT 
     FALSE Wald test p-value: genotype FMR1 vs WT 
     FALSE DataFrame with 10 rows and 6 columns
-    FALSE             baseMean log2FoldChange      lfcSE      stat       pvalue
-    FALSE            <numeric>      <numeric>  <numeric> <numeric>    <numeric>
-    FALSE Serpina3n  56883.323     -0.6544227 0.09087423 -7.201412 5.959231e-13
-    FALSE Efcab6     26253.646     -0.5619258 0.09385972 -5.986869 2.139187e-09
-    FALSE Klk8       22535.472     -0.5755172 0.09643234 -5.968093 2.400428e-09
-    FALSE Neurog2     1318.040     -0.6118730 0.10027296 -6.102074 1.047011e-09
-    FALSE Nol4       87295.855     -0.2607096 0.04373721 -5.960820 2.509749e-09
-    FALSE Inhbb      26270.049     -0.3209072 0.05716446 -5.613755 1.979828e-08
-    FALSE Ccnd1     178320.712     -0.3610653 0.06516270 -5.540981 3.007810e-08
-    FALSE Cml3        4536.018      0.5530818 0.09971910  5.546398 2.916154e-08
-    FALSE Arhgef6    22052.633     -0.3853633 0.07450660 -5.172203 2.313499e-07
-    FALSE Fam120c    74978.612     -0.2622172 0.05143142 -5.098386 3.425618e-07
-    FALSE                   padj
-    FALSE              <numeric>
-    FALSE Serpina3n 8.404304e-09
-    FALSE Efcab6    7.078997e-06
-    FALSE Klk8      7.078997e-06
-    FALSE Neurog2   7.078997e-06
-    FALSE Nol4      7.078997e-06
-    FALSE Inhbb     4.653586e-05
-    FALSE Ccnd1     5.302393e-05
-    FALSE Cml3      5.302393e-05
-    FALSE Arhgef6   3.625252e-04
-    FALSE Fam120c   4.831150e-04
+    FALSE                       baseMean    log2FoldChange            lfcSE
+    FALSE                      <numeric>         <numeric>        <numeric>
+    FALSE Fmr1          32772.3736216097 -13.8780823627799 1.50954803281915
+    FALSE Gm15056        37.088831880183  23.5463717195844 3.00390182339074
+    FALSE Hgfac         35.2667058916136  23.4831347528134 3.00393931914501
+    FALSE Mir341        39.3195918348791  23.6238991840141 3.00386056217713
+    FALSE Vmn1r206      37.8521985741489  23.5791719004966 3.00388722049682
+    FALSE 1600014K23Rik 22.4583516643602  22.8686479287732 3.00437439887387
+    FALSE 1700029M20Rik 22.2916222642752  22.8596217205454 3.00438357971532
+    FALSE Ace3          24.6025053141726  22.9927191636575 3.00426999636628
+    FALSE Gm14743       28.9885563235712  22.9329312300403 3.00410445828891
+    FALSE Klk13         24.5529634037135  22.9900141250764 3.00427237590613
+    FALSE                            stat               pvalue                 padj
+    FALSE                       <numeric>            <numeric>            <numeric>
+    FALSE Fmr1          -9.19353479389585 3.80139736956176e-20 7.03638653105882e-16
+    FALSE Gm15056        7.83859563459557 4.55613158747969e-15 1.99558718853911e-11
+    FALSE Hgfac          7.81744644545524 5.39056506898733e-15 1.99558718853911e-11
+    FALSE Mir341         7.86451258140028 3.70537347388698e-15 1.99558718853911e-11
+    FALSE Vmn1r206       7.84955298574652 4.17522753710331e-15 1.99558718853911e-11
+    FALSE 1600014K23Rik  7.61178365031503 2.70338823276925e-14 3.65898480952533e-11
+    FALSE 1700029M20Rik  7.60875604396409 2.76746555015422e-14 3.65898480952533e-11
+    FALSE Ace3           7.65334646735068 1.95815396446219e-14 3.65898480952533e-11
+    FALSE Gm14743        7.63386611499606 2.27816503040613e-14 3.65898480952533e-11
+    FALSE Klk13          7.65244000825403 1.97201116640638e-14 3.65898480952533e-11
 
-    data <- data.frame(gene = row.names(res), pvalue = -log10(res$padj), lfc = res$log2FoldChange)
+    data <- data.frame(gene = row.names(res), pvalue = -log10(res$pvalue), lfc = res$log2FoldChange)
     data <- na.omit(data)
 
     data$wrap <- "Reproduction"
     data <- data %>%
-      mutate(color = ifelse(data$lfc > 0 & data$pvalue > 2, 
+      mutate(color = ifelse(data$lfc > 1.5 & data$pvalue > 2, 
                             yes = "FMR1", 
-                            no = ifelse(data$lfc < 0 & data$pvalue > 2, 
+                            no = ifelse(data$lfc < -1.5 & data$pvalue > 2, 
                                         yes = "WT", 
                                         no = "none")))
-    top_labelled <- top_n(data, n = 5, wt = pvalue)
-
-    topGene <- rownames(res)[which.min(res$padj)]
-    plotCounts(dds, gene = topGene, intgroup=c("genotype"))
-
-![](../figures/05_Ceolin/volcanos-1.png)
 
     # Color corresponds to fold change directionality
 
@@ -455,18 +550,13 @@ Volcanos
       facet_wrap(~wrap)
     volcano
 
-![](../figures/05_Ceolin/volcanos-2.png)
+![](../figures/05_Ceolin/volcanos-1.png)
 
-    pdf(file="../figures/05_Ceolin/volcano.pdf", width=1.25, height=1.7)
-    plot(volcano)
-    dev.off()
-
-    FALSE quartz_off_screen 
-    FALSE                 2
+    #pdf(file="../figures/05_Ceolin/volcano.pdf", width=1.25, height=1.7)
+    #plot(volcano)
+    #dev.off()
 
 Suzy-like volcano plot
-
-    pointcolor <- read.csv("../results/FMR1_CA1_rnaseq.csv")
 
     res <- results(dds, contrast =c("genotype", "FMR1", "WT"), independentFiltering = T, alpha = 0.1)
     summary(res)
@@ -474,52 +564,53 @@ Suzy-like volcano plot
     ## 
     ## out of 19361 with nonzero total read count
     ## adjusted p-value < 0.1
-    ## LFC > 0 (up)     : 88, 0.45% 
-    ## LFC < 0 (down)   : 146, 0.75% 
-    ## outliers [1]     : 928, 4.8% 
-    ## low counts [2]   : 4330, 22% 
-    ## (mean count < 668)
+    ## LFC > 0 (up)       : 140, 0.72%
+    ## LFC < 0 (down)     : 216, 1.1%
+    ## outliers [1]       : 851, 4.4%
+    ## low counts [2]     : 0, 0%
+    ## (mean count < 0)
     ## [1] see 'cooksCutoff' argument of ?results
     ## [2] see 'independentFiltering' argument of ?results
 
     resOrdered <- res[order(res$padj),]
     head(resOrdered, 10)
 
-    ## log2 fold change (MAP): genotype FMR1 vs WT 
+    ## log2 fold change (MLE): genotype FMR1 vs WT 
     ## Wald test p-value: genotype FMR1 vs WT 
     ## DataFrame with 10 rows and 6 columns
-    ##             baseMean log2FoldChange      lfcSE      stat       pvalue
-    ##            <numeric>      <numeric>  <numeric> <numeric>    <numeric>
-    ## Serpina3n  56883.323     -0.6544227 0.09087423 -7.201412 5.959231e-13
-    ## Efcab6     26253.646     -0.5619258 0.09385972 -5.986869 2.139187e-09
-    ## Klk8       22535.472     -0.5755172 0.09643234 -5.968093 2.400428e-09
-    ## Neurog2     1318.040     -0.6118730 0.10027296 -6.102074 1.047011e-09
-    ## Nol4       87295.855     -0.2607096 0.04373721 -5.960820 2.509749e-09
-    ## Inhbb      26270.049     -0.3209072 0.05716446 -5.613755 1.979828e-08
-    ## Ccnd1     178320.712     -0.3610653 0.06516270 -5.540981 3.007810e-08
-    ## Cml3        4536.018      0.5530818 0.09971910  5.546398 2.916154e-08
-    ## Arhgef6    22052.633     -0.3853633 0.07450660 -5.172203 2.313499e-07
-    ## Fam120c    74978.612     -0.2622172 0.05143142 -5.098386 3.425618e-07
-    ##                   padj
-    ##              <numeric>
-    ## Serpina3n 8.404304e-09
-    ## Efcab6    7.078997e-06
-    ## Klk8      7.078997e-06
-    ## Neurog2   7.078997e-06
-    ## Nol4      7.078997e-06
-    ## Inhbb     4.653586e-05
-    ## Ccnd1     5.302393e-05
-    ## Cml3      5.302393e-05
-    ## Arhgef6   3.625252e-04
-    ## Fam120c   4.831150e-04
+    ##                       baseMean    log2FoldChange            lfcSE
+    ##                      <numeric>         <numeric>        <numeric>
+    ## Fmr1          32772.3736216097 -13.8780823627799 1.50954803281915
+    ## Gm15056        37.088831880183  23.5463717195844 3.00390182339074
+    ## Hgfac         35.2667058916136  23.4831347528134 3.00393931914501
+    ## Mir341        39.3195918348791  23.6238991840141 3.00386056217713
+    ## Vmn1r206      37.8521985741489  23.5791719004966 3.00388722049682
+    ## 1600014K23Rik 22.4583516643602  22.8686479287732 3.00437439887387
+    ## 1700029M20Rik 22.2916222642752  22.8596217205454 3.00438357971532
+    ## Ace3          24.6025053141726  22.9927191636575 3.00426999636628
+    ## Gm14743       28.9885563235712  22.9329312300403 3.00410445828891
+    ## Klk13         24.5529634037135  22.9900141250764 3.00427237590613
+    ##                            stat               pvalue                 padj
+    ##                       <numeric>            <numeric>            <numeric>
+    ## Fmr1          -9.19353479389585 3.80139736956176e-20 7.03638653105882e-16
+    ## Gm15056        7.83859563459557 4.55613158747969e-15 1.99558718853911e-11
+    ## Hgfac          7.81744644545524 5.39056506898733e-15 1.99558718853911e-11
+    ## Mir341         7.86451258140028 3.70537347388698e-15 1.99558718853911e-11
+    ## Vmn1r206       7.84955298574652 4.17522753710331e-15 1.99558718853911e-11
+    ## 1600014K23Rik  7.61178365031503 2.70338823276925e-14 3.65898480952533e-11
+    ## 1700029M20Rik  7.60875604396409 2.76746555015422e-14 3.65898480952533e-11
+    ## Ace3           7.65334646735068 1.95815396446219e-14 3.65898480952533e-11
+    ## Gm14743        7.63386611499606 2.27816503040613e-14 3.65898480952533e-11
+    ## Klk13          7.65244000825403 1.97201116640638e-14 3.65898480952533e-11
 
     data <- data.frame(gene = row.names(res), pvalue = -log10(res$padj), lfc = res$log2FoldChange)
     data <- na.omit(data)
 
+    pointcolor <- read.csv("../results/FMR1_CA1_rnaseq.csv")
     tempdata <- left_join(data, pointcolor, by = "gene")
 
-    ## Warning in left_join_impl(x, y, by$x, by$y, suffix$x, suffix$y): joining
-    ## factors with different levels, coercing to character vector
+    ## Warning: Column `gene` joining factors with different levels, coercing to
+    ## character vector
 
     tempdata$color <- as.character(tempdata$color)
     tempdata$color[is.na(tempdata$color)] <- "absent"
@@ -535,7 +626,7 @@ Suzy-like volcano plot
     summary(tempdata$color)
 
     ## FMR1KO     WT     NS absent 
-    ##     13     16  10081   3993
+    ##     13     16  10342   8139
 
     # Color corresponds to fold change directionality
 
@@ -545,13 +636,13 @@ Suzy-like volcano plot
         #scale_y_continuous(limits=c(0, 8)) +
       scale_x_continuous(name="Log fold change")+
       scale_shape_manual(values=c(16, 16, 16, 16)) +
-      scale_size_manual(values=c(3,2, 0.5, 0.5)) +
+      scale_size_manual(values=c(2,2, 0.5, 0.5)) +
 
       geom_hline(yintercept = 2,  size = 0.25, linetype = 2) + 
       scale_color_manual(values = c("NS" = "grey",
                                     "absent" = "black",
                                     "WT" = "#e7298a",
-                                    "FMR1" = "#41b6c4")) + 
+                                    "FMR1KO" = "#41b6c4")) + 
      scale_y_continuous(name=NULL,
                         labels = NULL)+      
       theme(panel.grid.minor=element_blank(),
@@ -575,12 +666,12 @@ Suzy-like volcano plot
       geom_hline(yintercept = 2,  size = 0.25, linetype = 2) + 
       scale_color_manual(values = c("NS" = "grey",
                                     "absent" = "black",
-                                    "FRM1" = "#41b6c4",
+                                    "FMR1KO" = "#41b6c4",
                                     "WT" = "#e7298a")) + 
       #scale_y_continuous(limits=c(0, 8)) +
       scale_x_continuous(name="Log fold change")+
       scale_shape_manual(values=c(16, 16, 16, 16)) +
-      scale_size_manual(values=c(3,2, 2, 2)) +
+      scale_size_manual(values=c(2,2, 2, 2)) +
      scale_y_continuous(name=NULL,
                         labels = NULL)+      
       theme(legend.position = "top")
@@ -600,20 +691,22 @@ Suzy-like volcano plot
       filter(color %in% c("WT", "FMR1"), pvalue.x > 2)
     head(mytopgenes)
 
-    ##        gene pvalue.x      lfc.x pvalue.y      lfc.y color       wrap
-    ## 1    Efcab6 5.150028 -0.5619258 1.003320 -0.6767416    WT Comparison
-    ## 2 Serpina3n 8.075498 -0.6544227 1.002905 -0.4769215    WT Comparison
+    ##        gene  pvalue.x       lfc.x pvalue.y      lfc.y color       wrap
+    ## 1   Cacna1g  2.190358  -0.3435248 1.004657 -0.7686247    WT Comparison
+    ## 2    Efcab6  6.283394  -0.8090983 1.057545 -1.4464714    WT Comparison
+    ## 3      Fmr1 15.152650 -13.8780824 7.831595 -1.6165142    WT Comparison
+    ## 4 Serpina3n  9.746152  -0.9013798 1.004657 -0.5682942    WT Comparison
 
     mytopgenes$gene
 
-    ## [1] "Efcab6"    "Serpina3n"
+    ## [1] "Cacna1g"   "Efcab6"    "Fmr1"      "Serpina3n"
 
-Venn Diagram of both study's DEGS
+Venn Diagram of both study’s DEGS
 ---------------------------------
 
     contrast1 <- resvals(contrastvector = c("genotype", "FMR1", "WT"), mypval = 0.01)
 
-    ## [1] 45
+    ## [1] 145
 
     #create a new DF with the gene counts
     rldpvals <- assay(rld)
@@ -686,13 +779,20 @@ my list at 0.01 and identified the overlap. Then I made a heatmap.
     ## 0610009L18Rik 10.207004 10.110643 10.214312 10.113629 10.140719 10.165465
     ## 0610009O20Rik 15.012408 15.062111 14.909219 15.112654 14.987760 15.020742
     ## 0610010B08Rik  3.895251  3.893922  3.893433  3.893360  3.893246  3.892588
-    ##               pvalgenotypeFMR1WT padjgenotypeFMR1WT      rownames
-    ## 0610005C13Rik                 NA                 NA 0610005C13Rik
-    ## 0610007P14Rik          0.5527989          0.9317704 0610007P14Rik
-    ## 0610009B22Rik          0.4314017          0.8982522 0610009B22Rik
-    ## 0610009L18Rik          0.4469901          0.9093052 0610009L18Rik
-    ## 0610009O20Rik          0.5048276          0.9257121 0610009O20Rik
-    ## 0610010B08Rik          0.7848132                 NA 0610010B08Rik
+    ##               pvalgenotypeFMR1WT padjgenotypeFMR1WT log2FoldChange
+    ## 0610005C13Rik                 NA                 NA   -21.48225520
+    ## 0610007P14Rik          0.5527997          0.9997817     0.04461621
+    ## 0610009B22Rik          0.4314016          0.9896112    -0.07784050
+    ## 0610009L18Rik          0.4467328          0.9968425    -0.23014636
+    ## 0610009O20Rik          0.5048266          0.9997817     0.05995348
+    ## 0610010B08Rik          0.7847458          0.9997817     0.23562423
+    ##                    rownames
+    ## 0610005C13Rik 0610005C13Rik
+    ## 0610007P14Rik 0610007P14Rik
+    ## 0610009B22Rik 0610009B22Rik
+    ## 0610009L18Rik 0610009L18Rik
+    ## 0610009O20Rik 0610009O20Rik
+    ## 0610010B08Rik 0610010B08Rik
 
     Coelin <- read.csv("../data/GSE94559_Ceolin_DEGS.csv", header = F)
     colnames(Coelin)<- c("rownames")
@@ -700,8 +800,8 @@ my list at 0.01 and identified the overlap. Then I made a heatmap.
 
     ## Joining, by = "rownames"
 
-    ## Warning in inner_join_impl(x, y, by$x, by$y, suffix$x, suffix$y): joining
-    ## character vector and factor, coercing into character vector
+    ## Warning: Column `rownames` joining character vector and factor, coercing
+    ## into character vector
 
     DEGes <- DEGes %>% filter(rownames != "Col1a1")
 
@@ -714,27 +814,27 @@ my list at 0.01 and identified the overlap. Then I made a heatmap.
     DEGes <- DEGes - rowMeans(DEGes)
     head(DEGes)
 
-    ##                 KO1          KO2         KO3         KO4         KO5
-    ## Arhgef6  -0.2004604 -0.056993577 -0.02237768 -0.10420246 -0.23512035
-    ## Bcam      0.3991167  0.008573789  0.06473852  0.23344046  0.06244969
-    ## Bst2      0.3332190  0.008613677 -0.03036083  0.17159418  0.15969635
-    ## Ccnd1    -0.1716210 -0.027392769 -0.06597490 -0.25058705 -0.15683952
-    ## Cdc42bpa -0.0792575 -0.091549812 -0.06758961 -0.05032265 -0.12327327
-    ## Cdh3      0.2616079 -0.074718437  0.09414620  0.28390925  0.17376357
-    ##                  KO6         WT1        WT2         WT3          WT4
-    ## Arhgef6  -0.08489931  0.08121122  0.1513336  0.15679762  0.174831927
-    ## Bcam      0.06207792 -0.16154375 -0.1884787 -0.17002907 -0.008485504
-    ## Bst2      0.14706322 -0.07980882 -0.1762138 -0.16335101 -0.187867398
-    ## Ccnd1    -0.12238987  0.27960396  0.1165120  0.05532832  0.109603622
-    ## Cdc42bpa -0.04306319  0.05370122  0.1022245  0.11635424  0.080781457
-    ## Cdh3      0.15395102 -0.27636985 -0.2319666 -0.05323882  0.052547233
-    ##                  WT5         WT6
-    ## Arhgef6   0.10092002  0.03895937
-    ## Bcam     -0.09666804 -0.20519197
-    ## Bst2     -0.12835602 -0.05422853
-    ## Ccnd1     0.12148001  0.11227719
-    ## Cdc42bpa  0.12032494 -0.01833033
-    ## Cdh3     -0.23610781 -0.14752371
+    ##                KO1       KO2       KO3       KO4       KO5      KO6
+    ## Arhgap35 0.9670412 0.9855426 1.0095585 1.0495598 0.9938179 1.020148
+    ## Arhgef6  0.9433074 1.0867743 1.1213901 1.0395654 0.9086475 1.058869
+    ## Bcam     1.4596690 1.0691261 1.1252908 1.2939927 1.1230020 1.122630
+    ## Bst2     1.3545676 1.0299623 0.9909878 1.1929428 1.1810450 1.168412
+    ## Cacna1g  1.0133649 1.0974250 1.1293466 0.9702868 1.2447774 1.098128
+    ## Ccnd1    1.2003823 1.3446105 1.3060284 1.1214162 1.2151638 1.249613
+    ##                WT1       WT2       WT3       WT4       WT5       WT6
+    ## Arhgap35 1.0752523 1.1223722 1.1405482 1.1016655 1.1273890 1.0676906
+    ## Arhgef6  1.2249791 1.2951014 1.3005655 1.3185998 1.2446879 1.1827272
+    ## Bcam     0.8990085 0.8720735 0.8905232 1.0520668 0.9638842 0.8553603
+    ## Bst2     0.9415398 0.8451348 0.8579976 0.8334812 0.8929926 0.9671201
+    ## Cacna1g  1.2898566 1.2823522 1.2245829 1.3471607 1.3325728 1.2548744
+    ## Ccnd1    1.6516073 1.4885153 1.4273316 1.4816069 1.4934833 1.4842805
+    ##          log2FoldChange
+    ## Arhgap35      -12.66059
+    ## Arhgef6       -13.72521
+    ## Bcam          -12.72663
+    ## Bst2          -12.25618
+    ## Cacna1g       -14.28473
+    ## Ccnd1         -16.46404
 
     # setting color options
     ann_colors <- list(genotype =  c('FMR1' = (values=c("#41b6c4")), 

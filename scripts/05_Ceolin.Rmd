@@ -19,8 +19,6 @@ The parts of their paper that I reproduced are visuzalized in Figure 2 and 3 of 
 
 I reproduced the data from the Ceolin et al. 2017 which used fluorescence labeling to selectively sequence pyramidal neurons in the CA1 subfield of the hippocampus from WT and FMR1-KO mice (Fig 2A). My reproduction of their data produced a very similar pattern of gene expression and list of differentially expressed genes with roughly equal up and downregulation of expression. Then, I asked how many of their differentially expressed genes are differentially expressed in my study.  I found found that downregulation of expression of Cacna1g, Efcab6, Serpina3n, and Sstr3 was consistent in both the Coelin data and in my data (Fig 2B). Next, I check to see if the genes that I calculated to be significantly different als identified by Coelin and described as significantly different. I determined that 39 of top 45 most significant (p < 0.01) genes in my analysis make up over half of the most significant (p < 0.05) genes of from the Ceolin study (Fig 2C). Of my list of "replicated" 39 differentially expressed genes, two genes (Serpina3a and Efcab6) were also identified in my analysis of differential expression (Fig 2D). My GO analysis highlighted different but also overlapping patterns. The Ceolin study highlights the molecular function enriched pathways in FMR1-KO mice, but my analysis provided stronger evidence for a deletion of calcium receptor-related functions (Fig 2E). This suggests a role for dysregulation of calcium signaling in the hippocampus of Fragile X Syndrome patients and is consistent with my research findings.
  
- 
-
 ![](../figures/fig3-01.png)
 Reproducing the Ceolin study for direct comparison of results.
 A) Graphical representation of the samples for the Ceolin et al. 2017 study examining CA1 expression in WT and FMR1-KO mice. B) Reproduction: This volcano plot shows that my analysis of the Ceolin et al count data identified 88 genes that are up-regulated in FMR1-KO mice and the 146 genes that are up-regulated in WT mice a p < 0.05. Comparison: The gene expression and significance values from the Ceolin data are color-coded by the levels of significance from my results described in Fig 2.8. Four genes that are upregulated in WT in my study were also upregulated in my reproduction of the Ceolin data. C) Analysis showing that 39 of top 45 most significant (p < 0.01) genes in my reproduction of the analysis, make up over half of the top most significant (p < 0.05) genes of from the Ceolin study. D) Hierarchical clustering shows the names and expression patterns of those same significant genes. D) GO analysis showing a very similar pattern of depletion of calcium channel activity as was shown in Fig. 2.8). In contrast, Ceolin detected enrichment of ribosomal processes in response to FMR1-KO in CA1 pyramidal neurons. Legend) Teal: Enriched in FMR1-KO, pink: enriched in WT, grey: genes with insignificant expression, black: genes whos expression was not calculated in my original analysis
@@ -43,11 +41,12 @@ library(VennDiagram)
 library(genefilter)
 library(pheatmap)
 library(edgeR)
-library(colorRamps) # for a matlab like color scheme
+#library(colorRamps) # for a matlab like color scheme
 library(viridis)
 library(genefilter)  ## for PCA fuction
 library(ggrepel) ## for labeling volcano plot
 library(cowplot)
+library(topconfects)
 
 source("functions_RNAseq.R")
 
@@ -126,7 +125,7 @@ Then I conducted differential gene experssion with DESeq2 modeling the effect ge
 ```{r DifferentialGeneExpressionAnalysis}
 dds <- DESeqDataSetFromMatrix(countData = countData,
                               colData = colData,
-                              design = ~ genotype )
+                              design = ~genotype )
 dds <- dds[ rowSums(counts(dds)) > 2, ] ## filter genes with 0 counts
 dds <- DESeq(dds) # Differential expression analysis
 dds
@@ -134,8 +133,12 @@ dds
 ## for variance stablized gene expression and log transformed data
 rld <- rlog(dds, blind=FALSE)
 
-res <- results(dds, contrast =c("genotype", "FMR1", "WT"), independentFiltering = T, alpha = 0.1)
-summary(res)
+
+results(dds, contrast =c("genotype", "FMR1", "WT"), independentFiltering = T)
+summary(results(dds, contrast =c("genotype", "FMR1", "WT"), independentFiltering = T)) #original use
+
+results(dds, contrast =c("genotype", "WT", "FMR1"))
+summary(results(dds, contrast =c("genotype", "WT", "FMR1"))) # added for comparison to deseq2_confects results
 ```
 
 There are 12 samples (6 WT and 6 FMR1-KO) and 37,167 genes were included in the analysis, but most were discarded during the normalizaiton and analysis iwth DESeq such that the expression of only 19,361 genes were analysed.

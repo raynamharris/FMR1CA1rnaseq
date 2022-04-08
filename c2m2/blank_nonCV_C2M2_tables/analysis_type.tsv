@@ -1,0 +1,4 @@
+id	name	description	synonyms
+OBI:0200057	replicate analysis	A replicate analysis is a data transformation in which data from replicates are combined, e.g. through descriptive statistics calculations, and the results might be utilized for a variety of purposes, like assessing reproducibility, identifying outliers, normalizing, etc.	[]
+OBI:0200080	network analysis	A data transformation that takes as input data that describes biological networks in terms of the node (a.k.a. vertex) and edge graph elements and their characteristics and generates as output properties of the constituent nodes and edges, the sub-graphs, and the entire network.	["network topology analysis"]
+OBI:0200106	discriminant analysis	Discriminant function analysis is used to determine which variables discriminate between two or more naturally occurring groups. Analysis is used to determine which variable(s) are the best predictors of a particular outcome.	[]

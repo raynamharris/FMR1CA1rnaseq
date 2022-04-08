@@ -102,6 +102,11 @@ biosample_gene.tsv
 
 
 
+
+subjectcolnames <- read_tsv("./blank_nonCV_C2M2_tables/subject.tsv") %>% colnames()
+
+
+
 ###################################################################
 
 # save files
@@ -118,3 +123,5 @@ savefiles(biosample_gene.tsv)
 savefiles(biosample.tsv)
 savefiles(file.tsv)
 savefiles(subject.tsv)
+
+

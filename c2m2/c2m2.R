@@ -196,6 +196,12 @@ subject_role_taxonomy.tsv <- subject.tsv %>%
 subject_role_taxonomy.tsv
 
 
+
+analysis_type.tsv <- read_tsv("blank_nonCV_C2M2_tables/analysis_type.tsv")
+analysis_type.tsv <- analysis_type.tsv[-c(1:3), ] 
+
+analysis_type.tsv
+
 ###################################################################
 
 # save files
@@ -224,6 +230,7 @@ savefiles(project.tsv)
 
 savefiles(subject.tsv)
 savefiles(subject_role_taxonomy.tsv)
+
 
 
 

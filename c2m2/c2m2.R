@@ -145,6 +145,7 @@ savefiles(biosample_disease.tsv)
 savefiles(biosample_from_subject.tsv)
 savefiles(biosample_gene.tsv)
 savefiles(biosample.tsv)
+savefiles(dcc.tsv)
 savefiles(file.tsv)
 savefiles(subject.tsv)
 

@@ -1,0 +1,13 @@
+id	name	description	synonyms
+format:1919	Sequence record format	Data format for a molecular sequence record.	[]
+format:1929	FASTA	FASTA format including NCBI-style IDs.	["FASTA sequence format","FASTA format"]
+format:1930	FASTQ	FASTQ short read format ignoring quality scores.	["FASTAQ","fq"]
+format:1975	GFF3	Generic Feature Format version 3 (GFF3) of sequence features.	[]
+format:2330	Textual format	Textual format.	["Plain text format","txt"]
+format:2572	BAM	BAM format, the binary, BGZF-formatted compressed version of SAM format for alignment of nucleotide sequences (e.g. sequencing reads) to (a) reference sequence(s). May contain base-call and alignment qualities and other data.	[]
+format:3244	mzML	mzML format for raw spectrometer output data, standardised by HUPO PSI MSS.	[]
+format:3464	JSON	JavaScript Object Notation format; a lightweight, text-based format to represent tree-structured data using key-value pairs.	["JavaScript Object Notation"]
+format:3475	TSV	Tabular data represented as tab-separated values in a text file.	["Tab-delimited","Tab-separated values"]
+format:3654	mzXML	Common file format for proteomics mass spectrometric data developed at the Seattle Proteome Center/Institute for Systems Biology.	[]
+format:3712	Thermo RAW	Proprietary file format for mass spectrometry data from Thermo Scientific.	[]
+format:3746	BIOM format	The BIological Observation Matrix (BIOM) is a format for representing biological sample by observation contingency tables in broad areas of comparative omics. The primary use of this format is to represent OTU tables and metagenome tables.	["BIological Observation Matrix format"]

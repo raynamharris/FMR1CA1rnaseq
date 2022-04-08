@@ -9,6 +9,9 @@ library(lubridate)
 my_dcc_id = "cfde_registry_dcc:rmh"
 my_id_namespace = "raynamharris.com"
 my_project_id_namespace = "raynamharris.com:FRM1"
+my_description = "Testing account for Rayna Harris"
+my_name = "Rayna M Harris"
+my_abbreviation = "RMH"
 project_local_id = "FMR1"
 outdir = "rmh_2022_04_08/"
 
@@ -18,13 +21,10 @@ getcolnames <- function(file){
   return(tsvcolnames)
 }
 
-dcc_cols <- getcolnames("./blank_nonCV_C2M2_tables/dcc.tsv") 
-dcc_cols
-
 dcc.tsv <- data.frame(id = my_dcc_id,
-                      dcc_name = "Rayna M Harris",
-                      dcc_abbreviation = "RMH",
-                      dcc_description = "Testing account for Rayna Harris",
+                      dcc_name = my_name,
+                      dcc_abbreviation = my_abbreviation,
+                      dcc_description = my_description,
                       contact_email = "rmharris@ucdavis.edu",
                       contact_name = "Rayna",
                       dcc_url = my_id_namespace,
@@ -34,15 +34,23 @@ dcc.tsv <- data.frame(id = my_dcc_id,
 dcc.tsv
 
 
-id_namespace_cols <- getcolnames("./blank_nonCV_C2M2_tables/id_namespace.tsv")
-id_namespace_cols
-
 id_namespace.tsv <- data.frame(id = my_id_namespace,
-                               name = "Rayna M Harris",
-                               abbreviation = "RMH",
-                               description = "Testing account for Rayna Harris")
+                               name = my_name,
+                               abbreviation = my_abbreviation,
+                               description = my_description)
 id_namespace.tsv
 
+project_cols <- getcolnames("./blank_nonCV_C2M2_tables/project.tsv")
+project_cols
+
+
+project.tsv <- data.frame(id_namespace = my_id_namespace,
+                          local_id = project_local_id,
+                          persistent_id = NA,
+                          creation_time = NA,
+                          abbreviation = my_abbreviation,
+                          description = my_description)
+project.tsv
 
 subject_cols <- getcolnames("./blank_nonCV_C2M2_tables/subject.tsv") 
 subject_cols
@@ -159,8 +167,6 @@ file_describes_biosample.tsv
 file_describes_subject_cols <- getcolnames("blank_nonCV_C2M2_tables/file_describes_subject.tsv")
 file_describes_subject_cols
 
-
-  
 filetemp <- file.tsv %>% 
   rename(file_id_namespace = id_namespace,
          file_local_id = local_id) %>%
@@ -176,8 +182,18 @@ subjecttemp
 file_describes_subject.tsv <- cbind(filetemp, subjecttemp)
 file_describes_subject.tsv
 
-project_cols <- getcolnames("./blank_nonCV_C2M2_tables/project.tsv")
-project_cols
+
+
+subject_role_taxonomy_cols <- getcolnames("./blank_nonCV_C2M2_tables/subject_role_taxonomy.tsv")
+subject_role_taxonomy_cols
+
+subject_role_taxonomy.tsv <- subject.tsv %>%
+  rename(subject_id_namespace = id_namespace, 
+         subject_local_id = local_id,
+         role_id = granularity) %>%
+  mutate(taxonomy_id = "NCBI:txid10090") %>%
+  select(all_of(subject_role_taxonomy_cols))
+subject_role_taxonomy.tsv
 
 
 ###################################################################
@@ -190,18 +206,25 @@ savefiles <- function(object){
               sep ="\t", row.names = F, col.names = T, quote = F, na = "")
 }
 
-savefiles(subject.tsv)
+
 savefiles(biosample.tsv)
 savefiles(biosample_disease.tsv)
 savefiles(biosample_from_subject.tsv)
 savefiles(biosample_gene.tsv)
 
 savefiles(dcc.tsv)
+
 savefiles(id_namespace.tsv)
 
 savefiles(file.tsv)
 savefiles(file_describes_biosample.tsv)
 savefiles(file_describes_subject.tsv)
+
+savefiles(project.tsv)
+
+savefiles(subject.tsv)
+savefiles(subject_role_taxonomy.tsv)
+
 
 
 

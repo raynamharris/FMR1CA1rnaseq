@@ -6,6 +6,7 @@ library(lubridate)
 
 # set working directory to source file location
 
+my_dcc_id = "cfde_registry_dcc:rmh"
 my_id_namespace = "raynamharris.com"
 my_project_id_namespace = "raynamharris.com:FRM1"
 project_local_id = "FMR1"
@@ -16,6 +17,21 @@ getcolnames <- function(file){
     colnames()
   return(tsvcolnames)
 }
+
+
+dcc_colnames <- getcolnames("./blank_nonCV_C2M2_tables/dcc.tsv") 
+dcc_colnames
+
+dcc.tsv <- data.frame(id = my_dcc_id,
+                      dcc_name = "Rayna M Harris",
+                      dcc_abbreviation = "RMH",
+                      dcc_description = "Testing account for Rayna Harris",
+                      contact_email = "rmharris@ucdavis.edu",
+                      contact_name = "Rayna",
+                      dcc_url = my_id_namespace,
+                      project_id_namespace = paste(my_id_namespace, project_local_id,sep = "_"),
+                      project_local_id = project_local_id)
+dcc.tsv
 
 subject_colnames <- getcolnames("./blank_nonCV_C2M2_tables/subject.tsv") 
 subject_colnames
@@ -113,8 +129,6 @@ biosample_gene.tsv
 
 
 
-subject_colnames <- getcolnames("./blank_nonCV_C2M2_tables/subject.tsv") 
-subject_colnames
 
 
 ###################################################################

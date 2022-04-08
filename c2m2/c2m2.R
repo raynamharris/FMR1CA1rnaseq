@@ -29,7 +29,8 @@ dcc.tsv <- data.frame(id = my_dcc_id,
                       contact_email = "rmharris@ucdavis.edu",
                       contact_name = "Rayna",
                       dcc_url = my_id_namespace,
-                      project_id_namespace = paste(my_id_namespace, project_local_id,sep = ":"),
+                      project_id_namespace = paste(my_id_namespace, 
+                                                   project_local_id,sep = ":"),
                       project_local_id = project_local_id)
 dcc.tsv
 
@@ -79,7 +80,9 @@ biosample.tsv
 biosample_from_subject_colnames <- getcolnames("./blank_nonCV_C2M2_tables/biosample_from_subject.tsv") 
 biosample_from_subject_colnames
 
-biosample_from_subject.tsv <- full_join(df1, df2,  by = c("Mouse", "Genotype", "Date", "id_namespace"))   %>%
+biosample_from_subject.tsv <- full_join(df1, df2,  
+                                        by = c("Mouse", "Genotype", 
+                                               "Date", "id_namespace"))   %>%
   select(contains(".")) %>%
   mutate("biosample_id_namespace" = paste(project_id_namespace.y, local_id.y, sep = "_"),
          "biosample_local_id"  = local_id.y,
@@ -94,9 +97,12 @@ file_colnames <- getcolnames("./blank_nonCV_C2M2_tables/file.tsv")
 file_colnames
 
 file.tsv <- df2 %>%
-  mutate(filename = paste(persistent_id, "abundance", Mouse, Ssample, "L002.tsv.gz", sep = "_"),
+  mutate(local_id = paste(local_id, Ssample, sep = "_"),
+         filename = paste(persistent_id, "abundance", Mouse, 
+                          Ssample, "L002.tsv.gz", sep = "_"),
          filename = gsub("-", "_", filename),
-         uncompressed_size_in_bytes = NA, sha256 = NA, md5 = NA,
+         uncompressed_size_in_bytes = NA, 
+         sha256 = NA, md5 = NA,
          file_format = "format:3475",
          compression_format = "format:3989", size_in_bytes = 3200,
          mime_type = NA,   bundle_collection_id_namespace = NA ,
@@ -105,6 +111,8 @@ file.tsv <- df2 %>%
          analysis_type = assay_type) %>%
   select(file_colnames)
 file.tsv
+
+df2$Ssample
 
 biosample_disease_colnames <- getcolnames("./blank_nonCV_C2M2_tables/biosample_disease.tsv") 
 biosample_disease_colnames
@@ -138,6 +146,26 @@ file_describes_biosample.tsv <- file.tsv %>%
   select(all_of(file_describes_biosample_colnames))
 file_describes_biosample.tsv
 
+file_describes_subject_colnames <- getcolnames("blank_nonCV_C2M2_tables/file_describes_subject.tsv")
+file_describes_subject_colnames
+
+
+  
+filetemp <- file.tsv %>% 
+  rename(file_id_namespace = id_namespace,
+         file_local_id = local_id) %>%
+  select(file_id_namespace, file_local_id) 
+filetemp
+
+subjecttemp <- subject.tsv %>%
+  rename(subject_id_namespace = id_namespace,
+         subject_local_id = local_id) %>%
+  select(subject_id_namespace, subject_local_id)
+subjecttemp
+
+file_describes_subject.tsv <- cbind(filetemp, subjecttemp)
+file_describes_subject.tsv
+
 ###################################################################
 
 # save files
@@ -154,6 +182,7 @@ savefiles(biosample_gene.tsv)
 savefiles(biosample.tsv)
 savefiles(dcc.tsv)
 savefiles(file_describes_biosample.tsv)
+savefiles(file_describes_subject.tsv)
 savefiles(file.tsv)
 savefiles(subject.tsv)
 

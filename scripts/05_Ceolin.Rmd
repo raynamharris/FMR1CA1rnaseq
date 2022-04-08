@@ -139,6 +139,8 @@ summary(results(dds, contrast =c("genotype", "FMR1", "WT"), independentFiltering
 
 results(dds, contrast =c("genotype", "WT", "FMR1"))
 summary(results(dds, contrast =c("genotype", "WT", "FMR1"))) # added for comparison to deseq2_confects results
+
+deseq2_confects(dds, name = "genotype_WT_vs_FMR1")
 ```
 
 There are 12 samples (6 WT and 6 FMR1-KO) and 37,167 genes were included in the analysis, but most were discarded during the normalizaiton and analysis iwth DESeq such that the expression of only 19,361 genes were analysed.

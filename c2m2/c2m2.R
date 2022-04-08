@@ -29,7 +29,7 @@ dcc.tsv <- data.frame(id = my_dcc_id,
                       contact_email = "rmharris@ucdavis.edu",
                       contact_name = "Rayna",
                       dcc_url = my_id_namespace,
-                      project_id_namespace = paste(my_id_namespace, project_local_id,sep = "_"),
+                      project_id_namespace = paste(my_id_namespace, project_local_id,sep = ":"),
                       project_local_id = project_local_id)
 dcc.tsv
 

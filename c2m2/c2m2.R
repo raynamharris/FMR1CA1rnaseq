@@ -126,10 +126,17 @@ biosample_gene.tsv <- biosample.tsv %>%
   dplyr::select(all_of(biosample_gene_colnames))
 biosample_gene.tsv
 
+file_describes_biosample_colnames <- getcolnames("blank_nonCV_C2M2_tables/file_describes_biosample.tsv")
+file_describes_biosample_colnames
 
-
-
-
+file_describes_biosample.tsv <- file.tsv %>%
+  rename(file_id_namespace = id_namespace,
+         file_local_id = local_id) %>%
+  left_join(., biosample.tsv, by = "persistent_id") %>%
+  rename(biosample_id_namespace = id_namespace,
+         biosample_local_id = local_id) %>%
+  select(all_of(file_describes_biosample_colnames))
+file_describes_biosample.tsv
 
 ###################################################################
 
@@ -146,6 +153,7 @@ savefiles(biosample_from_subject.tsv)
 savefiles(biosample_gene.tsv)
 savefiles(biosample.tsv)
 savefiles(dcc.tsv)
+savefiles(file_describes_biosample.tsv)
 savefiles(file.tsv)
 savefiles(subject.tsv)
 

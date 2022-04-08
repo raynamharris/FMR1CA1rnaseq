@@ -18,9 +18,8 @@ getcolnames <- function(file){
   return(tsvcolnames)
 }
 
-
-dcc_colnames <- getcolnames("./blank_nonCV_C2M2_tables/dcc.tsv") 
-dcc_colnames
+dcc_cols <- getcolnames("./blank_nonCV_C2M2_tables/dcc.tsv") 
+dcc_cols
 
 dcc.tsv <- data.frame(id = my_dcc_id,
                       dcc_name = "Rayna M Harris",
@@ -35,8 +34,8 @@ dcc.tsv <- data.frame(id = my_dcc_id,
 dcc.tsv
 
 
-id_namespace_colnames <- getcolnames("./blank_nonCV_C2M2_tables/id_namespace.tsv")
-id_namespace_colnames
+id_namespace_cols <- getcolnames("./blank_nonCV_C2M2_tables/id_namespace.tsv")
+id_namespace_cols
 
 id_namespace.tsv <- data.frame(id = my_id_namespace,
                                name = "Rayna M Harris",
@@ -45,8 +44,8 @@ id_namespace.tsv <- data.frame(id = my_id_namespace,
 id_namespace.tsv
 
 
-subject_colnames <- getcolnames("./blank_nonCV_C2M2_tables/subject.tsv") 
-subject_colnames
+subject_cols <- getcolnames("./blank_nonCV_C2M2_tables/subject.tsv") 
+subject_cols
 
 df1 <- subject.tsv <- read_csv("../data/summer2016_edited.csv") %>%
   filter(Genotype %in% c("WT", "FMR1"),
@@ -59,11 +58,11 @@ df1 <- subject.tsv <- read_csv("../data/summer2016_edited.csv") %>%
          persistent_id = NA, creation_time =  NA,
          ethnicity = NA, age_at_enrollment = NA ) 
   
-subject.tsv <-  df1  %>% select(subject_colnames) 
+subject.tsv <-  df1  %>% select(subject_cols) 
 subject.tsv
 
-biosample_colnames <- getcolnames("blank_nonCV_C2M2_tables/biosample.tsv") 
-biosample_colnames
+biosample_cols <- getcolnames("blank_nonCV_C2M2_tables/biosample.tsv") 
+biosample_cols
 
 df2 <- read_csv("../data/summer2016forRNAseq.csv") %>%
   filter(Genotype %in% c("WT", "FMR1"),
@@ -85,11 +84,11 @@ df2 <- read_csv("../data/summer2016forRNAseq.csv") %>%
          anatomy = "UBERON:0003881") 
 
 
-biosample.tsv <- df2 %>% dplyr::select(biosample_colnames)
+biosample.tsv <- df2 %>% dplyr::select(biosample_cols)
 biosample.tsv
 
-biosample_from_subject_colnames <- getcolnames("./blank_nonCV_C2M2_tables/biosample_from_subject.tsv") 
-biosample_from_subject_colnames
+biosample_from_subject_cols <- getcolnames("./blank_nonCV_C2M2_tables/biosample_from_subject.tsv") 
+biosample_from_subject_cols
 
 biosample_from_subject.tsv <- full_join(df1, df2,  
                                         by = c("Mouse", "Genotype", 
@@ -100,12 +99,12 @@ biosample_from_subject.tsv <- full_join(df1, df2,
          "subject_id_namespace" = paste(project_id_namespace.x, local_id.x, sep = "_"), 
          "subject_local_id"  = local_id.x, 
          "age_at_sampling" = NA) %>%
-  select(biosample_from_subject_colnames)
+  select(biosample_from_subject_cols)
 biosample_from_subject.tsv
 
 
-file_colnames <- getcolnames("./blank_nonCV_C2M2_tables/file.tsv") 
-file_colnames
+file_cols <- getcolnames("./blank_nonCV_C2M2_tables/file.tsv") 
+file_cols
 
 file.tsv <- df2 %>%
   mutate(local_id = paste(local_id, Ssample, sep = "_"),
@@ -120,33 +119,33 @@ file.tsv <- df2 %>%
          data_type = "data:3495", bundle_collection_local_id = NA,
          dbgap_study_id = NA, 
          analysis_type = assay_type) %>%
-  select(file_colnames)
+  select(file_cols)
 file.tsv
 
 df2$Ssample
 
-biosample_disease_colnames <- getcolnames("./blank_nonCV_C2M2_tables/biosample_disease.tsv") 
-biosample_disease_colnames
+biosample_disease_cols <- getcolnames("./blank_nonCV_C2M2_tables/biosample_disease.tsv") 
+biosample_disease_cols
 
 biosample_disease.tsv <- biosample_from_subject.tsv %>%
   mutate(association_type = NA,
          disease =  NA) %>%
-  select(biosample_disease_colnames)
+  select(biosample_disease_cols)
 biosample_disease.tsv
 
 
-biosample_gene_colnames <- getcolnames("./blank_nonCV_C2M2_tables/biosample_gene.tsv") 
-biosample_gene_colnames
+biosample_gene_cols <- getcolnames("./blank_nonCV_C2M2_tables/biosample_gene.tsv") 
+biosample_gene_cols
 
 biosample_gene.tsv <- biosample.tsv %>%
   mutate(gene = ifelse(grepl("FMR1", local_id), "ENSG00000102081", NA)) %>%
   dplyr::rename(biosample_id_namespace = id_namespace,
                 biosample_local_id = local_id) %>%
-  dplyr::select(all_of(biosample_gene_colnames))
+  dplyr::select(all_of(biosample_gene_cols))
 biosample_gene.tsv
 
-file_describes_biosample_colnames <- getcolnames("blank_nonCV_C2M2_tables/file_describes_biosample.tsv")
-file_describes_biosample_colnames
+file_describes_biosample_cols <- getcolnames("blank_nonCV_C2M2_tables/file_describes_biosample.tsv")
+file_describes_biosample_cols
 
 file_describes_biosample.tsv <- file.tsv %>%
   rename(file_id_namespace = id_namespace,
@@ -154,11 +153,11 @@ file_describes_biosample.tsv <- file.tsv %>%
   left_join(., biosample.tsv, by = "persistent_id") %>%
   rename(biosample_id_namespace = id_namespace,
          biosample_local_id = local_id) %>%
-  select(all_of(file_describes_biosample_colnames))
+  select(all_of(file_describes_biosample_cols))
 file_describes_biosample.tsv
 
-file_describes_subject_colnames <- getcolnames("blank_nonCV_C2M2_tables/file_describes_subject.tsv")
-file_describes_subject_colnames
+file_describes_subject_cols <- getcolnames("blank_nonCV_C2M2_tables/file_describes_subject.tsv")
+file_describes_subject_cols
 
 
   
@@ -177,7 +176,8 @@ subjecttemp
 file_describes_subject.tsv <- cbind(filetemp, subjecttemp)
 file_describes_subject.tsv
 
-
+project_cols <- getcolnames("./blank_nonCV_C2M2_tables/project.tsv")
+project_cols
 
 
 ###################################################################

@@ -9,9 +9,16 @@ library(lubridate)
 my_id_namespace = "raynamharris.com"
 my_project_id_namespace = "raynamharris.com:FRM1"
 project_local_id = "FMR1"
-outdir = "rmh-2022-04-08/"
+outdir = "rmh_2022_04_08/"
 
-subjectcolnames <- read_tsv("./blank_nonCV_C2M2_tables/subject.tsv") %>% colnames()
+getcolnames <- function(file){
+  tsvcolnames <- read_tsv(file) %>% 
+    colnames()
+  return(tsvcolnames)
+}
+
+subject_colnames <- getcolnames("./blank_nonCV_C2M2_tables/subject.tsv") 
+subject_colnames
 
 df1 <- subject.tsv <- read_csv("../data/summer2016_edited.csv") %>%
   filter(Genotype %in% c("WT", "FMR1"),
@@ -24,10 +31,11 @@ df1 <- subject.tsv <- read_csv("../data/summer2016_edited.csv") %>%
          persistent_id = NA, creation_time =  NA,
          ethnicity = NA, age_at_enrollment = NA ) 
   
-subject.tsv <-  df1  %>% select(subjectcolnames) 
+subject.tsv <-  df1  %>% select(subject_colnames) 
 subject.tsv
 
-biosamplecolnames <- read_tsv("blank_nonCV_C2M2_tables/biosample.tsv") %>% colnames()
+biosample_colnames <- getcolnames("blank_nonCV_C2M2_tables/biosample.tsv") 
+biosample_colnames
 
 df2 <- read_csv("../data/summer2016forRNAseq.csv") %>%
   filter(Genotype %in% c("WT", "FMR1"),
@@ -47,12 +55,13 @@ df2 <- read_csv("../data/summer2016forRNAseq.csv") %>%
          creation_time = mdy(Date),
          assay_type = "OBI:0002571",
          anatomy = "UBERON:0003881") 
-df2$local_id
 
-biosample.tsv <- df2 %>%  select(biosamplecolnames)
+
+biosample.tsv <- df2 %>% dplyr::select(biosample_colnames)
 biosample.tsv
 
-biosamplsubjectcolnames <- read_tsv("./blank_nonCV_C2M2_tables/biosample_from_subject.tsv") %>% colnames()
+biosample_from_subject_colnames <- getcolnames("./blank_nonCV_C2M2_tables/biosample_from_subject.tsv") 
+biosample_from_subject_colnames
 
 biosample_from_subject.tsv <- full_join(df1, df2,  by = c("Mouse", "Genotype", "Date", "id_namespace"))   %>%
   select(contains(".")) %>%
@@ -61,11 +70,12 @@ biosample_from_subject.tsv <- full_join(df1, df2,  by = c("Mouse", "Genotype", "
          "subject_id_namespace" = paste(project_id_namespace.x, local_id.x, sep = "_"), 
          "subject_local_id"  = local_id.x, 
          "age_at_sampling" = NA) %>%
-  select(biosamplsubjectcolnames)
+  select(biosample_from_subject_colnames)
 biosample_from_subject.tsv
 
 
-filenames <- read_tsv("./blank_nonCV_C2M2_tables/file.tsv") %>% colnames()
+file_colnames <- getcolnames("./blank_nonCV_C2M2_tables/file.tsv") 
+file_colnames
 
 file.tsv <- df2 %>%
   mutate(filename = paste(persistent_id, "abundance", Mouse, Ssample, "L002.tsv.gz", sep = "_"),
@@ -77,34 +87,34 @@ file.tsv <- df2 %>%
          data_type = "data:3495", bundle_collection_local_id = NA,
          dbgap_study_id = NA, 
          analysis_type = assay_type) %>%
-  select(filenames)
+  select(file_colnames)
 file.tsv
 
-biosamplediseasecolnames <- read_tsv("./blank_nonCV_C2M2_tables/biosample_disease.tsv") %>% colnames()
-biosamplediseasecolnames
+biosample_disease_colnames <- getcolnames("./blank_nonCV_C2M2_tables/biosample_disease.tsv") 
+biosample_disease_colnames
 
 biosample_disease.tsv <- biosample_from_subject.tsv %>%
   mutate(association_type = NA,
          disease =  NA) %>%
-  select(biosamplediseasecolnames)
+  select(biosample_disease_colnames)
 biosample_disease.tsv
 
 
-biosamplegenecolnames <- read_tsv("./blank_nonCV_C2M2_tables/biosample_gene.tsv") %>% colnames()
-biosamplegenecolnames
+biosample_gene_colnames <- getcolnames("./blank_nonCV_C2M2_tables/biosample_gene.tsv") 
+biosample_gene_colnames
 
 biosample_gene.tsv <- biosample.tsv %>%
   mutate(gene = ifelse(grepl("FMR1", local_id), "ENSG00000102081", NA)) %>%
   dplyr::rename(biosample_id_namespace = id_namespace,
                 biosample_local_id = local_id) %>%
-  dplyr::select(biosamplegenecolnames)
+  dplyr::select(all_of(biosample_gene_colnames))
 biosample_gene.tsv
 
 
 
 
-subjectcolnames <- read_tsv("./blank_nonCV_C2M2_tables/subject.tsv") %>% colnames()
-
+subject_colnames <- getcolnames("./blank_nonCV_C2M2_tables/subject.tsv") 
+subject_colnames
 
 
 ###################################################################

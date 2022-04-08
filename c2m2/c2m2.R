@@ -34,6 +34,17 @@ dcc.tsv <- data.frame(id = my_dcc_id,
                       project_local_id = project_local_id)
 dcc.tsv
 
+
+id_namespace_colnames <- getcolnames("./blank_nonCV_C2M2_tables/id_namespace.tsv")
+id_namespace_colnames
+
+id_namespace.tsv <- data.frame(id = my_id_namespace,
+                               name = "Rayna M Harris",
+                               abbreviation = "RMH",
+                               description = "Testing account for Rayna Harris")
+id_namespace.tsv
+
+
 subject_colnames <- getcolnames("./blank_nonCV_C2M2_tables/subject.tsv") 
 subject_colnames
 
@@ -166,6 +177,9 @@ subjecttemp
 file_describes_subject.tsv <- cbind(filetemp, subjecttemp)
 file_describes_subject.tsv
 
+
+
+
 ###################################################################
 
 # save files
@@ -176,14 +190,18 @@ savefiles <- function(object){
               sep ="\t", row.names = F, col.names = T, quote = F, na = "")
 }
 
+savefiles(subject.tsv)
+savefiles(biosample.tsv)
 savefiles(biosample_disease.tsv)
 savefiles(biosample_from_subject.tsv)
 savefiles(biosample_gene.tsv)
-savefiles(biosample.tsv)
+
 savefiles(dcc.tsv)
+savefiles(id_namespace.tsv)
+
+savefiles(file.tsv)
 savefiles(file_describes_biosample.tsv)
 savefiles(file_describes_subject.tsv)
-savefiles(file.tsv)
-savefiles(subject.tsv)
+
 
 

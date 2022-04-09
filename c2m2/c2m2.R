@@ -198,13 +198,11 @@ subject_role_taxonomy_cols
 
 subject_role_taxonomy.tsv <- subject.tsv %>%
   rename(subject_id_namespace = id_namespace, 
-         subject_local_id = local_id,
-         role_id = granularity) %>%
+         subject_local_id = local_id) %>%
+  mutate(role_id = "cfde_subject_role:0") %>%
   mutate(taxonomy_id = "NCBI:txid10090") %>%
   select(all_of(subject_role_taxonomy_cols))
 subject_role_taxonomy.tsv
-
-
 
 ###################################################################
 

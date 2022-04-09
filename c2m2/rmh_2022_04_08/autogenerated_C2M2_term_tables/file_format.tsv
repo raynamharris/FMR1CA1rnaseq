@@ -1,3 +1,0 @@
-id	name	description	synonyms
-format:3475	TSV	Tabular data represented as tab-separated values in a text file.	["Tab-delimited","Tab-separated values"]
-format:3989	GZIP format	GNU zip compressed file format common to Unix-based operating systems.	["GNU Zip"]

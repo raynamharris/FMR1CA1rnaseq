@@ -10,7 +10,7 @@ my_dcc_id = "cfde_registry_dcc:test1"
 my_id_namespace = "raynamharris.com"
 my_project_id_namespace = "raynamharris.com:FRM1"
 my_description = "Testing account for Rayna Harris"
-my_name = "Rayna M Harris"
+my_name = "raynamharris"
 my_abbreviation = "RMH"
 project_local_id = "PRJNA417316"
 outdir = "rmh_2022_04_08/"
@@ -35,8 +35,8 @@ dcc.tsv
 
 
 id_namespace.tsv <- data.frame(id = my_id_namespace,
-                               name = my_name,
                                abbreviation = my_abbreviation,
+                               name = my_name,
                                description = my_description)
 id_namespace.tsv
 

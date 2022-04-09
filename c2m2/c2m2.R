@@ -6,13 +6,13 @@ library(lubridate)
 
 # set working directory to source file location
 
-my_dcc_id = "cfde_registry_dcc:rmh"
+my_dcc_id = "cfde_registry_dcc:test1"
 my_id_namespace = "raynamharris.com"
 my_project_id_namespace = "raynamharris.com:FRM1"
 my_description = "Testing account for Rayna Harris"
 my_name = "Rayna M Harris"
 my_abbreviation = "RMH"
-project_local_id = "FMR1"
+project_local_id = "PRJNA417316"
 outdir = "rmh_2022_04_08/"
 
 getcolnames <- function(file){
@@ -120,15 +120,24 @@ file.tsv <- df2 %>%
                           Ssample, "L002.tsv.gz", sep = "_"),
          filename = gsub("-", "_", filename),
          uncompressed_size_in_bytes = NA, 
-         sha256 = NA, md5 = NA,
+         sha256 = ifelse(grepl("S1", local_id), "38df0f90a70c280dfa7f1104229dad546e22599b30d6af92d84f778f27f5343f",
+                         ifelse(grepl("S2", local_id), "b6da8abb446150e2f8de6030e9cdc34a926f6fac57168a0582efba621dea6427",
+                                ifelse(grepl("S16", local_id), "501af4d7e188888fdff6557fc91c898b857357574480b11ec6712376ddfddce2",
+                                       ifelse(grepl("S17", local_id), "e713a19cc47170be2086461b3d506c91acd3d3032da8312d76fc4ba754ddd1fc", NA)))), 
+         md5 = NA,
          file_format = "format:3475",
          compression_format = "format:3989", size_in_bytes = 3200,
          mime_type = NA,   bundle_collection_id_namespace = NA ,
          data_type = "data:3495", bundle_collection_local_id = NA,
          dbgap_study_id = NA, 
-         analysis_type = assay_type) %>%
+         analysis_type = assay_type,
+         persistent_id = ifelse(grepl("122B", local_id), "SRS2665919",
+                                ifelse(grepl("122D", local_id), "SRS2665914",
+                                       ifelse(grepl("118B", local_id), "SRS2665911",
+                                              ifelse(grepl("118D", local_id), "SRS2665910", 
+                                                     NA))))) %>%
   select(file_cols)
-file.tsv
+file.tsv$filename
 
 df2$Ssample
 

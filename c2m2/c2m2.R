@@ -155,7 +155,7 @@ biosample_gene_cols <- getcolnames("./blank_nonCV_C2M2_tables/biosample_gene.tsv
 biosample_gene_cols
 
 biosample_gene.tsv <- biosample.tsv %>%
-  mutate(gene = ifelse(grepl("FMR1", local_id), "ENSG00000102081", NA)) %>%
+  mutate(gene = ifelse(grepl("FMR1", local_id), "ENSG00000102081", "ENSG00000102081")) %>%
   dplyr::rename(biosample_id_namespace = id_namespace,
                 biosample_local_id = local_id) %>%
   dplyr::select(all_of(biosample_gene_cols))

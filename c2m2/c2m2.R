@@ -53,12 +53,16 @@ id_namespace.tsv <- data.frame(id = id_namespace,
                                description = id_description)
 id_namespace.tsv
 
+project_cols <- getcolnames("osfstorage-archive/project.tsv")
+project_cols
+
 project.tsv <- data.frame(id_namespace = project_id_namespace,
                           local_id = project_local_id,
                           persistent_id = NA,
                           creation_time = "2017-11-06",
                           abbreviation = "NCBI",
-                          description = "NCBI GEO")
+                          name = "NCBI GEO",
+                          description = "Repostitory for Gene Expression Data")
 project.tsv
 
 biosample_cols <- getcolnames("osfstorage-archive/biosample.tsv") 

@@ -10,7 +10,7 @@ library(lubridate)
 
 dcc_id = "cfde_registry_dcc:test1"
 
-id_namespace = "raynamharris.com"
+id_namespace = "tag:raynamharris.com"
 id_description = "Testing account for Rayna Harris"
 
 id_name = "raynamharris"
@@ -19,7 +19,7 @@ id_abbreviation = "RMH"
 contact_email = "rmharris@ucdavis.edu"
 contact_name = "Rayna"
 
-project_id_namespace = "tag:raynamharris.com"
+project_id_namespace = id_namespace
 project_local_id = "PRJNA417316"
 
 

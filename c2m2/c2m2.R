@@ -8,22 +8,32 @@ library(tidyverse)
 # download blank files and save in "osfstorage-archive/"
 
 dcc_id = "cfde_registry_dcc:test1"
-
 id_namespace = "tag:raynamharris.com"
 id_description = "Testing account for Rayna Harris"
-
 id_name = "raynamharris"
 id_abbreviation = "RMH"
-
 contact_email = "rmharris@ucdavis.edu"
 contact_name = "Rayna"
 
-project_id_namespace = id_namespace
+project_id_namespace = "https://www.ncbi.nlm.nih.gov/bioproject/"
 project_local_id = "PRJNA417316"
+project_abbreviation = "FMR1CA1RNASeq"
+project_name = "FMR1 CA1 RNA-Seq"
+project_description = "Transcriptonal profiling of the CA1 subfield of the hippocampus of Fmr1 knockout mouse"
 
+biosample_id_namespace = "https://www.ncbi.nlm.nih.gov/sra/"
+biosample_abbreviation = "SRA"
+biosample_name = "SRA"
+biosample_description = "Sequence Read Archive"
 
-outdir = "rmh_2022_04_11/"
+subject_id_namespace = "https://www.ncbi.nlm.nih.gov/biosample/"
+subject_abbreviation = "GEO"
+subject_name = "NCBI GEO"
+subject_description = "NCBI GEO"
 
+creation_time = "2017-11-06"
+
+outdir = "rmh_2022_04_12/"
 
 getcolnames <- function(file){
   tsvcolnames <- read_tsv(file) %>% 
@@ -45,40 +55,36 @@ dcc.tsv <- data.frame(id = dcc_id,
                       project_local_id = project_local_id)
 dcc.tsv
 
-
 project_cols <- getcolnames("osfstorage-archive/project.tsv")
 project_cols
 
 project.tsv <- data.frame(id_namespace = project_id_namespace,
                           local_id = project_local_id,
                           persistent_id = NA,
-                          creation_time = "2017-11-06",
-                          abbreviation = "NCBI",
-                          name = "NCBI GEO",
-                          description = "Repostitory for Gene Expression Data")
+                          creation_time = creation_time,
+                          abbreviation = project_abbreviation,
+                          name = project_name,
+                          description = project_description)
 project.tsv
 
 biosample_cols <- getcolnames("osfstorage-archive/biosample.tsv") 
 biosample_cols
 
-
-biosample.tsv <- data.frame(id_namespace = "https://www.ncbi.nlm.nih.gov/sra/",
+biosample.tsv <- data.frame(id_namespace = biosample_id_namespace,
                             local = "SRX",
                             id = 3368300:3368315,
                             project_id_namespace = project_id_namespace,
                             project_local_id = project_local_id, 
                             persistent_id = NA,
-                            creation_time = "2017-11-06",
+                            creation_time = creation_time,
                             assay_type = "OBI:0002571",
                             anatomy = "UBERON:0003881") %>%
   mutate(local_id = paste(local, id, sep = "")) %>%
   select(all_of(biosample_cols))
 biosample.tsv
 
-
 biosample_gene_cols <- getcolnames("osfstorage-archive/biosample_gene.tsv") 
 biosample_gene_cols
-
 
 biosample_gene.tsv <- biosample.tsv %>%
   mutate(gene =  "ENSG00000102081") %>%
@@ -87,17 +93,37 @@ biosample_gene.tsv <- biosample.tsv %>%
   dplyr::select(all_of(biosample_gene_cols))
 biosample_gene.tsv
 
+
+
+subject_cols <- getcolnames("osfstorage-archive/subject.tsv") 
+subject_cols
+
+
+subject.tsv <- data.frame(id_namespace = subject_id_namespace,
+                          local_id = 7982524:7982547,
+                          project_id_namespace = project_id_namespace,
+                          project_local_id = project_local_id, 
+                          persistent_id = NA,
+                          creation_time = creation_time,
+                          granularity = "cfde_subject_granularity:0",
+                          sex = "cfde_subject_sex:2",
+                          ethnicity = NA,
+                          age_at_enrollment = NA) %>%
+  select(all_of(subject_cols))
+subject.tsv
+
+
+
 id_namespace_cols <- getcolnames("osfstorage-archive/id_namespace.tsv")
 id_namespace_cols
 
-biosamplerow <- c("https://www.ncbi.nlm.nih.gov/sra/", "SRA", "SRA", "Sequence Read Archive", "")
-biosamplerow 
-  
 id_namespace.tsv <- data.frame(id = id_namespace,
                                abbreviation = id_abbreviation,
                                name = id_name,
                                description = id_description) %>%
-  rbind(., biosamplerow)
+  rbind(., c(project_id_namespace, project_abbreviation, project_name, project_description)) %>%
+  rbind(., c(biosample_id_namespace, biosample_abbreviation, biosample_name, biosample_description)) %>%
+  rbind(., c(subject_id_namespace, subject_abbreviation, subject_name, subject_description))
 id_namespace.tsv
 
 
@@ -122,6 +148,7 @@ savefiles(project.tsv)
 
 savefiles(biosample.tsv)
 savefiles(biosample_gene.tsv)
+savefiles(subject.tsv)
 
 ## in the terminal
 
@@ -133,7 +160,6 @@ savefiles(biosample_gene.tsv)
 # activate cfde-env
 # CFDE_SUBMIT_SERVICE_INSTANCE=dev
 # cfde-submit run rmh_2022_04_11 --dcc-id test1
-
 
 # curl commands
 

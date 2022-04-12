@@ -1,5 +1,4 @@
 library(tidyverse)
-library(lubridate)
 
 # https://github.com/nih-cfde/published-documentation/wiki/
 # submission-prep-script  C2M2-Table-Summary Quickstart
@@ -19,7 +18,7 @@ id_abbreviation = "RMH"
 contact_email = "rmharris@ucdavis.edu"
 contact_name = "Rayna"
 
-project_id_namespace = id_namespace
+project_id_namespace = "https://www.ncbi.nlm.nih.gov/bioproject/"
 project_local_id = "PRJNA417316"
 
 
@@ -46,14 +45,6 @@ dcc.tsv <- data.frame(id = dcc_id,
                       project_local_id = project_local_id)
 dcc.tsv
 
-id_namespace_cols <- getcolnames("osfstorage-archive/id_namespace.tsv")
-id_namespace_cols
-
-id_namespace.tsv <- data.frame(id = id_namespace,
-                               abbreviation = id_abbreviation,
-                               name = id_name,
-                               description = id_description)
-id_namespace.tsv
 
 project_cols <- getcolnames("osfstorage-archive/project.tsv")
 project_cols
@@ -96,7 +87,20 @@ biosample_gene.tsv <- biosample.tsv %>%
   dplyr::select(all_of(biosample_gene_cols))
 biosample_gene.tsv
 
+id_namespace_cols <- getcolnames("osfstorage-archive/id_namespace.tsv")
+id_namespace_cols
 
+newrow <- c("https://www.ncbi.nlm.nih.gov/sra/", "SRA", "SRA", "Sequence Read Archive", "")
+
+id_namespace.tsv <- data.frame(id = id_namespace,
+                               abbreviation = id_abbreviation,
+                               name = id_name,
+                               description = id_description) %>%
+  rbind(., newrow)
+id_namespace.tsv
+
+
+# unused
 # granularity: 0" 
 # "NCBI:txid10090" 
 
@@ -105,14 +109,11 @@ biosample_gene.tsv
 
 # save files
 
-
 savefiles <- function(object){
   print(paste("Writing", substitute(object), "to file", sep = " "))
   write.table(object, file = paste0(outdir, substitute(object), sep = ""),
               sep ="\t", row.names = F, col.names = T, quote = F, na = "")
 }
-
-
 
 savefiles(dcc.tsv)
 savefiles(id_namespace.tsv)

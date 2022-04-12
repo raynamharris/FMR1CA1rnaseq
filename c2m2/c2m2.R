@@ -143,8 +143,9 @@ savefiles <- function(object){
 }
 
 savefiles(dcc.tsv)
-savefiles(id_namespace.tsv)
 savefiles(project.tsv)
+savefiles(id_namespace.tsv)
+
 
 savefiles(biosample.tsv)
 savefiles(biosample_gene.tsv)

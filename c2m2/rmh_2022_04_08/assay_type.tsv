@@ -1,2 +1,1 @@
 id	name	description	synonyms
-OBI:0002571	polyA-selected RNA sequencing assay	An RNA-seq assay to study transcriptomes through the enrichment of polyadenylated transcripts or removal of ribosomal RNA prior to high-throughput sequencing.	["mRNA-seq"]

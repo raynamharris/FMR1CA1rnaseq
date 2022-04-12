@@ -18,7 +18,7 @@ id_abbreviation = "RMH"
 contact_email = "rmharris@ucdavis.edu"
 contact_name = "Rayna"
 
-project_id_namespace = "https://www.ncbi.nlm.nih.gov/bioproject/"
+project_id_namespace = id_namespace
 project_local_id = "PRJNA417316"
 
 
@@ -90,13 +90,14 @@ biosample_gene.tsv
 id_namespace_cols <- getcolnames("osfstorage-archive/id_namespace.tsv")
 id_namespace_cols
 
-newrow <- c("https://www.ncbi.nlm.nih.gov/sra/", "SRA", "SRA", "Sequence Read Archive", "")
-
+biosamplerow <- c("https://www.ncbi.nlm.nih.gov/sra/", "SRA", "SRA", "Sequence Read Archive", "")
+biosamplerow 
+  
 id_namespace.tsv <- data.frame(id = id_namespace,
                                abbreviation = id_abbreviation,
                                name = id_name,
                                description = id_description) %>%
-  rbind(., newrow)
+  rbind(., biosamplerow)
 id_namespace.tsv
 
 

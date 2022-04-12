@@ -69,9 +69,9 @@ biosample_cols <- getcolnames("osfstorage-archive/biosample.tsv")
 biosample_cols
 
 
-biosample.tsv <- data.frame(id_namespace = "https://www.ncbi.nlm.nih.gov/geo/query/acc.cgi?acc=",
-                            local = "GSM",
-                            id = 2843679:2843694,
+biosample.tsv <- data.frame(id_namespace = "https://www.ncbi.nlm.nih.gov/sra/",
+                            local = "SRX",
+                            id = 3368300:3368315,
                             project_id_namespace = project_id_namespace,
                             project_local_id = project_local_id, 
                             persistent_id = NA,

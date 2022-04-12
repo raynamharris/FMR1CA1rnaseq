@@ -21,7 +21,7 @@ project_id_namespace = "https://www.ncbi.nlm.nih.gov/bioproject/"
 project_local_id = "PRJNA417316"
 
 
-outdir = "rmh_2022_04_08/"
+outdir = "rmh_2022_04_11/"
 
 
 getcolnames <- function(file){

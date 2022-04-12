@@ -9,3 +9,7 @@ curl -L https://osf.io/rq6au/download > hp.phenotype_to_genes.txt
 curl -L https://osf.io/trewg/download > ncbi_taxonomy.tsv.gz
 curl -L https://osf.io/76jnk/download > OBI.provisional_terms.2022-01-06.tsv
 curl -L https://osf.io/mv4by/download > OBI.version_2021-08-18.obo
+
+
+
+curl -L https://osf.io/gy932/download > substance.tsv.gz
